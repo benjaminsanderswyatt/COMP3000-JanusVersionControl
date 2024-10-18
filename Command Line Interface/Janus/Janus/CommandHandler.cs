@@ -48,7 +48,7 @@ namespace Janus
 
             foreach (var line in File.ReadLines(stagedPath))
             {
-                var parts = line.Split('\t');
+                var parts = line.Split(' ');
                 files[parts[0]] = parts[1];
             }
 
@@ -61,9 +61,29 @@ namespace Janus
             Console.WriteLine($"Committed with hash {commitHash}");
         }
 
+        public static void CreateBranch(string[] args)
+        {
+            string branchName = args[0];
+            string branchPath = Path.Combine(Paths.janusDir, "refs", branchName);
+
+            // Put the latest commit into new branch
+            string headPath = Path.Combine(Paths.janusDir, "HEAD");
+            string latestCommit = File.ReadAllText(headPath);
+
+            File.WriteAllText(branchPath, latestCommit);
+            Console.WriteLine($"Created new branch {branchName}");
+        }   
+
         public static void Log(string[] args)
         {
-            Console.WriteLine("Log");
+            foreach (var commitFile in Directory.GetFiles(Paths.objectDir))
+            {
+                string content = File.ReadAllText(commitFile);
+                if (content.StartsWith("Tree:"))
+                {
+                    Console.WriteLine(content);
+                }
+            }
         }
 
     }

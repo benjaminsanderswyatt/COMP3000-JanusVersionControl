@@ -60,6 +60,7 @@ namespace Janus
             Console.WriteLine("  init       Initialize a repository");
             Console.WriteLine("  commit     Commit changes");
             Console.WriteLine("  push       Push to a remote repository");
+            Console.WriteLine("  -----TODO-----");
         }
 
     }

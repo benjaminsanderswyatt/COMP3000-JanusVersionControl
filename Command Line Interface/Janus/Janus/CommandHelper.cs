@@ -48,7 +48,6 @@ namespace Janus
             return treeHash;
         }
 
-
         public static string SaveCommit(string treeHash, string message)
         {
             string commitContent = $"Tree: {treeHash}\nMessage: {message}\nTimestamp: {DateTime.Now}\n";
