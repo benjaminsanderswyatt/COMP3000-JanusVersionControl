@@ -8,15 +8,13 @@ namespace Janus
 {
     public static class CommandHandler
     {
-        private static string janusDir = ".janus";
-
         public static void Init(string[] args)
         {
             // Initialise .janus folder
-            if (!Directory.Exists(janusDir))
+            if (!Directory.Exists(Paths.janusDir))
             {
-                Directory.CreateDirectory(janusDir);
-                File.SetAttributes(janusDir, File.GetAttributes(janusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
+                Directory.CreateDirectory(Paths.objectDir);
+                File.SetAttributes(Paths.janusDir, File.GetAttributes(Paths.janusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
 
                 Console.WriteLine("Initialized janus repository");
             }
