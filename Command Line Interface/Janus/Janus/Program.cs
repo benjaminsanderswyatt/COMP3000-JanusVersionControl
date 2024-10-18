@@ -1,4 +1,6 @@
-﻿namespace Janus
+﻿using System.Reflection;
+
+namespace Janus
 {
     internal class Program
     {
@@ -11,11 +13,38 @@
                 return;
             }
 
+            string command = args[0];
+
             // Check for "help"(ignoring cases)
-            if (string.Equals(args[0], "help", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(command, "help", StringComparison.OrdinalIgnoreCase))
             {
                 ShowHelp();
                 return;
+            }
+
+            Type type = typeof(CommandHandler);
+
+            // Use reflection to get the method of the command (ignoring cases)
+            MethodInfo? method = type.GetMethod(command, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
+
+            if (method != null)
+            {
+                try
+                {
+                    // Invoke the method of the command inputted
+                    method.Invoke(null, new object[] { args.Skip(1).ToArray() });
+                } 
+                catch (Exception ex)
+                {
+                    //Handle errors
+                    Console.WriteLine($"Error executing command: {ex.Message}");
+                }
+            } 
+            else
+            {
+                // Handle unknown commands
+                Console.WriteLine($"Unknown command: {command}");
+                Console.WriteLine("Use \"janus help\" to get more details");
             }
 
         }
