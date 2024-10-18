@@ -40,7 +40,25 @@ namespace Janus
 
         public static void Commit(string[] args)
         {
-            Console.WriteLine("Commit");
+            string message = args[0];
+
+            // Get files from staging area
+            string stagedPath = Path.Combine(Paths.janusDir, "index");
+            var files = new Dictionary<string, string>();
+
+            foreach (var line in File.ReadLines(stagedPath))
+            {
+                var parts = line.Split('\t');
+                files[parts[0]] = parts[1];
+            }
+
+            string treeHash = CommandHelper.SaveTree(files);
+            string commitHash = CommandHelper.SaveCommit(treeHash, message);
+
+            // Clear staging area
+            File.WriteAllText(stagedPath, string.Empty);
+
+            Console.WriteLine($"Committed with hash {commitHash}");
         }
 
         public static void Log(string[] args)

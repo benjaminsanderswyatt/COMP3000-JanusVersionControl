@@ -29,5 +29,37 @@ namespace Janus
             }
         }
 
+        public static string SaveTree(Dictionary<string, string> files)
+        {
+            StringBuilder treeContent = new StringBuilder();
+
+            foreach (var file in files)
+            {
+                string fileName = file.Key;
+                string blobHash = file.Value;
+                treeContent.AppendLine($"{fileName} {blobHash}");
+            }
+
+            string treeHash = GetHash(treeContent.ToString());
+            string treePath = Path.Combine(Paths.objectDir, treeHash);
+
+            File.WriteAllText(treePath, treeContent.ToString());
+
+            return treeHash;
+        }
+
+
+        public static string SaveCommit(string treeHash, string message)
+        {
+            string commitContent = $"Tree: {treeHash}\nMessage: {message}\nTimestamp: {DateTime.Now}\n";
+            string commitHash = GetHash(commitContent);
+
+            string commitPath = Path.Combine(Paths.objectDir, commitHash);
+            File.WriteAllText(commitPath, commitContent);
+
+            return commitHash;
+        }
+
+
     }
 }
