@@ -26,7 +26,16 @@ namespace Janus
 
         public static void Add(string[] args)
         {
-            Console.WriteLine("Add");
+            string fileName = args[0];
+
+            string blobHash = CommandHelper.SaveBlob(fileName);
+
+            // Add the file and its hash to the staged area
+            string stagedPath = Path.Combine(Paths.janusDir, "index");
+            File.AppendAllText(stagedPath, $"{fileName} {blobHash}\n");
+
+
+            Console.WriteLine($"Added {fileName} (blob {blobHash}).");
         }
 
         public static void Commit(string[] args)
