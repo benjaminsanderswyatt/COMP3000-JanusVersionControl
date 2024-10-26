@@ -1,9 +1,17 @@
-﻿using System.Reflection;
+﻿using Janus.Plugins;
 
 namespace Janus
 {
     internal class Program
     {
+        private static List<ICommand> CommandList = new List<ICommand>();
+
+        private static void LoadCommands()
+        {
+            CommandList.AddRange(CommandHandler.GetCommands());
+            CommandList.AddRange(PluginLoader.LoadPlugins());
+        }
+
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -13,33 +21,23 @@ namespace Janus
                 return;
             }
 
-            string command = args[0];
+            LoadCommands();
 
-            // Check for "help"(ignoring cases)
-            if (string.Equals(command, "help", StringComparison.OrdinalIgnoreCase))
-            {
-                ShowHelp();
-                return;
-            }
+            string commandName = args[0];
 
-            Type type = typeof(CommandHandler);
+            ICommand? command = CommandList.FirstOrDefault(c => c.Name.Equals(commandName, StringComparison.OrdinalIgnoreCase));
 
-            // Use reflection to get the method of the command (ignoring cases)
-            MethodInfo? method = type.GetMethod(command, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
-
-            if (method != null)
+            if (command != null)
             {
                 try
                 {
-                    // Invoke the method of the command inputted
-                    method.Invoke(null, new object[] { args.Skip(1).ToArray() });
-                } 
+                    command.Execute(args.Skip(1).ToArray());
+                }
                 catch (Exception ex)
                 {
-                    //Handle errors
                     Console.WriteLine($"Error executing command: {ex.Message}");
                 }
-            } 
+            }
             else
             {
                 // Handle unknown commands
@@ -50,9 +48,6 @@ namespace Janus
         }
 
 
-        /*
-         * Displays the help method
-         */
         static void ShowHelp()
         {
             Console.WriteLine("Usage: janus [command]");
@@ -62,6 +57,6 @@ namespace Janus
             Console.WriteLine("  push       Push to a remote repository");
             Console.WriteLine("  -----TODO-----");
         }
-
+        
     }
 }
