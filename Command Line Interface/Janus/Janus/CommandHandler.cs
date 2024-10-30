@@ -77,13 +77,50 @@ namespace Janus
             {
                 string fileName = args[0];
 
-                string blobHash = CommandHelper.SaveBlob(fileName);
+                string filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
 
-                // Add the file and its hash to the staged area
-                File.AppendAllText(Paths.index, $"{fileName} {blobHash}\n");
+                string currentContent = File.ReadAllText(filePath);
 
+                var metadata = CommandHelper.LoadMetadata();
+                var fileMetadata = metadata.Files.ContainsKey(fileName) ? metadata.Files[fileName] : new FileMetadata();
 
-                Console.WriteLine($"Added {fileName} (blob {blobHash}).");
+                string currentHash = CommandHelper.GetHash(currentContent);
+                string previousBlobHash = fileMetadata.LastCommitHash;
+
+                if (previousBlobHash != null)
+                {
+                    string previousContent = CommandHelper.LoadBlob(previousBlobHash);
+                    if (currentHash != previousBlobHash)
+                    {
+                        string delta = CommandHelper.GetDelta(previousContent, currentContent);
+                        string deltaHash = CommandHelper.SaveDeltaNode(new DeltaNode
+                        {
+                            Content = delta,
+                            NextDeltaHash = fileMetadata.DeltaHeadHash
+                        });
+
+                        // Update file metadata to point to new delta
+                        fileMetadata.DeltaHeadHash = deltaHash;
+                        Console.WriteLine($"Added delta for {fileName} with hash {deltaHash}");
+
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{fileName} hasnt changed");
+                    }
+                } 
+                else
+                {
+                    // First time file has been added (save the whole blob)
+                    string blobHash = CommandHelper.SaveBlob(filePath);
+                    fileMetadata.LastCommitHash = blobHash;
+                    fileMetadata.DeltaHeadHash = null;
+                    Console.WriteLine($"Added: {fileName}, blob: {blobHash}");
+                }
+
+                metadata.Files[fileName] = fileMetadata;
+                CommandHelper.SaveMetadata(metadata);
+
             }
         }
 
@@ -93,41 +130,45 @@ namespace Janus
             public string Description => "commit";
             public void Execute(string[] args)
             {
-                try
+                string message = args[0];
+
+                // Get files from staging area
+                var files = new Dictionary<string, string>();
+
+                foreach (var line in File.ReadLines(Paths.index))
                 {
-                    string message = args[0];
+                    var parts = line.Split(' ');
+                    files[parts[0]] = parts[1];
+                }
 
-                    // Get files from staging area
-                    var files = new Dictionary<string, string>();
+                string treeHash = CommandHelper.SaveTree(files);
+                string commitHash = CommandHelper.SaveCommit(treeHash, message);
 
-                    foreach (var line in File.ReadLines(Paths.index))
+                var metadata = CommandHelper.LoadMetadata();
+                foreach (var file in files.Keys)
+                {
+                    if (metadata.Files.ContainsKey(file))
                     {
-                        var parts = line.Split(' ');
-                        files[parts[0]] = parts[1];
+                        metadata.Files[file].LastCommitHash = commitHash;
                     }
-
-                    string treeHash = CommandHelper.SaveTree(files);
-                    string commitHash = CommandHelper.SaveCommit(treeHash, message);
-
-                    // Clear staging area (index)
-                    File.WriteAllText(Paths.index, string.Empty);
-
-                    // Write current commit hash to refs/heads/[current branch]
-                    string currentBranch = File.ReadAllText(Paths.head).Replace("ref: ", "").Trim();
-                    string branchPath = Path.Combine(Paths.janusDir, currentBranch);
-                    File.WriteAllText(branchPath, commitHash);
-
-                    Console.WriteLine($"Committed to {currentBranch} with hash {commitHash}");
-
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                CommandHelper.SaveMetadata(metadata);
 
+                // Clear staging area (index)
+                File.WriteAllText(Paths.index, string.Empty);
 
+                // Write current commit hash to refs/heads/[current branch]
+                string currentBranch = File.ReadAllText(Paths.head).Replace("ref: ", "").Trim();
+                string branchPath = Path.Combine(Paths.janusDir, currentBranch);
+                File.WriteAllText(branchPath, commitHash);
+
+                Console.WriteLine($"Committed to {currentBranch} with hash {commitHash}");
             }
         }
+
+
+
+
 
         public class CreateBranchCommand : ICommand
         {
