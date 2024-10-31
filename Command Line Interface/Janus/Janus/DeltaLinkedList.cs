@@ -8,7 +8,7 @@ namespace Janus
 
     public class FileMetadata
     {
-        public string LastCommitHash { get; set; }
+        public string? LastCommitHash { get; set; }
         public string? DeltaHeadHash { get; set; }
     }
 

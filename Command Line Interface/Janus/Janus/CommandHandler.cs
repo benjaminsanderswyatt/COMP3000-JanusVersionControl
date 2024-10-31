@@ -75,50 +75,98 @@ namespace Janus
             public string Description => "add help";
             public void Execute(string[] args)
             {
-                string fileName = args[0];
-
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
-
-                string currentContent = File.ReadAllText(filePath);
-
                 var metadata = CommandHelper.LoadMetadata();
-                var fileMetadata = metadata.Files.ContainsKey(fileName) ? metadata.Files[fileName] : new FileMetadata();
+                var filesToAdd = new List<string>();
 
-                string currentHash = CommandHelper.GetHash(currentContent);
-                string previousBlobHash = fileMetadata.LastCommitHash;
-
-                if (previousBlobHash != null)
+                if (args[0].Equals("all", StringComparison.OrdinalIgnoreCase))
                 {
-                    string previousContent = CommandHelper.LoadBlob(previousBlobHash);
-                    if (currentHash != previousBlobHash)
+                    filesToAdd = Directory.EnumerateFiles(".", "*", SearchOption.AllDirectories)
+                                  .Select(filePath => Path.GetRelativePath(".", filePath))
+                                  .Where(relativePath => relativePath.StartsWith(".janus"))
+                                  .ToList();
+                    
+                    // Stages all changes
+                    foreach (string filePath in Directory.GetFiles(".", "*", SearchOption.AllDirectories))
                     {
-                        string delta = CommandHelper.GetDelta(previousContent, currentContent);
-                        string deltaHash = CommandHelper.SaveDeltaNode(new DeltaNode
+                        string relativePath = Path.GetRelativePath(".", filePath);
+
+                        // Dont stage the .janus files
+                        if (relativePath.StartsWith(".janus"))
                         {
-                            Content = delta,
-                            NextDeltaHash = fileMetadata.DeltaHeadHash
-                        });
+                            continue;
+                        }
 
-                        // Update file metadata to point to new delta
-                        fileMetadata.DeltaHeadHash = deltaHash;
-                        Console.WriteLine($"Added delta for {fileName} with hash {deltaHash}");
 
+                        filesToAdd.Add(relativePath);
                     }
-                    else
+
+                    // Handles deleted files
+                    foreach (var trackedFile in metadata.Files.Keys.ToList())
                     {
-                        Console.WriteLine($"{fileName} hasnt changed");
+                        if (!File.Exists(trackedFile))
+                        {
+                            metadata.Files[trackedFile].LastCommitHash = null;
+                            Console.WriteLine($"Staged {trackedFile} for deletion.");
+                        }
                     }
                 } 
                 else
                 {
-                    // First time file has been added (save the whole blob)
-                    string blobHash = CommandHelper.SaveBlob(filePath);
-                    fileMetadata.LastCommitHash = blobHash;
-                    fileMetadata.DeltaHeadHash = null;
-                    Console.WriteLine($"Added: {fileName}, blob: {blobHash}");
+                    filesToAdd.AddRange(args);
                 }
 
-                metadata.Files[fileName] = fileMetadata;
+                foreach (string fileName in filesToAdd)
+                {
+
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+
+                    if (!File.Exists(filePath))
+                    {
+                        Console.WriteLine($"File '{fileName}' not found.");
+                        continue;
+                    }
+
+                    string currentContent = File.ReadAllText(filePath);
+
+                    var fileMetadata = metadata.Files.ContainsKey(fileName) ? metadata.Files[fileName] : new FileMetadata();
+
+                    string currentHash = CommandHelper.GetHash(currentContent);
+                    string? previousBlobHash = fileMetadata.LastCommitHash;
+
+                    if (previousBlobHash != null)
+                    {
+                        string previousContent = CommandHelper.LoadBlob(previousBlobHash);
+                        if (currentHash != previousBlobHash)
+                        {
+                            string delta = CommandHelper.GetDelta(previousContent, currentContent);
+                            string deltaHash = CommandHelper.SaveDeltaNode(new DeltaNode
+                            {
+                                Content = delta,
+                                NextDeltaHash = fileMetadata.DeltaHeadHash
+                            });
+
+                            // Update file metadata to point to new delta
+                            fileMetadata.DeltaHeadHash = deltaHash;
+                            Console.WriteLine($"Added delta for {fileName} with hash {deltaHash}");
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{fileName} hasnt changed");
+                        }
+                    }
+                    else
+                    {
+                        // First time file has been added (save the whole blob)
+                        string blobHash = CommandHelper.SaveBlob(filePath);
+                        fileMetadata.LastCommitHash = blobHash;
+                        fileMetadata.DeltaHeadHash = null;
+                        Console.WriteLine($"Added: {fileName}, blob: {blobHash}");
+                    }
+
+                    metadata.Files[fileName] = fileMetadata;
+                }
+
                 CommandHelper.SaveMetadata(metadata);
 
             }
