@@ -101,6 +101,6 @@ The CLI will use the .NET installer and to be used has to be installed locally o
 
 Docker ensures that the system can run in many environments and enable easy scaling.
 
-![Component Architecture Diagram](Documentation/ComponentArchitectureDiagram.png)
+![Component Architecture Diagram](Documentation/Misc/ComponentArchitectureDiagram.png)
 
 Above is a diagram showing how each part of the system interacts with each other. The dashed line representing Docker with each part inside being run in a container.
