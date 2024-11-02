@@ -1,4 +1,5 @@
 ﻿using Janus.Plugins;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Janus
 {
@@ -213,6 +214,84 @@ namespace Janus
                 Console.WriteLine($"Committed to {currentBranch} with hash {commitHash}");
             }
         }
+
+
+        public class RevertCommand : ICommand
+        {
+            public string Name => "revert";
+            public string Description => "Reverts to a previous commit";
+
+            public void Execute(string[] args)
+            {
+                string targetCommitHash = args[0];
+
+
+                string commitContent = CommandHelper.LoadCommit(targetCommitHash);
+                string? treeHash = commitContent.Split('\n').FirstOrDefault(line => line.StartsWith("Tree:"))?.Split(": ")[1];
+
+                if (treeHash == null)
+                {
+                    throw new Exception("Tree hash not found");
+                }
+
+                var fileTree = CommandHelper.LoadTree(treeHash);
+
+                // Clear current working dir
+                foreach (var filePath in Directory.EnumerateFiles(".","*",SearchOption.AllDirectories)
+                    .Where(f => !f.StartsWith(".janus"))){
+
+                    File.Delete(filePath);
+                }
+
+
+                // Reconstruct file from commit tree
+                foreach (var entry in fileTree)
+                {
+                    string fileName = entry.Key;
+                    string blobOrDeltaHash = entry.Value;
+
+                    string content = CommandHelper.LoadBlob(blobOrDeltaHash);
+
+                    var fileMetadata = CommandHelper.LoadMetadata().Files.ContainsKey(fileName)
+                        ? CommandHelper.LoadMetadata().Files[fileName] : new FileMetadata();
+
+                    string? currentDeltaHash = fileMetadata.DeltaHeadHash;
+                    while (currentDeltaHash != null)
+                    {
+                        var deltaNode = CommandHelper.LoadDeltaNode(currentDeltaHash);
+                        content = CommandHelper.GetDelta(content, deltaNode.Content);
+                        currentDeltaHash = deltaNode.NextDeltaHash;
+                    }
+
+                    File.WriteAllText(fileName, content);
+                    Console.WriteLine($"Reverted: {fileName}");
+                }
+
+                // Update the HEAD point
+                string currentBranch = File.ReadAllText(Paths.head).Replace("ref: ", "").Trim();
+                string branchPath = Path.Combine(Paths.janusDir, currentBranch);
+                File.WriteAllText(branchPath, targetCommitHash);
+
+                Console.WriteLine($"Successfully reverted to commit: {targetCommitHash}");
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

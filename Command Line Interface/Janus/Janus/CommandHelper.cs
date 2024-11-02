@@ -118,6 +118,41 @@ namespace Janus
             return deltaBuilder.ToString();
         }
 
+        public static Dictionary<string, string> LoadTree(string treeHash)
+        {
+            string treePath = Path.Combine(Paths.objectDir, treeHash);
+            if (!File.Exists(treePath))
+            {
+                return null;
+            }
+
+            var files = new Dictionary<string, string>();
+            foreach (var line in File.ReadLines(treePath))
+            {
+                var parts = line.Split(' ');
+                files[parts[0]] = parts[1]; // Key: filename, Value: blob/delta
+            }
+            return files;
+        }
+
+        public static string LoadCommit(string commitHash)
+        {
+            string commitPath = Path.Combine(Paths.objectDir, commitHash);
+            if (File.Exists(commitPath))
+            {
+                return null;
+            }
+            return File.ReadAllText(commitPath);
+        }
+
+
+
+
+
+
+
+
+
         public static string ReconstructFile(string fileName)
         {
             var metadata = LoadMetadata();
