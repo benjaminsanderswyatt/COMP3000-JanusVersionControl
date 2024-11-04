@@ -1,14 +1,16 @@
-version: '3.8'
+﻿version: '3.8'
+
 services:
+ 
  backend:
   image: backend-backend
   build:
    context: .
-   dockerfile: 
-
-
-
-
+   dockerfile: Dockerfile
+  ports:
+   - "8080:8080"
+  depends_on:
+   - db
 
  db:
   image: mysql:8.0
