@@ -11,6 +11,8 @@ services:
    - "8080:8080"
   depends_on:
    - db
+  environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
 
  db:
   image: mysql:8.0
