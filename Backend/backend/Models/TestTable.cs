@@ -9,12 +9,5 @@ namespace backend.Models
         public string Name { get; set; }
 
     }
-    public class SecondTestTable
-    {
-        [Key]
-        public int Id { get; set; }
-        public string Thing { get; set; }
-
-    }
 
 }

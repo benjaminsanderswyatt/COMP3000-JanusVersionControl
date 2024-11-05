@@ -7,6 +7,5 @@ namespace backend.Models
         public JanusDbContext(DbContextOptions<JanusDbContext> options) : base(options) { }
 
         public DbSet<TestTable> TestTables {  get; set; }
-        public DbSet<SecondTestTable> SecondTestTables { get; set; }
     }
 }
