@@ -5,7 +5,9 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Janus", "Janus\Janus.csproj", "{73ABFDC1-AC4F-4149-8254-FEB2DB95BCE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Janus.Plugins", "Janus.Plugins\Janus.Plugins.csproj", "{E348D94F-02B8-486D-A97F-61252F8F45D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Janus.Plugins", "Janus.Plugins\Janus.Plugins.csproj", "{E348D94F-02B8-486D-A97F-61252F8F45D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLITests", "CLITests\CLITests.csproj", "{27A456C8-76D9-468A-BBB2-D35265DF9A8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{E348D94F-02B8-486D-A97F-61252F8F45D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E348D94F-02B8-486D-A97F-61252F8F45D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E348D94F-02B8-486D-A97F-61252F8F45D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27A456C8-76D9-468A-BBB2-D35265DF9A8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27A456C8-76D9-468A-BBB2-D35265DF9A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27A456C8-76D9-468A-BBB2-D35265DF9A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27A456C8-76D9-468A-BBB2-D35265DF9A8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
