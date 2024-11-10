@@ -9,6 +9,7 @@ namespace Janus
         {
             return new List<ICommand>
             {
+                new HelpCommand(),
                 new InitCommand(),
                 new AddCommand(),
                 new CommitCommand(),
@@ -19,6 +20,25 @@ namespace Janus
                 // Add new built in commands here
             };
         }
+
+        public class HelpCommand : ICommand
+        {
+            public string Name => "help";
+            public string Description => "Displays a list of available commands.";
+            public void Execute(string[] args)
+            {
+                Console.WriteLine("Usage: janus [command]");
+                Console.WriteLine("Commands:");
+                foreach (var command in Program.CommandList)
+                {
+                    Console.WriteLine($"{command.Name.PadRight(20)} : {command.Description}");
+                }
+            }
+        }
+
+
+
+
 
 
         public class InitCommand : ICommand

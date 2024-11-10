@@ -4,7 +4,7 @@ namespace Janus
 {
     internal class Program
     {
-        private static List<ICommand> CommandList = new List<ICommand>();
+        public static List<ICommand> CommandList { get; private set; } = new List<ICommand>();
 
         private static void LoadCommands()
         {
