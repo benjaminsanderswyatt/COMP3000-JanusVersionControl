@@ -15,43 +15,52 @@ namespace backend.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // User to Repository (One-to-Many)
+
+            // Users to Repo  (One to Many)
             modelBuilder.Entity<Repository>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Repositories)
-                .HasForeignKey(r => r.UserId);
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete User delete their Repos
 
-            // Repository to Commit (One-to-Many)
+            // Repo to Commit (One to Many)
             modelBuilder.Entity<Commit>()
                 .HasOne(c => c.Repository)
                 .WithMany(r => r.Commits)
-                .HasForeignKey(c => c.RepoId);
+                .HasForeignKey(c => c.RepoId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete repo delete related commits
 
-            // Commit to File (One-to-Many)
-            modelBuilder.Entity<File>()
-                .HasOne(f => f.Commit)
-                .WithMany(c => c.Files)
-                .HasForeignKey(f => f.CommitId);
-
-            // Branch to Commit (Many-to-One)
-            modelBuilder.Entity<Branch>()
-                .HasOne(b => b.Commit)
-                .WithMany(c => c.Branches)
-                .HasForeignKey(b => b.CommitId);
-
-            // Commit to User (Many-to-One)
+            // Commit to User (Many to One)
             modelBuilder.Entity<Commit>()
                 .HasOne(c => c.Author)
                 .WithMany(u => u.Commits)
-                .HasForeignKey(c => c.AuthorId);
+                .HasForeignKey(c => c.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);  // When Commit author is deleted its commits should not be deleted
 
-            // Commit to Parent Commit (One-to-One (self-reference for parent commit))
-            modelBuilder.Entity<Commit>()
-                .HasOne(c => c.ParentCommit)
-                .WithOne()
-                .HasForeignKey<Commit>(c => c.ParentCommitId);
+            // Branch to Repo (Many to One)
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Repository)
+                .WithMany(r => r.Branches)
+                .HasForeignKey(b => b.RepoId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete branches if repo is deleted
+
+            // Branches to Commits (One to Many)
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Commit) 
+                .WithMany()
+                .HasForeignKey(b => b.CommitId)
+                .OnDelete(DeleteBehavior.SetNull); // When Commit is deleted the Branch isnt deleted
+
+            // Files to Commits (Many to One)
+            modelBuilder.Entity<File>()
+                .HasOne(f => f.Commit)
+                .WithMany(c => c.Files)
+                .HasForeignKey(f => f.CommitId)
+                .OnDelete(DeleteBehavior.Cascade);  // Delete files when commit is deleted
+        
 
             base.OnModelCreating(modelBuilder);
+
         }
     }
 

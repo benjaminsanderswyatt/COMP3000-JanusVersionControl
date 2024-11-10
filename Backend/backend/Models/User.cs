@@ -7,9 +7,21 @@ namespace backend.Models
     {
         [Key]
         public int UserId { get; set; }
+
+        [Required]
+        [StringLength(100)] // TODO: Determain string length constraint
         public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [StringLength(256)]
         public string Email { get; set; }
+
+        [Required]
+        [StringLength(256)]
         public string Password { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
 
         

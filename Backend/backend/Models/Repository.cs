@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
@@ -6,9 +7,18 @@ namespace backend.Models
     {
         [Key]
         public int RepoId { get; set; }
+
+        [Required]
         public int UserId { get; set; }
-        public int RepoName { get; set; }
-        public bool Visibility { get; set; }
+
+        [Required]
+        [StringLength(100)] // TODO: Determain string length constraint
+        public string RepoName { get; set; }
+
+        [Required]
+        public bool Visibility { get; set; } = true; // true - > visable. false -> hidden
+        
+        [Required]
         public DateTime CreatedAt { get; set; }
 
         
