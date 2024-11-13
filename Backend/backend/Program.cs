@@ -9,7 +9,17 @@ builder.Services.AddDbContext<JanusDbContext>(options =>
     new MySqlServerVersion(new Version(8, 0, 21)),
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
-
+/*
+// CORS
+var allowedOrigins = builder.Configuration.GetValue<string>("ALLOWED_CORS_ORIGINS")?.Split(",") ?? new string[0];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("EnvCorsPolicy", builder => 
+    builder.WithOrigins(allowedOrigins)
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+});
+*/
 
 
 builder.Services.AddControllers();
@@ -29,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//app.UseCors("EnvCorsPolicy");
 
 app.UseAuthorization();
 

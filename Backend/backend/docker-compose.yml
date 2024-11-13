@@ -13,6 +13,9 @@ services:
    - db
   environment:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
+      - ALLOWED_CORS_ORIGINS=http://192.168.1.100,http://organisation_network.local
+  networks:
+      - intranet
 
  db:
   image: mysql:8.0
@@ -28,5 +31,12 @@ services:
    - '3906'
   volumes:
    - my-db:/var/lib/mysql
+  networks:
+      - intranet
+
 volumes:
   my-db:
+  
+networks:
+  intranet:
+   driver: bridge
