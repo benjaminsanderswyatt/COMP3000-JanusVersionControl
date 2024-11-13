@@ -9,25 +9,23 @@ namespace backend.Models
         public int UserId { get; set; }
 
         [Required]
-        [StringLength(100)] // TODO: Determain string length constraint
+        [MaxLength(64)] // TODO: Determain string length constraint
         public string Username { get; set; }
 
         [Required]
         [EmailAddress]
-        [StringLength(256)]
+        [MaxLength(256)]
         public string Email { get; set; }
 
         [Required]
-        [StringLength(256)]
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         
 
         public ICollection<Repository> Repositories { get; set; }
-        public ICollection<Commit> Commits { get; set; }
+        public ICollection<Collaborator> Collaborators { get; set; }
 
     }
 

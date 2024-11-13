@@ -8,32 +8,28 @@ namespace backend.Models
         [Key]
         public int CommitId { get; set; }
 
-        [Required]
-        public int RepoId { get; set; }
+        [ForeignKey("Branch")]
+        public int BranchId { get; set; }
+
+        [ForeignKey("User")]
+        public int UserId { get; set; }
 
         [Required]
-        [StringLength(64)] // TODO: Determain constraint for hash length
+        [MaxLength(64)] // TODO: Determain constraint for hash length
         public string CommitHash { get; set; }
 
-        [Required]
-        [StringLength(256)] // TODO: Determain constraint for message length
+        [MaxLength(512)] // TODO: Determain constraint for message length
         public string Message { get; set; }
-
-        [Required]
-        public int AuthorId { get; set; }
 
         public int? ParentCommitId { get; set; }  // Null for initial commit
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         
 
-        public Repository Repository { get; set; }
-        public User Author { get; set; }
-        public Commit ParentCommit { get; set; }
+        public User User { get; set; }
+        public Branch Branch { get; set; }
         public ICollection<File> Files { get; set; }
-        public ICollection<Branch> Branches { get; set; }
 
     }
 

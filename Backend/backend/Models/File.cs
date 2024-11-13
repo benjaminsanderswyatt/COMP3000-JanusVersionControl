@@ -8,22 +8,26 @@ namespace backend.Models
         [Key]
         public int FileId { get; set; }
 
-        [Required]
+        [ForeignKey("Commit")]
         public int CommitId { get; set; }
 
         [Required]
-        [StringLength(512)] // TODO: Determine max length for file path
-        public string FilePath { get; set; }
+        [MaxLength(512)] // TODO: Determine max length for file path
+        public string Path { get; set; }
 
         [Required]
-        public string FileBlob { get; set; }
+        [MaxLength(256)]
+        public string FileName { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public string FileHash { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         
 
         public Commit Commit { get; set; }
+        public ICollection<FileContent> FileContents { get; set; }
 
     }
 

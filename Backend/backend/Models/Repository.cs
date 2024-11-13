@@ -8,24 +8,23 @@ namespace backend.Models
         [Key]
         public int RepoId { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+        [ForeignKey("User")]
+        public int OwnerId { get; set; }
 
         [Required]
-        [StringLength(100)] // TODO: Determain string length constraint
+        [StringLength(256)] // TODO: Determain string length constraint
         public string RepoName { get; set; }
 
         [Required]
-        public bool Visibility { get; set; } = true; // true - > visable. false -> hidden
+        public bool Visibility { get; set; } = false; // true - > visable. false -> hidden
         
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         
 
-        public User User { get; set; }
+        public User Owner { get; set; }
         public ICollection<Branch> Branches { get; set; }
-        public ICollection<Commit> Commits { get; set; }
+        public ICollection<Collaborator> Collaborators { get; set; }
     }
 
 }
