@@ -8,7 +8,7 @@ namespace backend.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        [HttpPost("receive-push")]
+        [HttpPost("receive")]
         public IActionResult ReceivePush([FromBody] PushModel data)
         {
             if (!ModelState.IsValid)
