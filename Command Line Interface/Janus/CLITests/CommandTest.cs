@@ -17,6 +17,8 @@ namespace CLITests
         [TearDown]
         public void Teardown()
         {
+            Directory.SetCurrentDirectory(Path.GetTempPath());
+
             if (Directory.Exists(testRepoDir)){
                 Directory.Delete(testRepoDir, true);
             }
