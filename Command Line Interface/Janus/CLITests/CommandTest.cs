@@ -1,17 +1,34 @@
 using Janus;
+using System.Runtime.InteropServices;
+using static Janus.CommandHandler;
 
 namespace CLITests
 {
     public class CommandTest
     {
-        private string testRepoDir;
+        private string testDirectory;
+        private string janusDir;
+        private string objectDir;
+        private string refsDir;
+        private string headsDir;
+        private string pluginsDir;
+        private string index;
+        private string head;
 
         [SetUp]
         public void Setup()
         {
-            testRepoDir = Path.Combine(Path.GetTempPath(), "JanusTestRepo");
-            Directory.CreateDirectory(testRepoDir);
-            Directory.SetCurrentDirectory(testRepoDir);
+            testDirectory = Path.Combine(Path.GetTempPath(), "JanusTestRepo");
+            Directory.CreateDirectory(testDirectory);
+            Directory.SetCurrentDirectory(testDirectory);
+
+            string janusDir = Path.Combine(testDirectory, ".janus");
+            string objectDir = Path.Combine(janusDir, "objects");
+            string refsDir = Path.Combine(janusDir, "refs");
+            string headsDir = Path.Combine(refsDir, "heads");
+            string pluginsDir = Path.Combine(janusDir, "plugins");
+            string index = Path.Combine(janusDir, "index");
+            string head = Path.Combine(janusDir, "HEAD");
         }
 
         [TearDown]
@@ -19,23 +36,38 @@ namespace CLITests
         {
             Directory.SetCurrentDirectory(Path.GetTempPath());
 
-            if (Directory.Exists(testRepoDir)){
-                Directory.Delete(testRepoDir, true);
+            if (Directory.Exists(testDirectory)){
+                Directory.Delete(testDirectory, true);
             }
         }
 
 
         [Test]
-        public void InitCommand_ShouldInitializeRepo()
+        public void InitCommand_RepoDoesNotExist()
         {
-            var initCommand = new CommandHandler.InitCommand();
+            // Arrange
+            var command = new InitCommand();
+            var args = new string[0];
 
-            initCommand.Execute(new string[] { });
 
-            Assert.IsTrue(Directory.Exists(Path.Combine(testRepoDir, ".janus")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(testRepoDir, ".janus", "objects")));
-            Assert.IsTrue(Directory.Exists(Path.Combine(testRepoDir, ".janus", "refs", "heads")));
-            Assert.IsTrue(File.Exists(Path.Combine(testRepoDir, ".janus", "HEAD")));
+            // Act
+            command.Execute(args);
+
+
+            // Assert
+            Assert.IsTrue(Directory.Exists(janusDir), ".janus directory should be created");
+            Assert.IsTrue(Directory.Exists(objectDir), "objects directory should be created");
+            Assert.IsTrue(Directory.Exists(refsDir), "refs directory should be created");
+            Assert.IsTrue(Directory.Exists(headsDir), "heads directory should be created");
+            Assert.IsTrue(Directory.Exists(pluginsDir), "plugins directory should be created");
+            Assert.IsTrue(File.Exists(index), "index file should be created");
+            Assert.IsTrue(File.Exists(head), "HEAD file should be created");
+
+            var headContent = File.ReadAllText(head);
+            Assert.That(headContent, Is.EqualTo("ref: refs/heads/main"), "HEAD file should point to main branch");
+
+            var mainBranchContent = File.ReadAllText(Path.Combine(headsDir, "main"));
+            Assert.That(mainBranchContent, Is.EqualTo(string.Empty), "Main branch should be empty");
         }
     }
 }
