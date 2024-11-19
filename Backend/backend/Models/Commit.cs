@@ -23,7 +23,7 @@ namespace backend.Models
 
         public int? ParentCommitId { get; set; }  // Null for initial commit
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CommittedAt { get; set; }
 
         
 

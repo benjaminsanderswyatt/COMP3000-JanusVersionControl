@@ -12,15 +12,11 @@ namespace backend.Models
         [ForeignKey("File")]
         public int FileId { get; set; }
 
-        [ForeignKey("Commit")]
-        public int CommitId { get; set; }
-
         [Required]
         public byte[] Content { get; set; }
 
 
         public File File { get; set; }
-        public Commit Commit { get; set; }
     }
 
 }

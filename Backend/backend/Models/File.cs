@@ -12,17 +12,10 @@ namespace backend.Models
         public int CommitId { get; set; }
 
         [Required]
-        [MaxLength(512)] // TODO: Determine max length for file path
-        public string Path { get; set; }
-
-        [Required]
-        [MaxLength(256)]
-        public string FileName { get; set; }
+        public string FilePath { get; set; }
 
         [Required]
         public string FileHash { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         
 

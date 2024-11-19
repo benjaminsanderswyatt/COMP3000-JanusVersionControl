@@ -124,7 +124,7 @@ namespace backend.Migrations
                     Message = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ParentCommitId = table.Column<int>(type: "int", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -151,13 +151,10 @@ namespace backend.Migrations
                     FileId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CommitId = table.Column<int>(type: "int", nullable: false),
-                    Path = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    FileName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
+                    FilePath = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FileHash = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -178,19 +175,11 @@ namespace backend.Migrations
                     ContentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FileId = table.Column<int>(type: "int", nullable: false),
-                    CommitId = table.Column<int>(type: "int", nullable: false),
-                    Delta = table.Column<byte[]>(type: "longblob", nullable: false),
-                    IsDelta = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    Content = table.Column<byte[]>(type: "longblob", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FileContents", x => x.ContentId);
-                    table.ForeignKey(
-                        name: "FK_FileContents_Commits_CommitId",
-                        column: x => x.CommitId,
-                        principalTable: "Commits",
-                        principalColumn: "CommitId",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_FileContents_Files_FileId",
                         column: x => x.FileId,
@@ -219,11 +208,6 @@ namespace backend.Migrations
                 name: "IX_Commits_UserId",
                 table: "Commits",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileContents_CommitId",
-                table: "FileContents",
-                column: "CommitId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileContents_FileId",

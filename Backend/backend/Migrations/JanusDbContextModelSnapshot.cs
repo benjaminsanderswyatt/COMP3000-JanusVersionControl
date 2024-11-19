@@ -89,7 +89,7 @@ namespace backend.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CommittedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Message")
@@ -123,22 +123,13 @@ namespace backend.Migrations
                     b.Property<int>("CommitId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("FileHash")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("FileName")
+                    b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("FileId");
 
@@ -155,22 +146,14 @@ namespace backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ContentId"));
 
-                    b.Property<int>("CommitId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Delta")
+                    b.Property<byte[]>("Content")
                         .IsRequired()
                         .HasColumnType("longblob");
 
                     b.Property<int>("FileId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDelta")
-                        .HasColumnType("tinyint(1)");
-
                     b.HasKey("ContentId");
-
-                    b.HasIndex("CommitId");
 
                     b.HasIndex("FileId");
 
@@ -298,19 +281,11 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.FileContent", b =>
                 {
-                    b.HasOne("backend.Models.Commit", "Commit")
-                        .WithMany()
-                        .HasForeignKey("CommitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("backend.Models.File", "File")
                         .WithMany("FileContents")
                         .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Commit");
 
                     b.Navigation("File");
                 });
