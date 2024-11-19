@@ -1,5 +1,4 @@
 ﻿using Janus.Plugins;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Janus
 {
@@ -44,7 +43,7 @@ namespace Janus
         public class InitCommand : ICommand
         {
             public string Name => "init";
-            public string Description => "Initializes the repository.";
+            public string Description => "Initializes the janus repository.";
             public void Execute(string[] args)
             {
                 // Initialise .janus folder
@@ -93,210 +92,186 @@ namespace Janus
         public class AddCommand : ICommand
         {
             public string Name => "add";
-            public string Description => "add help";
+            public string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
             public void Execute(string[] args)
             {
-                var metadata = CommandHelper.LoadMetadata();
+                // No arguments given so command should return error
+                if (args.Length < 1)
+                {
+                    Console.WriteLine("No files specified.");
+                    return;
+                }
+
+                // Repository has to be initialised for command to run
+                if (!Directory.Exists(Paths.janusDir))
+                {
+                    Console.WriteLine("Not a janus repository. Run 'janus init' first.");
+                    return;
+                }
+
+
                 var filesToAdd = new List<string>();
 
+                // When the first arg is 'all' ignore other arguments and stage all files
                 if (args[0].Equals("all", StringComparison.OrdinalIgnoreCase))
                 {
                     filesToAdd = Directory.EnumerateFiles(".", "*", SearchOption.AllDirectories)
                                   .Select(filePath => Path.GetRelativePath(".", filePath))
-                                  .Where(relativePath => relativePath.StartsWith(".janus"))
+                                  .Where(relativePath => !relativePath.StartsWith(".janus"))
                                   .ToList();
-                    
-                    // Stages all changes
-                    foreach (string filePath in Directory.GetFiles(".", "*", SearchOption.AllDirectories))
-                    {
-                        string relativePath = Path.GetRelativePath(".", filePath);
-
-                        // Dont stage the .janus files
-                        if (relativePath.StartsWith(".janus"))
-                        {
-                            continue;
-                        }
-
-
-                        filesToAdd.Add(relativePath);
-                    }
-
-                    // Handles deleted files
-                    foreach (var trackedFile in metadata.Files.Keys.ToList())
-                    {
-                        if (!File.Exists(trackedFile))
-                        {
-                            metadata.Files[trackedFile].LastCommitHash = null;
-                            Console.WriteLine($"Staged {trackedFile} for deletion.");
-                        }
-                    }
-                } 
+                }
                 else
                 {
                     filesToAdd.AddRange(args);
                 }
 
-                foreach (string fileName in filesToAdd)
+
+                // Index holds all of the files which have been added before
+                /*
+                HashSet<string> stagedFiles = new HashSet<string>();
+                if (File.Exists(Paths.index))
                 {
-
-                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
-
-                    if (!File.Exists(filePath))
+                    foreach (var line in File.ReadAllLines(Paths.index))
                     {
-                        Console.WriteLine($"File '{fileName}' not found.");
+                        stagedFiles.Add(line.Trim());
+                    }
+                }
+                */
+                var stagedFiles = new Dictionary<string, string>();
+                if (File.Exists(Paths.index))
+                {
+                    foreach (var line in File.ReadAllLines(Paths.index))
+                    {
+                        var parts = line.Split('|');
+                        if (parts.Length == 2)
+                            stagedFiles[parts[0].Trim()] = parts[1].Trim();
+                    }
+                }
+
+                // Stage each file
+                foreach (string relativeFilePath in filesToAdd)
+                {
+                    // File doesnt exist so it returns error and continues staging other files
+                    if (!File.Exists(relativeFilePath))
+                    {
+                        Console.WriteLine($"File '{relativeFilePath}' not found.");
                         continue;
                     }
 
-                    string currentContent = File.ReadAllText(filePath);
+                    // Compute file hash
+                    string fileHash = CommandHelper.ComputeHash(File.ReadAllText(relativeFilePath));
 
-                    var fileMetadata = metadata.Files.ContainsKey(fileName) ? metadata.Files[fileName] : new FileMetadata();
-
-                    string currentHash = CommandHelper.GetHash(currentContent);
-                    string? previousBlobHash = fileMetadata.LastCommitHash;
-
-                    if (previousBlobHash != null)
+                    // Normalize paths for comparison
+                    if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                     {
-                        string previousContent = CommandHelper.LoadBlob(previousBlobHash);
-                        if (currentHash != previousBlobHash)
-                        {
-                            string delta = CommandHelper.GetDelta(previousContent, currentContent);
-                            string deltaHash = CommandHelper.SaveDeltaNode(new DeltaNode
-                            {
-                                Content = delta,
-                                NextDeltaHash = fileMetadata.DeltaHeadHash
-                            });
-
-                            // Update file metadata to point to new delta
-                            fileMetadata.DeltaHeadHash = deltaHash;
-                            Console.WriteLine($"Added delta for {fileName} with hash {deltaHash}");
-
-                        }
-                        else
-                        {
-                            Console.WriteLine($"{fileName} hasnt changed");
-                        }
+                        stagedFiles[relativeFilePath] = fileHash;
+                        Console.WriteLine($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
                     {
-                        // First time file has been added (save the whole blob)
-                        string blobHash = CommandHelper.SaveBlob(filePath);
-                        fileMetadata.LastCommitHash = blobHash;
-                        fileMetadata.DeltaHeadHash = null;
-                        Console.WriteLine($"Added: {fileName}, blob: {blobHash}");
+                        Console.WriteLine($"File '{relativeFilePath}' is already staged.");
                     }
 
-                    metadata.Files[fileName] = fileMetadata;
+
                 }
 
-                CommandHelper.SaveMetadata(metadata);
+                // Update index
+                File.WriteAllLines(Paths.index, stagedFiles.Select(kv => $"{kv.Key}|{kv.Value}"));
 
             }
         }
+
+
+
+
+
+
+
 
         public class CommitCommand : ICommand
         {
             public string Name => "commit";
-            public string Description => "commit";
+            public string Description => "Saves changes to the repository.";
             public void Execute(string[] args)
             {
-                string message = args[0];
-
-                // Get files from staging area
-                var files = new Dictionary<string, string>();
-
-                foreach (var line in File.ReadLines(Paths.index))
+                // Repository has to be initialised for command to run
+                if (!Directory.Exists(Paths.janusDir))
                 {
-                    var parts = line.Split(' ');
-                    files[parts[0]] = parts[1];
+                    Console.WriteLine("Error: Not a janus repository. Run 'janus init' first.");
+                    return;
                 }
 
-                string treeHash = CommandHelper.SaveTree(files);
-                string commitHash = CommandHelper.SaveCommit(treeHash, message);
-
-                var metadata = CommandHelper.LoadMetadata();
-                foreach (var file in files.Keys)
+                // Commit message is required
+                if (args.Length < 1)
                 {
-                    if (metadata.Files.ContainsKey(file))
+                    Console.WriteLine("No commit message given. Use 'janus commit \"Commit message\"'");
+                    return;
+                }
+
+                // If no files have been staged then there is nothing to commit
+                if (!File.Exists(Paths.index) || !File.ReadLines(Paths.index).Any())
+                {
+                    Console.WriteLine("No changes to commit.");
+                    return;
+                }
+
+
+
+                Dictionary<string, string> fileHashes = new Dictionary<string, string>();
+                foreach (var line in File.ReadAllLines(Paths.index))
+                {
+                    var parts = line.Split('|');
+
+                    string relativeFilePath = parts[0];
+                    string fileHash = parts[1];
+
+                    string currentDir = Directory.GetCurrentDirectory();
+                    string fullPath = Path.Combine(currentDir, relativeFilePath);
+
+                    if (!File.Exists(fullPath))
                     {
-                        metadata.Files[file].LastCommitHash = commitHash;
+                        Console.WriteLine($"Warning: Staged file '{relativeFilePath}' '{fullPath}' no longer exists.");
+
+                        continue;
+                    }
+
+                    string content = File.ReadAllText(relativeFilePath);
+                    fileHashes[relativeFilePath] = fileHash;
+
+                    // Write file content to objects directory
+                    string objectFilePath = Path.Combine(Paths.objectDir, fileHash);
+                    if (!File.Exists(objectFilePath)) // Dont rewrite existing objects
+                    {
+                        File.WriteAllText(objectFilePath, content);
                     }
                 }
-                CommandHelper.SaveMetadata(metadata);
 
-                // Clear staging area (index)
+
+                string commitMessage = args[0];
+
+                // Generate commit metadata
+                string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
+                string parentCommit = CommandHelper.GetCurrentHead();
+                string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
+
+                // Save commit object
+                string commitFilePath = Path.Combine(Paths.objectDir, commitHash);
+                File.WriteAllText(commitFilePath, commitMetadata);
+
+                // Update HEAD to point to the new commit
+                File.WriteAllText(Paths.head, commitHash);
+
+                // Clear the staging area
                 File.WriteAllText(Paths.index, string.Empty);
 
-                // Write current commit hash to refs/heads/[current branch]
-                string currentBranch = File.ReadAllText(Paths.head).Replace("ref: ", "").Trim();
-                string branchPath = Path.Combine(Paths.janusDir, currentBranch);
-                File.WriteAllText(branchPath, commitHash);
-
-                Console.WriteLine($"Committed to {currentBranch} with hash {commitHash}");
-            }
-        }
-
-
-        public class RevertCommand : ICommand
-        {
-            public string Name => "revert";
-            public string Description => "Reverts to a previous commit";
-
-            public void Execute(string[] args)
-            {
-                string targetCommitHash = args[0];
-
-
-                string commitContent = CommandHelper.LoadCommit(targetCommitHash);
-                string? treeHash = commitContent.Split('\n').FirstOrDefault(line => line.StartsWith("Tree:"))?.Split(": ")[1];
-
-                if (treeHash == null)
-                {
-                    throw new Exception("Tree hash not found");
-                }
-
-                var fileTree = CommandHelper.LoadTree(treeHash);
-
-                // Clear current working dir
-                foreach (var filePath in Directory.EnumerateFiles(".","*",SearchOption.AllDirectories)
-                    .Where(f => !f.StartsWith(".janus"))){
-
-                    File.Delete(filePath);
-                }
-
-
-                // Reconstruct file from commit tree
-                foreach (var entry in fileTree)
-                {
-                    string fileName = entry.Key;
-                    string blobOrDeltaHash = entry.Value;
-
-                    string content = CommandHelper.LoadBlob(blobOrDeltaHash);
-
-                    var fileMetadata = CommandHelper.LoadMetadata().Files.ContainsKey(fileName)
-                        ? CommandHelper.LoadMetadata().Files[fileName] : new FileMetadata();
-
-                    string? currentDeltaHash = fileMetadata.DeltaHeadHash;
-                    while (currentDeltaHash != null)
-                    {
-                        var deltaNode = CommandHelper.LoadDeltaNode(currentDeltaHash);
-                        content = CommandHelper.GetDelta(content, deltaNode.Content);
-                        currentDeltaHash = deltaNode.NextDeltaHash;
-                    }
-
-                    File.WriteAllText(fileName, content);
-                    Console.WriteLine($"Reverted: {fileName}");
-                }
-
-                // Update the HEAD point
-                string currentBranch = File.ReadAllText(Paths.head).Replace("ref: ", "").Trim();
-                string branchPath = Path.Combine(Paths.janusDir, currentBranch);
-                File.WriteAllText(branchPath, targetCommitHash);
-
-                Console.WriteLine($"Successfully reverted to commit: {targetCommitHash}");
-
+                Console.WriteLine($"Committed as {commitHash}");
 
             }
         }
+
+
+        
+        
 
 
 
