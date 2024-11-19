@@ -16,10 +16,7 @@ namespace backend.Models
         public int CommitId { get; set; }
 
         [Required]
-        public byte[] Delta { get; set; } // If the first time the delta is the initial commit of file
-
-        [Required]
-        public bool IsDelta { get; set; }
+        public byte[] Content { get; set; }
 
 
         public File File { get; set; }
