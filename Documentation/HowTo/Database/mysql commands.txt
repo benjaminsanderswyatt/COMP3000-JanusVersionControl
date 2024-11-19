@@ -1,0 +1,14 @@
+login
+mysql -u root -p
+
+
+use database
+USE db;
+
+
+see all tables
+SHOW TABLES;
+
+
+see a tables schema
+DESCRIBE "tableName";
