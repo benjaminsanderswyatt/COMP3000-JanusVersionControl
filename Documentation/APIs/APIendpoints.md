@@ -38,13 +38,13 @@
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `username` | `string` | **Required** The username of the user |
+| `email` | `string` | **Required** The email of the user |
 | `password` | `string` | **Required** The password of the user |
 
 ##### Request Body:
 ```json
 {
-  "username": "exampleUser",
+  "email": "example@user.com",
   "password": "examplePassword"
 }
 ```
