@@ -1,7 +1,24 @@
 using backend.Models;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+/*
+// Configure Kestrel server
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(9000); // HTTP for redirection
+    options.ListenAnyIP(9001, listenOptions => listenOptions.UseHttps()); // HTTPS
+});
+
+// Add services and middleware
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect; // Use permanent redirects
+    options.HttpsPort = 9001; // Match your HTTPS port
+});
+*/
 
 // Add services to the container.
 builder.Services.AddDbContext<JanusDbContext>(options =>
@@ -9,7 +26,7 @@ builder.Services.AddDbContext<JanusDbContext>(options =>
     new MySqlServerVersion(new Version(8, 0, 21)),
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
-/*
+
 // CORS
 var allowedOrigins = builder.Configuration.GetValue<string>("ALLOWED_CORS_ORIGINS")?.Split(",") ?? new string[0];
 builder.Services.AddCors(options =>
@@ -19,7 +36,12 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod()
         .AllowAnyHeader());
 });
-*/
+
+
+// Dependancy Injection
+builder.Services.AddScoped<UserService>();
+
+
 
 
 builder.Services.AddControllers();
@@ -38,7 +60,7 @@ PrepDB.PrepPopulation(app);
     app.UseSwaggerUI();
 //}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 //app.UseCors("EnvCorsPolicy");
 

@@ -15,7 +15,7 @@ services:
   container_name: backend
   image: backend-backend
   build:
-   context: .
+   context: ./backend
    dockerfile: Dockerfile
   ports:
    - "82:9000"
@@ -23,7 +23,8 @@ services:
    - db
   environment:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
-      - ALLOWED_CORS_ORIGINS=http://192.168.1.100,http://organisation_network.local
+      - ALLOWED_CORS_ORIGINS=http://192.168.1.100,http://organisation_network.local,http://localhost:81
+      - ASPNETCORE_URLS=http://+:9000
   networks:
       - intranet
 

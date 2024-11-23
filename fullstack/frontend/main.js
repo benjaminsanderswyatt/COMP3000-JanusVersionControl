@@ -1,13 +1,6 @@
 
 import { register, login } from './api/auth.js';
 
-import { getProducts, createProduct } from './api/products.js';
-
-getProducts().then(products => {
-    console.log(products); // Verify it works
-});
-
-
 document.addEventListener('DOMContentLoaded', () => {
   const loginLink = document.getElementById('loginLink');
   const registerLink = document.getElementById('registerLink');
