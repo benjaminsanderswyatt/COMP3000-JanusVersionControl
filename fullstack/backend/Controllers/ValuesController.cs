@@ -4,36 +4,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class TestController : ControllerBase
     {
-        [HttpPost("receive")]
-        public IActionResult ReceivePush([FromBody] PushModel data)
+        // Handle OPTIONS requests explicitly (for testing)
+        [HttpOptions("options")]
+        public IActionResult HandleOptions()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            
-            if (data.testInt < 0)
-            {
-                return BadRequest("Id must be a positive number.");
-            }
-
-            
-            return Ok("Received successfully");
+            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:81");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Accept");
+            return Ok();
         }
 
+        // Any other test endpoint you want to test with
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "CORS is working" });
+        }
     }
-}
-
-public class PushModel
-{
-    [Required]
-    public int testInt { get; set; }
-
-    [MaxLength(3)]
-    public string testString { get; set; }
 }

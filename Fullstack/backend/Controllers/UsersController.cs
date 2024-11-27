@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using backend.DataTransferObjects;
-using System.ComponentModel.DataAnnotations;
 using backend.Services;
 
 namespace backend.Controllers
@@ -18,7 +17,6 @@ namespace backend.Controllers
             _userService = userService;
             //_jwtHelper = jwtHelper;
         }
-
 
 
         // POST: api/Users/Register

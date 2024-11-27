@@ -27,27 +27,38 @@ builder.Services.AddDbContext<JanusDbContext>(options =>
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
 
-// CORS
-var allowedOrigins = builder.Configuration.GetValue<string>("ALLOWED_CORS_ORIGINS")?.Split(",") ?? new string[0];
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("EnvCorsPolicy", builder => 
-    builder.WithOrigins(allowedOrigins)
-        .AllowAnyMethod()
-        .AllowAnyHeader());
-});
-
 
 // Dependancy Injection
 builder.Services.AddScoped<UserService>();
-
-
 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", builder =>
+    {
+        builder.WithOrigins("http://localhost:81");
+        builder.AllowAnyHeader();
+        builder.AllowAnyMethod();
+        builder.AllowCredentials();
+    });
+
+    options.AddPolicy("CLIPolicy", builder =>
+    {
+        builder.AllowAnyOrigin();
+        builder.AllowAnyHeader();
+        builder.AllowAnyMethod();
+    });
+});
+
+
+
 
 var app = builder.Build();
 
@@ -60,9 +71,13 @@ PrepDB.PrepPopulation(app);
     app.UseSwaggerUI();
 //}
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
-//app.UseCors("EnvCorsPolicy");
+app.UseRouting();
+
+app.UseCors("FrontendPolicy");
+// app.UseCors("CLIPolicy");
+
 
 app.UseAuthorization();
 
