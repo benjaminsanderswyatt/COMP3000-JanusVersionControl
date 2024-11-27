@@ -4,12 +4,11 @@ services:
 
  frontend:
   container_name: frontend
-  image: nginx:latest
+  build:
+   context: ./frontend
+   dockerfile: Dockerfile
   ports:
-    - "81:80"
-  volumes:
-    - ./frontend:/usr/share/nginx/html:ro
-
+   - "81:80"
 
  backend:
   container_name: backend
@@ -23,7 +22,7 @@ services:
    - db
   environment:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
-      - ALLOWED_CORS_ORIGINS=http://192.168.1.100,http://organisation_network.local,http://localhost:81
+      - ALLOWED_CORS_ORIGINS=http://localhost:81
       - ASPNETCORE_URLS=http://+:9000
   networks:
       - intranet
