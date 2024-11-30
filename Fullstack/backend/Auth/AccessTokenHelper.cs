@@ -1,5 +1,7 @@
 ﻿using backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text;
 
 public class AccessTokenHelper
 {
@@ -45,5 +47,39 @@ public class AccessTokenHelper
             return Convert.ToBase64String(hash);
         }
     }
+
+
+
+
+    public async Task<bool> ValidateTokenAsync(string token)
+    {
+        byte[] tokenBytes = Convert.FromBase64String(token);
+
+        // Check if token is in the database
+        string hashedToken = HashToken(tokenBytes);
+
+        var storedToken = await _context.AccessTokens
+            .Where(t => t.TokenHash == hashedToken)
+            .FirstOrDefaultAsync();
+
+        if (storedToken == null)
+        {
+            // Token not found
+            return false;
+        }
+
+        // Check if the token has expired
+        if (storedToken.Expires < DateTime.UtcNow)
+        {
+            _context.AccessTokens.Remove(storedToken);
+            return false;
+        }
+
+        // Token is valid
+        return true;
+    }
+
+
+
 
 }

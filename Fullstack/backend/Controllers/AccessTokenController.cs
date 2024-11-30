@@ -32,5 +32,22 @@ namespace backend.Controllers
             return Ok(token);
         }
 
+        // POST: api/CLI/AccessToken/Validate
+        [HttpPost("Validate")]
+        public async Task<IActionResult> ValidateToken([FromBody] string token)
+        {
+            var isValid = await _accessTokenHelper.ValidateTokenAsync(token);
+
+            if (isValid)
+            {
+                return Ok(true);  // Token is valid
+            }
+            else
+            {
+                return Ok(false); // Token is invalid or expired
+            }
+        }
+
+
     }
 }

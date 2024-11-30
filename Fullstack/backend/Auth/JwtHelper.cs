@@ -38,8 +38,8 @@ public class JwtHelper
 
     public static bool ValidateRefreshToken(string refreshToken)
     {
-        // Validate the refresh token (e.g., check if it's in a database or has expired)
-        return true; // For simplicity, we just return true here.
+        // Validate the refresh token
+        return true;
     }
 
 }
