@@ -24,6 +24,9 @@ services:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
       - ALLOWED_CORS_ORIGINS=http://localhost:81
       - ASPNETCORE_URLS=http://+:9000
+      - JWT__Issuer=yourIssuer
+      - JWT__Audience=yourAudience
+      - JWT__SecretKey=MySecureKeyWithAtLeastThirtyTwoCharacters
   networks:
       - intranet
 

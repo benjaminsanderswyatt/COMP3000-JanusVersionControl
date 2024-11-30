@@ -71,14 +71,14 @@ const Login = () => {
 
       try {
         // Send request
-        const token = await login(
+        const response = await login(
           formData.email,
           formData.password
         );
-
-        if (token) {
-          alert("Login successful!");
-          navigate("/home"); // Navigate to the home page
+        
+        if (response.success){
+          localStorage.setItem('token', response.token);
+          navigate("/Repos"); // Navigate
         } else {
           alert("Login failed");
         }
