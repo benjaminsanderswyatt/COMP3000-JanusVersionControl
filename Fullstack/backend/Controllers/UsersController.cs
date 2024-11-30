@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.DataTransferObjects;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
@@ -68,5 +69,31 @@ namespace backend.Controllers
             */
             return null;
         }
+
+
+        // POST: api/Users/Login
+        [HttpPost("PAT")]
+        [Authorize]
+        public async Task<IActionResult> GeneratePat()
+        {
+            /*
+            var userId = User.Identity.Name;
+            var tokenGen = TokenGenerator.GenerateToken();
+            var hashedToken = TokenHasher.HashToken(tokenGen);
+
+            var token = new PersonalAccessToken
+            {
+                tokenHash = hashedToken,
+                userId = userId,
+                CreatedAtAction = DateTime.UtcNow
+            };
+            */
+
+
+
+
+            return null;
+        }
+
     }
 }
