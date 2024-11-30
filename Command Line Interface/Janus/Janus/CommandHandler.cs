@@ -1,5 +1,6 @@
 ﻿using Janus.Plugins;
 
+
 namespace Janus
 {
     public static class CommandHandler
@@ -9,6 +10,8 @@ namespace Janus
             return new List<ICommand>
             {
                 new HelpCommand(),
+                new LoginCommand(),
+                new LogOutCommand(),
                 new InitCommand(),
                 new AddCommand(),
                 new CommitCommand(),
@@ -34,6 +37,49 @@ namespace Janus
                 }
             }
         }
+
+
+        public class LoginCommand : ICommand
+        {
+            public string Name => "login";
+            public string Description => "Gets a token for login.";
+            public async void Execute(string[] args)
+            {
+                Console.Write("Enter your Personal Access Token (PAT): ");
+                var token = CommandHelper.ReadSecretInput();
+
+                /* Optional
+                if (!await CommandHelper.ValidateToken(token))
+                {
+                    Console.WriteLine("Invalid token. Please try again.");
+                    return;
+                }
+                */
+
+                // Save the token
+                File.WriteAllText(Paths.TokenDir, token);
+                Console.WriteLine("Token saved successfully.");
+            }
+        }
+
+        public class LogOutCommand : ICommand
+        {
+            public string Name => "logout";
+            public string Description => "Removes stored token.";
+            public async void Execute(string[] args)
+            {
+                if (File.Exists(Paths.TokenDir))
+                {
+                    File.Delete(Paths.TokenDir);
+                    Console.WriteLine("Logged out successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("No token found.");
+                }
+            }
+        }
+
 
 
 

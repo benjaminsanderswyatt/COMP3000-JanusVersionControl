@@ -3,6 +3,9 @@
     internal class Paths
     {
         public static readonly string janusDir = ".janus";
+
+        public static readonly string TokenDir = Path.Combine(janusDir, "token");
+
         public static readonly string objectDir = Path.Combine(janusDir, "objects");
         public static readonly string refsDir = Path.Combine(janusDir, "refs");
         public static readonly string headsDir = Path.Combine(refsDir, "heads");

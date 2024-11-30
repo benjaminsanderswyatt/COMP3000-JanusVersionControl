@@ -9,7 +9,45 @@ namespace Janus
 {
     internal class CommandHelper
     {
-        
+        // Login / Logout
+        public static string ReadSecretInput()
+        {
+            string input = "";
+            ConsoleKeyInfo key;
+
+            while ((key = Console.ReadKey(intercept: true)).Key != ConsoleKey.Enter)
+            {
+                input += key.KeyChar;
+            }
+
+            Console.WriteLine();
+            return input;
+
+        }
+
+        public static string RetreiveToken()
+        {
+            if (!File.Exists(Paths.TokenDir))
+            {
+                return null;
+            }
+
+            return File.ReadAllText(Paths.TokenDir);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         public static string ComputeHash(string content)
         {
             using (SHA1 sha1 = SHA1.Create())
