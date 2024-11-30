@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.CompilerServices;
 
 namespace backend.Models
 {
@@ -21,7 +20,7 @@ namespace backend.Models
         [Required]
         public DateTime Expires { get; set; } = DateTime.UtcNow.AddMonths(3); // Expires x months
 
-        
+
         public User User { get; set; }
 
     }

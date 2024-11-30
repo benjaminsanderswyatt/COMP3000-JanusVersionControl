@@ -17,10 +17,10 @@ namespace backend.Models
 
         [Required]
         public bool Visibility { get; set; } = false; // true - > visable. false -> hidden
-        
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        
+
 
         public User Owner { get; set; }
         public ICollection<Branch> Branches { get; set; }

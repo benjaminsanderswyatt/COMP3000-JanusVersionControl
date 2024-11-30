@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Security.Cryptography.X509Certificates;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
@@ -15,7 +12,7 @@ namespace backend.Models
             }
 
         }
-        
+
         public static void SeedData(JanusDbContext context)
         {
             Console.WriteLine("Applying Migrations...");

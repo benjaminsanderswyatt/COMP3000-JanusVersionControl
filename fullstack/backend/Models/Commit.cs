@@ -25,7 +25,7 @@ namespace backend.Models
 
         public DateTime CommittedAt { get; set; }
 
-        
+
 
         public User User { get; set; }
         public Branch Branch { get; set; }

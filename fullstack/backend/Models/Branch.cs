@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.CompilerServices;
 
 namespace backend.Models
 {
@@ -20,7 +19,7 @@ namespace backend.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        
+
         public Repository Repository { get; set; }
         public ICollection<Commit> Commits { get; set; }
 

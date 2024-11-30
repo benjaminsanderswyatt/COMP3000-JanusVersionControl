@@ -17,7 +17,7 @@ namespace backend.Models
         [Required]
         public string FileHash { get; set; }
 
-        
+
 
         public Commit Commit { get; set; }
         public ICollection<FileContent> FileContents { get; set; }

@@ -1,9 +1,6 @@
-﻿using System;
+﻿using backend.Auth;
 using backend.Models;
-using backend.Auth;
-
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace backend.Services
 {

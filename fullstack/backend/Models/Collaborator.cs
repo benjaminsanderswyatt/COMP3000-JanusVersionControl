@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
@@ -17,7 +16,7 @@ namespace backend.Models
         [Required]
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
-        
+
 
         public Repository Repository { get; set; }
         public User User { get; set; }

@@ -1,26 +1,32 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using backend.Auth;
 using backend.DataTransferObjects;
+using backend.Models;
 using backend.Services;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/web/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly JanusDbContext _janusDbContext;
         private readonly UserService _userService;
-        //private readonly JwtHelper _jwtHelper;
+        private readonly JwtHelper _jwtHelper;
 
-        public UsersController(UserService userService) //, JwtHelper jwtHelper
+        public UsersController(JanusDbContext janusDbContext, UserService userService, JwtHelper jwtHelper)
         {
+            _janusDbContext = janusDbContext;
             _userService = userService;
-            //_jwtHelper = jwtHelper;
+            _jwtHelper = jwtHelper;
         }
 
 
-        // POST: api/Users/Register
+        // POST: api/web/Users/Register
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto newUser)
         {
@@ -42,22 +48,23 @@ namespace backend.Controllers
             }
         }
 
-        // POST: api/Users/Login
+        // POST: api/web/Users/Login
         [HttpPost("Login")]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserDto loginUser)
         {
-            /*
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var user = await GetUserByEmailAsync(loginUser.Email); ; // Get the user
+                var user = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Email == loginUser.Email); // Get the user
 
-                if (user != null && ValidatePassword(user, loginUser.Password)) // Validate the password
+                if (user != null && PasswordSecurity.VerifyPassword(loginUser.Password, user.PasswordHash, user.Salt)) // Validate the password
                 {
-                    var token = GenerateJwtToken(user.Id); // Generate a Jwt Token
-                    return Ok(new { access_token = token });
+                    JwtSecurityToken token = _jwtHelper.GenerateJwtToken(user.UserId, user.Username); // Generate a Jwt Token
+
+                    return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
                 }
 
                 return Unauthorized(new { message = "Invalid credentials" });
@@ -66,34 +73,9 @@ namespace backend.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
-            */
-            return null;
         }
 
 
-        // POST: api/Users/Login
-        [HttpPost("PAT")]
-        [Authorize]
-        public async Task<IActionResult> GeneratePat()
-        {
-            /*
-            var userId = User.Identity.Name;
-            var tokenGen = TokenGenerator.GenerateToken();
-            var hashedToken = TokenHasher.HashToken(tokenGen);
-
-            var token = new PersonalAccessToken
-            {
-                tokenHash = hashedToken,
-                userId = userId,
-                CreatedAtAction = DateTime.UtcNow
-            };
-            */
-
-
-
-
-            return null;
-        }
 
     }
 }

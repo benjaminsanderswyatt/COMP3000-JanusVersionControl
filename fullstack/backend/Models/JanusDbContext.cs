@@ -6,13 +6,13 @@ namespace backend.Models
     {
         public JanusDbContext(DbContextOptions<JanusDbContext> options) : base(options) { }
 
-        public DbSet<User> Users {  get; set; }
-        public DbSet<AccessToken> AccessTokens {  get; set; }
-        public DbSet<Repository> Repositories {  get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<AccessToken> AccessTokens { get; set; }
+        public DbSet<Repository> Repositories { get; set; }
         public DbSet<Collaborator> Collaborators { get; set; }
-        public DbSet<Branch> Branches {  get; set; }
-        public DbSet<Commit> Commits {  get; set; }
-        public DbSet<File> Files {  get; set; }
+        public DbSet<Branch> Branches { get; set; }
+        public DbSet<Commit> Commits { get; set; }
+        public DbSet<File> Files { get; set; }
         public DbSet<FileContent> FileContents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
