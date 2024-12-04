@@ -24,8 +24,9 @@ COPY --from=build /app/build /usr/share/nginx/html
 # Copy the nginx configs for routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80 (Nginx default port)
+# Expose port 80 & 443
 EXPOSE 80
+EXPOSE 443
 
 # Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]

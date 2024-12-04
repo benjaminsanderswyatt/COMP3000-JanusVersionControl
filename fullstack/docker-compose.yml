@@ -4,22 +4,30 @@ services:
 
  frontend:
   container_name: frontend
+  image: janus-frontend
   build:
    context: ./frontend
    dockerfile: Dockerfile
   ports:
    - "81:80"
+   - "443:443"
+  volumes:
+   - ./frontend/certs:/https
+  environment:
+   - HTTPS=true
+   - SSL_CRT_FILE=https/frontend-certificate.crt
+   - SSL_KEY_FILE=https/frontend-private-nopass.key
 
  backend:
   container_name: backend
-  image: backend-backend
+  image: janus-backend
   build:
    context: ./backend
    dockerfile: Dockerfile
   ports:
    - "82:9000"
   volumes:
-   - ./certs:/https
+   - ./backend/certs:/https
   depends_on:
    - db
   environment:
@@ -49,12 +57,12 @@ services:
   expose:
    - '3906'
   volumes:
-   - my-db:/var/lib/mysql
+   - janus-db:/var/lib/mysql
   networks:
       - intranet
 
 volumes:
-  my-db:
+  janus-db:
   
 networks:
   intranet:
