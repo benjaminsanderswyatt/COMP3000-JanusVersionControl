@@ -94,12 +94,12 @@ app.UseSwagger();
 app.UseSwaggerUI();
 //}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseRouting();
 
 app.UseCors("FrontendPolicy");
-// app.UseCors("CLIPolicy");
+app.UseCors("CLIPolicy");
 
 
 app.UseAuthentication();

@@ -1,4 +1,5 @@
 ﻿using Janus.Plugins;
+using System.Text;
 
 
 namespace Janus
@@ -17,11 +18,24 @@ namespace Janus
                 new CommitCommand(),
                 new CreateBranchCommand(),
                 new SwitchBranchCommand(),
-                new LogCommand()
+                new LogCommand(),
+                new TestCommand()
 
                 // Add new built in commands here
             };
         }
+
+        public class TestCommand : ICommand
+        {
+            public string Name => "test";
+            public string Description => "Send a test request to backend";
+            public void Execute(string[] args)
+            {
+                CommandHelper.ExecuteAsync().GetAwaiter().GetResult();
+                Console.WriteLine("Test End");
+            }
+        }
+
 
         public class HelpCommand : ICommand
         {

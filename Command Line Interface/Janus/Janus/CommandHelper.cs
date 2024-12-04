@@ -9,6 +9,54 @@ namespace Janus
 {
     internal class CommandHelper
     {
+        public static async Task ExecuteAsync()
+        {
+            string apiUrl = "http://localhost:82/api/Test/SayHello";
+
+            // The data you want to send
+            string testMessage = "Hello from the console app!";
+
+            using (HttpClient client = new HttpClient())
+            {
+                // Serialize the string to JSON
+                StringContent content = new StringContent(
+                    $"\"{testMessage}\"", // JSON-encoded string
+                    Encoding.UTF8,
+                    "application/json");
+
+                try
+                {
+                    // Send a POST request
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, content);
+
+                    // Ensure the response was successful
+                    response.EnsureSuccessStatusCode();
+
+                    // Optionally read the response content
+                    string responseContent = await response.Content.ReadAsStringAsync();
+
+                    Console.WriteLine("Response received:");
+                    Console.WriteLine(responseContent);
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Request error: {ex.Message}");
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Login / Logout
         public static string ReadSecretInput()
         {

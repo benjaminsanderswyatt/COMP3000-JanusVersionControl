@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -6,6 +7,7 @@ namespace backend.Controllers
     [Authorize]
     [Route("api/CLI/[controller]")]
     [ApiController]
+    [EnableCors("CLIPolicy")]
     public class AccessTokenController : ControllerBase
     {
         private readonly AccessTokenHelper _accessTokenHelper;

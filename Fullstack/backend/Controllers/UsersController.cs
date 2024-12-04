@@ -2,6 +2,7 @@
 using backend.DataTransferObjects;
 using backend.Models;
 using backend.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 namespace backend.Controllers
 {
     [Route("api/web/[controller]")]
+    [EnableCors("FrontendPolicy")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -30,20 +32,18 @@ namespace backend.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto newUser)
         {
-            Console.WriteLine("1 - zoe - Made it");
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            Console.WriteLine("2 - zoe - Made it");
             try
             {
                 await _userService.RegisterUserAsync(newUser.Username, newUser.Email, newUser.Password);// Create user
-                Console.WriteLine("3 - zoe - Made it");
-                return Created("api/User/Register", new { message = "User registered successfully" });
+
+                return Created("api/web/User/Register", new { message = "User registered successfully" });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("4 - zoe - Error");
                 return BadRequest(new { error = ex.Message });
             }
         }
