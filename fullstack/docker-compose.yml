@@ -18,12 +18,16 @@ services:
    dockerfile: Dockerfile
   ports:
    - "82:9000"
+  volumes:
+   - ./certs:/https
   depends_on:
    - db
   environment:
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
       - ALLOWED_CORS_ORIGINS=http://localhost:81
-      - ASPNETCORE_URLS=http://+:9000
+      - ASPNETCORE_URLS=https://+:9000
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/backend-certificate.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=sZF8H6h+08iW3ZJ4n/9w4nv+tH2kPanzVFSjc5yK6J0=
       - JWT__Issuer=yourIssuer
       - JWT__Audience=yourAudience
       - JWT__SecretKey=MySecureKeyWithAtLeastThirtyTwoCharacters

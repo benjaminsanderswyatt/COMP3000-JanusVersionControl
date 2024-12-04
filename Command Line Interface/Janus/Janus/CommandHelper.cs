@@ -11,7 +11,7 @@ namespace Janus
     {
         public static async Task ExecuteAsync()
         {
-            string apiUrl = "http://localhost:82/api/Test/SayHello";
+            string apiUrl = "https://localhost:82/api/Test/SayHello";
 
             // The data you want to send
             string testMessage = "Hello from the console app!";

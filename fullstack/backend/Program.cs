@@ -3,25 +3,26 @@ using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IO;
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/*
+
 // Configure Kestrel server
+var certificatePath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
+certificatePath = string.IsNullOrEmpty(certificatePath) ? "https/backend-certificate.pfx" : certificatePath; // Path cant be null or empty during configuration
+var certificatePassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
+
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(9000); // HTTP for redirection
-    options.ListenAnyIP(9001, listenOptions => listenOptions.UseHttps()); // HTTPS
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.ServerCertificate = new X509Certificate2(certificatePath, certificatePassword);
+    });
 });
 
-// Add services and middleware
-builder.Services.AddHttpsRedirection(options =>
-{
-    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect; // Use permanent redirects
-    options.HttpsPort = 9001; // Match your HTTPS port
-});
-*/
 
 
 // Dependancy Injection
@@ -94,7 +95,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 //}
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseRouting();
 
