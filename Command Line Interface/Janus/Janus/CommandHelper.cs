@@ -1,6 +1,4 @@
-﻿using DiffPlex;
-using DiffPlex.DiffBuilder;
-using DiffPlex.DiffBuilder.Model;
+﻿using Janus.Models;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -125,22 +123,22 @@ namespace Janus
         }
 
 
+
+
         public static string GenerateCommitMetadata(string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit)
         {
-            var metadata = new StringBuilder();
-
-            metadata.AppendLine($"Commit: {commitHash}");
-            metadata.AppendLine($"Parent: {parentCommit}");
-            metadata.AppendLine($"Date: {DateTime.UtcNow}");
-            metadata.AppendLine($"Message: {commitMessage}");
-            metadata.AppendLine("Files:");
-
-            foreach (var kv in fileHashes)
+            var metadata = new CommitMetadata
             {
-                metadata.AppendLine($"  {kv.Key} -> {kv.Value}");
-            }
+                Commit = commitHash,
+                Parent = parentCommit,
+                Date = DateTime.UtcNow,
+                Message = commitMessage,
+                Files = fileHashes
+            };
 
-            return metadata.ToString();
+            string metadataJson = JsonConvert.SerializeObject(metadata);
+
+            return metadataJson;
         }
 
     }
