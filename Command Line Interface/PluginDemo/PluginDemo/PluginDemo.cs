@@ -7,7 +7,7 @@ namespace PluginDemo
         public string Name => "plugin";
         public string Description => "A demo command for plugins";
 
-        public void Execute(string[] args)
+        public async Task Execute(string[] args)
         {
             Console.WriteLine("Plugin Demo - hello world");
         }
