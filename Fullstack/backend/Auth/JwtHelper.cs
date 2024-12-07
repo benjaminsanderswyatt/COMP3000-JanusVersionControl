@@ -1,31 +1,25 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 public class JwtHelper
 {
-    private readonly IConfiguration _configuration;
-
-    public JwtHelper(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     public JwtSecurityToken GenerateJwtToken(int userId, string username)
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, username),
-            new Claim("userId", userId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim("TokenType", "User")
         };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+        
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_Web")));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: "FrontendIssuer",
+            audience: "FrontendAudience",
             claims: claims,
             expires: DateTime.Now.AddHours(1),
             signingCredentials: creds

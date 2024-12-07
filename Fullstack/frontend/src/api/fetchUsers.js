@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:82/api/web/users';
+const API_URL = 'https://localhost:82/api/web/users';
 
 
 export async function register(username, email, password) {

@@ -6,9 +6,6 @@ namespace backend.Models
     public class FileContent
     {
         [Key]
-        public int ContentId { get; set; }
-
-        [ForeignKey("File")]
         public int FileId { get; set; }
 
         [Required]

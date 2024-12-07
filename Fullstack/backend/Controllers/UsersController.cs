@@ -2,10 +2,12 @@
 using backend.DataTransferObjects;
 using backend.Models;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -17,13 +19,11 @@ namespace backend.Controllers
     public class UsersController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
-        private readonly UserService _userService;
         private readonly JwtHelper _jwtHelper;
 
-        public UsersController(JanusDbContext janusDbContext, UserService userService, JwtHelper jwtHelper)
+        public UsersController(JanusDbContext janusDbContext, JwtHelper jwtHelper)
         {
             _janusDbContext = janusDbContext;
-            _userService = userService;
             _jwtHelper = jwtHelper;
         }
 
@@ -38,7 +38,22 @@ namespace backend.Controllers
 
             try
             {
-                await _userService.RegisterUserAsync(newUser.Username, newUser.Email, newUser.Password);// Create user
+                if (await _janusDbContext.Users.AnyAsync(u => u.Email == newUser.Email))
+                    throw new Exception("Email has already been taken");
+
+                var (passwordHash, salt) = PasswordSecurity.HashSaltPassword(newUser.Password);
+
+                var user = new User
+                {
+                    Username = newUser.Username,
+                    Email = newUser.Email,
+                    PasswordHash = passwordHash,
+                    Salt = salt
+                };
+
+                _janusDbContext.Users.Add(user);
+                await _janusDbContext.SaveChangesAsync();
+
 
                 return Created("api/web/User/Register", new { message = "User registered successfully" });
             }
@@ -52,7 +67,6 @@ namespace backend.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserDto loginUser)
         {
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 

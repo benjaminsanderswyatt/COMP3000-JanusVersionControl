@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -12,6 +13,23 @@ namespace backend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "AccessTokenBlacklists",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    TokenHash = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Expires = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    BlacklistedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccessTokenBlacklists", x => x.Id);
+                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -32,30 +50,6 @@ namespace backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "AccessTokens",
-                columns: table => new
-                {
-                    TokenId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    TokenHash = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Expires = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccessTokens", x => x.TokenId);
-                    table.ForeignKey(
-                        name: "FK_AccessTokens_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -196,14 +190,12 @@ namespace backend.Migrations
                 name: "FileContents",
                 columns: table => new
                 {
-                    ContentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FileId = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<byte[]>(type: "longblob", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FileContents", x => x.ContentId);
+                    table.PrimaryKey("PK_FileContents", x => x.FileId);
                     table.ForeignKey(
                         name: "FK_FileContents_Files_FileId",
                         column: x => x.FileId,
@@ -212,11 +204,6 @@ namespace backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AccessTokens_UserId",
-                table: "AccessTokens",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Branches_RepoId",
@@ -239,11 +226,6 @@ namespace backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileContents_FileId",
-                table: "FileContents",
-                column: "FileId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Files_CommitId",
                 table: "Files",
                 column: "CommitId");
@@ -258,7 +240,7 @@ namespace backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AccessTokens");
+                name: "AccessTokenBlacklists");
 
             migrationBuilder.DropTable(
                 name: "Collaborators");

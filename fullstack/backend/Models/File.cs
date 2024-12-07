@@ -20,7 +20,7 @@ namespace backend.Models
 
 
         public Commit Commit { get; set; }
-        public ICollection<FileContent> FileContents { get; set; }
+        public FileContent FileContents { get; set; }
 
     }
 

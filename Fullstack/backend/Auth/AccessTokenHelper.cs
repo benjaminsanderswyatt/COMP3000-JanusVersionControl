@@ -1,83 +1,47 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
 public class AccessTokenHelper
 {
 
-    private readonly JanusDbContext _context;
-
-    public AccessTokenHelper(JanusDbContext context)
+    public JwtSecurityToken GenerateAccessToken(int userId)
     {
-        _context = context;
-    }
-
-    public async Task<string> GenerateTokenAsync(int userId)
-    {
-        var tokenBytes = new byte[64]; // 512 bits Access token
-
-        using (var rng = RandomNumberGenerator.Create())
+        var claims = new List<Claim>
         {
-            rng.GetBytes(tokenBytes);
-        }
-
-        string hashedToken = HashToken(tokenBytes);
-
-        var accessToken = new AccessToken
-        {
-            UserId = userId,
-            TokenHash = hashedToken
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim("TokenType", "PAT")
         };
 
-        // Store hashed token
-        _context.AccessTokens.Add(accessToken);
-        await _context.SaveChangesAsync();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_CLI")));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Return token for user to store locally
-        return Convert.ToBase64String(tokenBytes);
+        var token = new JwtSecurityToken(
+            issuer: "CLIIssuer",
+            audience: "CLIAudience",
+            claims: claims,
+            expires: DateTime.Now.AddMonths(3),
+            signingCredentials: creds
+        );
+
+        return token;
     }
 
-    private static string HashToken(byte[] token)
+    public string HashToken(string token)
     {
-        using (var sha256 = SHA256.Create())
-        {
-            var hash = sha256.ComputeHash(token);
-
-            return Convert.ToBase64String(hash);
-        }
+        using var sha256 = SHA256.Create();
+        byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(hashBytes);
     }
 
 
 
 
-    public async Task<bool> ValidateTokenAsync(string token)
-    {
-        byte[] tokenBytes = Convert.FromBase64String(token);
 
-        // Check if token is in the database
-        string hashedToken = HashToken(tokenBytes);
-
-        var storedToken = await _context.AccessTokens
-            .Where(t => t.TokenHash == hashedToken)
-            .FirstOrDefaultAsync();
-
-        if (storedToken == null)
-        {
-            // Token not found
-            return false;
-        }
-
-        // Check if the token has expired
-        if (storedToken.Expires < DateTime.UtcNow)
-        {
-            _context.AccessTokens.Remove(storedToken);
-            return false;
-        }
-
-        // Token is valid
-        return true;
-    }
 
 
 

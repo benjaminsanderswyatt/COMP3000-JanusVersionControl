@@ -1,27 +1,35 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using backend.Models;
+using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
-    [Authorize]
+    
     [Route("api/CLI/[controller]")]
     [ApiController]
-    [EnableCors("CLIPolicy")]
     public class AccessTokenController : ControllerBase
     {
+        private readonly JanusDbContext _janusDbContext;
         private readonly AccessTokenHelper _accessTokenHelper;
 
-        public AccessTokenController(AccessTokenHelper accessTokenHelper)
+        public AccessTokenController(JanusDbContext janusDbContext, AccessTokenHelper accessTokenHelper)
         {
+            _janusDbContext = janusDbContext;
             _accessTokenHelper = accessTokenHelper;
         }
 
-        // POST: api/CLI/AccessToken/GenPAT
+        // POST: api/web/Users/GenPAT
+        [Authorize(Policy = "FrontendPolicy")]
+        [EnableCors("FrontendPolicy")]
         [HttpPost("GenPAT")]
-        public async Task<IActionResult> GeneratePat()
+        public async Task<IActionResult> GeneratePAT()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -29,27 +37,41 @@ namespace backend.Controllers
             }
 
 
-            var token = await _accessTokenHelper.GenerateTokenAsync(userId);
+            var token = _accessTokenHelper.GenerateAccessToken(userId);
 
-            return Ok(token);
+            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
-        // POST: api/CLI/AccessToken/Validate
-        [HttpPost("Validate")]
-        public async Task<IActionResult> ValidateToken([FromBody] string token)
+
+        // POST: api/web/Users/GenPAT
+        [Authorize(Policy = "CLIPolicy")]
+        [EnableCors("CLIPolicy")]
+        [HttpPost("RevokePAT")]
+        public async Task<IActionResult> RevokePAT(string patToken)
         {
-            var isValid = await _accessTokenHelper.ValidateTokenAsync(token);
+            var tokenHash = _accessTokenHelper.HashToken(patToken);
 
-            if (isValid)
+            // Check if the token is already blacklisted
+            var existingToken = await _janusDbContext.AccessTokenBlacklists
+                .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+
+            if (existingToken != null)
             {
-                return Ok(true);  // Token is valid
+                return BadRequest("This token is already revoked.");
             }
-            else
+
+            // Add token to blacklist
+            var token = new AccessTokenBlacklist
             {
-                return Ok(false); // Token is invalid or expired
-            }
+                TokenHash = tokenHash,
+                Expires = DateTime.UtcNow.AddMonths(3)
+            };
+
+            _janusDbContext.AccessTokenBlacklists.Add(token);
+            await _janusDbContext.SaveChangesAsync();
+            
+            return Ok("Token has been revoked.");
         }
-
 
     }
 }

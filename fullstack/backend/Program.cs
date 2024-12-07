@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,26 +25,94 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-
-
 // Dependancy Injection
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
 
 
-// Add services to the container.
+// Add Db context
 builder.Services.AddDbContext<JanusDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
     new MySqlServerVersion(new Version(8, 0, 21)),
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
 
+// Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer("UserJWT", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "FrontendIssuer",
+            ValidAudience = "FrontendAudience",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_Web")))
+        };
+    })
+    .AddJwtBearer("AccessTokenJWT", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "CLIIssuer",
+            ValidAudience = "CLIAudience",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_CLI")))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                try
+                {
+                    var janusDbContext = context.HttpContext.RequestServices.GetRequiredService<JanusDbContext>();
+                    var accessTokenHelper = context.HttpContext.RequestServices.GetRequiredService<AccessTokenHelper>();
+                    var rawToken = context.SecurityToken as JwtSecurityToken;
+
+                    if (rawToken == null)
+                    {
+                        context.Fail("Invalid token format.");
+                        return;
+                    }
+
+                    var tokenHash = accessTokenHelper.HashToken(rawToken.ToString());
+                        
+                    var isBlacklisted = await janusDbContext.AccessTokenBlacklists
+                    .AnyAsync(t => t.TokenHash == tokenHash && t.Expires > DateTime.UtcNow);
+
+                    if (isBlacklisted)
+                    {
+                        context.Fail("Invalid token."); // Token has been revoked
+                    }
+                } catch (Exception ex)
+                {
+                    context.Fail("Token validation failed.");
+                }
+
+            }
+        };
+    });
+
+// Authorization
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("FrontendPolicy", policy =>
+    policy.AddAuthenticationSchemes("UserJWT").RequireClaim("TokenType", "User"))
+    .AddPolicy("CLIPolicy", policy =>
+    policy.AddAuthenticationSchemes("AccessTokenJWT").RequireClaim("TokenType", "PAT"));
+
+
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 
 // CORS
@@ -50,7 +120,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:81");
+        builder.WithOrigins("https://localhost");
         builder.AllowAnyHeader();
         builder.AllowAnyMethod();
         builder.AllowCredentials();
@@ -65,41 +135,15 @@ builder.Services.AddCors(options =>
 });
 
 
-// JWT Authentication config
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
-        };
-    });
-
-
-
-
 var app = builder.Build();
 
 PrepDB.PrepPopulation(app);
-
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-app.UseSwagger();
-app.UseSwaggerUI();
-//}
 
 app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors("FrontendPolicy");
+
 app.UseCors("CLIPolicy");
 
 

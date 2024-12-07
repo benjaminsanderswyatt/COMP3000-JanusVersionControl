@@ -22,15 +22,15 @@ namespace backend.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("backend.Models.AccessToken", b =>
+            modelBuilder.Entity("backend.Models.AccessTokenBlacklist", b =>
                 {
-                    b.Property<int>("TokenId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TokenId"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("BlacklistedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("Expires")
@@ -40,14 +40,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.HasKey("Id");
 
-                    b.HasKey("TokenId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AccessTokens");
+                    b.ToTable("AccessTokenBlacklists");
                 });
 
             modelBuilder.Entity("backend.Models.Branch", b =>
@@ -168,22 +163,14 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.FileContent", b =>
                 {
-                    b.Property<int>("ContentId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("FileId")
                         .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ContentId"));
 
                     b.Property<byte[]>("Content")
                         .IsRequired()
                         .HasColumnType("longblob");
 
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ContentId");
-
-                    b.HasIndex("FileId");
+                    b.HasKey("FileId");
 
                     b.ToTable("FileContents");
                 });
@@ -251,17 +238,6 @@ namespace backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("backend.Models.AccessToken", b =>
-                {
-                    b.HasOne("backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("backend.Models.Branch", b =>
                 {
                     b.HasOne("backend.Models.Repository", "Repository")
@@ -325,8 +301,8 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.FileContent", b =>
                 {
                     b.HasOne("backend.Models.File", "File")
-                        .WithMany("FileContents")
-                        .HasForeignKey("FileId")
+                        .WithOne("FileContents")
+                        .HasForeignKey("backend.Models.FileContent", "FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -356,7 +332,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.File", b =>
                 {
-                    b.Navigation("FileContents");
+                    b.Navigation("FileContents")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("backend.Models.Repository", b =>
