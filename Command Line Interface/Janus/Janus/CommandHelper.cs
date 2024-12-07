@@ -18,7 +18,7 @@ namespace Janus
             {
                 // Serialize the string to JSON
                 StringContent content = new StringContent(
-                    $"\"{testMessage}\"", // JSON-encoded string
+                    $"\"{testMessage}\"",
                     Encoding.UTF8,
                     "application/json");
 

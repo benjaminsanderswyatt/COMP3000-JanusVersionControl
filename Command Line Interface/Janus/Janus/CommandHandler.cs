@@ -10,17 +10,18 @@ namespace Janus
         {
             return new List<ICommand>
             {
+                new TestCommand(),
                 new HelpCommand(),
                 new LoginCommand(),
                 new LogOutCommand(),
                 new InitCommand(),
                 new AddCommand(),
                 new CommitCommand(),
+                new PushCommand(),
                 new CreateBranchCommand(),
                 new SwitchBranchCommand(),
-                new LogCommand(),
-                new TestCommand()
-
+                new LogCommand()
+                
                 // Add new built in commands here
             };
         }
@@ -33,6 +34,7 @@ namespace Janus
             {
                 CommandHelper.ExecuteAsync().GetAwaiter().GetResult();
                 Console.WriteLine("Test End");
+               
             }
         }
 
@@ -122,6 +124,10 @@ namespace Janus
                 // .janus/object folder
                 if (!Directory.Exists(Paths.objectDir))
                     Directory.CreateDirectory(Paths.objectDir);
+
+                // .janus/commit folder
+                if (!Directory.Exists(Paths.commitDir))
+                    Directory.CreateDirectory(Paths.commitDir);
 
                 // .janus/refs
                 if (!Directory.Exists(Paths.refsDir))
@@ -315,7 +321,7 @@ namespace Janus
                 string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
 
                 // Save commit object
-                string commitFilePath = Path.Combine(Paths.objectDir, commitHash);
+                string commitFilePath = Path.Combine(Paths.commitDir, commitHash);
                 File.WriteAllText(commitFilePath, commitMetadata);
 
                 // Update HEAD to point to the new commit
@@ -330,10 +336,27 @@ namespace Janus
         }
 
 
-        
-        
+
+        public class PushCommand : ICommand
+        {
+            public string Name => "push";
+            public string Description => "Pushes the local repository to the remote repository.";
+            public void Execute(string[] args)
+            {
+                string commitJson = await PushHelper.GetCommitMetadataFiles();
+
+                // Get branch header
+                // TODO
 
 
+                // Send to backend
+                await PushHelper.PostToBackendAsync(commitJson);
+
+                
+
+            }
+
+        }
 
 
 
