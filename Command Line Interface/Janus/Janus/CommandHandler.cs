@@ -30,9 +30,9 @@ namespace Janus
         {
             public string Name => "test";
             public string Description => "Send a test request to backend";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
-                await CommandHelper.ExecuteAsync();
+                //await CommandHelper.ExecuteAsync();
                 Console.WriteLine("Test End");
                
             }
@@ -43,7 +43,7 @@ namespace Janus
         {
             public string Name => "help";
             public string Description => "Displays a list of available commands.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 Console.WriteLine("Usage: janus [command]");
                 Console.WriteLine("Commands:");
@@ -59,7 +59,7 @@ namespace Janus
         {
             public string Name => "login";
             public string Description => "Gets a token for login.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 Console.Write("Enter your Personal Access Token (PAT): ");
                 var token = CommandHelper.ReadSecretInput();
@@ -74,7 +74,7 @@ namespace Janus
         {
             public string Name => "logout";
             public string Description => "Removes stored token.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 if (File.Exists(Paths.TokenDir))
                 {
@@ -98,7 +98,7 @@ namespace Janus
         {
             public string Name => "init";
             public string Description => "Initializes the janus repository.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 // Initialise .janus folder
                 if (!Directory.Exists(Paths.janusDir))
@@ -151,7 +151,7 @@ namespace Janus
         {
             public string Name => "add";
             public string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 // No arguments given so command should return error
                 if (args.Length < 1)
@@ -250,7 +250,7 @@ namespace Janus
         {
             public string Name => "commit";
             public string Description => "Saves changes to the repository.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
                 if (!Directory.Exists(Paths.janusDir))
@@ -333,18 +333,27 @@ namespace Janus
         {
             public string Name => "push";
             public string Description => "Pushes the local repository to the remote repository.";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
-                string commitJson = await PushHelper.GetCommitMetadataFiles();
+                try
+                {
+                    Console.WriteLine("Attempting");
+                    string commitJson = PushHelper.GetCommitMetadataFiles(); // await
+                    Console.WriteLine("Finished commitmetadata: " + commitJson);
+                    // Get branch header
+                    // TODO
 
-                // Get branch header
-                // TODO
+
+                    // Send to backend
+                    PushHelper.PostToBackendAsync(commitJson).GetAwaiter().GetResult(); // await
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed: " + ex);
+                }
 
 
-                // Send to backend
-                await PushHelper.PostToBackendAsync(commitJson);
 
-                
 
             }
 
@@ -371,7 +380,7 @@ namespace Janus
         {
             public string Name => "create branch";
             public string Description => "create branch help";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 string branchName = args[0];
                 string branchPath = Path.Combine(Paths.headsDir, branchName);
@@ -400,7 +409,7 @@ namespace Janus
         {
             public string Name => "switch branch";
             public string Description => "switch branch help";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 string branchName = args[0];
                 string branchPath = Path.Combine(Paths.headsDir, branchName);
@@ -422,7 +431,7 @@ namespace Janus
         {
             public string Name => "log";
             public string Description => "log help";
-            public async Task Execute(string[] args)
+            public void Execute(string[] args)
             {
                 foreach (var commitFile in Directory.GetFiles(Paths.objectDir))
                 {

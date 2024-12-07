@@ -1,5 +1,4 @@
 ﻿using backend.Models;
-using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +8,8 @@ using System.Security.Claims;
 
 namespace backend.Controllers
 {
-    
-    [Route("api/CLI/[controller]")]
+
+    [Route("api/[controller]")]
     [ApiController]
     public class AccessTokenController : ControllerBase
     {
@@ -23,7 +22,7 @@ namespace backend.Controllers
             _accessTokenHelper = accessTokenHelper;
         }
 
-        // POST: api/web/Users/GenPAT
+        // POST: api/AccessToken/GenPAT
         [Authorize(Policy = "FrontendPolicy")]
         [EnableCors("FrontendPolicy")]
         [HttpPost("GenPAT")]
@@ -33,7 +32,7 @@ namespace backend.Controllers
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized("User ID not found in the token.");
+                return Unauthorized(new { message = "User ID not found in the token." });
             }
 
 
@@ -43,17 +42,17 @@ namespace backend.Controllers
         }
 
 
-        // POST: api/web/Users/GenPAT
+        // POST: api/AccessToken/GenPAT
         [Authorize(Policy = "CLIPolicy")]
         [EnableCors("CLIPolicy")]
         [HttpPost("RevokePAT")]
         public async Task<IActionResult> RevokePAT(string patToken)
         {
-            var tokenHash = _accessTokenHelper.HashToken(patToken);
+            //var tokenHash = _accessTokenHelper.HashToken(patToken);
 
             // Check if the token is already blacklisted
             var existingToken = await _janusDbContext.AccessTokenBlacklists
-                .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+                .FirstOrDefaultAsync(t => t.Token == patToken);
 
             if (existingToken != null)
             {
@@ -63,7 +62,7 @@ namespace backend.Controllers
             // Add token to blacklist
             var token = new AccessTokenBlacklist
             {
-                TokenHash = tokenHash,
+                Token = patToken,
                 Expires = DateTime.UtcNow.AddMonths(3)
             };
 

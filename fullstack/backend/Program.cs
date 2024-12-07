@@ -8,6 +8,7 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using backend.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
+builder.Services.AddScoped<CLIHelper>();
 
 
 // Add Db context
@@ -70,34 +72,50 @@ builder.Services.AddAuthentication(options =>
         };
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                Console.WriteLine("Authorization Header: " + authHeader);
+
+                return Task.CompletedTask;
+            },
             OnTokenValidated = async context =>
             {
                 try
                 {
                     var janusDbContext = context.HttpContext.RequestServices.GetRequiredService<JanusDbContext>();
                     var accessTokenHelper = context.HttpContext.RequestServices.GetRequiredService<AccessTokenHelper>();
-                    var rawToken = context.SecurityToken as JwtSecurityToken;
+                    var rawToken = context.SecurityToken; //  as JwtSecurityToken
+                    Console.WriteLine("Raw token: " + rawToken);
 
                     if (rawToken == null)
                     {
+                        Console.WriteLine("Invalid token format.");
                         context.Fail("Invalid token format.");
                         return;
                     }
 
-                    var tokenHash = accessTokenHelper.HashToken(rawToken.ToString());
+                    var tokenString = rawToken.ToString();
                         
                     var isBlacklisted = await janusDbContext.AccessTokenBlacklists
-                    .AnyAsync(t => t.TokenHash == tokenHash && t.Expires > DateTime.UtcNow);
+                    .AnyAsync(t => t.Token == tokenString && t.Expires > DateTime.UtcNow);
 
                     if (isBlacklisted)
                     {
+                        Console.WriteLine("Invalid token.");
                         context.Fail("Invalid token."); // Token has been revoked
                     }
                 } catch (Exception ex)
                 {
+                    Console.WriteLine("Token validation failed.");
                     context.Fail("Token validation failed.");
                 }
 
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Auth failed: " + context.Exception.Message);
+                return Task.CompletedTask;
             }
         };
     });

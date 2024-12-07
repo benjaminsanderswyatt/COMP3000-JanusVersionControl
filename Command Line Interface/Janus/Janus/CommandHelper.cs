@@ -131,12 +131,12 @@ namespace Janus
             {
                 Commit = commitHash,
                 Parent = parentCommit,
-                Date = DateTime.UtcNow,
+                Date = DateTimeOffset.UtcNow,
                 Message = commitMessage,
                 Files = fileHashes
             };
 
-            string metadataJson = JsonConvert.SerializeObject(metadata);
+            string metadataJson = JsonConvert.SerializeObject(metadata, Formatting.Indented);
 
             return metadataJson;
         }

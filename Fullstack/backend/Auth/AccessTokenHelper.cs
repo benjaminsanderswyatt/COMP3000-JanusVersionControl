@@ -31,13 +31,14 @@ public class AccessTokenHelper
         return token;
     }
 
+    /*
     public string HashToken(string token)
     {
         using var sha256 = SHA256.Create();
         byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
         return Convert.ToBase64String(hashBytes);
     }
-
+    */
 
 
 

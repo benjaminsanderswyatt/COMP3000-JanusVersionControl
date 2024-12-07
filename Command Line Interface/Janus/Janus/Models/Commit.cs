@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +12,7 @@ namespace Janus.Models
     {
         public string Commit {  get; set; }
         public string Parent {  get; set; }
-        public DateTime Date {  get; set; }
+        public DateTimeOffset Date {  get; set; }
         public string Message { get; set; }
         public Dictionary<string, string> Files { get; set; }
 
