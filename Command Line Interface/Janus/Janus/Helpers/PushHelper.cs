@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace Janus
+namespace Janus.Helpers
 {
     internal class PushHelper
     {
@@ -32,36 +32,55 @@ namespace Janus
             public byte[] FileContent { get; set; }
         }
 
-        private class TestThing
+        private class RepoNameBranch
         {
-            public List<FileDto> Files { get; set; }
+            public string RepoName { get; set; }
+            public string BranchName { get; set; }
+        }
+
+        private class RemoteHeadCommit
+        {
+            public string CommitHash { get; set; }
         }
 
 
-        public static string GetCommitMetadataFiles()
+        public static async string GetCommitMetadataFiles()
         {
             Console.WriteLine("Getting commits");
+
             try
             {
                 string commitDir = Paths.commitDir;
 
-                var commits = Directory.EnumerateFiles(commitDir);
+                var refHead = File.ReadAllText(Paths.head).Substring(5); // Remove the "ref: " at the start
+
+                string localHeadCommit = File.ReadAllText(Path.Combine(Paths.janusDir, refHead));
+
+                string repoName = Path.GetFileName(Directory.GetCurrentDirectory()); // Get the name of the folder (thats the repo name)
+
+                var repoNameBranch = new RepoNameBranch
+                {
+                    RepoName = repoName,
+                    BranchName = refHead
+                };
+
+                var remoteHeadResponse = await GetRemoteHeadCommit(JsonSerializer.Serialize(repoNameBranch));
+
+                var remoteHeadResponseObj = JsonSerializer.Deserialize<RemoteHeadCommit>(remoteHeadResponse);
+
+                string remoteLatestCommitHash = remoteHeadResponseObj.CommitHash;
+
+                string localLatestCommitHash = File.ReadAllText(Path.Combine(commitDir, localHeadCommit)); // Get the latest commit
 
 
                 var commitList = new List<CommitDto>();
-                var testList = new List<TestThing>();
-
-                foreach (var commit in commits)
+                string currentCommitHash = localLatestCommitHash;
+                while (remoteLatestCommitHash != localLatestCommitHash) // Initial commit is when both local and remote are refs: refs/heads/"branchName"
                 {
-                    Console.WriteLine("Commit foreach: " + commit);
+                    // Read the current commit
+                    string commitJson = File.ReadAllText(Path.Combine(Paths.commitDir, currentCommitHash));
 
-                    // Read the commit
-                    string commitJson = File.ReadAllText(commit);
-
-                    Console.WriteLine("Read commit: " + commitJson);
                     CommitMetadata commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(commitJson);
-                    // Console.WriteLine($"Deserialized Date: {commitMetadata.Date}");
-                    // Console.WriteLine($"Deserialized Message: {commitMetadata.Message}");
 
                     var fileDtos = new List<FileDto>();
                     foreach (var file in commitMetadata.Files)
@@ -82,45 +101,79 @@ namespace Janus
                             FileContent = fileContent
                         });
 
-                        Console.WriteLine("fileList: " + fileDtos.First().FilePath);
                     }
-                    Console.WriteLine("Out of loops: " + fileDtos.Count());
 
-
-                    Console.WriteLine(JsonSerializer.Serialize(fileDtos));
-                    
-                    // Create new commit object
+                    // Create new commit object and add it to the list
                     commitList.Add(new CommitDto
                     {
                         CommitHash = commitMetadata.Commit,
                         ParentCommitHash = commitMetadata.Parent,
-                        CommittedAt = commitMetadata.Date, //commitMetadata.Date
-                        Message = commitMetadata.Message, //commitMetadata.Message
-                        Files = fileDtos //fileDtos
+                        CommittedAt = commitMetadata.Date,
+                        Message = commitMetadata.Message,
+                        Files = fileDtos
                     });
-                    
-                    Console.WriteLine("After creation of object");
-                    Console.WriteLine("commitList: " + JsonSerializer.Serialize(commitList, new JsonSerializerOptions { WriteIndented = true }));
-                    
-                }
-                Console.WriteLine("Outside");
 
-                Console.WriteLine("Success getting commits: " + JsonSerializer.Serialize(commitList, new JsonSerializerOptions { WriteIndented = true }));
+                    // Set the current commit to the parent
+                    currentCommitHash = commitMetadata.Parent;
+                }
+
+                if (commitList.Count < 1)
+                {
+                    return "Remote repo is up to date with local";
+                }
+
+                // Commits to be pushed
                 return JsonSerializer.Serialize(commitList, new JsonSerializerOptions { WriteIndented = true });
-            } catch (Exception ex)
+
+            } 
+            catch (Exception ex)
             {
                 Console.WriteLine("Error getting commits: " + ex.ToString());
                 return null;
             }
-            
+
+
         }
 
 
 
-        // Auth header
 
+        public static async Task<string> GetRemoteHeadCommit(string repoNameBranch)
+        {
+            string apiUrl = "https://localhost:82/api/CLI/RemoteHeadCommit";
 
-        
+            Console.WriteLine("GetRemoteHeadCommit started");
+            using (HttpClient client = new HttpClient())
+            {
+                // Authorization
+                string? accessToken = CommandHelper.RetreiveToken();
+                Console.WriteLine("PAT: " + accessToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                var content = new StringContent(repoNameBranch, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    // Send a POST request
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, content);
+
+                    // Ensure the response was successful
+                    response.EnsureSuccessStatusCode();
+
+                    // Optionally read the response content
+                    string responseContent = await response.Content.ReadAsStringAsync();
+
+                    Console.WriteLine("Response received:");
+                    Console.WriteLine(responseContent);
+                    return responseContent;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Request error: {ex.Message}");
+                    return ex.ToString();
+                }
+            }
+        }
 
         public static async Task<string> PostToBackendAsync(string commitJson)
         {
@@ -134,7 +187,7 @@ namespace Janus
                 Console.WriteLine("PAT: " + accessToken);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-                
+
                 var content = new StringContent(commitJson, Encoding.UTF8, "application/json");
 
                 try

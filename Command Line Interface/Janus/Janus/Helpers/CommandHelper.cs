@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Janus
+namespace Janus.Helpers
 {
     internal class CommandHelper
     {
