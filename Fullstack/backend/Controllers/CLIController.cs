@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace backend.Controllers
 {
@@ -104,7 +102,7 @@ namespace backend.Controllers
 
         // POST: api/CLI/GetHeadCommitHash
         [HttpPost("RemoteHeadCommit")]
-        public async Task<IActionResult> RemoteHeadCommit([FromBody] RepoNameBranch repoNameBranch )
+        public async Task<IActionResult> RemoteHeadCommit([FromBody] RepoNameBranch repoNameBranch)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -193,46 +191,46 @@ namespace backend.Controllers
 
 
 
-                /*
-                try
+            /*
+            try
+            {
+                string repoName = repoNameBranch.RepoName;
+                string branchName = repoNameBranch.BranchName;
+
+                var latestCommitId = await _janusDbContext.Users // Find the latest commit for the branch given user, repo name and branch name
+                    .Where(User => User.UserId == userId)
+                    .SelectMany(User => User.Repositories)
+                    .Where(Repository => Repository.RepoName == repoName)
+                    .SelectMany(Repository => Repository.Branches)
+                    .Where(Branch => Branch.BranchName == branchName)
+                    .Select(Branch => Branch.LatestCommitId)
+                    .FirstOrDefaultAsync();
+
+                if (latestCommitId == null)
                 {
-                    string repoName = repoNameBranch.RepoName;
-                    string branchName = repoNameBranch.BranchName;
-
-                    var latestCommitId = await _janusDbContext.Users // Find the latest commit for the branch given user, repo name and branch name
-                        .Where(User => User.UserId == userId)
-                        .SelectMany(User => User.Repositories)
-                        .Where(Repository => Repository.RepoName == repoName)
-                        .SelectMany(Repository => Repository.Branches)
-                        .Where(Branch => Branch.BranchName == branchName)
-                        .Select(Branch => Branch.LatestCommitId)
-                        .FirstOrDefaultAsync();
-
-                    if (latestCommitId == null)
-                    {
-                        return BadRequest("Couldn't find remote repos latest commit in the branch");
-                    }
-
-                    var commitHash = await _janusDbContext.Commits
-                        .Where(Commit => Commit.CommitId == latestCommitId)
-                        .Select(Commit => Commit.CommitHash)
-                        .FirstOrDefaultAsync();
-
-                    if (commitHash == null)
-                    {
-                        return BadRequest("Couldn't find remote repos latest commit");
-                    }
-
-                    return Ok(new { CommitHash = commitHash });
-
+                    return BadRequest("Couldn't find remote repos latest commit in the branch");
                 }
-                catch (Exception ex)
+
+                var commitHash = await _janusDbContext.Commits
+                    .Where(Commit => Commit.CommitId == latestCommitId)
+                    .Select(Commit => Commit.CommitHash)
+                    .FirstOrDefaultAsync();
+
+                if (commitHash == null)
                 {
-                    return BadRequest(new { error = ex.Message });
+                    return BadRequest("Couldn't find remote repos latest commit");
                 }
-                */
+
+                return Ok(new { CommitHash = commitHash });
 
             }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            */
+
+        }
 
 
 
