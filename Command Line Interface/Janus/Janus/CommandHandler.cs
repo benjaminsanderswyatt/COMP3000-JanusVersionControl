@@ -1,4 +1,5 @@
-﻿using Janus.Plugins;
+﻿using Janus.Helpers;
+using Janus.Plugins;
 using System.Text;
 
 
@@ -18,9 +19,9 @@ namespace Janus
                 new AddCommand(),
                 new CommitCommand(),
                 new PushCommand(),
-                new CreateBranchCommand(),
-                new SwitchBranchCommand(),
-                new LogCommand()
+                //new CreateBranchCommand(),
+                //new SwitchBranchCommand(),
+                //new LogCommand()
                 
                 // Add new built in commands here
             };
@@ -316,8 +317,8 @@ namespace Janus
                 string commitFilePath = Path.Combine(Paths.commitDir, commitHash);
                 File.WriteAllText(commitFilePath, commitMetadata);
 
-                // Update HEAD to point to the new commit
-                File.WriteAllText(Paths.head, commitHash);
+                // Update head to point to the new commit
+                HeadHelper.SetHeadCommit(commitHash);
 
                 // Clear the staging area
                 File.WriteAllText(Paths.index, string.Empty);
@@ -375,7 +376,7 @@ namespace Janus
 
 
 
-
+        /*
         public class CreateBranchCommand : ICommand
         {
             public string Name => "create branch";
@@ -443,6 +444,6 @@ namespace Janus
                 }
             }
         }
-
+        */
     }
 }
