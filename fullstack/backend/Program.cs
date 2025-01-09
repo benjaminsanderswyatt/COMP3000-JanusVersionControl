@@ -81,31 +81,26 @@ builder.Services.AddAuthentication(options =>
                 try
                 {
                     var janusDbContext = context.HttpContext.RequestServices.GetRequiredService<JanusDbContext>();
-                    var accessTokenHelper = context.HttpContext.RequestServices.GetRequiredService<AccessTokenHelper>();
-                    var rawToken = context.SecurityToken; //  as JwtSecurityToken
-                    Console.WriteLine("Raw token: " + rawToken);
+                    var tokenString = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                    Console.WriteLine("Token String: " + tokenString);
 
-                    if (rawToken == null)
+                    if (string.IsNullOrEmpty(tokenString))
                     {
-                        Console.WriteLine("Invalid token format.");
                         context.Fail("Invalid token format.");
                         return;
                     }
-
-                    var tokenString = rawToken.ToString();
 
                     var isBlacklisted = await janusDbContext.AccessTokenBlacklists
                     .AnyAsync(t => t.Token == tokenString && t.Expires > DateTime.UtcNow);
 
                     if (isBlacklisted)
                     {
-                        Console.WriteLine("Invalid token.");
-                        context.Fail("Invalid token."); // Token has been revoked
+                        context.Fail("The provided token is invalid or has been revoked."); // Token has been revoked
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Token validation failed.");
+                    Console.WriteLine("Token validation failed: " + ex.Message);
                     context.Fail("Token validation failed.");
                 }
 

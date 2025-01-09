@@ -95,7 +95,7 @@ namespace backend.Controllers
         }
         */
 
-        private class RepoNameBranch
+        public class RepoNameBranch
         {
             public string RepoName { get; set; }
             public string BranchName { get; set; }
