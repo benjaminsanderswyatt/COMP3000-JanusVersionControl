@@ -1,7 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 public class JwtHelper
@@ -13,7 +12,7 @@ public class JwtHelper
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim("TokenType", "User")
         };
-        
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_Web")));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

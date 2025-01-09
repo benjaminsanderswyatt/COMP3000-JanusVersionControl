@@ -1,7 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-
-namespace backend.DataTransferObjects
+﻿namespace backend.DataTransferObjects
 {
     public class CommitDto
     {
@@ -9,7 +6,7 @@ namespace backend.DataTransferObjects
         public string CommitHash { get; set; }
         public string Message { get; set; }
         public string ParentCommitHash { get; set; }
-        public DateTime CommittedAt { get; set; }
+        public DateTimeOffset CommittedAt { get; set; }
         public List<FileDto> Files { get; set; }
     }
 

@@ -68,7 +68,7 @@ namespace backend.Controllers
 
             _janusDbContext.AccessTokenBlacklists.Add(token);
             await _janusDbContext.SaveChangesAsync();
-            
+
             return Ok("Token has been revoked.");
         }
 

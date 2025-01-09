@@ -112,7 +112,7 @@ namespace backend.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
-                    b.Property<DateTime>("CommittedAt")
+                    b.Property<DateTimeOffset>("CommittedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Message")

@@ -1,13 +1,5 @@
-﻿using backend.Auth;
-using backend.DataTransferObjects;
-using backend.Models;
-using backend.Services;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace backend.Controllers
 {

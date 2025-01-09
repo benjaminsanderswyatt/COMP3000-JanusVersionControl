@@ -21,7 +21,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    TokenHash = table.Column<string>(type: "longtext", nullable: false)
+                    Token = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Expires = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     BlacklistedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -142,7 +142,7 @@ namespace backend.Migrations
                     Message = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ParentCommitId = table.Column<int>(type: "int", nullable: true),
-                    CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CommittedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {

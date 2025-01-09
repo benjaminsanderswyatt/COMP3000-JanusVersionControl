@@ -1,14 +1,11 @@
+using backend.Helpers;
 using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IO;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using backend.Helpers;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,7 +93,7 @@ builder.Services.AddAuthentication(options =>
                     }
 
                     var tokenString = rawToken.ToString();
-                        
+
                     var isBlacklisted = await janusDbContext.AccessTokenBlacklists
                     .AnyAsync(t => t.Token == tokenString && t.Expires > DateTime.UtcNow);
 
@@ -105,7 +102,8 @@ builder.Services.AddAuthentication(options =>
                         Console.WriteLine("Invalid token.");
                         context.Fail("Invalid token."); // Token has been revoked
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine("Token validation failed.");
                     context.Fail("Token validation failed.");
