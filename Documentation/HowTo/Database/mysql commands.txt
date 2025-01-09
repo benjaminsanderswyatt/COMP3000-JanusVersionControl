@@ -12,3 +12,6 @@ SHOW TABLES;
 
 see a tables schema
 DESCRIBE "tableName";
+
+Select
+SELECT * FROM Repositories;
