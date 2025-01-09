@@ -96,5 +96,67 @@ namespace backend.Controllers
             }
         }
 
+
+
+
+        // DELETE: api/Branch/Delete/{branchId}
+        [HttpDelete("Delete/{branchId}")]
+        public async Task<IActionResult> Delete(int branchId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { error = "Invalid or missing user" });
+            }
+
+            // Find the branch by id and ensure it belongs to the current users repo
+            var branch = await _janusDbContext.Branches
+                .Include(b => b.Repository) // Check if the user is the owner
+                .FirstOrDefaultAsync(b => b.BranchId == branchId);
+
+            if (branch == null)
+            {
+                return NotFound(new { error = "Branch not found." });
+            }
+
+
+            // Ensure the branch belongs to the users repo
+            if (branch.Repository.OwnerId != userId)
+            {
+                return Unauthorized(new { error = "You do not have permission to delete this branch." });
+            }
+
+            var strategy = _janusDbContext.Database.CreateExecutionStrategy();
+
+            try
+            {
+                await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
+
+                    try
+                    {
+                        // Remove the branch (cascade)
+                        _janusDbContext.Branches.Remove(branch);
+
+                        await _janusDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                });
+
+                return Ok(new { message = "Branch deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
     }
 }
