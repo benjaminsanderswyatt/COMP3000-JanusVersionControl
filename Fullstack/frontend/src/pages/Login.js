@@ -125,8 +125,9 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
+      <h1 style={styles.heading}>{isRegistering ? "Register" : "Login"}</h1>
+
       <div style={styles.main}>
-        <h1 style={styles.heading}>{isRegistering ? "Register" : "Login"}</h1>
         {isRegistering ? (
           <RegisterForm
             formData={formData}
@@ -145,8 +146,10 @@ const Login = () => {
 
         {message && <p style={{ ...styles.message, ...messageStyle }}>{message}</p>}
 
-        <ToggleButton isRegistering={isRegistering} onClick={toggleForm} />
       </div>
+
+      <ToggleButton isRegistering={isRegistering} onClick={toggleForm} />
+
     </div>
   );
 };
@@ -168,25 +171,16 @@ const styles = {
     padding: "20px",
     borderRadius: "8px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    margin: "20px 0px",
   },
   heading: {
     fontSize: "2.5rem",
-    margin: "20px 0px",
+    margin: "10px 0px",
     textShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
   },
   message: {
     marginTop: '15px',
     fontWeight: 'bold',
-  },
-
-  footer: {
-    marginTop: "20px",
-    fontSize: "0.9rem",
-    color: "#555",
-  },
-  link: {
-    color: "#007BFF",
-    textDecoration: "none",
   },
 }
 

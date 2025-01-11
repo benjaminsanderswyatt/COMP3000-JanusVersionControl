@@ -8,6 +8,9 @@ import Login from './pages/Login';
 import Repositories from './pages/Repositories';
 import Account from './pages/Account';
 
+import TermsOfUse from './pages/legal/TermsOfUse'
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+
 
 import './styles/App.css';
 
@@ -31,6 +34,7 @@ const App = () => {
           <Route index element={<Login />} />
 
 
+
           {/*Protected Routes*/}
           <Route path="repositories" element={<PrivateRoute />}>
             <Route index element={<Repositories />}/>
@@ -40,6 +44,13 @@ const App = () => {
             <Route index element={<Account />}/>
           </Route>
 
+
+
+
+
+          {/* Legal Pages */}
+          <Route path="legal/termsofuse" element={<TermsOfUse />} />
+          <Route path="legal/privacypolicy" element={<PrivacyPolicy />} />
 
           {/*Catch all invalid routes (404)*/}
           <Route path="*" element={<NoPage />} />

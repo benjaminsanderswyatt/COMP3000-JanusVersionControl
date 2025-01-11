@@ -49,7 +49,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
         onChange={(e) => setAgreedToTerms(e.target.checked)}
       />
       <label htmlFor="terms">
-        I agree to the <a href="/terms">Terms and Conditions</a> and <a href="/privacy">Privacy Policy</a>.
+        I agree to the <a href="/legal/termsofuse" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="/legal/privacypolicy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
       </label>
     </div>
    
