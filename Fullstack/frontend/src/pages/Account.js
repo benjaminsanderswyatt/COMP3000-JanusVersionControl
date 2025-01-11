@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { deleteUser } from '../api/fetchUsers';
 
+import ThemeToggle from '../components/ThemeToggle';
+
 
 const Account = () => {
     const navigate = useNavigate();
@@ -28,7 +30,7 @@ const Account = () => {
 
     return (
         <div style={styles.main}>
-            
+            <ThemeToggle />
             
             <h1>Account</h1>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router";
 
 import Layout from './pages/Layout';
@@ -11,7 +11,7 @@ import Account from './pages/Account';
 import TermsOfUse from './pages/legal/TermsOfUse'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
-
+import { ThemeProvider, useTheme } from './ThemeContext';
 import './styles/App.css';
 
 
@@ -23,9 +23,14 @@ const ProtectedRoute = () => {
   return token ? <Outlet /> : <Navigate to="/" replace />;
 };
 
-
-
 const App = () => {
+  const { theme } = useTheme();
+
+  // Set the theme from ThemeContext useTheme
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
 
   return (
     <BrowserRouter>
@@ -62,4 +67,11 @@ const App = () => {
   );
 };
 
-export default App;
+// Wrap app in the theme and export that as the new app
+const AppWithTheme = () => (
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>
+);
+
+export default AppWithTheme;
