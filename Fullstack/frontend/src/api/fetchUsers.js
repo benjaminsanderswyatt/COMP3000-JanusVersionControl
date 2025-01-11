@@ -16,7 +16,7 @@ export async function register(username, email, password) {
       throw new Error(responseJson.message || "Registration failed")
     }
 
-    return responseJson;
+    return {success: true, message: responseJson};
 
   } catch (error) {
     return {success: false, message: error.message};
@@ -41,6 +41,33 @@ export const login = async (email, password) => {
     }
 
     return {success: true, token: responseJson.token};
+
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+
+
+export const deleteUser = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`${API_URL}/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const responseJson = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseJson.message || "Failed to delete user");
+    }
+
+    return { success: true, message: responseJson.message };
 
   } catch (error) {
     return { success: false, message: error.message };

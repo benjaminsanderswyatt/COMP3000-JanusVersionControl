@@ -1,51 +1,74 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
-import LoginForm from "../components/LoginForm";
-import RegisterForm from "../components/RegisterForm";
-import ToggleButton from "../components/ToggleButton";
-import { register, login } from "../api/fetchUsers";
+import LoginForm from '../components/Login/LoginForm';
+import RegisterForm from '../components/Login/RegisterForm';
+import ToggleButton from '../components/Login/ToggleButton';
+import { register, login } from '../api/fetchUsers';
 
-import styles from "../styles/pages/Login.module.css";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [isRegistering, setIsRegistering] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // Tracks agreement to terms and conditions/privacy
 
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
     username: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const navigate = useNavigate();
+  // Redirect to repos if user has token (already logged in)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/repos", { replace: true }); // Redirect
+    }
+  }, [navigate]);
+  
 
   const toggleForm = () => {
     setIsRegistering(!isRegistering);
 
+    setAgreedToTerms(false);
+
     // Reset the form when switched
     setFormData({
       email: "",
-      password: "",
       username: "",
+      password: "",
+      confirmPassword: "",
     });
+
+    // Reset message type
+    // The messageType is only = success when successfully registered (so it can be transfered to the login)
+    if (messageType === 'error') { 
+      setMessage("");
+      setMessageType("");
+    }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    // Set the value when user types it in
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const handleChange = ({ target: { name, value } }) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isRegistering) {
-      // Register
+      // Ensure terms agreement
+      if (!agreedToTerms) {
+        setMessageType('error');
+        setMessage("You must agree to the terms and conditions to register.");
+        return;
+      }
 
+      // Register
       try {
         // Send request
         const response = await register(
@@ -55,15 +78,18 @@ const Login = () => {
         );
 
         if (response.success) {
-          alert("Registration successful!");
+          setMessageType('success');
+          setMessage("Registration successful!");
           toggleForm(); // Go to the login page
         } else {
-          alert(response.message || "Registration failed");
+          setMessageType('error');
+          setMessage(response.message || "Registration failed");
         }
 
       } catch (error) {
         console.error("Registration error:", error);
-        alert("An error occurred during registration");
+        setMessageType('error');
+        setMessage("An error occurred during registration. Please try again.");
       }
 
     } else {
@@ -78,38 +104,90 @@ const Login = () => {
         
         if (response.success){
           localStorage.setItem('token', response.token);
-          navigate("/Repos"); // Navigate
+          navigate("/repos"); // Navigate
         } else {
-          alert("Login failed");
+          setMessageType('error');
+          setMessage("Incorrect email or password. Please try again.");
         }
 
       } catch (error) {
         console.error("Login error:", error);
-        alert("An error occurred during login");
+        setMessageType('error');
+        setMessage("An error occurred during login");
       }
 
     }
   };
 
+
+  // Message colour, green for success, red for failure
+  const messageStyle = messageType === 'success' ? { color: 'green' } : { color: 'red' };
+
   return (
-    <div className={styles.login}>
-      <h1>{isRegistering ? "Register" : "Login"}</h1>
-      {isRegistering ? (
-        <RegisterForm
-          formData={formData}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-        />
-      ) : (
-        <LoginForm
-          formData={formData}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-        />
-      )}
-      <ToggleButton isRegistering={isRegistering} onClick={toggleForm} />
+    <div style={styles.container}>
+      <div style={styles.main}>
+        <h1 style={styles.heading}>{isRegistering ? "Register" : "Login"}</h1>
+        {isRegistering ? (
+          <RegisterForm
+            formData={formData}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            agreedToTerms={agreedToTerms}
+            setAgreedToTerms={setAgreedToTerms}
+          />
+        ) : (
+          <LoginForm
+            formData={formData}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+          />
+        )}
+
+        {message && <p style={{ ...styles.message, ...messageStyle }}>{message}</p>}
+
+        <ToggleButton isRegistering={isRegistering} onClick={toggleForm} />
+      </div>
     </div>
   );
 };
+
+
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    width: '100%',
+    flexDirection: "column",
+  },
+  main: {
+    backgroundColor: '#acd6f6',
+    width: '100%',
+    maxWidth: "400px",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  },
+  heading: {
+    fontSize: "2.5rem",
+    margin: "20px 0px",
+    textShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+  },
+  message: {
+    marginTop: '15px',
+    fontWeight: 'bold',
+  },
+
+  footer: {
+    marginTop: "20px",
+    fontSize: "0.9rem",
+    color: "#555",
+  },
+  link: {
+    color: "#007BFF",
+    textDecoration: "none",
+  },
+}
 
 export default Login;

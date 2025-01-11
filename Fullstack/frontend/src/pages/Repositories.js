@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { GenAccessToken } from "../api/fetchPAT";
+import React, { useState } from 'react';
+import { GenAccessToken } from '../api/fetchPAT';
 
-const Repos = () => {
+const Repositories = () => {
   const [tokenData , setTokenData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,19 +13,19 @@ const Repos = () => {
     try {
       
       const response = await GenAccessToken();
-      console.log("Finished response Try");
+      console.log('Finished response Try');
 
       if (!response.success) {
-        console.log("Failed: " + response.message + " token: " + response.token);
+        console.log('Failed: ' + response.message + ' token: ' + response.token);
         throw new Error(response.message);
       }
 
       setTokenData(response);
     } catch (err) {
-      console.log("Catch");
+      console.log('Catch');
       setError(err.message);
     } finally {
-      console.log("Final");
+      console.log('Final');
       setLoading(false);
     }
   };
@@ -37,7 +37,7 @@ const Repos = () => {
       <h1>Repos</h1>
       <button onClick={handleGenAccessToken}>Generate PAT</button>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {tokenData  && (
         <div>
           <h2>Token Generated:</h2>
@@ -48,5 +48,5 @@ const Repos = () => {
     );
   };
   
-  export default Repos;
+  export default Repositories;
   

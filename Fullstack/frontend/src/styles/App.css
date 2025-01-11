@@ -2,7 +2,14 @@
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9;
-  color: #333;
   min-height: 100vh;
+}
+
+/* Default Light Theme */
+:root {
+  --background-color-light: #f4f4f6;
+  --text-color-light: #0f1014;
+  --primary-color-light: #737491;
+  --secondary-color-light: #beafc0;
+  --accent-color-light: #ae98ab;
 }
