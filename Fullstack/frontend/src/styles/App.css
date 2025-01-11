@@ -6,10 +6,26 @@
 }
 
 /* Default Light Theme */
-:root {
-  --background-color-light: #f4f4f6;
-  --text-color-light: #0f1014;
-  --primary-color-light: #737491;
-  --secondary-color-light: #beafc0;
-  --accent-color-light: #ae98ab;
+:root[data-theme="light"] {
+  --text: #0F1014;
+  --background: #F4F4F6;
+  --primary: #6971A9;
+  --secondary: #C2B1CB;
+  --accent: #848CB9;
+}
+:root[data-theme="dark"] {
+  --text: #ebecf0;
+  --background: #09090b;
+  --primary: #565d95;
+  --secondary: #44334d;
+  --accent: #474f7b;
+}
+
+/* Links */
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  color: var(--secondary);
 }

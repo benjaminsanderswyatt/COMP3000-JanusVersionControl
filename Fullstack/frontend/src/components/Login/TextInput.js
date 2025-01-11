@@ -30,7 +30,7 @@ const styles = {
     width: '100%',
     padding: '10px',
     border: '1px solid #ccc',
-    borderRadius: '4px',
+    borderRadius: '8px',
     fontSize: '16px',
     boxSizing: "border-box",
   },

@@ -6,17 +6,28 @@ const Navbar = () => {
 
   return (
     <nav style={styles.navbar}>
-      {token && (
-        <>
-          <ul style={styles.navbarLinks}>
-            <button style={styles.navbarItem} onClick={() => navigate("/repositories")}>Repositories</button>
-          </ul>
-          <div style={styles.navbarSpacer}></div>
-          <ul style={styles.navbarLinks}>
-            <button style={styles.navbarItem} onClick={() => navigate("/account")}>Account</button>
-          </ul>
-        </>
-      )}
+      
+
+
+
+      {token ? (
+          <>
+            <ul style={styles.navbarLinks}>
+              <button style={styles.navbarItem} onClick={() => navigate("/repositories")}>Repositories</button>
+            </ul>
+            <div style={styles.navbarSpacer}></div>
+            <ul style={styles.navbarLinks}>
+              <button style={styles.navbarItem} onClick={() => navigate("/account")}>Account</button>
+            </ul>
+          </>
+        ) : (
+          <>
+            <ul style={styles.navbarLinks}>
+              <button style={styles.navbarItem} onClick={() => navigate("/repositories")}>Login</button>
+            </ul>
+          </>
+        )
+      }
     </nav>
   );
 };
@@ -24,14 +35,15 @@ const Navbar = () => {
 const styles = {
     navbar: {
       display: "flex",
-      backgroundColor: "#18284a",
+      backgroundColor: "white",
       padding: "0px 20px",
       height: "50px",
       margin: "0",
       gap: "2px",
       listStyle: "none",
       justifyContent: "left",
-      alignItems: "center"
+      alignItems: "center",
+      borderBottom: '#d9d9d9 solid 1px',
     },
     navbarLinks: {
       padding: "0px",
@@ -46,7 +58,7 @@ const styles = {
       width: "100%",
       border: "none",
       background: "none",
-      color: "white",
+      color: "black",
     },
     navbarSpacer: {
       width: "1px",

@@ -9,11 +9,8 @@ const Layout = () => {
 
   return (
     <div style={styles.constainer}>
-      {token && (
-        <>
-          <Navbar />
-        </>
-      )}
+      <Navbar />
+       
       
       
 
@@ -27,7 +24,7 @@ const Layout = () => {
 
 const styles = {
   constainer: {
-    backgroundColor: "#F9FDFF",
+    backgroundColor: "#F4F4F6",
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column"
@@ -35,6 +32,7 @@ const styles = {
   content: {
     display: "flex",
     justifyContent: "center",
+    flex: '1 1 auto',
   }
 
 

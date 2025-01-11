@@ -43,6 +43,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
 
     <div>
       <input
+      style={styles.checkbox}
         type="checkbox"
         id="terms"
         checked={agreedToTerms}
@@ -59,13 +60,16 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
 );
 
 const styles = {
+  checkbox: {
+    accentColor: 'green',
+  },
   button: {
     width: '100%',
     padding: '10px',
     backgroundColor: '#3F7FAA',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     fontWeight: 'bold',
     cursor: 'pointer',
     margin: '20px 0px',

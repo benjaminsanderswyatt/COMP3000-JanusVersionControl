@@ -50,7 +50,7 @@ const styles = {
     flex: '1',
     padding: '10px',
     border: '1px solid #ccc',
-    borderRadius: '4px',
+    borderRadius: '8px',
     fontSize: '16px',
     boxSizing: "border-box",
     margin: '0px 4px 0px 0px',
@@ -60,7 +60,7 @@ const styles = {
     width: '50px',
     background: '#ddd',
     border: 'thin solid grey',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
   },
 };

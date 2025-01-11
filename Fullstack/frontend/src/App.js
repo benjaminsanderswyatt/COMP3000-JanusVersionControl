@@ -14,13 +14,15 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 import './styles/App.css';
 
-// PrivateRoute you can only access if you have valid Json Web Token
-const PrivateRoute = () => {
+
+// ProtectedRoute you can only access if you have valid Json Web Token
+const ProtectedRoute = () => {
   const token = localStorage.getItem('token'); // Check for token in localStorage
 
   // If token exists, render the requested component
   return token ? <Outlet /> : <Navigate to="/" replace />;
 };
+
 
 
 const App = () => {
@@ -36,11 +38,11 @@ const App = () => {
 
 
           {/*Protected Routes*/}
-          <Route path="repositories" element={<PrivateRoute />}>
+          <Route path="repositories" element={<ProtectedRoute />}>
             <Route index element={<Repositories />}/>
           </Route>
 
-          <Route path="account" element={<PrivateRoute />}>
+          <Route path="account" element={<ProtectedRoute />}>
             <Route index element={<Account />}/>
           </Route>
 

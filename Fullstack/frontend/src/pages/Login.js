@@ -160,15 +160,15 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
     width: '100%',
     flexDirection: "column",
   },
   main: {
-    backgroundColor: '#acd6f6',
+    backgroundColor: 'white',
     width: '100%',
     maxWidth: "400px",
     padding: "20px",
+    border: '#d9d9d9 thin solid',
     borderRadius: "8px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     margin: "20px 0px",
@@ -176,7 +176,7 @@ const styles = {
   heading: {
     fontSize: "2.5rem",
     margin: "10px 0px",
-    textShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+    textShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   },
   message: {
     marginTop: '15px',
