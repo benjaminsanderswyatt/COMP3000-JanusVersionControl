@@ -19,6 +19,15 @@ const Register = () => {
   });
 
 
+  // Redirect to repos if user has token (already logged in)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/repositories", { replace: true }); // Redirect
+    }
+  }, [navigate]);
+
+
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
