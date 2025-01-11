@@ -25,7 +25,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/repos", { replace: true }); // Redirect
+      navigate("/repositories", { replace: true }); // Redirect
     }
   }, [navigate]);
   
@@ -104,7 +104,7 @@ const Login = () => {
         
         if (response.success){
           localStorage.setItem('token', response.token);
-          navigate("/repos"); // Navigate
+          navigate("/repositories"); // Navigate
         } else {
           setMessageType('error');
           setMessage("Incorrect email or password. Please try again.");

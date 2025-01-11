@@ -1,11 +1,9 @@
 import { Outlet, useNavigate } from 'react-router';
 
-import Header from '../components/Layout/Header';
 import Navbar from '../components/Layout/Navbar';
 
 
 const Layout = () => {
-  const navigate = useNavigate();
   const token = localStorage.getItem('token'); // Check for token (user is logged in)
 
 
