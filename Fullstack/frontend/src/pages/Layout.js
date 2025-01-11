@@ -24,7 +24,7 @@ const Layout = () => {
 
 const styles = {
   constainer: {
-    backgroundColor: "#F4F4F6",
+    backgroundColor: 'var(--background)',
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column"

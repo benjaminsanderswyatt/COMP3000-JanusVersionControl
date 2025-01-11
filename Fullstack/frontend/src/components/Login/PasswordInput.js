@@ -40,7 +40,7 @@ const styles = {
     display: 'block',
     marginBottom: '5px',
     fontWeight: 'bold',
-    color: '#444',
+    color: 'var(--lighttext)',
   },
   inputGroup: {
     display: 'flex',
@@ -58,10 +58,11 @@ const styles = {
   toggleButton: {
     height: '40px',
     width: '50px',
-    background: '#ddd',
-    border: 'thin solid grey',
+    background: 'var(--border)',
+    border: 'thin solid var(--border)',
     borderRadius: '8px',
     cursor: 'pointer',
+    color: 'var(--text)',
   },
 };
 

@@ -35,7 +35,7 @@ const Navbar = () => {
 const styles = {
     navbar: {
       display: "flex",
-      backgroundColor: "white",
+      backgroundColor: "var(--card)",
       padding: "0px 20px",
       height: "50px",
       margin: "0",
@@ -43,7 +43,7 @@ const styles = {
       listStyle: "none",
       justifyContent: "left",
       alignItems: "center",
-      borderBottom: '#d9d9d9 solid 1px',
+      borderBottom: 'var(--border) solid 1px',
     },
     navbarLinks: {
       padding: "0px",
@@ -58,12 +58,12 @@ const styles = {
       width: "100%",
       border: "none",
       background: "none",
-      color: "black",
+      color: "var(--text)",
     },
     navbarSpacer: {
       width: "1px",
       height: "24px",
-      backgroundColor: "grey",
+      backgroundColor: "var(--lighttext)",
       margin: "0 0px",
     },
   };

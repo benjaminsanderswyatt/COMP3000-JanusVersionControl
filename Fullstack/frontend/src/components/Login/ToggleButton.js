@@ -12,7 +12,7 @@ const styles = {
   toggleButton: {
     background: 'none',
     border: 'none',
-    color: '#333B75',
+    color: 'var(--primary)',
     textDecoration: 'underline',
     fontSize: '1rem',
     cursor: 'pointer',

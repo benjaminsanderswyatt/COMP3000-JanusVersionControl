@@ -24,7 +24,7 @@ const styles = {
     display: 'block',
     marginBottom: '5px',
     fontWeight: 'bold',
-    color: '#444',
+    color: 'var(--lighttext)',
   },
   input: {
     width: '100%',
