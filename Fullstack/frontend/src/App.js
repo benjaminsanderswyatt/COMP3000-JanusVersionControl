@@ -4,7 +4,10 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router";
 import Layout from './pages/Layout';
 import NoPage from './pages/NoPage';
 
+import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
+
 import Repositories from './pages/Repositories';
 import Account from './pages/Account';
 
@@ -37,8 +40,18 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
 
-          {/*Default route login page*/}
-          <Route index element={<Login />} />
+          {/*Default route*/}
+          <Route index element={<Home />} />
+
+
+          {/*User Pages*/}
+          <Route path="login">
+            <Route index element={<Login />}/>
+          </Route>
+
+          <Route path="register">
+            <Route index element={<Register />}/>
+          </Route>
 
 
 

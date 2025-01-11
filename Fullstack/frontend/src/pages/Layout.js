@@ -1,15 +1,14 @@
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet } from 'react-router';
 
-import Navbar from '../components/Layout/Navbar';
+import Header from '../components/Layout/Header';
 
 
 const Layout = () => {
-  const token = localStorage.getItem('token'); // Check for token (user is logged in)
 
 
   return (
     <div style={styles.constainer}>
-      <Navbar />
+      <Header />
        
       
       

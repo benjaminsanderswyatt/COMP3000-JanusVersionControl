@@ -54,7 +54,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
       </label>
     </div>
    
-    <button type="submit" disabled={!agreedToTerms} style={styles.button}>Register</button>
+    <button type="submit" style={styles.button}>Register</button>
     
   </form>
 );

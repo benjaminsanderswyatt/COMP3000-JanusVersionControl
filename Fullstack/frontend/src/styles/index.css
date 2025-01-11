@@ -15,7 +15,7 @@ code {
 /* Default Light Theme */
 :root {
   --text: #0F1014;
-  --lighttext: #444;
+  --lighttext: #444444;
   --inverttext: white;
 
   --background: #F4F4F6;
@@ -30,7 +30,7 @@ code {
 /* Dark Theme */
 [data-theme="dark"] {
   --text: #eaeaea;
-  --lighttext: #999;
+  --lighttext: #999999;
   --inverttext: black;
   
   --background: #181818;
@@ -38,6 +38,6 @@ code {
   --card: #313131;
 
   --primary: #565d95;
-  --secondary: #44334d;
+  --secondary: #867491;
   --accent: #474f7b;
 }

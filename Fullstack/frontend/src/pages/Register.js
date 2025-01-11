@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import LoginForm from '../components/Login/LoginForm';
-import { login } from '../api/fetchUsers';
+import RegisterForm from '../components/Login/RegisterForm';
+import { register } from '../api/fetchUsers';
 
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // Tracks agreement to terms and conditions/privacy
 
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
     password: "",
+    confirmPassword: "",
   });
 
-  // Redirect to repos if user has token (already logged in)
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/repositories", { replace: true }); // Redirect
-    }
-  }, [navigate]);
-  
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -32,26 +27,42 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Login
+    // Ensure password match
+    if (formData.password !== formData.confirmPassword) {
+      setMessageType('error');
+      setMessage("Passwords must match.");
+      return;
+    }
+    
+    // Ensure terms agreement
+    if (!agreedToTerms) {
+      setMessageType('error');
+      setMessage("You must agree to the terms of use to register.");
+      return;
+    }
+
+
+    // Register
     try {
       // Send request
-      const response = await login(
+      const response = await register(
+        formData.username,
         formData.email,
         formData.password
       );
-      
-      if (response.success){
-        localStorage.setItem('token', response.token);
-        navigate("/repositories"); // Navigate
+
+      if (response.success) {
+        setMessageType('success');
+        setMessage("Registration successful!");
       } else {
         setMessageType('error');
-        setMessage("Incorrect email or password. Please try again.");
+        setMessage(response.message || "Registration failed");
       }
 
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Registration error:", error);
       setMessageType('error');
-      setMessage("An error occurred during login");
+      setMessage("An error occurred during registration. Please try again.");
     }
   };
 
@@ -61,14 +72,15 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}>Login</h1>
+      <h1 style={styles.heading}>Register</h1>
 
       <div style={styles.main}>
-        
-        <LoginForm
+        <RegisterForm
           formData={formData}
           onChange={handleChange}
           onSubmit={handleSubmit}
+          agreedToTerms={agreedToTerms}
+          setAgreedToTerms={setAgreedToTerms}
         />
         
 
@@ -76,8 +88,8 @@ const Login = () => {
 
       </div>
 
-      <button onClick={() => navigate("/register")} style={styles.toggleButton}>
-        Don't have an account? Register here
+      <button onClick={() => navigate("/login")} style={styles.toggleButton}>
+        Already have an account? Login here
       </button>
     </div>
   );
@@ -121,4 +133,4 @@ const styles = {
   }
 }
 
-export default Login;
+export default Register;
