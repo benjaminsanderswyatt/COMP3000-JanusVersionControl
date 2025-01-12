@@ -10,6 +10,7 @@ public class JwtHelper
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim("Username", username),
             new Claim("TokenType", "User")
         };
 

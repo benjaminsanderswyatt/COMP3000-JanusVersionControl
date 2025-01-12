@@ -1,6 +1,3 @@
-import { jwtDecode } from "jwt-decode";
-import { useNavigate } from 'react';
-
 const API_URL = 'https://localhost:82/api/web/users';
 
 
@@ -24,6 +21,7 @@ export async function register(username, email, password) {
     return {success: true, message: responseJson};
 
   } catch (error) {
+
     return {success: false, message: error.message};
   }
 
@@ -45,10 +43,10 @@ export const login = async (email, password) => {
       throw new Error(responseJson.message || "Failed to log in");
     }
 
-    // Save the access token in localStorage
-    localStorage.setItem('token', responseJson.token);
-    return { success: true };
+    return { success: true, token: responseJson.token};
+
   } catch (error) {
+
     return { success: false, message: error.message };
   }
 };
@@ -82,43 +80,23 @@ export const deleteUser = async () => {
 };
 
 
-export const checkAndRefreshToken = async () => {
-  const navigate = useNavigate();
-
-  const token = localStorage.getItem('token');
-  
-  if (token) {
-    const { exp } = jwtDecode(token); // Decode the JWT token for expiry
-    
-    // Check if token has expired
-    if (Date.now() >= exp * 1000) {
-
-      try {
-        // Call the refresh endpoint to get a new token
-        const response = await fetch(`${API_URL}/refresh`, {
-          method: 'POST',
-          credentials: 'include', // Include cookies (refresh token in HttpOnly cookie)
-        });
-
-        const responseJson = await response.json();
-
-        if (response.ok) {
-          // Save new access token in localStorage
-          localStorage.setItem('token', responseJson.token);
-        } else {
-          // Handle refresh token fail
-          localStorage.removeItem('token');
-          navigate("/repositories", { replace: true }) // Redirect to login
-        }
 
 
-      } catch (error) {
-        console.error('Failed to refresh token:', error);
-        localStorage.removeItem('token');
-        navigate("/repositories", { replace: true }); // Redirect to login
-      }
+export const refreshAccessToken = async () => {
+  try {
+    const response = await fetch(`${API_URL}/refresh`, {
+      method: 'POST',
+      credentials: 'include',  // Important to include the cookie in the request
+    });
 
+    if (!response.ok) {
+      throw new Error("Failed to refresh token");
     }
 
+    const responseJson = await response.json();
+    return responseJson.token;  // New access token
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    return null;
   }
 };

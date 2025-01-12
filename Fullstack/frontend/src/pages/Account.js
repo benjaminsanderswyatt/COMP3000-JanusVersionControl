@@ -1,17 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { deleteUser } from '../api/fetchUsers';
+import { deleteUser } from '../api/fetch/fetchUsers';
+
+import { useAuth  } from '../contexts/AuthContext';
 
 import ThemeToggle from '../components/ThemeToggle';
 
 
 const Account = () => {
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const handleLogout = () => {
         // Remove token from localStorage
-        localStorage.removeItem('token');
-        navigate('/');
+        logout();
+        navigate("/login");
     };
 
 

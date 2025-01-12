@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../contexts/AuthContext';
 
 import LoginForm from '../components/Login/LoginForm';
-import { login } from '../api/fetchUsers';
 
 
 const Login = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
@@ -15,14 +16,6 @@ const Login = () => {
     password: "",
   });
 
-  // Redirect to repos if user has token (already logged in)
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/repositories", { replace: true }); // Redirect
-    }
-  }, [navigate]);
-  
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -34,23 +27,12 @@ const Login = () => {
 
     // Login
     try {
-      // Send request
-      const response = await login(
-        formData.email,
-        formData.password
-      );
-      
-      if (response.success){
-        navigate("/repositories"); // Navigate
-      } else {
-        setMessageType('error');
-        setMessage(response.message || "Incorrect email or password. Please try again.");
-      }
+      await login(formData.email, formData.password);
 
+      navigate("/repositories");
     } catch (error) {
-      console.error("Login error:", error);
-      setMessageType('error');
-      setMessage("An error occurred during login");
+      setMessageType("error");
+      setMessage(error.message || "Login failed");
     }
   };
 

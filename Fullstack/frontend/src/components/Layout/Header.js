@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router';
-import { useAuth } from '../../providers/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { authUser, isLoggedIn } = useAuth();
 
   return (
     <header style={styles.header}>
@@ -13,8 +13,8 @@ const Header = () => {
        onClick={() => navigate("/")}
       />
       {isLoggedIn ? ( 
-        <div>Logged In they are</div>
-      ): (<div>Not logged in</div>)};
+        <div>{authUser} - Logged In they are</div>
+      ): (<div>{authUser} - Not logged in</div>)};
 
       <div style={styles.holder}>
         <button style={styles.buttonLogin} onClick={() => navigate("/login")}>Login</button>

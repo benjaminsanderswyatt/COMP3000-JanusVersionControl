@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../contexts/AuthContext';
 
 import RegisterForm from '../components/Login/RegisterForm';
-import { register } from '../api/fetchUsers';
 
 
 const Register = () => {
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
@@ -17,16 +18,6 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-
-
-  // Redirect to repos if user has token (already logged in)
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/repositories", { replace: true }); // Redirect
-    }
-  }, [navigate]);
-
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -53,27 +44,12 @@ const Register = () => {
 
     // Register
     try {
-      // Send request
-      console.log(`Page - user: ${formData.username}, email: ${formData.email}, password: ${formData.password}`);
+      await register(formData.username, formData.email, formData.password);
 
-      const response = await register(
-        formData.username,
-        formData.email,
-        formData.password
-      );
-
-      if (response.success) {
-        setMessageType('success');
-        setMessage("Registration successful!");
-      } else {
-        setMessageType('error');
-        setMessage(response.message || "Registration failed");
-      }
-
+      navigate("/login");
     } catch (error) {
-      console.error("Registration error:", error);
-      setMessageType('error');
-      setMessage("An error occurred during registration. Please try again.");
+      setMessageType("error");
+      setMessage(error.message || "Login failed");
     }
   };
 

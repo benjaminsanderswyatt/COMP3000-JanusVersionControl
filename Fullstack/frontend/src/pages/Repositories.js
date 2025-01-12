@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GenAccessToken } from '../api/fetchPAT';
+import { GenAccessToken } from '../api/fetch/fetchPAT';
 
 const Repositories = () => {
   const [tokenData , setTokenData] = useState(null);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../providers/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Componant to toggle between light and dark theme
 const ThemeToggle = () => {
