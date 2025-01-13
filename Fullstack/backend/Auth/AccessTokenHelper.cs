@@ -6,7 +6,7 @@ using System.Text;
 public class AccessTokenHelper
 {
 
-    public JwtSecurityToken GenerateAccessToken(int userId)
+    public JwtSecurityToken GenerateAccessToken(int userId, int expirationInHours = 720) // default 30 days
     {
         var claims = new List<Claim>
         {
@@ -21,27 +21,12 @@ public class AccessTokenHelper
             issuer: "CLIIssuer",
             audience: "CLIAudience",
             claims: claims,
-            expires: DateTime.Now.AddMonths(3),
+            expires: DateTime.Now.AddHours(expirationInHours),
             signingCredentials: creds
         );
 
         return token;
     }
-
-    /*
-    public string HashToken(string token)
-    {
-        using var sha256 = SHA256.Create();
-        byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
-        return Convert.ToBase64String(hashBytes);
-    }
-    */
-
-
-
-
-
-
 
 
 }

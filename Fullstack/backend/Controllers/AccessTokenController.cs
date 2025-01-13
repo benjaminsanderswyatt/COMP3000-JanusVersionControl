@@ -1,7 +1,9 @@
-﻿using backend.Models;
+﻿using backend.DataTransferObjects;
+using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,6 +13,7 @@ namespace backend.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimiting("CLIRateLimit")]
     public class AccessTokenController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
@@ -26,30 +29,35 @@ namespace backend.Controllers
         [Authorize(Policy = "FrontendPolicy")]
         [EnableCors("FrontendPolicy")]
         [HttpPost("GenPAT")]
-        public async Task<IActionResult> GeneratePAT()
+        public async Task<IActionResult> GeneratePAT([FromBody] PatDto request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized(new { message = "User ID not found in the token." });
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            // Validate expiration time (min 12 hours, max 1 year)
+            if (request.ExpirationInHours < 12 || request.ExpirationInHours > 8760) // 8760 hours = 1 year
+            {
+                return BadRequest(new { message = "Expiration time must be between 12 hours and 1 year." });
             }
 
 
-            var token = _accessTokenHelper.GenerateAccessToken(userId);
+            var token = _accessTokenHelper.GenerateAccessToken(userId, request.ExpirationInHours);
 
             return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
 
-        // POST: api/AccessToken/GenPAT
+
+        // POST: api/AccessToken/RevokePAT
         [Authorize(Policy = "CLIPolicy")]
         [EnableCors("CLIPolicy")]
         [HttpPost("RevokePAT")]
         public async Task<IActionResult> RevokePAT(string patToken)
         {
-            //var tokenHash = _accessTokenHelper.HashToken(patToken);
-
             // Check if the token is already blacklisted
             var existingToken = await _janusDbContext.AccessTokenBlacklists
                 .FirstOrDefaultAsync(t => t.Token == patToken);
@@ -59,11 +67,24 @@ namespace backend.Controllers
                 return BadRequest("This token is already revoked.");
             }
 
+
+
+            // Get the exp claim from the JWT
+            var exp = User.FindFirst("exp")?.Value;
+
+            if (string.IsNullOrEmpty(exp) || !long.TryParse(exp, out var expUnix))
+            {
+                return BadRequest(new { error = "Invalid or missing expiration date." });
+            }
+
+            // Convert the expiration time (Unix timestamp) to a DateTime
+            var expirationDate = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+
             // Add token to blacklist
             var token = new AccessTokenBlacklist
             {
                 Token = patToken,
-                Expires = DateTime.UtcNow.AddMonths(3)
+                Expires = expirationDate
             };
 
             _janusDbContext.AccessTokenBlacklists.Add(token);
