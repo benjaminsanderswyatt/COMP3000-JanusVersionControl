@@ -1,3 +1,5 @@
+import fetchWithTokenRefresh from '../fetchWithTokenRefresh';
+
 const API_URL = 'https://localhost:82/api/web/users';
 
 
@@ -52,41 +54,11 @@ export const login = async (email, password) => {
 };
 
 
-
-export const deleteUser = async () => {
-  try {
-    const token = localStorage.getItem('token');
-
-    const response = await fetch(`${API_URL}/delete`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const responseJson = await response.json();
-
-    if (!response.ok) {
-      throw new Error(responseJson.message || "Failed to delete user");
-    }
-
-    return { success: true, message: responseJson.message };
-
-  } catch (error) {
-    return { success: false, message: error.message };
-  }
-
-};
-
-
-
-
 export const refreshAccessToken = async () => {
   try {
     const response = await fetch(`${API_URL}/refresh`, {
       method: 'POST',
-      credentials: 'include',  // Important to include the cookie in the request
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -100,3 +72,34 @@ export const refreshAccessToken = async () => {
     return null;
   }
 };
+
+
+// ---------------- Protected fetch ----------------
+
+export const deleteUser = async (sessionExpired) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    // Use fetchWithTokenRefresh instead of direct fetch
+    const response = await fetchWithTokenRefresh(`${API_URL}/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }, sessionExpired); // Pass sessionExpired callback to handle token refresh failure
+
+    const responseJson = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseJson.message || "Failed to delete user");
+    }
+
+    return { success: true, message: responseJson.message };
+
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
+

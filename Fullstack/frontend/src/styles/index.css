@@ -25,6 +25,10 @@ code {
   --primary: #6971A9;
   --secondary: #C2B1CB;
   --accent: #848CB9;
+
+  --primary-rgb: rgb(105 113 169);
+  --secondary-rgb: rgb(194 177 203);
+  --accent-rgb: rgb(132 140 185);
 }
 
 /* Dark Theme */

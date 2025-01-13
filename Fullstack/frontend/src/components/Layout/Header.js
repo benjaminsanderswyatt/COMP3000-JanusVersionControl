@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
+import Navbar from './Navbar';
+import LogButtonsBar from './LogButtonsBar';
+
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,15 +15,8 @@ const Header = () => {
        style={styles.logo}
        onClick={() => navigate("/")}
       />
-      {isLoggedIn ? ( 
-        <div>{authUser} - Logged In they are</div>
-      ): (<div>{authUser} - Not logged in</div>)};
 
-      <div style={styles.holder}>
-        <button style={styles.buttonLogin} onClick={() => navigate("/login")}>Login</button>
-        <button style={styles.buttonRegister} onClick={() => navigate('/register')}>Register</button>
-      </div>
-
+      {isLoggedIn ? <Navbar authUser={authUser} /> : <LogButtonsBar />}
     </header>
   );
 };
@@ -41,30 +37,6 @@ const styles = {
   logo: {
     width: 'auto',
     height: '45px',
-    cursor: 'pointer',
-  },
-  holder: {
-    display: 'flex',
-    marginLeft: 'auto',
-    gap: '12px',
-    height: '32px',
-  },
-  buttonLogin: {
-    backgroundColor: 'var(--secondary)',
-    borderRadius: '8px',
-    border: 'var(--border) solid 1px',
-    width: '83px',
-    color: 'black',
-    fontSize: '0.9rem',
-    cursor: 'pointer',
-  },
-  buttonRegister: {
-    backgroundColor: 'var(--primary)',
-    color: 'white',
-    borderRadius: '8px',
-    border: 'var(--border) solid 1px',
-    width: '83px',
-    fontSize: '0.9rem',
     cursor: 'pointer',
   },
 };

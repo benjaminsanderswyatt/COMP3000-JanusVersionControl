@@ -9,7 +9,7 @@ import ThemeToggle from '../components/ThemeToggle';
 
 const Account = () => {
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout, sessionExpired } = useAuth();
 
     const handleLogout = () => {
         // Remove token from localStorage
@@ -20,7 +20,7 @@ const Account = () => {
 
     const handleDeleteAccount = async () => {
         if (window.confirm('Are you sure you want to delete your account?')) {
-            const result = await deleteUser();
+            const result = await deleteUser(sessionExpired);
 
             if (result.success) {
                 handleLogout(); // Logout user after account is deleted

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { login as apiLogin, register as apiRegister } from "../api/fetch/fetchUsers";
 import { jwtDecode } from 'jwt-decode';
 
@@ -6,8 +6,27 @@ import { jwtDecode } from 'jwt-decode';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [authUser, setAuthUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authUser, setAuthUser] = useState(null); // Default needs to be set to Username claim inside token
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Default needs to be set localstorage token if its valid
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        // Check if the token is expired or not valid
+        if (decodedToken.exp * 1000 > Date.now()) {
+          setAuthUser(decodedToken.Username);
+          setIsLoggedIn(true);
+        } else {
+          logout(); // Token is expired, log the user out
+        }
+      } catch (error) {
+        logout(); // Token is invalid, log the user out
+      }
+    }
+  }, []);
+
 
 
   const login = async (email, password) => {
@@ -41,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const sessionExpired = () => {
-    alert('Your session has expired. Please log in again.');
+    window.alert('Your session has expired. Please log in again.');
     logout();
   }
 
