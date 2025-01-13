@@ -175,6 +175,15 @@ namespace backend.Controllers
             await _janusDbContext.SaveChangesAsync();
 
 
+            // Expire the refresh token cookie by sending new cookie with an expired date (Jan 1, 1970)
+            HttpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = new DateTime(1970, 1, 1)
+            });
+
             return Ok(new { message = "Logged out successfully" });
         }
 

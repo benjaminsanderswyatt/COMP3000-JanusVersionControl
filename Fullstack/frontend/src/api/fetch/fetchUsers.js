@@ -4,9 +4,7 @@ const API_URL = 'https://localhost:82/api/web/users';
 
 
 export async function register(username, email, password) {
-
-  console.log(`fetch - user: ${username}, email: ${email}, password: ${password}`);
-
+  
   try {
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',

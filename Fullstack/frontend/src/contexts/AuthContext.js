@@ -62,15 +62,16 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await apiLogout();
-    setAuthUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem("token");
-    document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    handleLogout();
   };
 
   // Session expired is like logout but keeping the refresh token
   const sessionExpired = () => {
     window.alert('Your session has expired. Please log in again.');
+    handleLogout();
+  }
+
+  const handleLogout = () => {
     setAuthUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem("token");
