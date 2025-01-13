@@ -131,7 +131,7 @@ namespace backend.Controllers
             var newRefreshToken = Guid.NewGuid().ToString();
 
 
-            // Update user's refresh token in the database
+            // Update users refresh token in the database
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _janusDbContext.SaveChangesAsync();
@@ -151,6 +151,32 @@ namespace backend.Controllers
         }
 
 
+
+        // POST: api/web/Users/Logout
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized(new { message = "Refresh token is missing." });
+
+
+            var user = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+            // In the case where there is no refresh token found (it doesnt need deleting)
+            if (user == null)
+                return Ok(new { message = "No refresh token found." });
+
+
+            // Delete users refresh token in the database
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            await _janusDbContext.SaveChangesAsync();
+
+
+            return Ok(new { message = "Logged out successfully" });
+        }
 
 
 

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login as apiLogin, register as apiRegister } from "../api/fetch/fetchUsers";
+import { login as apiLogin, register as apiRegister, logout as apiLogout } from "../api/fetch/fetchUsers";
 import { jwtDecode } from 'jwt-decode';
 
 
@@ -59,20 +59,22 @@ export const AuthProvider = ({ children }) => {
 
   }
 
-  const sessionExpired = () => {
-    window.alert('Your session has expired. Please log in again.');
-    logout();
-  }
 
-
-
-  const logout = () => {
+  const logout = async () => {
+    await apiLogout();
     setAuthUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem("token");
     document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
   };
-  
+
+  // Session expired is like logout but keeping the refresh token
+  const sessionExpired = () => {
+    window.alert('Your session has expired. Please log in again.');
+    setAuthUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem("token");
+  }
 
   const value = {
     authUser,

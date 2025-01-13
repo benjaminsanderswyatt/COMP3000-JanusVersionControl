@@ -73,6 +73,28 @@ export const refreshAccessToken = async () => {
   }
 };
 
+// Handles deleting the refresh token stored in db
+export const logout = async () => {
+  try {
+    const response = await fetch(`${API_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete refresh token");
+    }
+
+    const responseJson = await response.json();
+
+    return {success: true, message: responseJson.message};
+    
+  } catch (error) {
+    console.error("Logout error:", error);
+    return {success: false, message: error.message};
+  }
+}
+
 
 // ---------------- Protected fetch ----------------
 
