@@ -40,6 +40,7 @@ services:
       - JWT__Audience=yourAudience
       - JWT__SecretKey_Web=MySecureKeyWithAtLeastThirtyTwoCharacters
       - JWT__SecretKey_CLI=MySecureKeyWithAtLeastThirtyTwoCharacters
+      - BlacklistCleanup=30
   networks:
       - intranet
 

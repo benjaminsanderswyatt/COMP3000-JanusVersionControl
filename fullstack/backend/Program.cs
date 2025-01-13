@@ -1,6 +1,5 @@
 using backend.Helpers;
 using backend.Models;
-using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +25,6 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // Dependancy Injection
-builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<CLIHelper>();
@@ -37,6 +35,11 @@ builder.Services.AddDbContext<JanusDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
     new MySqlServerVersion(new Version(8, 0, 21)),
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
+
+
+// Token blacklist cleanup service
+builder.Services.AddHostedService<PATBlacklistCleanupService>();
+
 
 
 // Authentication
