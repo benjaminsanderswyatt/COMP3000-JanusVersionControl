@@ -1,0 +1,31 @@
+# This workflow will build the Janus Command Line Interface .NET project
+
+name: Command Line Interface
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      working-directory: Command Line Interface/Janus
+      run: dotnet restore
+    - name: Build
+      working-directory: Command Line Interface/Janus
+      run: dotnet build --no-restore
+    - name: Test
+      working-directory: Command Line Interface/Janus
+      run: dotnet test --no-build --verbosity normal
