@@ -6,6 +6,7 @@ using static Janus.CommandHandler;
 
 namespace CLITests
 {
+    [TestFixture]
     public class InitCommandTest
     {
         private Mock<ILogger> _loggerMock;
@@ -44,7 +45,7 @@ namespace CLITests
 
 
         [Test]
-        public void Execute_ShouldInitializeRepository_WhenNotAlreadyInitialized()
+        public void ShouldInitializeRepository_WhenNotAlreadyInitialized()
         {
             // Arrange: Ensure the directories and files do not exist initially
             if (Directory.Exists(_paths.JanusDir))
@@ -69,7 +70,7 @@ namespace CLITests
 
 
         [Test]
-        public void Execute_ShouldLogRepositoryAlreadyInitialized_WhenAlreadyInitialized()
+        public void ShouldLogRepositoryAlreadyInitialized_WhenAlreadyInitialized()
         {
             // Arrange: Initialize the repository for this test
             _initCommand.Execute(new string[0]);

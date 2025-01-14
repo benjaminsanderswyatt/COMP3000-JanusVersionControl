@@ -45,7 +45,6 @@ namespace Janus.Helpers
         }
 
 
-
         public static string ComputeHash(string content)
         {
             using (SHA1 sha1 = SHA1.Create())
