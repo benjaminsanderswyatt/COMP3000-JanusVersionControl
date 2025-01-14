@@ -118,55 +118,67 @@ namespace Janus
                 // No arguments given so command should return error
                 if (args.Length < 1)
                 {
-                    Logger.Log("No files specified.");
+                    Logger.Log("No files or directory specified to add.");
                     return;
                 }
 
                 // Repository has to be initialised for command to run
                 if (!Directory.Exists(Paths.JanusDir))
                 {
-                    Logger.Log("Not a janus repository. Run 'janus init' first.");
+                    Logger.Log("Not a janus repository. Use 'init' command to initialise repository.");
                     return;
                 }
 
-
                 var filesToAdd = new List<string>();
 
-                // When the first arg is 'all' ignore other arguments and stage all files
-                if (args[0].Equals("all", StringComparison.OrdinalIgnoreCase))
+                foreach (var arg in args)
                 {
-                    filesToAdd = Directory.EnumerateFiles(".", "*", SearchOption.AllDirectories)
-                                  .Select(filePath => Path.GetRelativePath(".", filePath))
-                                  .Where(relativePath => !relativePath.StartsWith(".janus"))
-                                  .ToList();
-                }
-                else
-                {
-                    filesToAdd.AddRange(args);
+                    if (Directory.Exists(arg))
+                    {
+                        // Add all files in the directory recursively
+                        var directoryFiles = Directory.EnumerateFiles(arg, "*", SearchOption.AllDirectories)
+                                                      .Select(filePath => Path.GetRelativePath(".", filePath))
+                                                      .Where(path => !path.StartsWith(".janus"));
+                        filesToAdd.AddRange(directoryFiles);
+                    }
+                    else if (File.Exists(arg))
+                    {
+                        // Add the file
+                        filesToAdd.Add(arg);
+                    }
+                    else
+                    {
+                        Logger.Log($"Path '{arg}' does not exist.");
+                    }
                 }
 
 
-                // Index holds all of the files which have been added before
-                /*
-                HashSet<string> stagedFiles = new HashSet<string>();
-                if (File.Exists(Paths.index))
+
+                // Check .janusignore for ingored patterns
+                var ignoredPatterns = File.Exists(".janusignore")
+                    ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
+                    : new List<string>();
+
+                filesToAdd = filesToAdd.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
+
+
+                // Load existing staged files
+                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+
+
+                // Remove deleted files from the staging area
+                var filesToRemove = stagedFiles.Keys.Where(filePath => !File.Exists(filePath)).ToList();
+                foreach (var filePath in filesToRemove)
                 {
-                    foreach (var line in File.ReadAllLines(Paths.index))
-                    {
-                        stagedFiles.Add(line.Trim());
-                    }
+                    stagedFiles.Remove(filePath);
                 }
-                */
-                var stagedFiles = new Dictionary<string, string>();
-                if (File.Exists(Paths.Index))
-                {
-                    foreach (var line in File.ReadAllLines(Paths.Index))
-                    {
-                        var parts = line.Split('|');
-                        if (parts.Length == 2)
-                            stagedFiles[parts[0].Trim()] = parts[1].Trim();
-                    }
-                }
+
+                Logger.Log($"{filesToRemove.Count} files removed from staging area.");
+
+
+
+
+
 
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
@@ -174,30 +186,39 @@ namespace Janus
                     // File doesnt exist so it returns error and continues staging other files
                     if (!File.Exists(relativeFilePath))
                     {
-                        Logger.Log($"File '{relativeFilePath}' not found.");
+                        Logger.Log($"File at '{relativeFilePath}' not found.");
                         continue;
                     }
 
-                    // Compute file hash
-                    string fileHash = CommandHelper.ComputeHash(File.ReadAllText(relativeFilePath));
-
-                    // Normalize paths for comparison
-                    if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
+                    try
                     {
-                        stagedFiles[relativeFilePath] = fileHash;
-                        Logger.Log($"Added '{relativeFilePath}' to the staging area.");
-                    }
-                    else
-                    {
-                        Logger.Log($"File '{relativeFilePath}' is already staged.");
-                    }
+                        // Compute file hash
+                        string fileHash = AddHelper.ComputeHash_GivenFilepath(relativeFilePath);
 
+                        // Normalize paths for comparison
+                        if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
+                        {
+                            stagedFiles[relativeFilePath] = fileHash;
+                            Logger.Log($"Added '{relativeFilePath}' to the staging area.");
+                        }
+                        else
+                        {
+                            Logger.Log($"File '{relativeFilePath}' is already staged.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"Failed adding '{relativeFilePath}': {ex.Message}");
+                    }
 
                 }
 
-                // Update index
-                File.WriteAllLines(Paths.Index, stagedFiles.Select(kv => $"{kv.Key}|{kv.Value}"));
 
+                // Update index
+                AddHelper.SaveIndex(Paths.Index, stagedFiles);
+
+                Logger.Log($"{filesToAdd.Count} files processed.");
+                Logger.Log($"{stagedFiles.Count} files in staging area.");
             }
         }
 
