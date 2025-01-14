@@ -2,14 +2,14 @@
 
 namespace PluginDemo
 {
-    public class PluginDemo : ICommand
+    public class PluginDemo : BaseCommand
     {
-        public string Name => "plugin";
-        public string Description => "A demo command for plugins";
+        public override string Name => "plugin";
+        public override string Description => "A demo command for plugins";
 
-        public void Execute(string[] args)
+        public override void Execute(string[] args)
         {
-            Console.WriteLine("Plugin Demo - hello world");
+            Logger.Log("Plugin Demo - hello world");
         }
     }
 }
