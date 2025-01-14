@@ -13,6 +13,7 @@ namespace CLITests
         private Paths _paths;
         private InitCommand _initCommand;
 
+        private string _testDir;
 
         [SetUp]
         public void Setup()
@@ -21,8 +22,11 @@ namespace CLITests
             _loggerMock = new Mock<ILogger>();
 
             // Set the base directory path for testing
-            string basePath = Path.GetTempPath(); // Using temp directory for testing
-            _paths = new Paths(basePath);
+            _testDir = Path.Combine(Path.GetTempPath(), "JanusTest"); // Using temp directory for testing
+            Directory.CreateDirectory(_testDir);
+            _paths = new Paths(_testDir);
+
+            Directory.SetCurrentDirectory(_testDir);
 
             // Create InitCommand instance
             _initCommand = new InitCommand(_loggerMock.Object, _paths);
@@ -32,10 +36,12 @@ namespace CLITests
         [TearDown]
         public void TearDown()
         {
-            // Delete the .janus folder and all its contents if they exist
-            if (Directory.Exists(_paths.JanusDir))
+            // Clean up after each test
+            Directory.SetCurrentDirectory(Path.GetTempPath()); // Cant delete dir if in it
+
+            if (Directory.Exists(_testDir))
             {
-                Directory.Delete(_paths.JanusDir, true);
+                Directory.Delete(_testDir, true);
             }
         }
 

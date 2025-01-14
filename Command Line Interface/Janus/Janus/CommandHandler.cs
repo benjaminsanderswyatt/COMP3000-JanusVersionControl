@@ -129,6 +129,7 @@ namespace Janus
                     return;
                 }
 
+
                 var filesToAdd = new List<string>();
 
                 foreach (var arg in args)

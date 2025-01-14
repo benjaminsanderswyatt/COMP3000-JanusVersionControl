@@ -27,6 +27,8 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
+            Directory.SetCurrentDirectory(_testDir);
+
             // Reset the CommandList to ensure a clean slate before each test
             Janus.Program.CommandList.Clear();
 
@@ -39,6 +41,8 @@ namespace CLITests
         public void TearDown()
         {
             // Clean up after each test
+            Directory.SetCurrentDirectory(Path.GetTempPath()); // Cant delete dir if in it
+
             if (Directory.Exists(_testDir))
             {
                 Directory.Delete(_testDir, true);

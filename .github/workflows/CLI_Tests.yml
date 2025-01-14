@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  CLI:
 
     runs-on: ubuntu-22.04
 
