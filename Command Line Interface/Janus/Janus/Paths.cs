@@ -4,8 +4,6 @@
     {
         public static readonly string janusDir = ".janus";
 
-        public static readonly string TokenDir = Path.Combine(janusDir, "token");
-
         public static readonly string objectDir = Path.Combine(janusDir, "objects");
         public static readonly string commitDir = Path.Combine(janusDir, "commits");
         public static readonly string refsDir = Path.Combine(janusDir, "refs");

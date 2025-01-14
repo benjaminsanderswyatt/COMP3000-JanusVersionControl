@@ -13,8 +13,6 @@ namespace Janus
             {
                 new TestCommand(),
                 new HelpCommand(),
-                new LoginCommand(),
-                new LogOutCommand(),
                 new InitCommand(),
                 new AddCommand(),
                 new CommitCommand(),
@@ -65,97 +63,53 @@ namespace Janus
         }
 
 
-        public class LoginCommand : BaseCommand
-        {
-            public override string Name => "login";
-            public override string Description => "Gets a token for login.";
-            public override void Execute(string[] args)
-            {
-                Console.Write("Enter your Personal Access Token (PAT): ");
-                var token = CommandHelper.ReadSecretInput();
-
-                // Save the token
-                File.WriteAllText(Paths.TokenDir, token);
-                Logger.Log("Token saved successfully.");
-            }
-        }
-
-        public class LogOutCommand : BaseCommand
-        {
-            public override string Name => "logout";
-            public override string Description => "Removes stored token.";
-            public override void Execute(string[] args)
-            {
-                if (File.Exists(Paths.TokenDir))
-                {
-                    File.Delete(Paths.TokenDir);
-                    Logger.Log("Logged out successfully.");
-                }
-                else
-                {
-                    Logger.Log("No token found.");
-                }
-            }
-        }
-
-
-
-
-
-
-
         public class InitCommand : BaseCommand
         {
             public override string Name => "init";
             public override string Description => "Initializes the janus repository.";
             public override void Execute(string[] args)
             {
-                // Initialise .janus folder
-                if (!Directory.Exists(Paths.janusDir))
+                try
                 {
-                    Directory.CreateDirectory(Paths.janusDir);
+                    // Initialise .janus folder
+                    if (!Directory.Exists(Paths.janusDir))
+                    {
+                        Directory.CreateDirectory(Paths.janusDir);
+                        File.SetAttributes(Paths.janusDir, File.GetAttributes(Paths.janusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
+                    }
+                    else
+                    {
+                        Logger.Log("Repository already initialized");
+                        return;
+                    }
+
+                    Directory.CreateDirectory(Paths.objectDir); // .janus/object folder
+                    Directory.CreateDirectory(Paths.refsDir); // .janus/refs
+                    Directory.CreateDirectory(Paths.headsDir); // .janus/refs/heads
+                    Directory.CreateDirectory(Paths.pluginsDir); // .janus/plugins folder
+
+
+                    // Create index file
+                    File.Create(Paths.index).Close();
+
+                    // Create empty main branch in refs/heads/
+                    File.WriteAllText(Path.Combine(Paths.headsDir, "main"), string.Empty);
+
+                    // Create HEAD file pointing at main branch
+                    File.WriteAllText(Paths.head, "ref: refs/heads/main");
+
+                    Logger.Log("Initialized janus repository");
+
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    Logger.Log("Repository already initialized");
-                    return;
+                    Logger.Log($"Error initializing repository: {ex.Message}");
                 }
-
-                File.SetAttributes(Paths.janusDir, File.GetAttributes(Paths.janusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
-
-                // .janus/object folder
-                if (!Directory.Exists(Paths.objectDir))
-                    Directory.CreateDirectory(Paths.objectDir);
-
-                // .janus/commit folder
-                if (!Directory.Exists(Paths.commitDir))
-                    Directory.CreateDirectory(Paths.commitDir);
-
-                // .janus/refs
-                if (!Directory.Exists(Paths.refsDir))
-                    Directory.CreateDirectory(Paths.refsDir);
-
-                // .janus/refs/heads
-                if (!Directory.Exists(Paths.headsDir))
-                    Directory.CreateDirectory(Paths.headsDir);
-
-                // .janus/plugins folder
-                if (!Directory.Exists(Paths.pluginsDir))
-                    Directory.CreateDirectory(Paths.pluginsDir);
-
-
-                // Create index file
-                File.Create(Paths.index).Close();
-
-                // Create empty main branch in refs/heads/
-                File.WriteAllText(Path.Combine(Paths.headsDir, "main"), string.Empty);
-
-                // Create HEAD file pointing at main branch
-                File.WriteAllText(Paths.head, "ref: refs/heads/main");
-
-                Logger.Log("Initialized janus repository");
             }
         }
+
+
 
         public class AddCommand : BaseCommand
         {

@@ -138,6 +138,7 @@ namespace Janus.Helpers
         */
 
 
+        /*
         public static async Task<string> GetRemoteHeadCommit(string repoNameBranch)
         {
             string apiUrl = "https://localhost:82/api/CLI/RemoteHeadCommit";
@@ -212,7 +213,7 @@ namespace Janus.Helpers
                 }
             }
         }
-
+        */
 
 
 
