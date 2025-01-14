@@ -7,9 +7,9 @@ namespace Janus
 {
     public static class CommandHandler
     {
-        public static List<ICommand> GetCommands()
+        public static List<ICommand> GetCommands(ILogger logger)
         {
-            return new List<ICommand>
+            var commands = new List<ICommand>
             {
                 new TestCommand(),
                 new HelpCommand(),
@@ -18,73 +18,82 @@ namespace Janus
                 new InitCommand(),
                 new AddCommand(),
                 new CommitCommand(),
-                new PushCommand(),
+                //new PushCommand(),
                 //new CreateBranchCommand(),
                 //new SwitchBranchCommand(),
                 //new LogCommand()
                 
                 // Add new built in commands here
             };
+
+            // Pass the logger to each command
+            foreach (var command in commands)
+            {
+                command.SetLogger(logger);
+            }
+
+
+            return commands;
         }
 
-        public class TestCommand : ICommand
+        public class TestCommand : BaseCommand
         {
-            public string Name => "test";
-            public string Description => "Send a test request to backend";
-            public void Execute(string[] args)
+            public override string Name => "test";
+            public override string Description => "Send a test request to backend";
+            public override void Execute(string[] args)
             {
                 //await CommandHelper.ExecuteAsync();
-                Console.WriteLine("Test End");
+                Logger.Log("Test End");
                
             }
         }
 
 
-        public class HelpCommand : ICommand
+        public class HelpCommand : BaseCommand
         {
-            public string Name => "help";
-            public string Description => "Displays a list of available commands.";
-            public void Execute(string[] args)
+            public override string Name => "help";
+            public override string Description => "Displays a list of available commands.";
+            public override void Execute(string[] args)
             {
-                Console.WriteLine("Usage: janus [command]");
-                Console.WriteLine("Commands:");
+                Logger.Log("Usage: janus <command>");
+                Logger.Log("Commands:");
                 foreach (var command in Program.CommandList)
                 {
-                    Console.WriteLine($"{command.Name.PadRight(20)} : {command.Description}");
+                    Logger.Log($"{command.Name.PadRight(20)} : {command.Description}");
                 }
             }
         }
 
 
-        public class LoginCommand : ICommand
+        public class LoginCommand : BaseCommand
         {
-            public string Name => "login";
-            public string Description => "Gets a token for login.";
-            public void Execute(string[] args)
+            public override string Name => "login";
+            public override string Description => "Gets a token for login.";
+            public override void Execute(string[] args)
             {
                 Console.Write("Enter your Personal Access Token (PAT): ");
                 var token = CommandHelper.ReadSecretInput();
 
                 // Save the token
                 File.WriteAllText(Paths.TokenDir, token);
-                Console.WriteLine("Token saved successfully.");
+                Logger.Log("Token saved successfully.");
             }
         }
 
-        public class LogOutCommand : ICommand
+        public class LogOutCommand : BaseCommand
         {
-            public string Name => "logout";
-            public string Description => "Removes stored token.";
-            public void Execute(string[] args)
+            public override string Name => "logout";
+            public override string Description => "Removes stored token.";
+            public override void Execute(string[] args)
             {
                 if (File.Exists(Paths.TokenDir))
                 {
                     File.Delete(Paths.TokenDir);
-                    Console.WriteLine("Logged out successfully.");
+                    Logger.Log("Logged out successfully.");
                 }
                 else
                 {
-                    Console.WriteLine("No token found.");
+                    Logger.Log("No token found.");
                 }
             }
         }
@@ -95,11 +104,11 @@ namespace Janus
 
 
 
-        public class InitCommand : ICommand
+        public class InitCommand : BaseCommand
         {
-            public string Name => "init";
-            public string Description => "Initializes the janus repository.";
-            public void Execute(string[] args)
+            public override string Name => "init";
+            public override string Description => "Initializes the janus repository.";
+            public override void Execute(string[] args)
             {
                 // Initialise .janus folder
                 if (!Directory.Exists(Paths.janusDir))
@@ -108,7 +117,7 @@ namespace Janus
                 }
                 else
                 {
-                    Console.WriteLine("Repository already initialized");
+                    Logger.Log("Repository already initialized");
                     return;
                 }
 
@@ -144,27 +153,27 @@ namespace Janus
                 // Create HEAD file pointing at main branch
                 File.WriteAllText(Paths.head, "ref: refs/heads/main");
 
-                Console.WriteLine("Initialized janus repository");
+                Logger.Log("Initialized janus repository");
             }
         }
 
-        public class AddCommand : ICommand
+        public class AddCommand : BaseCommand
         {
-            public string Name => "add";
-            public string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
-            public void Execute(string[] args)
+            public override string Name => "add";
+            public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
+            public override void Execute(string[] args)
             {
                 // No arguments given so command should return error
                 if (args.Length < 1)
                 {
-                    Console.WriteLine("No files specified.");
+                    Logger.Log("No files specified.");
                     return;
                 }
 
                 // Repository has to be initialised for command to run
                 if (!Directory.Exists(Paths.janusDir))
                 {
-                    Console.WriteLine("Not a janus repository. Run 'janus init' first.");
+                    Logger.Log("Not a janus repository. Run 'janus init' first.");
                     return;
                 }
 
@@ -213,7 +222,7 @@ namespace Janus
                     // File doesnt exist so it returns error and continues staging other files
                     if (!File.Exists(relativeFilePath))
                     {
-                        Console.WriteLine($"File '{relativeFilePath}' not found.");
+                        Logger.Log($"File '{relativeFilePath}' not found.");
                         continue;
                     }
 
@@ -224,11 +233,11 @@ namespace Janus
                     if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                     {
                         stagedFiles[relativeFilePath] = fileHash;
-                        Console.WriteLine($"Added '{relativeFilePath}' to the staging area.");
+                        Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
                     {
-                        Console.WriteLine($"File '{relativeFilePath}' is already staged.");
+                        Logger.Log($"File '{relativeFilePath}' is already staged.");
                     }
 
 
@@ -247,30 +256,30 @@ namespace Janus
 
 
 
-        public class CommitCommand : ICommand
+        public class CommitCommand : BaseCommand
         {
-            public string Name => "commit";
-            public string Description => "Saves changes to the repository.";
-            public void Execute(string[] args)
+            public override string Name => "commit";
+            public override string Description => "Saves changes to the repository.";
+            public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
                 if (!Directory.Exists(Paths.janusDir))
                 {
-                    Console.WriteLine("Error: Not a janus repository. Run 'janus init' first.");
+                    Logger.Log("Error: Not a janus repository. Run 'janus init' first.");
                     return;
                 }
 
                 // Commit message is required
                 if (args.Length < 1)
                 {
-                    Console.WriteLine("No commit message given. Use 'janus commit \"Commit message\"'");
+                    Logger.Log("No commit message given. Use 'janus commit \"Commit message\"'");
                     return;
                 }
 
                 // If no files have been staged then there is nothing to commit
                 if (!File.Exists(Paths.index) || !File.ReadLines(Paths.index).Any())
                 {
-                    Console.WriteLine("No changes to commit.");
+                    Logger.Log("No changes to commit.");
                     return;
                 }
 
@@ -289,7 +298,7 @@ namespace Janus
 
                     if (!File.Exists(fullPath))
                     {
-                        Console.WriteLine($"Warning: Staged file '{relativeFilePath}' '{fullPath}' no longer exists.");
+                        Logger.Log($"Warning: Staged file '{relativeFilePath}' '{fullPath}' no longer exists.");
 
                         continue;
                     }
@@ -323,24 +332,24 @@ namespace Janus
                 // Clear the staging area
                 File.WriteAllText(Paths.index, string.Empty);
 
-                Console.WriteLine($"Committed as {commitHash}");
+                Logger.Log($"Committed as {commitHash}");
 
             }
         }
 
 
-
-        public class PushCommand : ICommand
+        /*
+        public class PushCommand : BaseCommand
         {
-            public string Name => "push";
-            public string Description => "Pushes the local repository to the remote repository.";
-            public void Execute(string[] args)
+            public override string Name => "push";
+            public override string Description => "Pushes the local repository to the remote repository.";
+            public override void Execute(string[] args)
             {
                 try
                 {
-                    Console.WriteLine("Attempting");
+                    Logger.Log("Attempting");
                     string commitJson = PushHelper.GetCommitMetadataFiles(); // await
-                    Console.WriteLine("Finished commitmetadata: " + commitJson);
+                    Logger.Log("Finished commitmetadata: " + commitJson);
                     // Get branch header
                     // TODO
 
@@ -350,7 +359,7 @@ namespace Janus
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Failed: " + ex);
+                    Logger.Log("Failed: " + ex);
                 }
 
 
@@ -359,7 +368,7 @@ namespace Janus
             }
 
         }
-
+        */
 
 
 

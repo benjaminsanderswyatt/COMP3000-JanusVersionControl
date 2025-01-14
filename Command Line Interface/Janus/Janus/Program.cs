@@ -6,22 +6,28 @@ namespace Janus
     {
         public static List<ICommand> CommandList { get; private set; } = new List<ICommand>();
 
-        private static void LoadCommands()
+        private static void LoadCommands(ILogger logger)
         {
-            CommandList.AddRange(CommandHandler.GetCommands());
-            CommandList.AddRange(PluginLoader.LoadPlugins());
+            CommandList.AddRange(CommandHandler.GetCommands(logger));
+
+            CommandList.AddRange(PluginLoader.LoadPlugins(logger));
         }
+
 
         static void Main(string[] args)
         {
+            // Config Logger
+            ILogger logger = new ConsoleLogger();
+
+
             if (args.Length == 0)
             {
-                Console.WriteLine("Please enter your command...");
-                Console.WriteLine("Use \"janus help\" to get more details");
+                logger.Log("Please enter your command...");
+                logger.Log("Use \"janus help\" to get more details");
                 return;
             }
 
-            LoadCommands();
+            LoadCommands(logger);
 
             string commandName = args[0];
 
@@ -35,14 +41,14 @@ namespace Janus
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error executing command: {ex.Message}");
+                    logger.Log($"Error executing command: {ex.Message}");
                 }
             }
             else
             {
                 // Handle unknown commands
-                Console.WriteLine($"Unknown command: {command}");
-                Console.WriteLine("Use \"janus help\" to get more details");
+                logger.Log($"Unknown command: {command}");
+                logger.Log("Use \"janus help\" to get more details");
             }
 
 

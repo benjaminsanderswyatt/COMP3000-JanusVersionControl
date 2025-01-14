@@ -43,7 +43,7 @@ namespace Janus.Helpers
             public string CommitHash { get; set; }
         }
 
-
+        /*
         public static async string GetCommitMetadataFiles()
         {
             Console.WriteLine("Getting commits");
@@ -135,7 +135,7 @@ namespace Janus.Helpers
 
         }
 
-
+        */
 
 
         public static async Task<string> GetRemoteHeadCommit(string repoNameBranch)

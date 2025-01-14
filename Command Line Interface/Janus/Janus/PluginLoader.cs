@@ -5,7 +5,7 @@ namespace Janus
 {
     public class PluginLoader
     {
-        public static List<ICommand> LoadPlugins()
+        public static List<ICommand> LoadPlugins(ILogger logger)
         {
             string pluginsDir = Paths.pluginsDir;
             List<ICommand> commands = new List<ICommand>();
@@ -28,6 +28,7 @@ namespace Janus
                 {
                     if (Activator.CreateInstance(type) is ICommand command)
                     {
+                        command.SetLogger(logger);
                         commands.Add(command);
                     }
                 }
