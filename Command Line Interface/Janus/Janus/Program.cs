@@ -2,9 +2,9 @@
 
 namespace Janus
 {
-    internal class Program
+    public class Program
     {
-        public static List<ICommand> CommandList { get; private set; } = new List<ICommand>();
+        public static List<ICommand> CommandList { get; set; } = new List<ICommand>();
 
         private static void LoadCommands(ILogger logger, Paths paths)
         {
