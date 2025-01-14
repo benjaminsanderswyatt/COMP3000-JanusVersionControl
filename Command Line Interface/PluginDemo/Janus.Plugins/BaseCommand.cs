@@ -1,11 +1,14 @@
-﻿namespace Janus.Plugins
+﻿
+namespace Janus.Plugins
 {
     public abstract class BaseCommand : ICommand
     {
         protected ILogger Logger { get; private set; }
-        public void SetLogger(ILogger logger)
+        protected Paths Paths { get; }
+        protected BaseCommand(ILogger logger, Paths paths)
         {
-            Logger = logger;
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Paths = paths ?? throw new ArgumentNullException(nameof(paths));
         }
 
         public abstract string Name { get; }

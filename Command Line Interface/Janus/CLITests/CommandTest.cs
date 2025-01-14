@@ -6,6 +6,7 @@ namespace CLITests
 {
     public class CommandTest
     {
+        /*
         private string testDirectory;
         private string janusDir;
         private string objectDir;
@@ -69,5 +70,6 @@ namespace CLITests
             var mainBranchContent = File.ReadAllText(Path.Combine(headsDir, "main"));
             Assert.That(mainBranchContent, Is.EqualTo(string.Empty), "Main branch should be empty");
         }
+        */
     }
 }

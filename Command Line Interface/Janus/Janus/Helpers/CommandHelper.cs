@@ -1,4 +1,5 @@
 ﻿using Janus.Models;
+using Janus.Plugins;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -61,9 +62,9 @@ namespace Janus.Helpers
             return ComputeHash(combined);
         }
 
-        public static string GetCurrentHead()
+        public static string GetCurrentHead(Paths paths)
         {
-            string headPath = Paths.head;
+            string headPath = paths.Head;
 
             if (File.Exists(headPath))
             {

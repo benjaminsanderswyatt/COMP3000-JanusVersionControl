@@ -5,9 +5,9 @@ namespace Janus
 {
     public class PluginLoader
     {
-        public static List<ICommand> LoadPlugins(ILogger logger)
+        public static List<ICommand> LoadPlugins(ILogger logger, Paths paths )
         {
-            string pluginsDir = Paths.pluginsDir;
+            string pluginsDir = paths.PluginsDir;
             List<ICommand> commands = new List<ICommand>();
 
             if (!Directory.Exists(pluginsDir))
@@ -19,18 +19,31 @@ namespace Janus
 
             foreach (var dll in dllFiles)
             {
-                var assembly = Assembly.LoadFrom(dll);
-
-                var commandTypes = assembly.GetTypes()
-                    .Where(type => typeof(ICommand).IsAssignableFrom(type) && !type.IsAbstract);
-
-                foreach (var type in commandTypes)
+                try
                 {
-                    if (Activator.CreateInstance(type) is ICommand command)
+                    var assembly = Assembly.LoadFrom(dll);
+
+                    var commandTypes = assembly.GetTypes()
+                        .Where(type => typeof(ICommand).IsAssignableFrom(type) && !type.IsAbstract);
+
+                    foreach (var type in commandTypes)
                     {
-                        command.SetLogger(logger);
-                        commands.Add(command);
+                        // Use reflection to find the correct constructor
+                        var constructor = type.GetConstructors().FirstOrDefault(c => c.GetParameters()
+                                .All(p => p.ParameterType == typeof(ILogger) || p.ParameterType == typeof(Paths)));
+
+                        if (constructor != null)
+                        {
+                            // Use Activator to create the instance with parameters
+                            var command = (ICommand)Activator.CreateInstance(type, logger, paths);
+
+                            commands.Add(command);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    logger.Log($"Error loading plugin {dll}: {ex.Message}");
                 }
             }
 

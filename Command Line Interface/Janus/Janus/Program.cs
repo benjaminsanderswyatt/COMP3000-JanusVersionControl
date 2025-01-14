@@ -6,11 +6,11 @@ namespace Janus
     {
         public static List<ICommand> CommandList { get; private set; } = new List<ICommand>();
 
-        private static void LoadCommands(ILogger logger)
+        private static void LoadCommands(ILogger logger, Paths paths)
         {
-            CommandList.AddRange(CommandHandler.GetCommands(logger));
+            CommandList.AddRange(CommandHandler.GetCommands(logger, paths));
 
-            CommandList.AddRange(PluginLoader.LoadPlugins(logger));
+            CommandList.AddRange(PluginLoader.LoadPlugins(logger, paths));
         }
 
 
@@ -18,6 +18,10 @@ namespace Janus
         {
             // Config Logger
             ILogger logger = new ConsoleLogger();
+
+            // Base Path
+            string basePath = Directory.GetCurrentDirectory();
+            Paths paths = new Paths(basePath);
 
 
             if (args.Length == 0)
@@ -27,7 +31,7 @@ namespace Janus
                 return;
             }
 
-            LoadCommands(logger);
+            LoadCommands(logger, paths);
 
             string commandName = args[0];
 

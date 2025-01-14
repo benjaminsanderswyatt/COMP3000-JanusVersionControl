@@ -7,15 +7,15 @@ namespace Janus
 {
     public static class CommandHandler
     {
-        public static List<ICommand> GetCommands(ILogger logger)
+        public static List<ICommand> GetCommands(ILogger logger, Paths paths)
         {
             var commands = new List<ICommand>
             {
-                new TestCommand(),
-                new HelpCommand(),
-                new InitCommand(),
-                new AddCommand(),
-                new CommitCommand(),
+                new TestCommand(logger, paths),
+                new HelpCommand(logger, paths),
+                new InitCommand(logger, paths),
+                new AddCommand(logger, paths),
+                new CommitCommand(logger, paths),
                 //new PushCommand(),
                 //new CreateBranchCommand(),
                 //new SwitchBranchCommand(),
@@ -24,18 +24,12 @@ namespace Janus
                 // Add new built in commands here
             };
 
-            // Pass the logger to each command
-            foreach (var command in commands)
-            {
-                command.SetLogger(logger);
-            }
-
-
             return commands;
         }
 
         public class TestCommand : BaseCommand
         {
+            public TestCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "test";
             public override string Description => "Send a test request to backend";
             public override void Execute(string[] args)
@@ -49,6 +43,8 @@ namespace Janus
 
         public class HelpCommand : BaseCommand
         {
+            public HelpCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
             public override string Name => "help";
             public override string Description => "Displays a list of available commands.";
             public override void Execute(string[] args)
@@ -65,6 +61,7 @@ namespace Janus
 
         public class InitCommand : BaseCommand
         {
+            public InitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "init";
             public override string Description => "Initializes the janus repository.";
             public override void Execute(string[] args)
@@ -72,10 +69,10 @@ namespace Janus
                 try
                 {
                     // Initialise .janus folder
-                    if (!Directory.Exists(Paths.janusDir))
+                    if (!Directory.Exists(Paths.JanusDir))
                     {
-                        Directory.CreateDirectory(Paths.janusDir);
-                        File.SetAttributes(Paths.janusDir, File.GetAttributes(Paths.janusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
+                        Directory.CreateDirectory(Paths.JanusDir);
+                        File.SetAttributes(Paths.JanusDir, File.GetAttributes(Paths.JanusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
                     }
                     else
                     {
@@ -83,20 +80,20 @@ namespace Janus
                         return;
                     }
 
-                    Directory.CreateDirectory(Paths.objectDir); // .janus/object folder
-                    Directory.CreateDirectory(Paths.refsDir); // .janus/refs
-                    Directory.CreateDirectory(Paths.headsDir); // .janus/refs/heads
-                    Directory.CreateDirectory(Paths.pluginsDir); // .janus/plugins folder
+                    Directory.CreateDirectory(Paths.ObjectDir); // .janus/object folder
+                    Directory.CreateDirectory(Paths.RefsDir); // .janus/refs
+                    Directory.CreateDirectory(Paths.HeadsDir); // .janus/refs/heads
+                    Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
 
 
                     // Create index file
-                    File.Create(Paths.index).Close();
+                    File.Create(Paths.Index).Close();
 
                     // Create empty main branch in refs/heads/
-                    File.WriteAllText(Path.Combine(Paths.headsDir, "main"), string.Empty);
+                    File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), string.Empty);
 
                     // Create HEAD file pointing at main branch
-                    File.WriteAllText(Paths.head, "ref: refs/heads/main");
+                    File.WriteAllText(Paths.Head, "ref: refs/heads/main");
 
                     Logger.Log("Initialized janus repository");
 
@@ -113,6 +110,7 @@ namespace Janus
 
         public class AddCommand : BaseCommand
         {
+            public AddCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "add";
             public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
             public override void Execute(string[] args)
@@ -125,7 +123,7 @@ namespace Janus
                 }
 
                 // Repository has to be initialised for command to run
-                if (!Directory.Exists(Paths.janusDir))
+                if (!Directory.Exists(Paths.JanusDir))
                 {
                     Logger.Log("Not a janus repository. Run 'janus init' first.");
                     return;
@@ -160,9 +158,9 @@ namespace Janus
                 }
                 */
                 var stagedFiles = new Dictionary<string, string>();
-                if (File.Exists(Paths.index))
+                if (File.Exists(Paths.Index))
                 {
-                    foreach (var line in File.ReadAllLines(Paths.index))
+                    foreach (var line in File.ReadAllLines(Paths.Index))
                     {
                         var parts = line.Split('|');
                         if (parts.Length == 2)
@@ -198,7 +196,7 @@ namespace Janus
                 }
 
                 // Update index
-                File.WriteAllLines(Paths.index, stagedFiles.Select(kv => $"{kv.Key}|{kv.Value}"));
+                File.WriteAllLines(Paths.Index, stagedFiles.Select(kv => $"{kv.Key}|{kv.Value}"));
 
             }
         }
@@ -212,12 +210,13 @@ namespace Janus
 
         public class CommitCommand : BaseCommand
         {
+            public CommitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "commit";
             public override string Description => "Saves changes to the repository.";
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
-                if (!Directory.Exists(Paths.janusDir))
+                if (!Directory.Exists(Paths.JanusDir))
                 {
                     Logger.Log("Error: Not a janus repository. Run 'janus init' first.");
                     return;
@@ -231,7 +230,7 @@ namespace Janus
                 }
 
                 // If no files have been staged then there is nothing to commit
-                if (!File.Exists(Paths.index) || !File.ReadLines(Paths.index).Any())
+                if (!File.Exists(Paths.Index) || !File.ReadLines(Paths.Index).Any())
                 {
                     Logger.Log("No changes to commit.");
                     return;
@@ -240,7 +239,7 @@ namespace Janus
 
 
                 Dictionary<string, string> fileHashes = new Dictionary<string, string>();
-                foreach (var line in File.ReadAllLines(Paths.index))
+                foreach (var line in File.ReadAllLines(Paths.Index))
                 {
                     var parts = line.Split('|');
 
@@ -261,7 +260,7 @@ namespace Janus
                     fileHashes[relativeFilePath] = fileHash;
 
                     // Write file content to objects directory
-                    string objectFilePath = Path.Combine(Paths.objectDir, fileHash);
+                    string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
                     if (!File.Exists(objectFilePath)) // Dont rewrite existing objects
                     {
                         File.WriteAllText(objectFilePath, content);
@@ -273,18 +272,18 @@ namespace Janus
 
                 // Generate commit metadata
                 string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                string parentCommit = CommandHelper.GetCurrentHead();
+                string parentCommit = CommandHelper.GetCurrentHead(Paths);
                 string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
 
                 // Save commit object
-                string commitFilePath = Path.Combine(Paths.commitDir, commitHash);
+                string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
                 File.WriteAllText(commitFilePath, commitMetadata);
 
                 // Update head to point to the new commit
-                HeadHelper.SetHeadCommit(commitHash);
+                HeadHelper.SetHeadCommit(Paths, commitHash);
 
                 // Clear the staging area
-                File.WriteAllText(Paths.index, string.Empty);
+                File.WriteAllText(Paths.Index, string.Empty);
 
                 Logger.Log($"Committed as {commitHash}");
 
