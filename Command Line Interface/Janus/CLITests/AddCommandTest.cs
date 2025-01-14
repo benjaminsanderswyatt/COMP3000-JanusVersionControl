@@ -168,7 +168,8 @@ namespace CLITests
             var stagedFiles = AddHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("ignoredfile.txt"), Is.False);
-            _loggerMock.Verify(logger => logger.Log("File 'ignoredfile.txt' is ignored based on .janusignore."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Added 'file.txt' to the staging area."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Added 'ignoredfile.txt' to the staging area."), Times.Never);
         }
 
 
