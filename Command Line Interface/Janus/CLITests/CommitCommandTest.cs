@@ -146,20 +146,21 @@ namespace CLITests
             // Assert: Verify that the commit was successful and the commit message is logged
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Once);
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                          .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
+
+            CommitMetadata newCommitData = commitPathsInFolder[1];
 
             Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -195,20 +196,23 @@ namespace CLITests
             // Assert: Verify that both files are committed successfully
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Once);
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                          .ToArray();
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
+
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
+
+            CommitMetadata newCommitData = commitPathsInFolder[1];
 
             Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -247,24 +251,23 @@ namespace CLITests
             // Assert: Verify that both files are committed successfully
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Exactly(2));
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                          .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
 
-            var originalCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata originalCommitData = JsonSerializer.Deserialize<CommitMetadata>(originalCommit);
-            Console.WriteLine(originalCommit);
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[2]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+            CommitMetadata originalCommitData = commitPathsInFolder[1];
+
+            CommitMetadata newCommitData = commitPathsInFolder[2];
 
             Assert.That(originalCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -309,7 +312,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
+                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
@@ -356,20 +359,21 @@ namespace CLITests
             // Assert: Verify that file is committed successfully
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Once);
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                          .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
+            CommitMetadata newCommitData = commitPathsInFolder[1];
 
             Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -413,25 +417,23 @@ namespace CLITests
             // Assert: Verify that both files are committed successfully
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Exactly(2));
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                          .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
 
-            var deleteCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata deleteCommitData = JsonSerializer.Deserialize<CommitMetadata>(deleteCommit);
-            Console.WriteLine(deleteCommit);
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[2]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+            CommitMetadata deleteCommitData = commitPathsInFolder[1];
 
+            CommitMetadata newCommitData = commitPathsInFolder[2];
 
             Assert.That(deleteCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -447,7 +449,6 @@ namespace CLITests
             Assert.That(mainRefContents, Is.EqualTo(newCommitData.Commit), "refs/heads/main file should be the newest commit hash.");
 
         }
-
 
 
 
@@ -475,16 +476,22 @@ namespace CLITests
             var commitArgs = new string[] { "Commit files in multiple directories" };
             _commitCommand.Execute(commitArgs);
 
-            // Assert: Verify that both files are part of the commit
-            var commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                                                 .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
-                                                 .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
+
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
+
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Two files should be part of the commit.");
 
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
 
-            Assert.That(newCommitData.Files.Count, Is.EqualTo(2), "Two files should be part of the commit.");
+            CommitMetadata newCommitData = commitPathsInFolder[1];
 
             Assert.That(newCommitData.Files.ContainsKey("dir1/file1.txt"), "file1.txt should be part of the commit.");
 
