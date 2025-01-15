@@ -148,7 +148,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
@@ -197,7 +197,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
@@ -249,7 +249,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
@@ -309,7 +309,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
@@ -358,7 +358,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
@@ -415,7 +415,7 @@ namespace CLITests
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                           .ToArray();
 
             Assert.That(commitPathsInFolder.Length, Is.EqualTo(3), "Should have initial commit, origninal and the updated commit object");
@@ -477,7 +477,7 @@ namespace CLITests
 
             // Assert: Verify that both files are part of the commit
             var commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                                                 .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                                                 .OrderBy(file => new FileInfo(file).CreationTime) // Sort by CreationTime
                                                  .ToArray();
 
 
