@@ -1,7 +1,9 @@
 using Janus;
+using Janus.Models;
 using Janus.Plugins;
 using Moq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -47,9 +49,6 @@ namespace CLITests
 
 
 
-
-
-
         [Test]
         public void ShouldInitializeRepository_WhenNotAlreadyInitialized()
         {
@@ -70,7 +69,34 @@ namespace CLITests
             Assert.True(Directory.Exists(_paths.HeadsDir));
             Assert.True(Directory.Exists(_paths.PluginsDir));
             Assert.True(File.Exists(_paths.Index));
-            Assert.True(File.Exists(_paths.Head));
+            Assert.True(File.Exists(_paths.HEAD));
+
+            // Check the HEAD file contents
+            string headContents = File.ReadAllText(_paths.HEAD);
+            Assert.That(headContents, Is.EqualTo("ref: refs/heads/main"), "HEAD file should point to refs/heads/main initially.");
+
+            // Get the commit object and verify its contents
+            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
+                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
+                          .ToArray();
+
+            Assert.That(commitPathsInFolder.Length, Is.EqualTo(1), "Should have initial commit object inside commit dir.");
+
+            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
+            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
+            Console.WriteLine(initialCommit);
+
+            Assert.That(initialCommitData.Parent, Is.Null);
+
+            Assert.That(initialCommitData.Message, Is.EqualTo("Initial commit"), "Commit message should be 'Initial commit'.");
+
+            Assert.That(initialCommitData.Files.Count, Is.EqualTo(0), "Initial commit has no files.");
+
+
+            // Check the refs/heads/main file contents
+            string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
+            Assert.That(mainRefContents, Is.EqualTo(initialCommitData.Commit), "refs/heads/main file should be the initial commit hash.");
+
         }
 
 

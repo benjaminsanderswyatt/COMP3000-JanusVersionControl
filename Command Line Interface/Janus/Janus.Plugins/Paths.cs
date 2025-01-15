@@ -9,7 +9,7 @@
         public string HeadsDir { get; }
         public string PluginsDir { get; }
         public string Index { get; }
-        public string Head { get; }
+        public string HEAD { get; }
 
         public Paths(string basePath)
         {
@@ -20,7 +20,8 @@
             HeadsDir = Path.Combine(RefsDir, "heads");
             PluginsDir = Path.Combine(JanusDir, ".plugins");
             Index = Path.Combine(JanusDir, "index");
-            Head = Path.Combine(JanusDir, "HEAD");
+            HEAD = Path.Combine(JanusDir, "HEAD");
+
         }
     }
 }

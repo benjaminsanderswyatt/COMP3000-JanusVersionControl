@@ -44,6 +44,20 @@ namespace Janus.Helpers
             }
         }
 
+        public static bool ValidateRepoExists(ILogger Logger, Paths paths)
+        {
+            if (!Directory.Exists(paths.JanusDir))
+            {
+                Logger.Log("Not a janus repository. Use 'init' command to initialise repository.");
+
+                return false;
+            }
+
+            return true;
+        }
+
+
+
 
         public static string ComputeHash(string content)
         {
@@ -58,19 +72,50 @@ namespace Janus.Helpers
         public static string ComputeCommitHash(Dictionary<string, string> fileHashes, string commitMessage)
         {
             string combined = string.Join("", fileHashes.Select(kv => kv.Key + kv.Value)) + commitMessage;
+
             return ComputeHash(combined);
         }
 
         public static string GetCurrentHead(Paths paths)
         {
-            string headPath = paths.Head;
-
-            if (File.Exists(headPath))
+            // Ensure the HEAD file exists
+            if (!File.Exists(paths.HEAD))
             {
-                return File.ReadAllText(headPath).Trim();
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialized correctly.", paths.HEAD);
             }
 
-            return string.Empty; // Empty means this is the initial commit
+            // Check contents of HEAD
+            var pointer = File.ReadAllText(paths.HEAD).Trim();
+
+            if (string.IsNullOrWhiteSpace(pointer))
+            {
+                throw new InvalidDataException("HEAD file is empty or invalid.");
+            }
+
+            if (!pointer.StartsWith("ref: "))
+            {
+                throw new InvalidDataException("HEAD file does not point to a valid reference.");
+            }
+
+            // Get the ref path from the pointer
+            var refPath = pointer.Substring(5); // Remove "ref: "
+            var fullRefPath = Path.Combine(paths.JanusDir, refPath);
+
+            // Ensure the ref file exists
+            if (!File.Exists(fullRefPath))
+            {
+                throw new FileNotFoundException($"Reference file not found for {refPath}.", fullRefPath);
+            }
+
+            // Read the commit hash from the ref file
+            var commitHash = File.ReadAllText(fullRefPath).Trim();
+
+            if (commitHash == null)
+            {
+                throw new InvalidDataException("Reference file contains an invalid commit hash.");
+            }
+
+            return commitHash;
         }
 
 
@@ -82,7 +127,7 @@ namespace Janus.Helpers
             {
                 Commit = commitHash,
                 Parent = parentCommit,
-                Date = DateTimeOffset.UtcNow,
+                Date = DateTimeOffset.Now,
                 Message = commitMessage,
                 Files = fileHashes
             };

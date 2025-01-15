@@ -18,7 +18,7 @@ namespace backend.Models
         [MaxLength(64)] // TODO: Determain constraint for hash length
         public string CommitHash { get; set; }
 
-        [MaxLength(512)] // TODO: Determain constraint for message length
+        [MaxLength(256)]
         public string Message { get; set; }
 
         public int? ParentCommitId { get; set; }  // Null for initial commit

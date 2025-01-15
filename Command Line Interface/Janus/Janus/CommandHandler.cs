@@ -1,5 +1,6 @@
 ﻿using Janus.Helpers;
 using Janus.Plugins;
+using System.IO;
 using System.Text;
 
 
@@ -69,35 +70,47 @@ namespace Janus
                 try
                 {
                     // Initialise .janus folder
-                    if (!Directory.Exists(Paths.JanusDir))
-                    {
-                        Directory.CreateDirectory(Paths.JanusDir);
-                        File.SetAttributes(Paths.JanusDir, File.GetAttributes(Paths.JanusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
-                    }
-                    else
+                    if (Directory.Exists(Paths.JanusDir))
                     {
                         Logger.Log("Repository already initialized");
                         return;
                     }
 
+                    Directory.CreateDirectory(Paths.JanusDir);
+                    File.SetAttributes(Paths.JanusDir, File.GetAttributes(Paths.JanusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
+
+
                     Directory.CreateDirectory(Paths.ObjectDir); // .janus/object folder
                     Directory.CreateDirectory(Paths.RefsDir); // .janus/refs
                     Directory.CreateDirectory(Paths.HeadsDir); // .janus/refs/heads
                     Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
+                    Directory.CreateDirectory(Paths.CommitDir); // .janus/commits folder
 
 
                     // Create index file
                     File.Create(Paths.Index).Close();
 
-                    // Create empty main branch in refs/heads/
-                    File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), string.Empty);
-
                     // Create HEAD file pointing at main branch
-                    File.WriteAllText(Paths.Head, "ref: refs/heads/main");
+                    File.WriteAllText(Paths.HEAD, "ref: refs/heads/main");
+
+
+
+                    // Create initial commit
+                    string initialCommitMessage = "Initial commit";
+                    var emptyFileHashes = new Dictionary<string, string>();
+                    string initCommitHash = CommandHelper.ComputeCommitHash(emptyFileHashes, initialCommitMessage);
+
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(initCommitHash, emptyFileHashes, initialCommitMessage, null);
+
+                    // Save the commit object in the commit directory
+                    string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
+                    File.WriteAllText(commitFilePath, commitMetadata);
+
+                    // Create main branch in refs/heads/ pointing to initial commit
+                    File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), initCommitHash);
+
 
                     Logger.Log("Initialized janus repository");
-
-
                 }
                 catch (Exception ex)
                 {
@@ -123,11 +136,7 @@ namespace Janus
                 }
 
                 // Repository has to be initialised for command to run
-                if (!Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Not a janus repository. Use 'init' command to initialise repository.");
-                    return;
-                }
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
 
                 var filesToAdd = new List<string>();
@@ -175,9 +184,6 @@ namespace Janus
                 }
 
                 Logger.Log($"{filesToRemove.Count} files removed from staging area.");
-
-
-
 
 
 
@@ -238,18 +244,23 @@ namespace Janus
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
-                if (!Directory.Exists(Paths.JanusDir))
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+                string parentCommit;
+                try
                 {
-                    Logger.Log("Error: Not a janus repository. Run 'janus init' first.");
+                    parentCommit = CommandHelper.GetCurrentHead(Paths);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error getting current HEAD: {ex.Message}");
                     return;
                 }
 
-                // Commit message is required
-                if (args.Length < 1)
-                {
-                    Logger.Log("No commit message given. Use 'janus commit \"Commit message\"'");
-                    return;
-                }
+
+                // Validate commit message
+                if (!CommitHelper.ValidateCommitMessage(Logger, args, out string commitMessage)) return;
+
 
                 // If no files have been staged then there is nothing to commit
                 if (!File.Exists(Paths.Index) || !File.ReadLines(Paths.Index).Any())
@@ -259,56 +270,92 @@ namespace Janus
                 }
 
 
-
-                Dictionary<string, string> fileHashes = new Dictionary<string, string>();
-                foreach (var line in File.ReadAllLines(Paths.Index))
+                // Load staged files
+                Dictionary<string, string> stagedFiles;
+                try
                 {
-                    var parts = line.Split('|');
-
-                    string relativeFilePath = parts[0];
-                    string fileHash = parts[1];
-
-                    string currentDir = Directory.GetCurrentDirectory();
-                    string fullPath = Path.Combine(currentDir, relativeFilePath);
-
-                    if (!File.Exists(fullPath))
-                    {
-                        Logger.Log($"Warning: Staged file '{relativeFilePath}' '{fullPath}' no longer exists.");
-
-                        continue;
-                    }
-
-                    string content = File.ReadAllText(relativeFilePath);
-                    fileHashes[relativeFilePath] = fileHash;
-
-                    // Write file content to objects directory
-                    string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
-                    if (!File.Exists(objectFilePath)) // Dont rewrite existing objects
-                    {
-                        File.WriteAllText(objectFilePath, content);
-                    }
+                    // Load staged files
+                    stagedFiles = File.ReadAllLines(Paths.Index)
+                                      .Select(line => line.Split('|'))
+                                      .Where(parts => parts.Length == 2)
+                                      .ToDictionary(parts => parts[0], parts => parts[1]);
+                }
+                catch (IOException ex)
+                {
+                    Logger.Log($"Error reading staged files: {ex.Message}");
+                    return;
                 }
 
 
-                string commitMessage = args[0];
+                // Identify missing files
+                var missingFiles = stagedFiles.Keys.Where(filePath => !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filePath))).ToList();
 
-                // Generate commit metadata
-                string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                string parentCommit = CommandHelper.GetCurrentHead(Paths);
-                string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
+                // Log and mark missing files as deleted
+                foreach (var missingFile in missingFiles)
+                {
+                    Logger.Log($"Staged file '{missingFile}' no longer exists and will be marked as deleted.");
+                    stagedFiles[missingFile] = "Deleted";
+                }
 
-                // Save commit object
-                string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
-                File.WriteAllText(commitFilePath, commitMetadata);
 
-                // Update head to point to the new commit
-                HeadHelper.SetHeadCommit(Paths, commitHash);
 
-                // Clear the staging area
-                File.WriteAllText(Paths.Index, string.Empty);
 
-                Logger.Log($"Committed as {commitHash}");
 
+                var fileHashes = new Dictionary<string, string>();
+                foreach (var file in stagedFiles)
+                {
+                    string fileHash = file.Value;
+                    if (fileHash == "Deleted") {
+                        fileHashes[file.Key] = "Deleted";
+                        continue;
+                    };
+
+                    string relativeFilePath = file.Key;
+
+                    try
+                    {
+                        string content = File.ReadAllText(relativeFilePath);
+                        fileHashes[relativeFilePath] = fileHash;
+
+                        // Write file content to objects directory
+                        string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
+                        if (!File.Exists(objectFilePath)) // Dont rewrite existing objects
+                        {
+                            File.WriteAllText(objectFilePath, content);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"Error committing file '{relativeFilePath}': {ex.Message}");
+                        return;
+                    }
+
+                }
+
+                try
+                {
+
+                    // Generate commit metadata
+                    string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
+
+                    // Save commit object
+                    string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
+                    File.WriteAllText(commitFilePath, commitMetadata);
+
+                    // Update head to point to the new commit
+                    HeadHelper.SetHeadCommit(Paths, commitHash);
+
+                    // Clear the staging area
+                    File.WriteAllText(Paths.Index, string.Empty);
+
+                    Logger.Log($"Committed as {commitHash}");
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error saving commit: {ex.Message}");
+                }
             }
         }
 

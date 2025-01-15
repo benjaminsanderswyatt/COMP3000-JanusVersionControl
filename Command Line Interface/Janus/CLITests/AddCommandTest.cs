@@ -34,7 +34,7 @@ namespace CLITests
             Directory.CreateDirectory(_paths.RefsDir);
             Directory.CreateDirectory(_paths.HeadsDir);
             File.Create(_paths.Index).Close();
-            File.Create(_paths.Head).Close();
+            File.Create(_paths.HEAD).Close();
 
 
             // Create AddCommand instance
