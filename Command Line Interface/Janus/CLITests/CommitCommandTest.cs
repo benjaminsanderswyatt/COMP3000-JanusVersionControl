@@ -310,20 +310,21 @@ namespace CLITests
             // Verify that the file is marked as deleted in the commit object
             _loggerMock.Verify(logger => logger.Log("Staged file 'file.txt' no longer exists and will be marked as deleted."), Times.Once);
 
-            // Get the commit object and verify its contents
-            string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
-                          .OrderBy(file => new FileInfo(file).LastWriteTime) // Sort by last modified date
-                          .ToArray();
+            // Get all commit files
+            var commitFiles = Directory.GetFiles(_paths.CommitDir);
 
-            Assert.That(commitPathsInFolder.Length, Is.EqualTo(2), "Should have initial commit object and one created.");
+            // Deserialize and sort commit metadata by date
+            List<CommitMetadata> commitPathsInFolder = commitFiles
+                .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                .OrderBy(metadata => metadata.Date)
+                .ToList();
 
-            var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
-            CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
+            Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
 
-            var newCommit = File.ReadAllText(commitPathsInFolder[1]);
-            CommitMetadata newCommitData = JsonSerializer.Deserialize<CommitMetadata>(newCommit);
-            Console.WriteLine(newCommit);
+            CommitMetadata initialCommitData = commitPathsInFolder[0];
+            CommitMetadata newCommitData = commitPathsInFolder[1];
+
 
             Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
@@ -370,8 +371,7 @@ namespace CLITests
                 .ToList();
 
             Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
-
-
+            
             CommitMetadata initialCommitData = commitPathsInFolder[0];
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
