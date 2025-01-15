@@ -100,7 +100,9 @@ namespace Janus.Helpers
             return ComputeHash(combined);
         }
 
-        public static string GetCurrentHead(Paths paths)
+
+
+        public static string GetCurrentBranchRelPath(Paths paths)
         {
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
@@ -123,6 +125,25 @@ namespace Janus.Helpers
 
             // Get the ref path from the pointer
             var refPath = pointer.Substring(5); // Remove "ref: "
+
+            return refPath;
+        }
+
+
+
+
+
+        public static string GetCurrentHead(Paths paths)
+        {
+            // Ensure the HEAD file exists
+            if (!File.Exists(paths.HEAD))
+            {
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialized correctly.", paths.HEAD);
+            }
+
+            // Check contents of HEAD
+            string refPath = GetCurrentBranchRelPath(paths);
+
             var fullRefPath = Path.Combine(paths.JanusDir, refPath);
 
             // Ensure the ref file exists
@@ -145,12 +166,13 @@ namespace Janus.Helpers
 
 
 
-        public static string GenerateCommitMetadata(string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit, string author)
+        public static string GenerateCommitMetadata(string branch, string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit, string author)
         {
             var metadata = new CommitMetadata
             {
                 Commit = commitHash,
                 Parent = parentCommit,
+                Branch = branch,
                 Author = author,
                 Date = DateTimeOffset.Now,
                 Message = commitMessage,

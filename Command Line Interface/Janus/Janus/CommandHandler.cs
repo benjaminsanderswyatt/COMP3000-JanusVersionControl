@@ -101,7 +101,7 @@ namespace Janus
                     var emptyFileHashes = new Dictionary<string, string>();
                     string initCommitHash = CommandHelper.ComputeCommitHash(emptyFileHashes, initialCommitMessage);
 
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main" ,initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -258,6 +258,8 @@ namespace Janus
                     return;
                 }
 
+                string branch = CommandHelper.GetCurrentBranchRelPath(Paths).Substring(11); // Remove refs/heads/ to get branch name
+
 
                 // Validate commit message
                 if (!CommitHelper.ValidateCommitMessage(Logger, args, out string commitMessage)) return;
@@ -338,7 +340,7 @@ namespace Janus
 
                     // Generate commit metadata
                     string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch , commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
