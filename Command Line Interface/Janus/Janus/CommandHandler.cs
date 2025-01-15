@@ -17,10 +17,11 @@ namespace Janus
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
+                new LogCommand(logger, paths),
                 //new PushCommand(),
                 //new CreateBranchCommand(),
                 //new SwitchBranchCommand(),
-                //new LogCommand()
+                
                 
                 // Add new built in commands here
             };
@@ -100,7 +101,7 @@ namespace Janus
                     var emptyFileHashes = new Dictionary<string, string>();
                     string initCommitHash = CommandHelper.ComputeCommitHash(emptyFileHashes, initialCommitMessage);
 
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(initCommitHash, emptyFileHashes, initialCommitMessage, null);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -337,7 +338,7 @@ namespace Janus
 
                     // Generate commit metadata
                     string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
@@ -359,6 +360,21 @@ namespace Janus
             }
         }
 
+
+
+
+        public class LogCommand : BaseCommand
+        {
+            public LogCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "log";
+            public override string Description => "log help";
+            public override void Execute(string[] args)
+            {
+                string username = Environment.UserName;
+                Logger.Log($"Username: {username}");
+            }
+        }
 
         /*
         public class PushCommand : BaseCommand
@@ -458,23 +474,11 @@ namespace Janus
                 }
             }
         }
-
-        public class LogCommand : ICommand
-        {
-            public string Name => "log";
-            public string Description => "log help";
-            public void Execute(string[] args)
-            {
-                foreach (var commitFile in Directory.GetFiles(Paths.objectDir))
-                {
-                    string content = File.ReadAllText(commitFile);
-                    if (content.StartsWith("Tree:"))
-                    {
-                        Console.WriteLine(content);
-                    }
-                }
-            }
-        }
         */
+
+
+
+
+
     }
 }

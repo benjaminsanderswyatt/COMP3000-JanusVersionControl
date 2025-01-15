@@ -44,6 +44,30 @@ namespace Janus.Helpers
             }
         }
 
+
+        public static string GetUsername()
+        {
+            // Get the username from configs
+
+
+            // No config set use systems username
+            if (string.IsNullOrWhiteSpace(Environment.UserName))
+            {
+                return "unknown";
+            }
+
+            return Environment.UserName;
+        }
+        
+
+
+
+
+
+
+
+
+
         public static bool ValidateRepoExists(ILogger Logger, Paths paths)
         {
             if (!Directory.Exists(paths.JanusDir))
@@ -121,12 +145,13 @@ namespace Janus.Helpers
 
 
 
-        public static string GenerateCommitMetadata(string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit)
+        public static string GenerateCommitMetadata(string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit, string author)
         {
             var metadata = new CommitMetadata
             {
                 Commit = commitHash,
                 Parent = parentCommit,
+                Author = author,
                 Date = DateTimeOffset.Now,
                 Message = commitMessage,
                 Files = fileHashes
