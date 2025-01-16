@@ -2,6 +2,7 @@ using Janus;
 using Janus.Helpers;
 using Janus.Plugins;
 using Moq;
+using System.ComponentModel;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -12,6 +13,7 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private LogCommand _logCommand;
+        static string initialCommitHash = "4A35387BE739933F7C9E6486959EC1AFFB2C1648";
 
         private string _testDir;
 
@@ -36,25 +38,30 @@ namespace CLITests
 
             // Create Log Command instance
             _logCommand = new LogCommand(_loggerMock.Object, _paths);
+
+            
         }
 
-        private void CreateManyCommits(int howMany, string branch, string author, int howManyFiles)
+
+
+        private string CreateManyCommits(int howMany, string branch, string author, int howManyFiles = 1, string startParentCommitHash = null)
         {
+            string parentCommitHash = startParentCommitHash ?? initialCommitHash;
+
             for (int num = 1; num < howMany + 1; num++)
             {
+                // Create mock files for the commit
                 Dictionary<string, string> fileHashes = new Dictionary<string, string>();
 
+                for (int i = 1; i <= howManyFiles; i++)
+                {
+                    fileHashes.Add($"File{num}{i}", $"Content{num}{i}{branch}{author}");
+                }
 
                 // Generate commit metadata
                 string commitHash = CommandHelper.ComputeCommitHash(fileHashes, $"commitMessage{num}");
 
-                string? parent = $"commitHash{num - 1}";
-                if (num - 1 == 0)
-                {
-                    parent = "4A35387BE739933F7C9E6486959EC1AFFB2C1648"; // Initial commit hash
-                }
-
-                string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", fileHashes, $"commitMessage{num}", parent, author);
+                string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", fileHashes, $"commitMessage{num}", parentCommitHash, author);
 
                 // Save commit object
                 string commitFilePath = Path.Combine(_paths.CommitDir, commitHash);
@@ -62,7 +69,11 @@ namespace CLITests
 
                 // Update head to point to the new commit
                 HeadHelper.SetHeadCommit(_paths, commitHash);
+
+                parentCommitHash = commitHash; // Advance parent commit for the loop
             }
+
+            return parentCommitHash;
         }
 
         [TearDown]
@@ -137,7 +148,7 @@ namespace CLITests
         public void ShouldDisplayCommits_WhenCommitsExist()
         {
             // Arrange: Create 5 commits
-            CreateManyCommits(5, "main", "testAuthor", 0);
+            CreateManyCommits(5, "main", "testAuthor", 0, "4A35387BE739933F7C9E6486959EC1AFFB2C1648");
             var args = new string[] { };
 
             // Act
@@ -169,8 +180,8 @@ namespace CLITests
         public void ShouldFilterByBranch_WhenBranchIsProvided()
         {
             // Arrange: Create commits on two branches
-            CreateManyCommits(3, "main", "testAuthor", 0);
-            CreateManyCommits(2, "feature", "testAuthor", 0);
+            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor");
+            CreateManyCommits(2, "feature", "testAuthor", 1, finalCommitHash);
             var args = new string[] { "branch=feature" };
 
             // Act
@@ -184,7 +195,17 @@ namespace CLITests
         [Test]
         public void ShouldFilterByAuthor_WhenAuthorIsProvided()
         {
-            Assert.Fail();
+            // Arrange: Create commits with two authors
+            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor1");
+            CreateManyCommits(2, "main", "testAuthor2", 1, finalCommitHash);
+            var args = new string[] { "author=testAuthor1" };
+
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify only feature branch commits are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor1"))), Times.Never);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor2"))), Times.Exactly(2));
         }
 
         [Test]
