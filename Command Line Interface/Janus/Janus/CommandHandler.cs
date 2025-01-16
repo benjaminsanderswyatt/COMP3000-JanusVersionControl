@@ -412,11 +412,12 @@ namespace Janus
                         .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
                         .Where(metadata => metadata != null) // Exclude invalid or null metadata
                         .Where(metadata =>
-                            metadata.Author != null &&
+                            
                             // Filter by branch
                             (string.IsNullOrEmpty(filters.Branch) || metadata.Branch.Equals(filters.Branch, StringComparison.OrdinalIgnoreCase)) &&
                             // Filter by author
-                            (string.IsNullOrEmpty(filters.Author) || metadata.Author.Equals(filters.Author, StringComparison.OrdinalIgnoreCase)) &&
+                            (string.IsNullOrEmpty(filters.Author) || 
+                                (metadata.Author != null && metadata.Author.Equals(filters.Author, StringComparison.OrdinalIgnoreCase))) &&
                             // Filter by date range
                             (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTimeOffset.Parse(filters.Since)) &&
                             (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTimeOffset.Parse(filters.Until))

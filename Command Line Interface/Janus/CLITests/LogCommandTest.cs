@@ -203,35 +203,90 @@ namespace CLITests
             // Act
             _logCommand.Execute(args);
 
-            // Assert: Verify only feature branch commits are displayed
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor1"))), Times.Never);
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor2"))), Times.Exactly(2));
+            // Assert: Verify only testAuthor1 commits are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor1"))), Times.Exactly(3));
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor2"))), Times.Never);
         }
 
         [Test]
         public void ShouldFilterUntilDate_WhenUntilIsProvided()
         {
-            Assert.Fail();
+            // Arrange
+            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor");
+
+            // Wait to create some time between commits
+            Thread.Sleep(1000);
+            DateTime later = DateTime.Now;
+            Thread.Sleep(1000);
+
+            CreateManyCommits(2, "2nd", "testAuthor", 1, finalCommitHash);
+
+            var args = new string[] { $"until={later}" }; // Only commits before this date should be displayed
+
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify only dates happening before are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Date:"))), Times.Exactly(4));
         }
+
+
 
         [Test]
         public void ShouldFilterSinceDate_WhenSinceIsProvided()
         {
-            Assert.Fail();
+            // Arrange
+            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor");
+
+            // Wait to create some time between commits
+            Thread.Sleep(1000);
+            DateTime later = DateTime.Now;
+            Thread.Sleep(1000);
+
+            CreateManyCommits(2, "main", "testAuthor", 1, finalCommitHash);
+
+            var args = new string[] { $"since={later}" }; // Only commits before this date should be displayed
+
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify only dates happening after are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Date:"))), Times.Exactly(2));
         }
+
 
 
         [Test]
         public void ShouldLimitLog_WhenLimitIsProvided()
         {
-            Assert.Fail();
+            // Arrange
+            CreateManyCommits(10, "main", "testAuthor");
+
+            var args = new string[] { $"limit=5" }; // Only commits this many commits should be displayed
+
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify only dates happening after are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Commit:"))), Times.Exactly(5));
         }
 
 
         [Test]
         public void ShouldDisplayFilesLog_WhenVerboseIsTrue()
         {
-            Assert.Fail();
+            // Arrange
+            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor",1); // 3 files total
+            CreateManyCommits(2, "main", "testAuthor",2, finalCommitHash); // 4 files total
+
+            var args = new string[] { $"verbose=true" }; // Only commits this many commits should be displayed
+
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify that all files are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Files:"))), Times.Exactly(6)); // 5 commits + initial commit
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("  File"))), Times.Exactly(7)); // 3 files + 4 files
         }
 
 
