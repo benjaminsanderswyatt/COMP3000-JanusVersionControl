@@ -3,7 +3,7 @@ using Janus.Plugins;
 
 namespace Janus
 {
-    internal class HeadHelper
+    public class HeadHelper
     {
         public static void SetHeadCommit(Paths paths, string commitHash)
         {

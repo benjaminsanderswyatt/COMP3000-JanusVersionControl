@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Janus.Helpers
 {
-    internal class CommandHelper
+    public class CommandHelper
     {
         public static async Task ExecuteAsync()
         {
