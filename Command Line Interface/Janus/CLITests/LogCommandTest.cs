@@ -168,39 +168,49 @@ namespace CLITests
         [Test]
         public void ShouldFilterByBranch_WhenBranchIsProvided()
         {
+            // Arrange: Create commits on two branches
+            CreateManyCommits(3, "main", "testAuthor", 0);
+            CreateManyCommits(2, "feature", "testAuthor", 0);
+            var args = new string[] { "branch=feature" };
 
+            // Act
+            _logCommand.Execute(args);
+
+            // Assert: Verify only feature branch commits are displayed
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Branch:  feature"))), Times.Exactly(2));
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Branch:  main"))), Times.Never);
         }
 
         [Test]
         public void ShouldFilterByAuthor_WhenAuthorIsProvided()
         {
-
+            Assert.Fail();
         }
 
         [Test]
         public void ShouldFilterUntilDate_WhenUntilIsProvided()
         {
-
+            Assert.Fail();
         }
 
         [Test]
         public void ShouldFilterSinceDate_WhenSinceIsProvided()
         {
-
+            Assert.Fail();
         }
 
 
         [Test]
         public void ShouldLimitLog_WhenLimitIsProvided()
         {
-
+            Assert.Fail();
         }
 
 
         [Test]
         public void ShouldDisplayFilesLog_WhenVerboseIsTrue()
         {
-
+            Assert.Fail();
         }
 
 

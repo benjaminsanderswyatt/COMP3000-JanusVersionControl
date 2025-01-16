@@ -1,7 +1,9 @@
 ﻿using Janus.Helpers;
+using Janus.Models;
 using Janus.Plugins;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 
 namespace Janus
@@ -370,13 +372,134 @@ namespace Janus
             public LogCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "log";
-            public override string Description => "log help";
+            public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<> verbose=<>'";
             public override void Execute(string[] args)
             {
-                string username = Environment.UserName;
-                Logger.Log($"Username: {username}");
+
+                if (!Directory.Exists(Paths.CommitDir))
+                {
+                    Logger.Log("Error commit directory doesnt exist.");
+                    return;
+                }
+
+
+                // Get all commit files
+                var commitFiles = Directory.GetFiles(Paths.CommitDir);
+
+                if (commitFiles.Length == 0)
+                {
+                    Logger.Log("Error no commits found. Repository might not have initialized correctly.");
+                    return;
+                }
+
+
+                // Get arguments for filters
+
+                LogFilters filters = new LogFilters {
+                    Branch = args.FirstOrDefault(arg => arg.StartsWith("branch="))?.Split('=')[1],
+                    Author = args.FirstOrDefault(arg => arg.StartsWith("author="))?.Split('=')[1],
+                    Since = args.FirstOrDefault(arg => arg.StartsWith("since="))?.Split('=')[1],
+                    Until = args.FirstOrDefault(arg => arg.StartsWith("until="))?.Split('=')[1],
+                    Limit = args.FirstOrDefault(arg => arg.StartsWith("limit="))?.Split('=')[1],
+                    Verbose = args.FirstOrDefault(arg => arg.StartsWith("verbose="))?.Split('=')[1]
+                };
+                
+                
+                List<CommitMetadata?> commitPathsInFolder;
+                try
+                {
+                    commitPathsInFolder = commitFiles
+                        .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                        .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                        .Where(metadata =>
+                            // Filter by branch
+                            (string.IsNullOrEmpty(filters.Branch) || metadata.Branch.Equals(filters.Branch, StringComparison.OrdinalIgnoreCase)) &&
+                            // Filter by author
+                            (string.IsNullOrEmpty(filters.Author) || metadata.Author.Equals(filters.Author, StringComparison.OrdinalIgnoreCase)) &&
+                            // Filter by date range
+                            (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTimeOffset.Parse(filters.Since)) &&
+                            (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTimeOffset.Parse(filters.Until))
+
+                        )
+                        .OrderBy(metadata => metadata.Date)
+                        .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("Error reading commit files: " + ex.Message);
+                    return;
+                }
+
+                // Apply the limit if specified
+                if (int.TryParse(filters.Limit, out int limit))
+                {
+                    commitPathsInFolder = commitPathsInFolder.Take(limit).ToList();
+                }
+
+
+                // Display commit history
+                if (!commitPathsInFolder.Any())
+                {
+                    Logger.Log("No commits match the provided filters.");
+                    return;
+                }
+
+
+                // Display commit history
+                foreach (var commit in commitPathsInFolder)
+                {
+                    // Color code the commit output
+
+                    // Commit Hash
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Logger.Log($"Commit:  {commit.Commit}");
+
+                    // Author
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Logger.Log($"Author:  {commit.Author}");
+
+                    // Date
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Logger.Log($"Date:    {commit.Date}");
+
+                    // Branch
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Logger.Log($"Branch:  {commit.Branch}");
+
+                    // Message
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Logger.Log($"Message: {commit.Message}");
+
+                    // Files
+                    if (filters.Verbose == "true")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Logger.Log("Files:");
+                        foreach (var file in commit.Files)
+                        {
+                            Logger.Log($"  {file.Key} : {file.Value}");
+                        }
+                    }
+
+
+                    // Reset color after each commit log
+                    Console.ResetColor();
+                    Logger.Log(new string('-', 50));
+                }
+
+
+
             }
         }
+
+
+
+
+
+
+
+
+
 
         /*
         public class PushCommand : BaseCommand
