@@ -31,7 +31,6 @@ namespace CLITests
             // Set up Janus repo
             Directory.CreateDirectory(_paths.JanusDir);
             Directory.CreateDirectory(_paths.ObjectDir);
-            Directory.CreateDirectory(_paths.RefsDir);
             Directory.CreateDirectory(_paths.HeadsDir);
             File.Create(_paths.Index).Close();
             File.Create(_paths.HEAD).Close();

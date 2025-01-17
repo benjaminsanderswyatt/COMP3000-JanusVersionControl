@@ -1,8 +1,9 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
-using Newtonsoft.Json;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 
 namespace Janus.Helpers
 {
@@ -129,11 +130,16 @@ namespace Janus.Helpers
             return refPath;
         }
 
+        public static string GetCurrentBranchName(Paths paths)
+        {
+            // Get the current branch name
+            return GetCurrentBranchRelPath(paths).Split('/').Last();
+        }
 
 
 
 
-        public static string GetCurrentHead(Paths paths)
+        public static string GetCurrentHEAD(Paths paths)
         {
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
@@ -179,7 +185,7 @@ namespace Janus.Helpers
                 Files = fileHashes
             };
 
-            string metadataJson = JsonConvert.SerializeObject(metadata, Formatting.Indented);
+            string metadataJson = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
 
             return metadataJson;
         }

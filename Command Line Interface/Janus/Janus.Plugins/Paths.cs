@@ -3,24 +3,26 @@
     public class Paths
     {
         public string JanusDir { get; }
+        public string WorkingDir { get; }
         public string ObjectDir { get; }
         public string CommitDir { get; }
-        public string RefsDir { get; }
         public string HeadsDir { get; }
         public string PluginsDir { get; }
         public string Index { get; }
         public string HEAD { get; }
+        public string BranchesDir { get; }
 
         public Paths(string basePath)
         {
+            WorkingDir = basePath;
             JanusDir = Path.Combine(basePath, ".janus");
             ObjectDir = Path.Combine(JanusDir, "objects");
             CommitDir = Path.Combine(JanusDir, "commits");
-            RefsDir = Path.Combine(JanusDir, "refs");
-            HeadsDir = Path.Combine(RefsDir, "heads");
+            HeadsDir = Path.Combine(JanusDir, "heads");
             PluginsDir = Path.Combine(JanusDir, ".plugins");
             Index = Path.Combine(JanusDir, "index");
             HEAD = Path.Combine(JanusDir, "HEAD");
+            BranchesDir = Path.Combine(JanusDir, "branches");
 
         }
     }

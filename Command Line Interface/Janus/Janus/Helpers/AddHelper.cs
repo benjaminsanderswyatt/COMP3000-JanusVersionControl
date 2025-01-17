@@ -1,6 +1,5 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
-using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 

@@ -1,9 +1,11 @@
 ﻿using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
+using System.Data;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 
 
 namespace Janus
@@ -20,9 +22,11 @@ namespace Janus
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
                 new LogCommand(logger, paths),
+                new ListBranchesCommand(logger, paths),
+                new CreateBranchCommand(logger, paths),
+                new SwitchBranchCommand(logger, paths),
+                new DeleteBranchCommand(logger, paths),
                 //new PushCommand(),
-                //new CreateBranchCommand(),
-                //new SwitchBranchCommand(),
                 
                 
                 // Add new built in commands here
@@ -84,17 +88,17 @@ namespace Janus
 
 
                     Directory.CreateDirectory(Paths.ObjectDir); // .janus/object folder
-                    Directory.CreateDirectory(Paths.RefsDir); // .janus/refs
-                    Directory.CreateDirectory(Paths.HeadsDir); // .janus/refs/heads
+                    Directory.CreateDirectory(Paths.HeadsDir); // .janus/heads
                     Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
                     Directory.CreateDirectory(Paths.CommitDir); // .janus/commits folder
+                    Directory.CreateDirectory(Paths.BranchesDir); // .janus/branches folder
 
 
                     // Create index file
                     File.Create(Paths.Index).Close();
 
                     // Create HEAD file pointing at main branch
-                    File.WriteAllText(Paths.HEAD, "ref: refs/heads/main");
+                    File.WriteAllText(Paths.HEAD, "ref: heads/main");
 
 
 
@@ -109,8 +113,24 @@ namespace Janus
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
                     File.WriteAllText(commitFilePath, commitMetadata);
 
-                    // Create main branch in refs/heads/ pointing to initial commit
+                    // Create main branch in heads/ pointing to initial commit
                     File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), initCommitHash);
+
+
+
+                    // Create branches file for main
+                    var branch = new Branch
+                    {
+                        Name = "main",
+                        InitialCommit = initCommitHash,
+                        CreatedBy = null,
+                        ParentBranch = null,
+                        Created = DateTimeOffset.Now
+                    };
+
+                    string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(Path.Combine(Paths.BranchesDir, "main"), branchJson);
+
 
 
                     Logger.Log("Initialized janus repository");
@@ -252,7 +272,7 @@ namespace Janus
                 string parentCommit;
                 try
                 {
-                    parentCommit = CommandHelper.GetCurrentHead(Paths);
+                    parentCommit = CommandHelper.GetCurrentHEAD(Paths);
                 }
                 catch (Exception ex)
                 {
@@ -260,7 +280,7 @@ namespace Janus
                     return;
                 }
 
-                string branch = CommandHelper.GetCurrentBranchRelPath(Paths).Substring(11); // Remove refs/heads/ to get branch name
+                string branch = CommandHelper.GetCurrentBranchName(Paths);
 
 
                 // Validate commit message
@@ -367,6 +387,9 @@ namespace Janus
 
 
 
+
+
+
         public class LogCommand : BaseCommand
         {
             public LogCommand(ILogger logger, Paths paths) : base(logger, paths) { }
@@ -375,6 +398,8 @@ namespace Janus
             public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<> verbose=<>'";
             public override void Execute(string[] args)
             {
+                // Repository has to be initialised for command to run
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 if (!Directory.Exists(Paths.CommitDir))
                 {
@@ -543,22 +568,19 @@ namespace Janus
 
 
 
-
-
-
-
-
-
-
-        /*
-        public class CreateBranchCommand : ICommand
+        public class CreateBranchCommand : BaseCommand
         {
-            public string Name => "create branch";
-            public string Description => "create branch help";
-            public void Execute(string[] args)
+            public CreateBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "create_branch";
+            public override string Description => "Creates a branch from the head commit of current branch.";
+            public override void Execute(string[] args)
             {
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+
                 string branchName = args[0];
-                string branchPath = Path.Combine(Paths.headsDir, branchName);
+                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
 
                 if (File.Exists(branchPath))
                 {
@@ -566,42 +588,153 @@ namespace Janus
                     return;
                 }
 
-                // Get the latest commit of the curent branch
-                string headPath = Path.Combine(Paths.janusDir, "HEAD");
-                string currentBranch = File.ReadAllText(headPath).Replace("ref: ", "").Trim();
-                string currentBranchPath = Path.Combine(Paths.janusDir, currentBranch);
 
-                // Write the latest commit hash into the new branch file
-                string latestCommitHash = File.ReadAllText(currentBranchPath).Trim();
-                File.WriteAllText(branchPath, latestCommitHash);
+                // Put the latest commit of the current branch into the new branch file
+                string branchHeadCommit = CommandHelper.GetCurrentHEAD(Paths);
+
+                File.WriteAllText(branchPath, branchHeadCommit);
+
+                // Create branches file for main
+                var branch = new Branch
+                {
+                    Name = branchName,
+                    InitialCommit = branchHeadCommit,
+                    CreatedBy = CommandHelper.GetUsername(),
+                    ParentBranch = CommandHelper.GetCurrentBranchName(Paths),
+                    Created = DateTimeOffset.Now
+                };
+
+                string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(Path.Combine(Paths.BranchesDir, branchName), branchJson);
 
 
-                Console.WriteLine($"Created new branch {branchName}");
+                Logger.Log($"Created new branch {branchName}");
             }
         }
 
-        public class SwitchBranchCommand : ICommand
+        public class DeleteBranchCommand : BaseCommand
         {
-            public string Name => "switch branch";
-            public string Description => "switch branch help";
-            public void Execute(string[] args)
+            public DeleteBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "delete_branch";
+            public override string Description => "Deletes a branch.";
+            public override void Execute(string[] args)
             {
-                string branchName = args[0];
-                string branchPath = Path.Combine(Paths.headsDir, branchName);
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
-                if (File.Exists(branchPath))
+                string branchName = args[0];
+
+                // Check if user is in branch
+                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                if (currentBranch == branchName)
                 {
-                    // Update HEAD to point to the switched to branch
-                    File.WriteAllText(Path.Combine(Paths.janusDir, "HEAD"), $"ref: refs/heads/{branchName}");
-                    Console.WriteLine($"Switched to branch {branchName}.");
+                    Console.WriteLine($"Cannot delete branch '{branchName}' while on it.");
+                    return;
                 }
-                else
+
+
+                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
+
+                if (!File.Exists(branchPath))
                 {
-                    Console.WriteLine($"Branch {branchName} does not exist.");
+                    Console.WriteLine($"Branch '{branchName}' doesnt exists.");
+                    return;
                 }
+
+                // Delete the branch file
+                File.Delete(branchPath);
+
+                // Delete the branch file in branches directory
+                File.Delete(Path.Combine(Paths.BranchesDir, branchName));
+
+                Logger.Log($"Deleted branch {branchName}.");
             }
         }
-        */
+
+
+
+
+        public class ListBranchesCommand : BaseCommand
+        {
+            public ListBranchesCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "list_branches";
+            public override string Description => "list branch help";
+            public override void Execute(string[] args)
+            {
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+                // Get all branches in heads directory
+                string[] allBranchesPaths = Directory.GetFiles(Paths.HeadsDir);
+
+                var currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+
+
+                foreach (string branchPath in allBranchesPaths)
+                {
+                    string branch = Path.GetFileName(branchPath);
+
+                    if (branch == currentBranch)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                    }
+
+                    Logger.Log(branch);
+
+                    Console.ResetColor();
+                }
+
+
+            }
+        }
+
+
+
+        public class SwitchBranchCommand : BaseCommand
+        {
+            public SwitchBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "switch_branch";
+            public override string Description => "switch branch help";
+            public override void Execute(string[] args)
+            {
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+                string branchName = args[0];
+                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
+
+                if (!File.Exists(branchPath))
+                {
+                    Console.WriteLine($"Branch '{branchName}' doesnt exists.");
+                    return;
+                }
+
+                
+
+
+
+
+
+                // TODO - Update the working directory with the files from the new branch
+                BranchHelper.UpdateWorkingDirectory(Logger, Paths, branchName);
+
+
+
+
+
+
+                // Update HEAD to point to the switched to branch
+                File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
+
+                Logger.Log($"Switched to branch {branchName}.");
+
+            }
+        }
+
 
 
 

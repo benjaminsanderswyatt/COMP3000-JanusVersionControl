@@ -65,7 +65,6 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log("Initialized janus repository"), Times.Once);
             Assert.True(Directory.Exists(_paths.JanusDir));
             Assert.True(Directory.Exists(_paths.ObjectDir));
-            Assert.True(Directory.Exists(_paths.RefsDir));
             Assert.True(Directory.Exists(_paths.HeadsDir));
             Assert.True(Directory.Exists(_paths.PluginsDir));
             Assert.True(File.Exists(_paths.Index));
@@ -73,7 +72,7 @@ namespace CLITests
 
             // Check the HEAD file contents
             string headContents = File.ReadAllText(_paths.HEAD);
-            Assert.That(headContents, Is.EqualTo("ref: refs/heads/main"), "HEAD file should point to refs/heads/main initially.");
+            Assert.That(headContents, Is.EqualTo("ref: heads/main"), "HEAD file should point to heads/main initially.");
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
@@ -93,9 +92,24 @@ namespace CLITests
             Assert.That(initialCommitData.Files.Count, Is.EqualTo(0), "Initial commit has no files.");
 
 
-            // Check the refs/heads/main file contents
+            // Check the heads/main file contents
             string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
-            Assert.That(mainRefContents, Is.EqualTo(initialCommitData.Commit), "refs/heads/main file should be the initial commit hash.");
+            Assert.That(mainRefContents, Is.EqualTo(initialCommitData.Commit), "heads/main file should be the initial commit hash.");
+
+
+
+
+            // Check the branches file contents
+            string mainBranchInBranches = Path.Combine(_paths.BranchesDir, "main");
+
+            Assert.True(File.Exists(mainBranchInBranches));
+
+            Branch mainBranch = JsonSerializer.Deserialize<Branch>(File.ReadAllText(mainBranchInBranches));
+
+            Assert.That(mainBranch.Name, Is.EqualTo("main"));
+            Assert.That(mainBranch.ParentBranch, Is.Null);
+            Assert.That(mainBranch.InitialCommit, Is.EqualTo("4A35387BE739933F7C9E6486959EC1AFFB2C1648"));
+            Assert.That(mainBranch.CreatedBy, Is.Null);
 
         }
 
