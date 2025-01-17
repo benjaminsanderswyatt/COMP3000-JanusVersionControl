@@ -11,8 +11,12 @@ namespace Janus.Helpers
 
         public static void UpdateWorkingDirectory(ILogger logger, Paths paths, string branchName)
         {
+            string tempWorkingDir = Path.Combine(paths.JanusDir, ".temp");
+
             try
             {
+                Directory.CreateDirectory(tempWorkingDir);
+
                 string branchPath = Path.Combine(paths.HeadsDir, branchName);
                 string branchHeadCommit = File.ReadAllText(branchPath);
 
@@ -20,12 +24,13 @@ namespace Janus.Helpers
                 // Get the list of files and their content from the commit
                 var fileStates = GetAllFilesFromCommitHistory(logger, paths, branchHeadCommit);
 
-                // Clear the working directory
-                ClearWorkingDirectory(paths);
 
                 // Recreate the working directory for branch
-                RecreateWorkingDirectory(logger, paths, fileStates);
+                RecreateWorkingDirectory(logger, paths, tempWorkingDir, fileStates);
 
+
+                // Move the files from the temp directory to the working directory
+                ReplaceWorkingDirectory(paths.WorkingDir, tempWorkingDir);
 
                 logger.Log($"Updated working directory with files from branch {branchName}.");
             }
@@ -33,14 +38,41 @@ namespace Janus.Helpers
             {
                 logger.Log($"Error updating working directory: {ex.Message}");
             }
+
+            if (Directory.Exists(tempWorkingDir))
+            {
+                Directory.Delete(tempWorkingDir, true);
+            }
         }
 
-        public static void ClearWorkingDirectory(Paths paths)
+        private static void ReplaceWorkingDirectory(string workingDir, string tempWorkingDir)
+        {
+            // Remove existing files in the working directory
+            ClearWorkingDirectory(workingDir);
+
+            // Move files from the temp directory to the working directory
+            foreach (var file in Directory.GetFiles(tempWorkingDir, "*", SearchOption.AllDirectories))
+            {
+                // Get the relative path of the file
+                string relativePath = Path.GetRelativePath(tempWorkingDir, file);
+                string destPath = Path.Combine(workingDir, relativePath);
+
+                // Move the file
+                Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                File.Move(file, destPath);
+
+            }
+
+        }
+
+
+
+        private static void ClearWorkingDirectory(string workingDir)
         {
             try
             {
                 // Add all files in the directory recursively (appart from .janus folder)
-                var directoryFiles = Directory.GetFiles(paths.WorkingDir, "*", SearchOption.AllDirectories)
+                var directoryFiles = Directory.GetFiles(workingDir, "*", SearchOption.AllDirectories)
                                               .Where(file => !file.Contains(".janus"));
 
                 foreach (var file in directoryFiles)
@@ -54,10 +86,10 @@ namespace Janus.Helpers
             }
         }
 
-        public static Dictionary<string, string> GetAllFilesFromCommitHistory(ILogger logger, Paths paths, string startingCommit)
+        private static Dictionary<string, string> GetAllFilesFromCommitHistory(ILogger logger, Paths paths, string startingCommit)
         {
             // Create a dictionary to hold all of the files in their states at the point of the commit
-            Dictionary<string, string> fileStates = new Dictionary<string, string>();
+            var fileStates = new Dictionary<string, string>();
 
             // Traverse the commit history to get the files and their states
             string currentCommitHash = startingCommit;
@@ -99,11 +131,12 @@ namespace Janus.Helpers
             return fileStates;
         }
 
-        public static void RecreateWorkingDirectory(ILogger logger, Paths paths, Dictionary<string, string> fileStates)
+        private static void RecreateWorkingDirectory(ILogger logger, Paths paths, string targetDir, Dictionary<string, string> fileStates)
         {
-            try
+            
+            foreach (var file in fileStates)
             {
-                foreach (var file in fileStates)
+                try
                 {
                     // Get the file content from the object directory
                     string objectFilePath = Path.Combine(paths.ObjectDir, file.Value);
@@ -113,19 +146,21 @@ namespace Janus.Helpers
                     }
 
                     string content = File.ReadAllText(objectFilePath);
-                    string filePath = Path.Combine(paths.WorkingDir, file.Key);
+                    string filePath = Path.Combine(targetDir, file.Key);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
                     File.WriteAllText(filePath, content);
                 }
+                catch (Exception ex)
+                {
+                    logger.Log($"Failed to recreate file {file.Key}: {ex.Message}");
+                    throw;
+                }
+            }
 
-                logger.Log("Recreated working directory.");
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Failed to recreate working directory.", ex);
-            }
+            logger.Log("Recreated working directory.");
+            
         }
 
         public static bool IsValidBranchName(string branchName)
