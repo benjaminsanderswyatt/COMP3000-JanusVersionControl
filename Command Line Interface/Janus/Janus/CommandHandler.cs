@@ -578,8 +578,20 @@ namespace Janus
             {
                 if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please provide a branch name.");
+                    return;
+                }
 
                 string branchName = args[0];
+                if (!BranchHelper.IsValidBranchName(branchName))
+                {
+                    Logger.Log($"Invalid branch name: {branchName}");
+                    return;
+                }
+
+
                 string branchPath = Path.Combine(Paths.HeadsDir, branchName);
 
                 if (File.Exists(branchPath))
@@ -621,13 +633,19 @@ namespace Janus
             {
                 if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please provide a branch name.");
+                    return;
+                }
+
                 string branchName = args[0];
 
                 // Check if user is in branch
                 string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
                 if (currentBranch == branchName)
                 {
-                    Console.WriteLine($"Cannot delete branch '{branchName}' while on it.");
+                    Logger.Log($"Cannot delete branch '{branchName}' while on it.");
                     return;
                 }
 
@@ -636,7 +654,7 @@ namespace Janus
 
                 if (!File.Exists(branchPath))
                 {
-                    Console.WriteLine($"Branch '{branchName}' doesnt exists.");
+                    Logger.Log($"Branch '{branchName}' doesnt exists.");
                     return;
                 }
 
@@ -704,6 +722,12 @@ namespace Janus
             {
                 if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please provide a branch name.");
+                    return;
+                }
+
                 string branchName = args[0];
                 string branchPath = Path.Combine(Paths.HeadsDir, branchName);
 
@@ -713,24 +737,22 @@ namespace Janus
                     return;
                 }
 
-                
 
+                try
+                {
+                    // Update the working directory with the files from the new branch
+                    BranchHelper.UpdateWorkingDirectory(Logger, Paths, branchName);
 
+                    // Update HEAD to point to the switched to branch
+                    File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
 
-
-
-                // TODO - Update the working directory with the files from the new branch
-                BranchHelper.UpdateWorkingDirectory(Logger, Paths, branchName);
-
-
-
-
-
-
-                // Update HEAD to point to the switched to branch
-                File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
-
-                Logger.Log($"Switched to branch {branchName}.");
+                    Logger.Log($"Switched to branch {branchName}.");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error switching branch '{branchName}': {ex.Message}");
+                    return;
+                }
 
             }
         }

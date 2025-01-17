@@ -1,6 +1,7 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Janus.Helpers
 {
@@ -8,44 +9,48 @@ namespace Janus.Helpers
     public class BranchHelper
     {
 
-
-
         public static void UpdateWorkingDirectory(ILogger logger, Paths paths, string branchName)
         {
-            // Get the latest commit hash of the branch
-            string branchPath = Path.Combine(paths.HeadsDir, branchName);
-            string branchHeadCommit = File.ReadAllText(branchPath);
+            try
+            {
+                string branchPath = Path.Combine(paths.HeadsDir, branchName);
+                string branchHeadCommit = File.ReadAllText(branchPath);
 
 
+                // Get the list of files and their content from the commit
+                var fileStates = GetAllFilesFromCommitHistory(logger, paths, branchHeadCommit);
 
-            // Get the list of files and their content from the commit
-            Dictionary<string, string> fileStates = GetAllFilesFromCommitHistory(logger, paths, branchHeadCommit);
+                // Clear the working directory
+                ClearWorkingDirectory(paths);
 
-
-
-            // Clear the working directory
-            ClearWorkingDirectory(paths);
-
-
-
-            // Recreate the files for the branch in the working directory
-            RecreateWorkingDirectory(logger, paths, fileStates);
+                // Recreate the working directory for branch
+                RecreateWorkingDirectory(logger, paths, fileStates);
 
 
-
-            logger.Log($"Updated working directory with files from branch {branchName}.");
-
+                logger.Log($"Updated working directory with files from branch {branchName}.");
+            }
+            catch (Exception ex)
+            {
+                logger.Log($"Error updating working directory: {ex.Message}");
+            }
         }
 
         public static void ClearWorkingDirectory(Paths paths)
         {
-            // Add all files in the directory recursively
-            var directoryFiles = Directory.GetFiles(paths.WorkingDir, "*", SearchOption.AllDirectories)
-                                          .Where(file => !file.Contains(".janus"));
-
-            foreach (var file in directoryFiles)
+            try
             {
-                File.Delete(file);
+                // Add all files in the directory recursively (appart from .janus folder)
+                var directoryFiles = Directory.GetFiles(paths.WorkingDir, "*", SearchOption.AllDirectories)
+                                              .Where(file => !file.Contains(".janus"));
+
+                foreach (var file in directoryFiles)
+                {
+                    File.Delete(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to clear working directory.", ex);
             }
         }
 
@@ -60,19 +65,24 @@ namespace Janus.Helpers
             {
                 // Load the current commit
                 string commitFilePath = Path.Combine(paths.CommitDir, currentCommitHash);
-                string commitData = File.ReadAllText(commitFilePath);
-                var commit = JsonSerializer.Deserialize<CommitMetadata>(commitData);
-
-                foreach (var file in commit.Files)
+                if (!File.Exists(commitFilePath))
                 {
-                    // If the file isnt in the filestate then add it
+                    throw new FileNotFoundException($"Commit file not found: {commitFilePath}");
+                }
+
+
+                var commitData = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitFilePath));
+
+                foreach (var file in commitData.Files)
+                {
+                    // Add the latest occurance of the file to the fileState
                     if (!fileStates.ContainsKey(file.Key))
                     {
                         fileStates[file.Key] = file.Value; // Store fileName - Object Hash
                     }
                 }
 
-                currentCommitHash = commit.Parent;
+                currentCommitHash = commitData.Parent;
 
             }
 
@@ -91,19 +101,46 @@ namespace Janus.Helpers
 
         public static void RecreateWorkingDirectory(ILogger logger, Paths paths, Dictionary<string, string> fileStates)
         {
-            foreach (var file in fileStates)
+            try
             {
-                // Get the file content from the object directory
-                string objectFilePath = Path.Combine(paths.ObjectDir, file.Value);
-                string content = File.ReadAllText(objectFilePath);
-                string filePath = Path.Combine(paths.WorkingDir, file.Key);
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                File.WriteAllText(filePath, content);
-            }
+                foreach (var file in fileStates)
+                {
+                    // Get the file content from the object directory
+                    string objectFilePath = Path.Combine(paths.ObjectDir, file.Value);
+                    if (!File.Exists(objectFilePath))
+                    {
+                        throw new FileNotFoundException($"Object file not found: {objectFilePath}");
+                    }
 
-            logger.Log("Recreated working directory.");
+                    string content = File.ReadAllText(objectFilePath);
+                    string filePath = Path.Combine(paths.WorkingDir, file.Key);
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+                    File.WriteAllText(filePath, content);
+                }
+
+                logger.Log("Recreated working directory.");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to recreate working directory.", ex);
+            }
         }
 
+        public static bool IsValidBranchName(string branchName)
+        {
+            if (string.IsNullOrWhiteSpace(branchName))
+                return false;
+
+
+            // ivalid characters: ~ ^ : ? \ * [ ] \x00-\x1F \x7F ..
+            var invalidCharsPattern = @"[~^:\?\\\*\[\]\x00-\x1F\x7F]|(\.\.)"; 
+            if (Regex.IsMatch(branchName, invalidCharsPattern))
+                return false;
+
+            return true;
+        }
 
 
     }
