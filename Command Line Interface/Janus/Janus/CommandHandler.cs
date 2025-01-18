@@ -116,6 +116,10 @@ namespace Janus
                     // Create main branch in heads/ pointing to initial commit
                     File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), initCommitHash);
 
+                    // Create detached Head file
+                    File.WriteAllText(Path.Combine(Paths.JanusDir, "DETACHED_HEAD"), initCommitHash);
+
+
 
 
                     // Create branches file for main
@@ -759,6 +763,51 @@ namespace Janus
 
 
 
+
+        public class SwitchCommitCommand : BaseCommand
+        {
+            public SwitchCommitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "switch_commit";
+            public override string Description => "switch commit help";
+            public override void Execute(string[] args)
+            {
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please provide a commit hash.");
+                    return;
+                }
+
+                string commitHash = args[0];
+                string commitPath = Path.Combine(Paths.CommitDir, commitHash);
+
+                if (!File.Exists(commitPath))
+                {
+                    Console.WriteLine($"Commit '{commitHash}' doesnt exists.");
+                    return;
+                }
+
+
+                try
+                {
+                    // Update the working directory with the files from the CommitHash
+                    BranchHelper.UpdateWorkingDirectory(Logger, Paths, commitHash);
+
+                    // Update HEAD to point to the detached HEAD
+                    File.WriteAllText(Paths.HEAD, $"ref: {Paths.DETACHED_HEAD}");
+
+                    Logger.Log($"Switched to commit {commitHash}.");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error switching to commit '{commitHash}': {ex.Message}");
+                    return;
+                }
+
+            }
+        }
 
 
 

@@ -10,6 +10,7 @@
         public string PluginsDir { get; }
         public string Index { get; }
         public string HEAD { get; }
+        public string DETACHED_HEAD { get; }
         public string BranchesDir { get; }
 
         public Paths(string basePath)
@@ -22,6 +23,7 @@
             PluginsDir = Path.Combine(JanusDir, ".plugins");
             Index = Path.Combine(JanusDir, "index");
             HEAD = Path.Combine(JanusDir, "HEAD");
+            HEAD = Path.Combine(JanusDir, "DETACHED_HEAD");
             BranchesDir = Path.Combine(JanusDir, "branches");
 
         }
