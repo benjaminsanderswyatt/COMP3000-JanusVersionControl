@@ -23,7 +23,7 @@
             PluginsDir = Path.Combine(JanusDir, ".plugins");
             Index = Path.Combine(JanusDir, "index");
             HEAD = Path.Combine(JanusDir, "HEAD");
-            HEAD = Path.Combine(JanusDir, "DETACHED_HEAD");
+            DETACHED_HEAD = Path.Combine(JanusDir, "DETACHED_HEAD");
             BranchesDir = Path.Combine(JanusDir, "branches");
 
         }

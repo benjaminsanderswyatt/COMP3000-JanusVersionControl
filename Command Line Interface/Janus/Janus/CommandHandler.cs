@@ -118,7 +118,7 @@ namespace Janus
                     File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), initCommitHash);
 
                     // Create detached Head file
-                    File.WriteAllText(Path.Combine(Paths.JanusDir, "DETACHED_HEAD"), initCommitHash);
+                    File.WriteAllText(Paths.DETACHED_HEAD, initCommitHash);
 
 
 
