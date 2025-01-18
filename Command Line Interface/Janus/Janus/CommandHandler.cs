@@ -27,6 +27,7 @@ namespace Janus
                 new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
                 new SwitchCommitCommand(logger, paths),
+                new StatusCommand(logger, paths),
                 //new PushCommand(),
                 
                 
@@ -45,7 +46,7 @@ namespace Janus
             {
                 //await CommandHelper.ExecuteAsync();
                 Logger.Log("Test End");
-               
+
             }
         }
 
@@ -108,7 +109,7 @@ namespace Janus
                     var emptyFileHashes = new Dictionary<string, string>();
                     string initCommitHash = CommandHelper.ComputeCommitHash(emptyFileHashes, initialCommitMessage);
 
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main" ,initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main", initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -177,6 +178,7 @@ namespace Janus
                         var directoryFiles = Directory.EnumerateFiles(arg, "*", SearchOption.AllDirectories)
                                                       .Select(filePath => Path.GetRelativePath(".", filePath))
                                                       .Where(path => !path.StartsWith(".janus"));
+
                         filesToAdd.AddRange(directoryFiles);
                     }
                     else if (File.Exists(arg))
@@ -335,7 +337,8 @@ namespace Janus
                 foreach (var file in stagedFiles)
                 {
                     string fileHash = file.Value;
-                    if (fileHash == "Deleted") {
+                    if (fileHash == "Deleted")
+                    {
                         fileHashes[file.Key] = "Deleted";
                         continue;
                     };
@@ -367,7 +370,7 @@ namespace Janus
 
                     // Generate commit metadata
                     string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch , commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
@@ -425,7 +428,8 @@ namespace Janus
 
                 // Get arguments for filters
 
-                LogFilters filters = new LogFilters {
+                LogFilters filters = new LogFilters
+                {
                     Branch = args.FirstOrDefault(arg => arg.StartsWith("branch="))?.Split('=')[1],
                     Author = args.FirstOrDefault(arg => arg.StartsWith("author="))?.Split('=')[1],
                     Since = args.FirstOrDefault(arg => arg.StartsWith("since="))?.Split('=')[1],
@@ -433,8 +437,8 @@ namespace Janus
                     Limit = args.FirstOrDefault(arg => arg.StartsWith("limit="))?.Split('=')[1],
                     Verbose = args.FirstOrDefault(arg => arg.StartsWith("verbose="))?.Split('=')[1]
                 };
-                
-                
+
+
                 List<CommitMetadata?> commitPathsInFolder;
                 try
                 {
@@ -442,11 +446,11 @@ namespace Janus
                         .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
                         .Where(metadata => metadata != null) // Exclude invalid or null metadata
                         .Where(metadata =>
-                            
+
                             // Filter by branch
                             (string.IsNullOrEmpty(filters.Branch) || metadata.Branch.Equals(filters.Branch, StringComparison.OrdinalIgnoreCase)) &&
                             // Filter by author
-                            (string.IsNullOrEmpty(filters.Author) || 
+                            (string.IsNullOrEmpty(filters.Author) ||
                                 (metadata.Author != null && metadata.Author.Equals(filters.Author, StringComparison.OrdinalIgnoreCase))) &&
                             // Filter by date range
                             (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTimeOffset.Parse(filters.Since)) &&
@@ -516,7 +520,7 @@ namespace Janus
 
                     // Reset color after each commit log
                     Console.ResetColor();
-                    Logger.Log(new string('-', 50));
+                    CommandHelper.DisplaySeperator(Logger);
                 }
 
 
@@ -601,7 +605,7 @@ namespace Janus
 
                 if (File.Exists(branchPath))
                 {
-                    Console.WriteLine($"Branch '{branchName}' already exists.");
+                    Logger.Log($"Branch '{branchName}' already exists.");
                     return;
                 }
 
@@ -759,11 +763,11 @@ namespace Janus
 
                 if (!File.Exists(branchPath))
                 {
-                    Console.WriteLine($"Branch '{branchName}' doesnt exists.");
+                    Logger.Log($"Branch '{branchName}' doesnt exists.");
                     return;
                 }
 
-
+                // TODO
                 // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
                 // if(ConfirmAction($"")) 
 
@@ -812,10 +816,11 @@ namespace Janus
 
                 if (!File.Exists(commitPath))
                 {
-                    Console.WriteLine($"Commit '{commitHash}' doesnt exists.");
+                    Logger.Log($"Commit '{commitHash}' doesnt exists.");
                     return;
                 }
 
+                // TODO
                 // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
                 // if(ConfirmAction($"")) 
 
@@ -838,6 +843,139 @@ namespace Janus
 
             }
         }
+
+
+
+
+        public class StatusCommand : BaseCommand
+        {
+            public StatusCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "status";
+            public override string Description => "Displays the status of the repository.";
+            public override void Execute(string[] args)
+            {
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
+                // Get the current branch
+                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                Logger.Log($"On branch {currentBranch}");
+                CommandHelper.DisplaySeperator(Logger);
+
+                // TODO Check the status of the current branch against the remote branch
+                // Show branch sync status
+                Logger.Log("Remote sync status will be displayed here.");
+                CommandHelper.DisplaySeperator(Logger);
+
+
+                var directoryFiles = Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories)
+                                                      .Select(filePath => Path.GetRelativePath(".", filePath))
+                                                      .Where(path => !path.StartsWith(".janus"))
+                                                      .ToList();
+
+                // Get staged files
+                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+
+                List<string> modifiedFiles = new List<string>();
+                List<string> untrackedFiles = new List<string>();
+
+
+
+                // Display staged changes
+                if (stagedFiles.Count > 0)
+                {
+                    Logger.Log("Changes to be committed:");
+
+                    foreach (var file in stagedFiles)
+                    {
+                        string filePath = file.Key;
+                        string stagedHash = file.Value;
+
+                        string fileHashInWorkingDir = AddHelper.ComputeHash_GivenFilepath(filePath);
+
+                        if (fileHashInWorkingDir != stagedHash)
+                        {
+                            Logger.Log($"    {filePath} (modified but staged)");
+                        }
+                        else
+                        {
+                            Logger.Log($"    {filePath} (staged)");
+                        }
+                    }
+                }
+
+                CommandHelper.DisplaySeperator(Logger);
+
+                // Check for modified and unstaged files
+                foreach (var filePath in directoryFiles)
+                {
+                    if (stagedFiles.ContainsKey(filePath))
+                    {
+                        // Compare the current files hash to staged hash
+                        string currentFileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
+                        string stagedFileHash = stagedFiles[filePath];
+
+                        if (currentFileHash != stagedFileHash)
+                        {
+
+                            modifiedFiles.Add(filePath); // File is modified but not staged
+                        }
+
+                    } 
+                    else
+                    {
+                        untrackedFiles.Add(filePath); // Untracked file
+                    }
+                }
+
+
+                // Display modified files
+                if (modifiedFiles.Count > 0)
+                {
+                    Logger.Log("Changes not staged for commit:");
+                    foreach (var modifiedFile in modifiedFiles)
+                    {
+                        Logger.Log($"    {modifiedFile} (modified)");
+                    }
+                }
+
+                CommandHelper.DisplaySeperator(Logger);
+
+                // Display untracked files
+                if (untrackedFiles.Count > 0)
+                {
+                    Logger.Log("Untracked files:");
+                    foreach (var untrackedFile in untrackedFiles)
+                    {
+                        Logger.Log($"    {untrackedFile} (untracked)");
+                    }
+                }
+
+
+                CommandHelper.DisplaySeperator(Logger);
+
+
+
+
+                // If everything is clean, notify the user
+                if (stagedFiles.Count == 0 && modifiedFiles.Count == 0 && untrackedFiles.Count == 0)
+                {
+                    Logger.Log("Nothing to commit, working tree clean.");
+                }
+
+
+
+
+            }
+        }
+
+
+
+
+        public static void GetUncommittedChanges()
+        {
+
+        }
+
 
 
 

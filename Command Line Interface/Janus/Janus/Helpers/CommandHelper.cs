@@ -59,7 +59,7 @@ namespace Janus.Helpers
                 else if (key.Key == ConsoleKey.N)
                 {
                     return false;
-                } 
+                }
                 else
                 {
                     logger.Log("Invalid input. Please confirm 'Y' or 'N'.");
@@ -84,7 +84,7 @@ namespace Janus.Helpers
 
             return Environment.UserName;
         }
-        
+
 
         public static bool ValidateRepoExists(ILogger Logger, Paths paths)
         {
@@ -206,6 +206,16 @@ namespace Janus.Helpers
 
             return metadataJson;
         }
+
+
+
+        public static void DisplaySeperator(ILogger logger)
+        {
+            logger.Log(new string('-', 50));
+        }
+
+       
+
 
     }
 }
