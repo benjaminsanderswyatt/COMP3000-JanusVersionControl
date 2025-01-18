@@ -139,7 +139,7 @@ namespace Janus
                     // Create branch folder and store the branch info and index
                     string branchFolderPath = Path.Combine(Paths.BranchesDir, "main");
                     Directory.CreateDirectory(branchFolderPath);
-                    File.WriteAllText(branchFolderPath, branchJson);
+                    File.WriteAllText(Path.Combine(branchFolderPath, "info"), branchJson);
 
                     File.Create(Path.Combine(branchFolderPath, "index")).Close();
 
@@ -764,13 +764,17 @@ namespace Janus
                     // Update the working directory with the files from the new branch
                     BranchHelper.UpdateWorkingDirectory(Logger, Paths, branchName);
 
-                    // Update HEAD to point to the switched to branch
-                    File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
 
                     // Store the index state into the previous branch
-
+                    string previousBranch = CommandHelper.GetCurrentBranchName(Paths);
+                    File.Copy(Paths.Index, Path.Combine(Paths.BranchesDir, previousBranch, "index"));
 
                     // Load the index for new branch
+                    File.Copy(Path.Combine(Paths.BranchesDir, previousBranch, "index"), Paths.Index);
+
+
+                    // Update HEAD to point to the switched to branch
+                    File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
 
 
                     Logger.Log($"Switched to branch {branchName}.");
