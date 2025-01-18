@@ -102,9 +102,14 @@ namespace CLITests
             // Check the branches file contents
             string mainBranchInBranches = Path.Combine(_paths.BranchesDir, "main");
 
-            Assert.True(File.Exists(mainBranchInBranches));
+            Assert.True(Directory.Exists(mainBranchInBranches));
 
-            Branch mainBranch = JsonSerializer.Deserialize<Branch>(File.ReadAllText(mainBranchInBranches));
+            string infoPath = Path.Combine(mainBranchInBranches, "info");
+            string branchIndexPath = Path.Combine(mainBranchInBranches, "index");
+            Assert.True(File.Exists(infoPath));
+            Assert.True(File.Exists(branchIndexPath));
+
+            Branch mainBranch = JsonSerializer.Deserialize<Branch>(File.ReadAllText(infoPath));
 
             Assert.That(mainBranch.Name, Is.EqualTo("main"));
             Assert.That(mainBranch.ParentBranch, Is.Null);
