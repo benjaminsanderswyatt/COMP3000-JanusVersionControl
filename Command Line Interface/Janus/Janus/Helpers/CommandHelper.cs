@@ -54,14 +54,17 @@ namespace Janus.Helpers
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Y)
                 {
+                    logger.Log("");
                     return true;
                 }
                 else if (key.Key == ConsoleKey.N)
                 {
+                    logger.Log("");
                     return false;
                 }
                 else
                 {
+                    logger.Log("");
                     logger.Log("Invalid input. Please confirm 'Y' or 'N'.");
                 }
             }
@@ -215,6 +218,9 @@ namespace Janus.Helpers
         }
 
        
+
+
+
 
 
     }

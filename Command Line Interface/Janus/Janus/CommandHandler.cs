@@ -135,7 +135,14 @@ namespace Janus
                     };
 
                     string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(Path.Combine(Paths.BranchesDir, "main"), branchJson);
+                    
+                    // Create branch folder and store the branch info and index
+                    string branchFolderPath = Path.Combine(Paths.BranchesDir, "main");
+                    Directory.CreateDirectory(branchFolderPath);
+                    File.WriteAllText(branchFolderPath, branchJson);
+
+                    File.Create(Path.Combine(branchFolderPath, "index")).Close();
+
 
 
 
@@ -201,7 +208,7 @@ namespace Janus
 
 
                 // Load existing staged files
-                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
@@ -237,7 +244,7 @@ namespace Janus
 
 
                 // Update index
-                AddHelper.SaveIndex(Paths.Index, stagedFiles);
+                IndexHelper.SaveIndex(Paths.Index, stagedFiles);
 
                 Logger.Log($"{filesToAdd.Count} files processed.");
             }
@@ -279,7 +286,7 @@ namespace Janus
 
 
                 // If no files have been staged then there is nothing to commit
-                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
                 if (stagedFiles.Count == 0)
                 {
                     Logger.Log("No changes to commit.");
@@ -349,7 +356,7 @@ namespace Janus
                     // Remove deleted files from index now that they have been recorded in commit
                     var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
                                           .ToDictionary(kv => kv.Key, kv => kv.Value);
-                    AddHelper.SaveIndex(Paths.Index, updatedIndex);
+                    IndexHelper.SaveIndex(Paths.Index, updatedIndex);
 
                     Logger.Log($"Committed as {commitHash}");
 
@@ -595,7 +602,13 @@ namespace Janus
                 };
 
                 string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(Path.Combine(Paths.BranchesDir, branchName), branchJson);
+
+
+                string branchFolderPath = Path.Combine(Paths.BranchesDir, branchName);
+                Directory.CreateDirectory(branchFolderPath);
+                File.WriteAllText(Path.Combine(branchFolderPath, branchName), branchJson);
+
+                File.Copy(Paths.Index, Path.Combine(branchFolderPath, "index"));
 
 
                 Logger.Log($"Created new branch {branchName}");
@@ -656,11 +669,15 @@ namespace Janus
                     return;
                 }
 
+                
+
+
                 // Delete the branch file
                 File.Delete(branchPath);
 
                 // Delete the branch file in branches directory
-                File.Delete(Path.Combine(Paths.BranchesDir, branchName));
+                Directory.Delete(Path.Combine(Paths.BranchesDir, branchName), true);
+
 
 
                 Logger.Log($"Deleted branch {branchName}.");
@@ -749,6 +766,12 @@ namespace Janus
 
                     // Update HEAD to point to the switched to branch
                     File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
+
+                    // Store the index state into the previous branch
+
+
+                    // Load the index for new branch
+
 
                     Logger.Log($"Switched to branch {branchName}.");
                 }
@@ -842,7 +865,7 @@ namespace Janus
                                                       .ToList();
 
                 // Get staged files
-                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 List<string> modifiedFiles = new List<string>();
                 List<string> untrackedFiles = new List<string>();

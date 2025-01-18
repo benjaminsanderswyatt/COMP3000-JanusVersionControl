@@ -100,7 +100,7 @@ namespace CLITests
 
 
             // Assert: Verify that the file is staged correctly
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
         }
 
@@ -123,7 +123,7 @@ namespace CLITests
 
 
             // Assert: Verify that both files are staged correctly
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
         }
@@ -164,7 +164,7 @@ namespace CLITests
 
 
             // Assert: Verify that the ignored file is not added to the staging area
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("ignoredfile.txt"), Is.False);
             _loggerMock.Verify(logger => logger.Log("Added 'file.txt' to the staging area."), Times.Once);
@@ -187,7 +187,7 @@ namespace CLITests
             _addCommand.Execute(args);
 
             // Assert: Verify that the file is staged and not ignored
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True);
         }
 
@@ -203,7 +203,7 @@ namespace CLITests
             var args = new string[] { "file.txt" };
             _addCommand.Execute(args);
 
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             var initialHash = stagedFiles["file.txt"];
 
             // Modify the file content
@@ -213,7 +213,7 @@ namespace CLITests
             // Act: Re execute 'janus add file.txt' to stage again
             _addCommand.Execute(args);
 
-            stagedFiles = AddHelper.LoadIndex(_paths.Index);
+            stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             var updatedHash = stagedFiles["file.txt"];
 
 
