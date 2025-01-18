@@ -672,10 +672,16 @@ namespace Janus
                 }
 
 
-
-                // TODO: delete all commits in the branch (maybe the objects if they arnt used by another commit)
-
-
+                try
+                {
+                    // Delete the branch commit
+                    BranchHelper.DeleteBranchCommitAndFiles(Logger, Paths, branchName);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error deleting branch '{branchName}': {ex.Message}");
+                    return;
+                }
 
                 // Delete the branch file
                 File.Delete(branchPath);
