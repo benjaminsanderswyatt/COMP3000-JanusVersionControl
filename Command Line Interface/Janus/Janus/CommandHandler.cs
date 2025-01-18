@@ -24,8 +24,9 @@ namespace Janus
                 new LogCommand(logger, paths),
                 new ListBranchesCommand(logger, paths),
                 new CreateBranchCommand(logger, paths),
-                new SwitchBranchCommand(logger, paths),
                 new DeleteBranchCommand(logger, paths),
+                new SwitchBranchCommand(logger, paths),
+                new SwitchCommitCommand(logger, paths),
                 //new PushCommand(),
                 
                 
@@ -662,11 +663,26 @@ namespace Janus
                     return;
                 }
 
+
+                // Prompt user to confirm deletion
+                if (!CommandHelper.ConfirmAction(Logger, $"Are you sure you want to delete branch '{branchName}'?"))
+                {
+                    Logger.Log("Branch deletion cancelled.");
+                    return;
+                }
+
+
+
+                // TODO: delete all commits in the branch (maybe the objects if they arnt used by another commit)
+
+
+
                 // Delete the branch file
                 File.Delete(branchPath);
 
                 // Delete the branch file in branches directory
                 File.Delete(Path.Combine(Paths.BranchesDir, branchName));
+
 
                 Logger.Log($"Deleted branch {branchName}.");
             }
@@ -679,7 +695,7 @@ namespace Janus
         {
             public ListBranchesCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
-            public override string Name => "list_branches";
+            public override string Name => "list_branch";
             public override string Description => "list branch help";
             public override void Execute(string[] args)
             {
@@ -742,6 +758,11 @@ namespace Janus
                 }
 
 
+                // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
+                // if(ConfirmAction($"")) 
+
+
+
                 try
                 {
                     // Update the working directory with the files from the new branch
@@ -788,6 +809,9 @@ namespace Janus
                     Console.WriteLine($"Commit '{commitHash}' doesnt exists.");
                     return;
                 }
+
+                // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
+                // if(ConfirmAction($"")) 
 
 
                 try

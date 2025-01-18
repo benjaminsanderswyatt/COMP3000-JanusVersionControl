@@ -46,6 +46,31 @@ namespace Janus.Helpers
         }
 
 
+        public static bool ConfirmAction(ILogger logger, string message)
+        {
+            while (true)
+            {
+                logger.Log($"{message} (Y/N)");
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Y)
+                {
+                    return true;
+                }
+                else if (key.Key == ConsoleKey.N)
+                {
+                    return false;
+                } 
+                else
+                {
+                    logger.Log("Invalid input. Please confirm 'Y' or 'N'.");
+                }
+            }
+        }
+
+
+
+
+
         public static string GetUsername()
         {
             // Get the username from configs
@@ -60,14 +85,6 @@ namespace Janus.Helpers
             return Environment.UserName;
         }
         
-
-
-
-
-
-
-
-
 
         public static bool ValidateRepoExists(ILogger Logger, Paths paths)
         {
