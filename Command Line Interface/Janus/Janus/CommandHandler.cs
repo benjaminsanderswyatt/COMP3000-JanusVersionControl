@@ -863,78 +863,100 @@ namespace Janus
                 CommandHelper.DisplaySeperator(Logger);
 
 
-                var directoryFiles = Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories)
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+
+                // Get files from working directory (excluding .janus files)
+                var workingFiles = Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories)
                                                       .Select(filePath => Path.GetRelativePath(".", filePath))
                                                       .Where(path => !path.StartsWith(".janus"))
                                                       .ToList();
 
-                // Get staged files
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+                // Check .janusignore for ingored patterns
+                var ignoredPatterns = File.Exists(".janusignore")
+                    ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
+                    : new List<string>();
 
-                List<string> modifiedFiles = new List<string>();
-                List<string> untrackedFiles = new List<string>();
+                workingFiles = workingFiles.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
 
+                var modifiedFiles = new List<string>();
+                var untrackedFiles = new List<string>();
+                var deletedFiles = new List<string>();
+
+                // Identify changes
+                foreach (var file in stagedFiles)
+                {
+                    string filePath = file.Key;
+                    string fileHash = file.Value;
+
+                    if (fileHash == "Deleted" || !File.Exists(filePath))
+                    {
+                        deletedFiles.Add(filePath);
+                    }
+                    else
+                    {
+                        string currentFileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
+                        if (currentFileHash != fileHash)
+                        {
+                            modifiedFiles.Add(currentFileHash);
+                        }
+
+                    }
+
+                }
+
+
+                // Identify untracked files
+                foreach (var filePath in workingFiles)
+                {
+                    if (!stagedFiles.ContainsKey(filePath))
+                    {
+                        untrackedFiles.Add(filePath);
+                    }
+                }
 
 
                 // Display staged changes
                 if (stagedFiles.Count > 0)
                 {
                     Logger.Log("Changes to be committed:");
-
                     foreach (var file in stagedFiles)
                     {
                         string filePath = file.Key;
-                        string stagedHash = file.Value;
+                        string fileHash = file.Value;
 
-                        string fileHashInWorkingDir = AddHelper.ComputeHash_GivenFilepath(filePath);
-
-                        if (fileHashInWorkingDir != stagedHash)
+                        if (fileHash == "Deleted")
                         {
-                            Logger.Log($"    {filePath} (modified but staged)");
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Logger.Log($"    {filePath} (deleted)");
+                        }
+                        else if (modifiedFiles.Contains(filePath))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Logger.Log($"    {filePath} (modified)");
                         }
                         else
                         {
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Logger.Log($"    {filePath} (staged)");
                         }
+
+                        Console.ResetColor();
                     }
+
+                    CommandHelper.DisplaySeperator(Logger);
                 }
 
-                CommandHelper.DisplaySeperator(Logger);
-
-                // Check for modified and unstaged files
-                foreach (var filePath in directoryFiles)
-                {
-                    if (stagedFiles.ContainsKey(filePath))
-                    {
-                        // Compare the current files hash to staged hash
-                        string currentFileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
-                        string stagedFileHash = stagedFiles[filePath];
-
-                        if (currentFileHash != stagedFileHash)
-                        {
-
-                            modifiedFiles.Add(filePath); // File is modified but not staged
-                        }
-
-                    } 
-                    else
-                    {
-                        untrackedFiles.Add(filePath); // Untracked file
-                    }
-                }
-
-
-                // Display modified files
+                // Display modified by not staged files
                 if (modifiedFiles.Count > 0)
                 {
-                    Logger.Log("Changes not staged for commit:");
+                    Logger.Log("Changed not staged for commit:");
                     foreach (var modifiedFile in modifiedFiles)
                     {
                         Logger.Log($"    {modifiedFile} (modified)");
                     }
+                    CommandHelper.DisplaySeperator(Logger);
                 }
 
-                CommandHelper.DisplaySeperator(Logger);
 
                 // Display untracked files
                 if (untrackedFiles.Count > 0)
@@ -944,16 +966,25 @@ namespace Janus
                     {
                         Logger.Log($"    {untrackedFile} (untracked)");
                     }
+                    CommandHelper.DisplaySeperator(Logger);
                 }
 
 
-                CommandHelper.DisplaySeperator(Logger);
-
+                // Display deleted files
+                if (deletedFiles.Count > 0)
+                {
+                    Logger.Log("Deleted files:");
+                    foreach (var deletedFile in deletedFiles)
+                    {
+                        Logger.Log($"    {deletedFile} (deleted)");
+                    }
+                    CommandHelper.DisplaySeperator(Logger);
+                }
 
 
 
                 // If everything is clean, notify the user
-                if (stagedFiles.Count == 0 && modifiedFiles.Count == 0 && untrackedFiles.Count == 0)
+                if (stagedFiles.Count == 0 && modifiedFiles.Count == 0 && untrackedFiles.Count == 0 && deletedFiles.Count == 0)
                 {
                     Logger.Log("Nothing to commit, working tree clean.");
                 }
@@ -965,12 +996,6 @@ namespace Janus
         }
 
 
-
-
-        public static void GetUncommittedChanges()
-        {
-
-        }
 
 
 
