@@ -157,16 +157,15 @@ namespace Janus
             public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
             public override void Execute(string[] args)
             {
+                // Repository has to be initialised for command to run
+                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
                 // No arguments given so command should return error
                 if (args.Length < 1)
                 {
                     Logger.Log("No files or directory specified to add.");
                     return;
                 }
-
-                // Repository has to be initialised for command to run
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
-
 
                 var filesToAdd = new List<string>();
 
@@ -193,7 +192,6 @@ namespace Janus
                 }
 
 
-
                 // Check .janusignore for ingored patterns
                 var ignoredPatterns = File.Exists(".janusignore")
                     ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
@@ -205,34 +203,16 @@ namespace Janus
                 // Load existing staged files
                 var stagedFiles = AddHelper.LoadIndex(Paths.Index);
 
-
-                // Remove deleted files from the staging area
-                var filesToRemove = stagedFiles.Keys.Where(filePath => !File.Exists(filePath)).ToList();
-                foreach (var filePath in filesToRemove)
-                {
-                    stagedFiles.Remove(filePath);
-                }
-
-                Logger.Log($"{filesToRemove.Count} files removed from staging area.");
-
-
-
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
                 {
-                    // File doesnt exist so it returns error and continues staging other files
-                    if (!File.Exists(relativeFilePath))
-                    {
-                        Logger.Log($"File at '{relativeFilePath}' not found.");
-                        continue;
-                    }
-
-                    try
+                    
+                    if (File.Exists(relativeFilePath))
                     {
                         // Compute file hash
                         string fileHash = AddHelper.ComputeHash_GivenFilepath(relativeFilePath);
 
-                        // Normalize paths for comparison
+                        // If the file isnt already staged or the file has been modified stage it
                         if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                         {
                             stagedFiles[relativeFilePath] = fileHash;
@@ -243,9 +223,14 @@ namespace Janus
                             Logger.Log($"File '{relativeFilePath}' is already staged.");
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.Log($"Failed adding '{relativeFilePath}': {ex.Message}");
+                        // Mark as deleted
+                        if (stagedFiles.ContainsKey(relativeFilePath))
+                        {
+                            stagedFiles[relativeFilePath] = "Deleted";
+                            Logger.Log($"File '{relativeFilePath}' has been marked as deleted.");
+                        }
                     }
 
                 }
@@ -255,7 +240,6 @@ namespace Janus
                 AddHelper.SaveIndex(Paths.Index, stagedFiles);
 
                 Logger.Log($"{filesToAdd.Count} files processed.");
-                Logger.Log($"{stagedFiles.Count} files in staging area.");
             }
         }
 
@@ -295,32 +279,16 @@ namespace Janus
 
 
                 // If no files have been staged then there is nothing to commit
-                if (!File.Exists(Paths.Index) || !File.ReadLines(Paths.Index).Any())
+                var stagedFiles = AddHelper.LoadIndex(Paths.Index);
+                if (stagedFiles.Count == 0)
                 {
                     Logger.Log("No changes to commit.");
                     return;
                 }
 
 
-                // Load staged files
-                Dictionary<string, string> stagedFiles;
-                try
-                {
-                    // Load staged files
-                    stagedFiles = File.ReadAllLines(Paths.Index)
-                                      .Select(line => line.Split('|'))
-                                      .Where(parts => parts.Length == 2)
-                                      .ToDictionary(parts => parts[0], parts => parts[1]);
-                }
-                catch (IOException ex)
-                {
-                    Logger.Log($"Error reading staged files: {ex.Message}");
-                    return;
-                }
-
-
                 // Identify missing files
-                var missingFiles = stagedFiles.Keys.Where(filePath => !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filePath))).ToList();
+                var missingFiles = stagedFiles.Keys.Where(filePath => !File.Exists(Path.Combine(Paths.WorkingDir, filePath))).ToList();
 
                 // Log and mark missing files as deleted
                 foreach (var missingFile in missingFiles)
@@ -330,21 +298,19 @@ namespace Janus
                 }
 
 
-
-
-
                 var fileHashes = new Dictionary<string, string>();
                 foreach (var file in stagedFiles)
                 {
+                    string relativeFilePath = file.Key;
                     string fileHash = file.Value;
+
                     if (fileHash == "Deleted")
                     {
-                        fileHashes[file.Key] = "Deleted";
+                        fileHashes[relativeFilePath] = "Deleted";
                         continue;
                     };
 
-                    string relativeFilePath = file.Key;
-
+                    
                     try
                     {
                         string content = File.ReadAllText(relativeFilePath);
@@ -379,8 +345,11 @@ namespace Janus
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
 
-                    // Clear the staging area
-                    File.WriteAllText(Paths.Index, string.Empty);
+
+                    // Remove deleted files from index now that they have been recorded in commit
+                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
+                                          .ToDictionary(kv => kv.Key, kv => kv.Value);
+                    AddHelper.SaveIndex(Paths.Index, updatedIndex);
 
                     Logger.Log($"Committed as {commitHash}");
 

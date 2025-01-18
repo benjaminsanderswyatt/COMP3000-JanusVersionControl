@@ -224,31 +224,5 @@ namespace CLITests
 
 
 
-        [Test]
-        public void ShouldRemoveDeletedFilesFromStaging()
-        {
-            // Arrange: Create a test file and stage it
-            var testFilePath = Path.Combine(_testDir, "file.txt");
-            File.WriteAllText(testFilePath, "test content");
-
-            var args = new string[] { "file.txt" };
-            _addCommand.Execute(args);
-
-            // Remove the file from the directory
-            File.Delete(testFilePath);
-
-
-            // Act: Re execute 'janus add file.txt' after deletion
-            _addCommand.Execute(args);
-
-            var stagedFiles = AddHelper.LoadIndex(_paths.Index);
-
-
-            // Assert: Ensure the deleted file is removed from the staging area
-            Assert.That(stagedFiles.ContainsKey("file.txt"), Is.False);
-        }
-
-
-
     }
 }
