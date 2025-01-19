@@ -8,7 +8,7 @@ namespace backend.Auth
         {
             string newHash = ComputeHash(password, salt);
 
-            return hash == newHash;
+            return CryptographicOperations.FixedTimeEquals(Convert.FromBase64String(hash), Convert.FromBase64String(newHash));
         }
 
 
