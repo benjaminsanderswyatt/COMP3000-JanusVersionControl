@@ -7,6 +7,5 @@
         public string Since { get; set; }
         public string Until { get; set; }
         public string Limit { get; set; }
-        public string Verbose { get; set; }
     }
 }

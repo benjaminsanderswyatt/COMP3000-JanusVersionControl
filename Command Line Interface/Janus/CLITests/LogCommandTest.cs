@@ -44,24 +44,16 @@ namespace CLITests
 
 
 
-        private string CreateManyCommits(int howMany, string branch, string author, int howManyFiles = 1, string startParentCommitHash = null)
+        private string CreateManyCommits(int howMany, string branch, string author, string startParentCommitHash = null, int seperator = 0)
         {
             string parentCommitHash = startParentCommitHash ?? initialCommitHash;
 
             for (int num = 1; num < howMany + 1; num++)
             {
-                // Create mock files for the commit
-                Dictionary<string, string> fileHashes = new Dictionary<string, string>();
-
-                for (int i = 1; i <= howManyFiles; i++)
-                {
-                    fileHashes.Add($"File{num}{i}", $"Content{num}{i}{branch}{author}");
-                }
-
                 // Generate commit metadata
-                string commitHash = CommandHelper.ComputeCommitHash(fileHashes, $"commitMessage{num}");
+                string commitHash = CommandHelper.ComputeCommitHash($"treeHash{num}", $"commitMessage{num}{seperator}");
 
-                string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", fileHashes, $"commitMessage{num}", parentCommitHash, author);
+                string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", $"treeHash{num}", $"commitMessage{num}", parentCommitHash, author);
 
                 // Save commit object
                 string commitFilePath = Path.Combine(_paths.CommitDir, commitHash);
@@ -148,7 +140,7 @@ namespace CLITests
         public void ShouldDisplayCommits_WhenCommitsExist()
         {
             // Arrange: Create 5 commits
-            CreateManyCommits(5, "main", "testAuthor", 0, "4A35387BE739933F7C9E6486959EC1AFFB2C1648");
+            CreateManyCommits(5, "main", "testAuthor", "4A35387BE739933F7C9E6486959EC1AFFB2C1648");
             var args = new string[] { };
 
             // Act
@@ -181,7 +173,7 @@ namespace CLITests
         {
             // Arrange: Create commits on two branches
             string finalCommitHash = CreateManyCommits(3, "main", "testAuthor");
-            CreateManyCommits(2, "feature", "testAuthor", 1, finalCommitHash);
+            CreateManyCommits(2, "feature", "testAuthor", finalCommitHash, 1);
             var args = new string[] { "branch=feature" };
 
             // Act
@@ -197,7 +189,7 @@ namespace CLITests
         {
             // Arrange: Create commits with two authors
             string finalCommitHash = CreateManyCommits(3, "main", "testAuthor1");
-            CreateManyCommits(2, "main", "testAuthor2", 1, finalCommitHash);
+            CreateManyCommits(2, "main", "testAuthor2", finalCommitHash, 1);
             var args = new string[] { "author=testAuthor1" };
 
             // Act
@@ -219,7 +211,7 @@ namespace CLITests
             DateTime later = DateTime.Now;
             Thread.Sleep(1000);
 
-            CreateManyCommits(2, "2nd", "testAuthor", 1, finalCommitHash);
+            CreateManyCommits(2, "2nd", "testAuthor", finalCommitHash, 1);
 
             var args = new string[] { $"until={later}" }; // Only commits before this date should be displayed
 
@@ -243,7 +235,7 @@ namespace CLITests
             DateTime later = DateTime.Now;
             Thread.Sleep(1000);
 
-            CreateManyCommits(2, "main", "testAuthor", 1, finalCommitHash);
+            CreateManyCommits(2, "main", "testAuthor", finalCommitHash, 1);
 
             var args = new string[] { $"since={later}" }; // Only commits before this date should be displayed
 
@@ -270,26 +262,6 @@ namespace CLITests
             // Assert: Verify only dates happening after are displayed
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Commit:"))), Times.Exactly(5));
         }
-
-
-        [Test]
-        public void ShouldDisplayFilesLog_WhenVerboseIsTrue()
-        {
-            // Arrange
-            string finalCommitHash = CreateManyCommits(3, "main", "testAuthor",1); // 3 files total
-            CreateManyCommits(2, "main", "testAuthor",2, finalCommitHash); // 4 files total
-
-            var args = new string[] { $"verbose=true" }; // Only commits this many commits should be displayed
-
-            // Act
-            _logCommand.Execute(args);
-
-            // Assert: Verify that all files are displayed
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Files:"))), Times.Exactly(6)); // 5 commits + initial commit
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("  File"))), Times.Exactly(7)); // 3 files + 4 files
-        }
-
-
 
 
     }

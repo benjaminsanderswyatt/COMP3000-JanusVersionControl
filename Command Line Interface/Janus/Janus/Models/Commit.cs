@@ -8,7 +8,7 @@
         public string Author { get; set; }
         public DateTimeOffset Date {  get; set; }
         public string Message { get; set; }
-        public Dictionary<string, string> Files { get; set; }
+        public string Tree { get; set; }
 
     }
 }

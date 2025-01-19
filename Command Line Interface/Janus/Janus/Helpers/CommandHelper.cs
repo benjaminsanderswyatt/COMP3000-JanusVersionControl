@@ -77,7 +77,7 @@ namespace Janus.Helpers
         public static string GetUsername()
         {
             // Get the username from configs
-
+            // TODO
 
             // No config set use systems username
             if (string.IsNullOrWhiteSpace(Environment.UserName))
@@ -114,9 +114,9 @@ namespace Janus.Helpers
             }
         }
 
-        public static string ComputeCommitHash(Dictionary<string, string> fileHashes, string commitMessage)
+        public static string ComputeCommitHash(string treeHash, string commitMessage)
         {
-            string combined = string.Join("", fileHashes.Select(kv => kv.Key + kv.Value)) + commitMessage;
+            string combined = treeHash + commitMessage;
 
             return ComputeHash(combined);
         }
@@ -190,9 +190,7 @@ namespace Janus.Helpers
         }
 
 
-
-
-        public static string GenerateCommitMetadata(string branch, string commitHash, Dictionary<string, string> fileHashes, string commitMessage, string parentCommit, string author)
+        public static string GenerateCommitMetadata(string branch, string commitHash, string treeHash, string commitMessage, string parentCommit, string author)
         {
             var metadata = new CommitMetadata
             {
@@ -202,7 +200,7 @@ namespace Janus.Helpers
                 Author = author,
                 Date = DateTimeOffset.Now,
                 Message = commitMessage,
-                Files = fileHashes
+                Tree = treeHash
             };
 
             string metadataJson = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });

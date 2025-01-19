@@ -5,6 +5,7 @@
         public string JanusDir { get; }
         public string WorkingDir { get; }
         public string ObjectDir { get; }
+        public string TreeDir { get; }
         public string CommitDir { get; }
         public string HeadsDir { get; }
         public string PluginsDir { get; }
@@ -18,6 +19,7 @@
             WorkingDir = basePath;
             JanusDir = Path.Combine(basePath, ".janus");
             ObjectDir = Path.Combine(JanusDir, "objects");
+            TreeDir = Path.Combine(JanusDir, "trees");
             CommitDir = Path.Combine(JanusDir, "commits");
             HeadsDir = Path.Combine(JanusDir, "heads");
             PluginsDir = Path.Combine(JanusDir, ".plugins");

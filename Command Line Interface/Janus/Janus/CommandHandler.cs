@@ -22,12 +22,15 @@ namespace Janus
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
                 new LogCommand(logger, paths),
+                /*
                 new ListBranchesCommand(logger, paths),
                 new CreateBranchCommand(logger, paths),
                 new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
                 new SwitchCommitCommand(logger, paths),
+                */
                 new StatusCommand(logger, paths),
+                
                 //new PushCommand(),
                 
                 
@@ -89,7 +92,8 @@ namespace Janus
                     File.SetAttributes(Paths.JanusDir, File.GetAttributes(Paths.JanusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
 
 
-                    Directory.CreateDirectory(Paths.ObjectDir); // .janus/object folder
+                    Directory.CreateDirectory(Paths.ObjectDir); // .janus/objects folder
+                    Directory.CreateDirectory(Paths.TreeDir); // .janus/trees folder
                     Directory.CreateDirectory(Paths.HeadsDir); // .janus/heads
                     Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
                     Directory.CreateDirectory(Paths.CommitDir); // .janus/commits folder
@@ -106,10 +110,10 @@ namespace Janus
 
                     // Create initial commit
                     string initialCommitMessage = "Initial commit";
-                    var emptyFileHashes = new Dictionary<string, string>();
-                    string initCommitHash = CommandHelper.ComputeCommitHash(emptyFileHashes, initialCommitMessage);
+                    var emptyTreeHash = "";
+                    string initCommitHash = CommandHelper.ComputeCommitHash(emptyTreeHash, initialCommitMessage);
 
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main", initCommitHash, emptyFileHashes, initialCommitMessage, null, null);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main", initCommitHash, emptyTreeHash, initialCommitMessage, null, null);
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -174,7 +178,11 @@ namespace Janus
                     return;
                 }
 
+                // Load existing staged files
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+
                 var filesToAdd = new List<string>();
+                var deletedFiles = new List<string>();
 
                 foreach (var arg in args)
                 {
@@ -192,9 +200,15 @@ namespace Janus
                         // Add the file
                         filesToAdd.Add(arg);
                     }
+                    else if (stagedFiles.ContainsKey(arg)) 
+                    {
+                        // Add to deleted files list
+                        deletedFiles.Add(arg);
+                    }
                     else
                     {
-                        Logger.Log($"Path '{arg}' does not exist.");
+                        Logger.Log($"Error path '{arg}' does not exist.");
+                        return;
                     }
                 }
 
@@ -207,46 +221,39 @@ namespace Janus
                 filesToAdd = filesToAdd.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
 
 
-                // Load existing staged files
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+                
 
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
                 {
-                    
-                    if (File.Exists(relativeFilePath))
-                    {
-                        // Compute file hash
-                        string fileHash = AddHelper.ComputeHash_GivenFilepath(relativeFilePath);
+                    // Compute file hash
+                    string fileHash = AddHelper.ComputeHash_GivenFilepath(relativeFilePath);
 
-                        // If the file isnt already staged or the file has been modified stage it
-                        if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
-                        {
-                            stagedFiles[relativeFilePath] = fileHash;
-                            Logger.Log($"Added '{relativeFilePath}' to the staging area.");
-                        }
-                        else
-                        {
-                            Logger.Log($"File '{relativeFilePath}' is already staged.");
-                        }
+                    // If the file isnt already staged or the file has been modified stage it
+                    if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
+                    {
+                        stagedFiles[relativeFilePath] = fileHash;
+                        Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
                     {
-                        // Mark as deleted
-                        if (stagedFiles.ContainsKey(relativeFilePath))
-                        {
-                            stagedFiles[relativeFilePath] = "Deleted";
-                            Logger.Log($"File '{relativeFilePath}' has been marked as deleted.");
-                        }
+                        Logger.Log($"File '{relativeFilePath}' is already staged.");
                     }
+                    
+                }
 
+                // Mark deleted files "Deleted"
+                foreach (string relativeFilePath in deletedFiles)
+                {
+                    stagedFiles[relativeFilePath] = "Deleted";
+                    Logger.Log($"Marked '{relativeFilePath}' as deleted.");
                 }
 
 
                 // Update index
                 IndexHelper.SaveIndex(Paths.Index, stagedFiles);
 
-                Logger.Log($"{filesToAdd.Count} files processed.");
+                Logger.Log($"{filesToAdd.Count + deletedFiles.Count} files processed.");
             }
         }
 
@@ -278,34 +285,23 @@ namespace Janus
                     return;
                 }
 
-                string branch = CommandHelper.GetCurrentBranchName(Paths);
-
 
                 // Validate commit message
                 if (!CommitHelper.ValidateCommitMessage(Logger, args, out string commitMessage)) return;
+                
+                
+                string branch = CommandHelper.GetCurrentBranchName(Paths);
+
+                
+                // TODO /////////////////////////////////////////////////////////////////////////////////////////////
+                // Check if there are any changes to commit (compare index to head commit as if they the same then no changes have been added)
 
 
-                // If no files have been staged then there is nothing to commit
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-                if (stagedFiles.Count == 0)
-                {
-                    Logger.Log("No changes to commit.");
-                    return;
-                }
 
 
-                // Identify missing files
-                var missingFiles = stagedFiles.Keys.Where(filePath => !File.Exists(Path.Combine(Paths.WorkingDir, filePath))).ToList();
+                var treeStructure = new Dictionary<string, object>();
 
-                // Log and mark missing files as deleted
-                foreach (var missingFile in missingFiles)
-                {
-                    Logger.Log($"Staged file '{missingFile}' no longer exists and will be marked as deleted.");
-                    stagedFiles[missingFile] = "Deleted";
-                }
-
-
-                var fileHashes = new Dictionary<string, string>();
                 foreach (var file in stagedFiles)
                 {
                     string relativeFilePath = file.Key;
@@ -313,37 +309,50 @@ namespace Janus
 
                     if (fileHash == "Deleted")
                     {
-                        fileHashes[relativeFilePath] = "Deleted";
-                        continue;
-                    };
+                        // Add to tree
+                        string[] pathParts = relativeFilePath.Split(Path.DirectorySeparatorChar);
+                        TreeHelper.AddToTreeRecursive(treeStructure, pathParts, fileHash);
 
-                    
-                    try
+                    }
+                    else
                     {
-                        string content = File.ReadAllText(relativeFilePath);
-                        fileHashes[relativeFilePath] = fileHash;
-
-                        // Write file content to objects directory
-                        string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
-                        if (!File.Exists(objectFilePath)) // Dont rewrite existing objects
+                        try
                         {
-                            File.WriteAllText(objectFilePath, content);
+                            // Read file content and create object
+                            string content = File.ReadAllText(relativeFilePath);
+
+                            // Write file content to objects directory
+                            string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
+                            if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
+                            {
+                                File.WriteAllText(objectFilePath, content);
+                            }
+
+                            // Add to tree
+                            string[] pathParts = relativeFilePath.Split(Path.DirectorySeparatorChar);
+                            TreeHelper.AddToTreeRecursive(treeStructure, pathParts, fileHash);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log($"Error committing file '{relativeFilePath}': {ex.Message}");
+                            return;
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Log($"Error committing file '{relativeFilePath}': {ex.Message}");
-                        return;
-                    }
-
                 }
 
                 try
                 {
+                    // Create tree object and store in trees
+                    string treeJson = JsonSerializer.Serialize(treeStructure, new JsonSerializerOptions { WriteIndented = true });
+                    string rootTreeHash = CommandHelper.ComputeHash(treeJson);
+                    string treeFilePath = Path.Combine(Paths.TreeDir, rootTreeHash);
+
+                    File.WriteAllText(treeFilePath, treeJson);
 
                     // Generate commit metadata
-                    string commitHash = CommandHelper.ComputeCommitHash(fileHashes, commitMessage);
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, commitHash, fileHashes, commitMessage, parentCommit, CommandHelper.GetUsername());
+                    string commitHash = CommandHelper.ComputeCommitHash(rootTreeHash, commitMessage);
+                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, CommandHelper.GetUsername());
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
@@ -353,7 +362,7 @@ namespace Janus
                     HeadHelper.SetHeadCommit(Paths, commitHash);
 
 
-                    // Remove deleted files from index now that they have been recorded in commit
+                    // Clean up index removing deleted files
                     var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
                                           .ToDictionary(kv => kv.Key, kv => kv.Value);
                     IndexHelper.SaveIndex(Paths.Index, updatedIndex);
@@ -367,6 +376,9 @@ namespace Janus
                 }
             }
         }
+
+
+        
 
 
 
@@ -410,8 +422,7 @@ namespace Janus
                     Author = args.FirstOrDefault(arg => arg.StartsWith("author="))?.Split('=')[1],
                     Since = args.FirstOrDefault(arg => arg.StartsWith("since="))?.Split('=')[1],
                     Until = args.FirstOrDefault(arg => arg.StartsWith("until="))?.Split('=')[1],
-                    Limit = args.FirstOrDefault(arg => arg.StartsWith("limit="))?.Split('=')[1],
-                    Verbose = args.FirstOrDefault(arg => arg.StartsWith("verbose="))?.Split('=')[1]
+                    Limit = args.FirstOrDefault(arg => arg.StartsWith("limit="))?.Split('=')[1]
                 };
 
 
@@ -482,17 +493,6 @@ namespace Janus
                     Console.ForegroundColor = ConsoleColor.White;
                     Logger.Log($"Message: {commit.Message}");
 
-                    // Files
-                    if (filters.Verbose == "true")
-                    {
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Logger.Log("Files:");
-                        foreach (var file in commit.Files)
-                        {
-                            Logger.Log($"  {file.Key} : {file.Value}");
-                        }
-                    }
-
 
                     // Reset color after each commit log
                     Console.ResetColor();
@@ -548,7 +548,7 @@ namespace Janus
 
 
 
-
+        /*
 
 
 
@@ -840,7 +840,7 @@ namespace Janus
             }
         }
 
-
+        */
 
 
         public class StatusCommand : BaseCommand
@@ -882,115 +882,160 @@ namespace Janus
                 var untrackedFiles = new List<string>();
                 var deletedFiles = new List<string>();
 
-                // Identify changes
-                foreach (var file in stagedFiles)
+
+                // Get the treefrom the HEAD commit
+                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
+                Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(Paths, headCommitHash);
+
+
+                // Staged for commit
+                // Compare index to tree, if they differ they are changes to be committed (if index hash == "Deleted" then file is deleted otherwise modified)
+
+                var stagedForCommitModified = new List<string>();
+                var stagedForCommitAdded = new List<string>();
+                var stagedForCommitDeleted = new List<string>();
+
+                foreach (var indexEntry in stagedFiles)
                 {
-                    string filePath = file.Key;
-                    string fileHash = file.Value;
+                    string filePath = indexEntry.Key;
+                    string fileHash = indexEntry.Value;
 
-                    if (fileHash == "Deleted" || !File.Exists(filePath))
+                    // Check if the file exists in the tree
+                    string treeHash = TreeHelper.GetHashFromTree(tree, filePath);
+
+                    // File is staged for commit
+                    if (treeHash == null || treeHash == "Deleted") // File isnt in tree (was deleted then readded)
                     {
-                        deletedFiles.Add(filePath);
+                        stagedForCommitAdded.Add(filePath);
                     }
-                    else
+                    else if (treeHash != fileHash)
                     {
-                        string currentFileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
-                        if (currentFileHash != fileHash)
-                        {
-                            modifiedFiles.Add(currentFileHash);
-                        }
-
-                    }
-
-                }
-
-
-                // Identify untracked files
-                foreach (var filePath in workingFiles)
-                {
-                    if (!stagedFiles.ContainsKey(filePath))
-                    {
-                        untrackedFiles.Add(filePath);
-                    }
-                }
-
-
-                // Display staged changes
-                if (stagedFiles.Count > 0)
-                {
-                    Logger.Log("Changes to be committed:");
-                    foreach (var file in stagedFiles)
-                    {
-                        string filePath = file.Key;
-                        string fileHash = file.Value;
-
                         if (fileHash == "Deleted")
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Logger.Log($"    {filePath} (deleted)");
-                        }
-                        else if (modifiedFiles.Contains(filePath))
-                        {
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Logger.Log($"    {filePath} (modified)");
+                            stagedForCommitDeleted.Add(filePath); // (deleted)
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Logger.Log($"    {filePath} (staged)");
+                            stagedForCommitModified.Add(filePath); // (modified)
                         }
+                    }
+                    
+                }
 
-                        Console.ResetColor();
+                
+                if (!(stagedForCommitModified.Count == 0 && stagedForCommitDeleted.Count == 0 && stagedForCommitAdded.Count == 0))
+                {
+                    Logger.Log("Changes to be committed:");
+                    foreach (var file in stagedForCommitAdded)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Logger.Log($"    {file} (added)");
                     }
 
+                    Console.ResetColor();
+
+                    foreach (var file in stagedForCommitModified)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Logger.Log($"    {file} (modified)");
+                    }
+
+                    Console.ResetColor();
+
+                    foreach (var file in stagedForCommitDeleted)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Logger.Log($"    {file} (deleted)");
+                    }
+
+                    Console.ResetColor();
                     CommandHelper.DisplaySeperator(Logger);
+
                 }
+                // else -> Nothing to commit
+
+
+
+
+
 
                 // Display modified by not staged files
-                if (modifiedFiles.Count > 0)
+                // Untracked
+                // Compare workingDir to index, if the files differ from index they are not staged for commit, if not in index they are untracked
+
+                var notStaged = new List<string>();
+                var untracked = new List<string>();
+
+                foreach (var filePath in workingFiles)
                 {
-                    Logger.Log("Changed not staged for commit:");
-                    foreach (var modifiedFile in modifiedFiles)
+
+                    if (!stagedFiles.ContainsKey(filePath))
                     {
-                        Logger.Log($"    {modifiedFile} (modified)");
+                        untracked.Add(filePath); // (untracked)
+                        continue;
                     }
-                    CommandHelper.DisplaySeperator(Logger);
+
+                    string fileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
+                    if (fileHash != stagedFiles[filePath])
+                    {
+                        notStaged.Add(filePath); // (not staged)
+
+                    }
+
                 }
 
 
-                // Display untracked files
-                if (untrackedFiles.Count > 0)
+
+
+
+
+
+
+
+                if (!(notStaged.Count == 0))
+                {
+                    Logger.Log("Changes not staged for commit:");
+                    foreach (var file in notStaged)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Logger.Log($"    {file}");
+                    }
+
+                    Console.ResetColor();
+                    CommandHelper.DisplaySeperator(Logger);
+
+                }
+
+
+                if (!(untracked.Count == 0))
                 {
                     Logger.Log("Untracked files:");
-                    foreach (var untrackedFile in untrackedFiles)
+                    foreach (var file in untracked)
                     {
-                        Logger.Log($"    {untrackedFile} (untracked)");
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Logger.Log($"    {file}");
                     }
+
+
+                    Console.ResetColor();
                     CommandHelper.DisplaySeperator(Logger);
                 }
-
-
-                // Display deleted files
-                if (deletedFiles.Count > 0)
-                {
-                    Logger.Log("Deleted files:");
-                    foreach (var deletedFile in deletedFiles)
-                    {
-                        Logger.Log($"    {deletedFile} (deleted)");
-                    }
-                    CommandHelper.DisplaySeperator(Logger);
-                }
+                
 
 
 
-                // If everything is clean, notify the user
-                if (stagedFiles.Count == 0 && modifiedFiles.Count == 0 && untrackedFiles.Count == 0 && deletedFiles.Count == 0)
-                {
-                    Logger.Log("Nothing to commit, working tree clean.");
-                }
 
 
 
+
+
+
+
+
+
+
+
+                // Anything else?
 
             }
         }

@@ -8,7 +8,7 @@ namespace Janus.Helpers
 
     public class BranchHelper
     {
-
+        /*
         public static void UpdateWorkingDirectory(ILogger logger, Paths paths, string branchName)
         {
             string tempWorkingDir = Path.Combine(paths.JanusDir, ".temp");
@@ -340,5 +340,9 @@ namespace Janus.Helpers
 
             return allCommits;
         }
+
+
+
+        */
     }
 }

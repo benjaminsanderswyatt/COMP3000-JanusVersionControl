@@ -102,8 +102,9 @@ namespace CLITests
             // Assert: Verify that the file is staged correctly
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
-        }
+            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file.txt"), stagedFiles["file.txt"]);
 
+        }
 
 
         [Test]
@@ -126,7 +127,33 @@ namespace CLITests
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
+
+            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
+            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
+
         }
+
+        [Test]
+        public void AddCommand_ShouldMarkDeletedFile()
+        {
+            // Arrange: Create, add to index and then delete the file
+            var testFilePath = Path.Combine(_testDir, "file.txt");
+            File.WriteAllText(testFilePath, "test Content");
+
+            var args = new string[] { "file.txt" };
+            _addCommand.Execute(args);
+
+            File.Delete(testFilePath);
+
+            // Act
+            _addCommand.Execute(args);
+
+            // Assert: Check if the file is marked as deleted in the staging area
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+            Assert.IsTrue(stagedFiles.ContainsKey("file.txt"));
+            Assert.AreEqual(stagedFiles["file.txt"], "Deleted");
+        }
+
 
 
 
@@ -139,7 +166,7 @@ namespace CLITests
 
 
             // Assert: Verify that the file not found error is logged
-            _loggerMock.Verify(logger => logger.Log("Path 'doesntexist.txt' does not exist."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Error path 'doesntexist.txt' does not exist."), Times.Once);
         }
 
 

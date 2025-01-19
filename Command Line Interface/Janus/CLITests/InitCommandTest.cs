@@ -89,7 +89,7 @@ namespace CLITests
 
             Assert.That(initialCommitData.Message, Is.EqualTo("Initial commit"), "Commit message should be 'Initial commit'.");
 
-            Assert.That(initialCommitData.Files.Count, Is.EqualTo(0), "Initial commit has no files.");
+            Assert.That(initialCommitData.Tree, Is.EqualTo(""), "Initial commit has no tree.");
 
 
             // Check the heads/main file contents
