@@ -2,10 +2,12 @@ using backend.Helpers;
 using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -146,6 +148,32 @@ builder.Services.AddCors(options =>
 });
 
 
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    // For frontend users
+    options.AddFixedWindowLimiter("FrontendRateLimit", options =>
+    {
+        options.PermitLimit = 50;
+        options.Window = TimeSpan.FromSeconds(60);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 10;
+    });
+
+    // For CLI users
+    options.AddFixedWindowLimiter("CLIRateLimit", options =>
+    {
+        options.PermitLimit = 100;
+        options.Window = TimeSpan.FromSeconds(60);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 20;
+    });
+});
+
+
+
+
 var app = builder.Build();
 
 PrepDB.PrepPopulation(app);
@@ -157,6 +185,7 @@ app.UseRouting();
 
 app.UseCors("CLIPolicy");
 
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

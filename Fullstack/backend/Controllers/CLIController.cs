@@ -4,6 +4,7 @@ using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -13,6 +14,7 @@ namespace backend.Controllers
     [ApiController]
     [EnableCors("CLIPolicy")]
     [Authorize(Policy = "CLIPolicy")]
+    [EnableRateLimiting("CLIRateLimit")]
     public class CLIController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;

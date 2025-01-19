@@ -3,6 +3,7 @@ using backend.DataTransferObjects;
 using backend.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -11,6 +12,7 @@ namespace backend.Controllers
     [Route("api/web/[controller]")]
     [EnableCors("FrontendPolicy")]
     [ApiController]
+    [EnableRateLimiting("FrontendRateLimit")]
     public class UsersController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
@@ -78,7 +80,7 @@ namespace backend.Controllers
 
 
 
-                // Generate access token
+                // Generate token
                 JwtSecurityToken token = _jwtHelper.GenerateJwtToken(user.UserId, user.Username);
 
                 // Generate refresh token
@@ -112,21 +114,28 @@ namespace backend.Controllers
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = HttpContext.Request.Cookies["refreshToken"];
+
             if (string.IsNullOrEmpty(refreshToken))
                 return Unauthorized(new { message = "Refresh token is missing." });
 
+
             var user = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
             if (user == null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
                 return Unauthorized(new { message = "Invalid or expired refresh token." });
+
+
 
             // Generate new tokens
             JwtSecurityToken newAccessToken = _jwtHelper.GenerateJwtToken(user.UserId, user.Username);
             var newRefreshToken = Guid.NewGuid().ToString();
 
+
             // Update user's refresh token in the database
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _janusDbContext.SaveChangesAsync();
+
 
             // Set the new refresh token in the HttpOnly cookie
             HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
@@ -136,6 +145,7 @@ namespace backend.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = user.RefreshTokenExpiryTime
             });
+
 
             return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(newAccessToken) });
         }
