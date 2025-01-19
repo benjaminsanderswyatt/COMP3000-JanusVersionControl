@@ -62,6 +62,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
 const styles = {
   checkbox: {
     accentColor: 'var(--secondary)',
+    marginRight: '4px',
   },
   button: {
     width: '100%',

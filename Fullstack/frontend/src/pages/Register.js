@@ -54,6 +54,8 @@ const Register = () => {
     // Register
     try {
       // Send request
+      console.log(`Page - user: ${formData.username}, email: ${formData.email}, password: ${formData.password}`);
+
       const response = await register(
         formData.username,
         formData.email,

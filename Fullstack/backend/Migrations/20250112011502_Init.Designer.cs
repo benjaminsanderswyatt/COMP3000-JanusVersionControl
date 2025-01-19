@@ -12,7 +12,7 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(JanusDbContext))]
-    [Migration("20241208130705_Init")]
+    [Migration("20250112011502_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -226,6 +226,12 @@ namespace backend.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<byte[]>("Salt")
                         .IsRequired()

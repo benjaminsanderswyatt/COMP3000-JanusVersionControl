@@ -224,6 +224,12 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<byte[]>("Salt")
                         .IsRequired()
                         .HasColumnType("longblob");

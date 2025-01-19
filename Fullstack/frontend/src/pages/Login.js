@@ -41,11 +41,10 @@ const Login = () => {
       );
       
       if (response.success){
-        localStorage.setItem('token', response.token);
         navigate("/repositories"); // Navigate
       } else {
         setMessageType('error');
-        setMessage("Incorrect email or password. Please try again.");
+        setMessage(response.message || "Incorrect email or password. Please try again.");
       }
 
     } catch (error) {

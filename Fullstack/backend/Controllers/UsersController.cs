@@ -27,7 +27,6 @@ namespace backend.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto newUser)
         {
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -54,9 +53,11 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
         }
+
+
 
         // POST: api/web/Users/Login
         [HttpPost("Login")]
@@ -69,20 +70,78 @@ namespace backend.Controllers
             {
                 var user = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Email == loginUser.Email); // Get the user
 
-                if (user != null && PasswordSecurity.VerifyPassword(loginUser.Password, user.PasswordHash, user.Salt)) // Validate the password
+                if (user == null)
+                    return Unauthorized(new { message = "Invalid credentials" });
+
+                if (!PasswordSecurity.VerifyPassword(loginUser.Password, user.PasswordHash, user.Salt))
+                    return Unauthorized(new { message = "Invalid credentials" });
+
+
+
+                // Generate access token
+                JwtSecurityToken token = _jwtHelper.GenerateJwtToken(user.UserId, user.Username);
+
+                // Generate refresh token
+                var refreshToken = Guid.NewGuid().ToString();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Example: 7 days expiry
+                await _janusDbContext.SaveChangesAsync();
+
+                // Set refresh token in HttpOnly cookie
+                HttpContext.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
                 {
-                    JwtSecurityToken token = _jwtHelper.GenerateJwtToken(user.UserId, user.Username); // Generate a Jwt Token
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = user.RefreshTokenExpiryTime
+                });
 
-                    return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
-                }
-
-                return Unauthorized(new { message = "Invalid credentials" });
+                return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
         }
+
+
+
+
+        // POST: api/web/Users/Refresh
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized(new { message = "Refresh token is missing." });
+
+            var user = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            if (user == null || user.RefreshTokenExpiryTime < DateTime.UtcNow)
+                return Unauthorized(new { message = "Invalid or expired refresh token." });
+
+            // Generate new tokens
+            JwtSecurityToken newAccessToken = _jwtHelper.GenerateJwtToken(user.UserId, user.Username);
+            var newRefreshToken = Guid.NewGuid().ToString();
+
+            // Update user's refresh token in the database
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _janusDbContext.SaveChangesAsync();
+
+            // Set the new refresh token in the HttpOnly cookie
+            HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = user.RefreshTokenExpiryTime
+            });
+
+            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(newAccessToken) });
+        }
+
+
+
 
 
 

@@ -20,7 +20,7 @@ public class JwtHelper
             issuer: "FrontendIssuer",
             audience: "FrontendAudience",
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddMinutes(20),
             signingCredentials: creds
         );
 
