@@ -179,7 +179,7 @@ namespace Janus
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
               
-                if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.Ordinal)))
+                if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
                 {
                     Logger.Log("Warning using 'all' will override other arguments.");
 
@@ -204,7 +204,7 @@ namespace Janus
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.Ordinal)
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
                                                             && !directoryFiles.Contains(filePath))
                                                         .ToList();
 
@@ -224,7 +224,7 @@ namespace Janus
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.Ordinal))
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
 
                         if (stagedFilesInFolder.Any())
