@@ -290,25 +290,33 @@ namespace Janus
                     // Compute file hash
                     var (fileHash, content) = HashHelper.ComputeHashAndGetContent(relativeFilePath);
 
+                    Console.WriteLine($"fileHash: {relativeFilePath}, Content: {content}");
+
                     // If the file isnt already staged or the file has been modified stage it
                     if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                     {
+                        Console.WriteLine($"Modified");
                         // Write file content to objects directory
                         string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
                         if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
                         {
+                            Console.WriteLine($"Exists");
                             File.WriteAllText(objectFilePath, content);
                         }
 
+                        Console.WriteLine($"Added '{relativeFilePath}' to the staging area.");
                         stagedFiles[relativeFilePath] = fileHash;
                         Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
                     {
+                        Console.WriteLine($"Already Staged");
                         Logger.Log($"File '{relativeFilePath}' is already staged.");
                     }
                     
                 }
+
+                Console.WriteLine($"Done Staging");
 
                 // Mark deleted files "Deleted"
                 foreach (string relativeFilePath in deletedFiles)
@@ -317,6 +325,7 @@ namespace Janus
                     Logger.Log($"Marked '{relativeFilePath}' as deleted.");
                 }
 
+                Console.WriteLine($"Done Deleting");
 
                 // Update index
                 IndexHelper.SaveIndex(Paths.Index, stagedFiles);
