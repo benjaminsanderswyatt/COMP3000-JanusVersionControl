@@ -191,40 +191,56 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
-                    if (Directory.Exists(arg))
+                    if (Directory.Exists(arg)) // Directory
                     {
                         // Get all files in the given directory recursively
                         var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, arg);
 
+                        // Handle files in dir
                         foreach (var filePath in directoryFiles)
                         {
-                            if (File.Exists(filePath))
-                            {
-                                // File exists add to filesToAdd
-                                filesToAdd.Add(filePath);
-                            }
-                            else if (stagedFiles.ContainsKey(filePath))
-                            {
-                                // File doesnt exist but is in stagedFiles mark as deleted
-                                deletedFiles.Add(filePath);
-                            }
+                            // File exists in dir add to filesToAdd
+                            filesToAdd.Add(filePath);
                         }
 
+                        var stagedFilesInFolder = stagedFiles.Keys
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.Ordinal)
+                                                            && !directoryFiles.Contains(filePath))
+                                                        .ToList();
+
+                        // Handle deleted files in dir
+                        foreach (var filepath in stagedFilesInFolder)
+                        {
+                            deletedFiles.Add(filepath);
+                        }
+
+
                     }
-                    else if (File.Exists(arg))
+                    else if (File.Exists(arg)) // File
                     {
                         // Add the file
                         filesToAdd.Add(arg);
                     }
-                    else if (stagedFiles.ContainsKey(arg)) 
+                    else // Doesnt exist -> check index
                     {
-                        // Add to deleted files list
-                        deletedFiles.Add(arg);
-                    }
-                    else
-                    {
-                        Logger.Log($"Error path '{arg}' does not exist.");
-                        return;
+                        var stagedFilesInFolder = stagedFiles.Keys
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.Ordinal))
+                                                        .ToList();
+
+                        if (stagedFilesInFolder.Any())
+                        {
+                            foreach (var filePath in stagedFilesInFolder)
+                            {
+                                // Add to deleted files list
+                                deletedFiles.Add(filePath);
+                            }
+                        }
+                        else
+                        {
+                            Logger.Log($"Error: Path '{arg}' does not exist.");
+                            return;
+                        }
+
                     }
                 }
 

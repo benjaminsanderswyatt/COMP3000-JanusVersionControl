@@ -166,7 +166,7 @@ namespace CLITests
 
 
             // Assert: Verify that the file not found error is logged
-            _loggerMock.Verify(logger => logger.Log("Error path 'doesntexist.txt' does not exist."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Error: Path 'doesntexist.txt' does not exist."), Times.Once);
         }
 
 
@@ -373,8 +373,8 @@ namespace CLITests
 
             // Assert: Verify that both files in the directory are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
-            Assert.AreEqual(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)], "Deleted");
-            Assert.AreEqual(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)], "Deleted");
+            Assert.AreEqual("Deleted", stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual("Deleted", stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
         }
 
     }
