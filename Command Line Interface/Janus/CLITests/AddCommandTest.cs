@@ -22,7 +22,7 @@ namespace CLITests
             _loggerMock = new Mock<ILogger>();
 
             // Set the base directory path for testing
-            _testDir = Path.Combine(Path.GetTempPath(), "JanusTest"); // Using temp directory for testing
+            _testDir = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "JanusTest")); // Using temp directory for testing
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
@@ -45,7 +45,7 @@ namespace CLITests
         public void TearDown()
         {
             // Clean up after each test
-            Directory.SetCurrentDirectory(Path.GetTempPath()); // Cant delete dir if in it
+            Directory.SetCurrentDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop))); // Cant delete dir if in it
 
             if (Directory.Exists(_testDir))
             {
@@ -279,11 +279,13 @@ namespace CLITests
                 Console.WriteLine(item.Key + " | " + item.Value);
             }
 
-            Assert.That(stagedFiles.ContainsKey(file1Path), Is.True);
-            Assert.That(stagedFiles.ContainsKey(file2Path), Is.True);
 
-            //Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, file1Path), stagedFiles[file1Path]);
-            //Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, file2Path), stagedFiles[file2Path]);
+
+            Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
+            Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
+
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
         }
 
         [Test]
