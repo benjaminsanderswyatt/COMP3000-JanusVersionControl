@@ -854,7 +854,10 @@ namespace Janus
 
                 // Get the current branch
                 string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
-                Logger.Log($"On branch {currentBranch}");
+                Logger.Log($"On branch:");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Logger.Log($"    {currentBranch}");
+                Console.ResetColor();
                 CommandHelper.DisplaySeperator(Logger);
 
                 // TODO Check the status of the current branch against the remote branch
@@ -878,9 +881,6 @@ namespace Janus
 
                 workingFiles = workingFiles.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
 
-                var modifiedFiles = new List<string>();
-                var untrackedFiles = new List<string>();
-                var deletedFiles = new List<string>();
 
 
                 // Get the treefrom the HEAD commit
@@ -889,153 +889,51 @@ namespace Janus
 
 
                 // Staged for commit
-                // Compare index to tree, if they differ they are changes to be committed (if index hash == "Deleted" then file is deleted otherwise modified)
+                var(stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetNotStagedUntracked(tree, stagedFiles);
 
-                var stagedForCommitModified = new List<string>();
-                var stagedForCommitAdded = new List<string>();
-                var stagedForCommitDeleted = new List<string>();
 
-                foreach (var indexEntry in stagedFiles)
-                {
-                    string filePath = indexEntry.Key;
-                    string fileHash = indexEntry.Value;
-
-                    // Check if the file exists in the tree
-                    string treeHash = TreeHelper.GetHashFromTree(tree, filePath);
-
-                    // File is staged for commit
-                    if (treeHash == null || treeHash == "Deleted") // File isnt in tree (was deleted then readded)
-                    {
-                        stagedForCommitAdded.Add(filePath);
-                    }
-                    else if (treeHash != fileHash)
-                    {
-                        if (fileHash == "Deleted")
-                        {
-                            stagedForCommitDeleted.Add(filePath); // (deleted)
-                        }
-                        else
-                        {
-                            stagedForCommitModified.Add(filePath); // (modified)
-                        }
-                    }
-                    
-                }
-
-                
-                if (!(stagedForCommitModified.Count == 0 && stagedForCommitDeleted.Count == 0 && stagedForCommitAdded.Count == 0))
+                if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any())
                 {
                     Logger.Log("Changes to be committed:");
-                    foreach (var file in stagedForCommitAdded)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Logger.Log($"    {file} (added)");
-                    }
+ 
+                    StatusHelper.DisplayStatus(Logger, stagedForCommitAdded, ConsoleColor.Green, "(added)");
+                    StatusHelper.DisplayStatus(Logger, stagedForCommitModified, ConsoleColor.Yellow, "(modified)");
+                    StatusHelper.DisplayStatus(Logger, stagedForCommitDeleted, ConsoleColor.Red, "(deleted)");
 
-                    Console.ResetColor();
 
-                    foreach (var file in stagedForCommitModified)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Logger.Log($"    {file} (modified)");
-                    }
-
-                    Console.ResetColor();
-
-                    foreach (var file in stagedForCommitDeleted)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Logger.Log($"    {file} (deleted)");
-                    }
-
-                    Console.ResetColor();
                     CommandHelper.DisplaySeperator(Logger);
-
                 }
                 // else -> Nothing to commit
 
 
 
 
-
-
                 // Display modified by not staged files
                 // Untracked
-                // Compare workingDir to index, if the files differ from index they are not staged for commit, if not in index they are untracked
-
-                var notStaged = new List<string>();
-                var untracked = new List<string>();
-
-                foreach (var filePath in workingFiles)
-                {
-
-                    if (!stagedFiles.ContainsKey(filePath))
-                    {
-                        untracked.Add(filePath); // (untracked)
-                        continue;
-                    }
-
-                    string fileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
-                    if (fileHash != stagedFiles[filePath])
-                    {
-                        notStaged.Add(filePath); // (not staged)
-
-                    }
-
-                }
+                var (notStaged, untracked) = StatusHelper.GetNotStagedUntracked(workingFiles, stagedFiles);
 
 
-
-
-
-
-
-
-
-                if (!(notStaged.Count == 0))
+                if (notStaged.Any())
                 {
                     Logger.Log("Changes not staged for commit:");
-                    foreach (var file in notStaged)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Logger.Log($"    {file}");
-                    }
-
-                    Console.ResetColor();
+                    StatusHelper.DisplayStatus(Logger, notStaged, ConsoleColor.Cyan);
                     CommandHelper.DisplaySeperator(Logger);
-
                 }
 
-
-                if (!(untracked.Count == 0))
+                if (untracked.Any())
                 {
                     Logger.Log("Untracked files:");
-                    foreach (var file in untracked)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                        Logger.Log($"    {file}");
-                    }
-
-
-                    Console.ResetColor();
+                    StatusHelper.DisplayStatus(Logger, untracked, ConsoleColor.Blue);
                     CommandHelper.DisplaySeperator(Logger);
                 }
-                
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-                // Anything else?
+                // When there is nothing to commit, stage or being untracked
+                if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any() || notStaged.Any() || untracked.Any())
+                {
+                    Logger.Log("All clean.");
+                }
 
             }
         }
