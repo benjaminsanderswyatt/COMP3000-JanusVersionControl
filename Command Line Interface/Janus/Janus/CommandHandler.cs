@@ -2,10 +2,7 @@
 using Janus.Models;
 using Janus.Plugins;
 using System.Data;
-using System.IO;
-using System.Text;
 using System.Text.Json;
-using System.Xml;
 
 
 namespace Janus
@@ -190,8 +187,7 @@ namespace Janus
                     {
                         // Add all files in the directory recursively
                         var directoryFiles = Directory.EnumerateFiles(arg, "*", SearchOption.AllDirectories)
-                                                      .Select(filePath => Path.GetRelativePath(".", filePath))
-                                                      .Where(path => !path.StartsWith(".janus"));
+                                                      .Select(filePath => Path.GetRelativePath(".", filePath));
 
                         filesToAdd.AddRange(directoryFiles);
                     }
@@ -869,15 +865,12 @@ namespace Janus
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 // Get files from working directory (excluding .janus files)
-                var workingFiles = Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories)
-                                                      .Select(filePath => Path.GetRelativePath(".", filePath))
-                                                      .Where(path => !path.StartsWith(".janus"))
-                                                      .ToList();
+                var workingFiles = CommandHelper.GetAllFilesInWorkingDir(Paths.WorkingDir).ToList();
 
 
                 foreach (var file in Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories))
                 {
-                    Console.WriteLine($"File: {file}");
+                    Console.WriteLine($"File: {Path.GetRelativePath(".", file)}");
                 }
 
 
