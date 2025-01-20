@@ -192,7 +192,7 @@ namespace Janus
                 Console.WriteLine("Starting Index:");
                 foreach (var item in stagedFiles)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(item.Key + " | " + item.Value);
                 }
 
                 Console.WriteLine($"Foreach arguments:");
@@ -280,12 +280,13 @@ namespace Janus
 
                 filesToAdd = filesToAdd.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
 
+                Console.WriteLine($"Done ignore");
 
-                
 
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
                 {
+                    Console.WriteLine($"RelativePath: {relativeFilePath}");
                     // Compute file hash
                     var (fileHash, content) = HashHelper.ComputeHashAndGetContent(relativeFilePath);
 
@@ -323,7 +324,7 @@ namespace Janus
                 Console.WriteLine("Ending index:");
                 foreach (var item in stagedFiles)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine(item.Key + " | " + item.Value);
                 }
 
 

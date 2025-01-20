@@ -200,8 +200,14 @@ namespace Janus.Helpers
 
         public static IEnumerable<string> GetAllFilesInDir(Paths paths, string directory)
         {
+            var workingDirFullPath = Path.GetFullPath(paths.WorkingDir);
+
             var directoryFiles = Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories)
-                                                      .Select(filePath => Path.GetRelativePath(paths.WorkingDir, filePath))
+                                                      .Select(filePath =>
+                                                      {
+                                                          var fullPath = Path.GetFullPath(filePath);
+                                                          return Path.GetRelativePath(workingDirFullPath, fullPath);
+                                                      })
                                                       .Where(path => !path.StartsWith(".janus" + Path.DirectorySeparatorChar));
 
             return directoryFiles;
