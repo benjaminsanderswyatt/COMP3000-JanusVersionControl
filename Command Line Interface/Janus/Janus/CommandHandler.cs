@@ -166,19 +166,6 @@ namespace Janus
             public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
             public override void Execute(string[] args)
             {
-                Console.WriteLine("");
-                Console.WriteLine($"------ TestPath: {Path.GetTempPath()} ---------");
-
-                string fullFilePath = Path.Combine(Paths.WorkingDir, "testDir", "file1.txt");
-                Console.WriteLine($"Full file path: {fullFilePath}");
-                Console.WriteLine($"Working directory: {Paths.WorkingDir}");
-
-                // Method to calculate the relative path
-                string relativePathO = Path.GetRelativePath(Paths.WorkingDir, fullFilePath);
-                Console.WriteLine($"Relative path Orginal: {relativePathO}");
-
-
-
                 // Repository has to be initialised for command to run
                 if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
