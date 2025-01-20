@@ -189,10 +189,17 @@ namespace Janus
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
 
-                Console.WriteLine("");
-                Console.WriteLine($"Starting Index: {stagedFiles}");
+                Console.WriteLine("Starting Index:");
+                foreach (var item in stagedFiles)
+                {
+                    Console.WriteLine(item);
+                }
 
-                Console.WriteLine($"Foreach arguments: {args}");
+                Console.WriteLine($"Foreach arguments:");
+                foreach (var item in args)
+                {
+                    Console.WriteLine(args);
+                }
                 foreach (var arg in args)
                 {
                     Console.WriteLine($"For arg: {arg}");
@@ -252,6 +259,18 @@ namespace Janus
 
                     }
                 }
+
+                Console.WriteLine("filesToAdd");
+                foreach (var item in filesToAdd)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.WriteLine("deletedFiles");
+                foreach (var item in deletedFiles)
+                {
+                    Console.WriteLine(item);
+                }
+
                 Console.WriteLine($"Out of foreach loop");
 
                 // Check .janusignore for ingored patterns
@@ -300,6 +319,14 @@ namespace Janus
 
                 // Update index
                 IndexHelper.SaveIndex(Paths.Index, stagedFiles);
+
+                Console.WriteLine("Ending index:");
+                foreach (var item in stagedFiles)
+                {
+                    Console.WriteLine(item);
+                }
+
+
 
                 Logger.Log($"{filesToAdd.Count + deletedFiles.Count} files processed.");
             }
