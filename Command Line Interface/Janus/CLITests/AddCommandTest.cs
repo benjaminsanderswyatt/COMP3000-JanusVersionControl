@@ -22,7 +22,7 @@ namespace CLITests
             _loggerMock = new Mock<ILogger>();
 
             // Set the base directory path for testing
-            _testDir = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "JanusTest")); // Using temp directory for testing
+            _testDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "JanusTest"); // Using temp directory for testing
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
