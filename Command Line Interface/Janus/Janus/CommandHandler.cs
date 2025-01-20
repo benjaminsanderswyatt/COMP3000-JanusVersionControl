@@ -874,6 +874,13 @@ namespace Janus
                                                       .Where(path => !path.StartsWith(".janus"))
                                                       .ToList();
 
+
+                foreach (var file in Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories))
+                {
+                    Console.WriteLine($"File: {file}");
+                }
+
+
                 // Check .janusignore for ingored patterns
                 var ignoredPatterns = File.Exists(".janusignore")
                     ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
