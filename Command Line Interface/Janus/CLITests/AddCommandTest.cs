@@ -27,15 +27,15 @@ namespace CLITests
             _paths = new Paths(_testDir);
 
             Console.WriteLine("");
-            Console.WriteLine($"------ TestPath: {Path.GetTempPath()} ---------");
+            Console.WriteLine($"T  ------ TestPath: {Path.GetTempPath()} ---------");
 
             string fullFilePath = Path.Combine(_paths.WorkingDir, "testDir", "file1.txt");
-            Console.WriteLine($"Full file path: {fullFilePath}");
-            Console.WriteLine($"Working directory: {_paths.WorkingDir}");
+            Console.WriteLine($"T  Full file path: {fullFilePath}");
+            Console.WriteLine($"T  Working directory: {_paths.WorkingDir}");
 
             // Method to calculate the relative path
             string relativePathO = Path.GetRelativePath(_paths.WorkingDir, fullFilePath);
-            Console.WriteLine($"Relative path Orginal: {relativePathO}");
+            Console.WriteLine($"T  Relative path Orginal: {relativePathO}");
 
 
             Directory.SetCurrentDirectory(_testDir);
