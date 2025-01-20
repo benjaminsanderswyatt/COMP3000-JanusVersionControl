@@ -279,12 +279,11 @@ namespace CLITests
                 Console.WriteLine(item.Key + " | " + item.Value);
             }
 
+            Assert.That(stagedFiles.ContainsKey(file1Path), Is.True);
+            Assert.That(stagedFiles.ContainsKey(file2Path), Is.True);
 
-            Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
-            Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
-
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, file1Path), stagedFiles[file1Path]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, file2Path), stagedFiles[file2Path]);
         }
 
         [Test]
