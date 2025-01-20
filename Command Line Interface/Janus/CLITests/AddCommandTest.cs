@@ -14,6 +14,26 @@ namespace CLITests
 
         private string _testDir;
 
+        public static string GetRelativePath(string fromPath, string toPath)
+        {
+            // Ensure paths are absolute
+            fromPath = Path.GetFullPath(fromPath);
+            toPath = Path.GetFullPath(toPath);
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme)
+            {
+                // Paths are on different volumes or schemes
+                return toPath;
+            }
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            return Uri.UnescapeDataString(relativeUri.ToString().Replace('/', Path.DirectorySeparatorChar));
+        }
+
+
 
         [SetUp]
         public void Setup()
@@ -26,8 +46,20 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
-
+            Console.WriteLine("");
             Console.WriteLine($"------ TestPath: {Path.GetTempPath()} ---------");
+
+            string fullFilePath = Path.Combine(_paths.WorkingDir, "testDir", "file1.txt");
+            Console.WriteLine($"Full file path: {fullFilePath}");
+            Console.WriteLine($"Working directory: {_paths.WorkingDir}");
+
+            // Method to calculate the relative path
+            string relativePathO = Path.GetRelativePath(_paths.WorkingDir, fullFilePath);
+            Console.WriteLine($"Relative path Orginal: {relativePathO}");
+
+
+            string relativePathN = GetRelativePath(_paths.WorkingDir, fullFilePath);
+            Console.WriteLine($"Relative path: {relativePathN}");
 
             Directory.SetCurrentDirectory(_testDir);
 
