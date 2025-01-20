@@ -178,6 +178,14 @@ namespace Janus
                 // Load existing staged files
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
+              
+                if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.Ordinal)))
+                {
+                    Logger.Log("Warning using 'all' will override other arguments.");
+
+                    args = new string[] { Paths.WorkingDir }; // replaces args with 1 argument of the whole working directory
+                }
+
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
 
@@ -185,11 +193,23 @@ namespace Janus
                 {
                     if (Directory.Exists(arg))
                     {
-                        // Add all files in the directory recursively
-                        var directoryFiles = Directory.EnumerateFiles(arg, "*", SearchOption.AllDirectories)
-                                                      .Select(filePath => Path.GetRelativePath(".", filePath));
+                        // Get all files in the given directory recursively
+                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, arg);
 
-                        filesToAdd.AddRange(directoryFiles);
+                        foreach (var filePath in directoryFiles)
+                        {
+                            if (File.Exists(filePath))
+                            {
+                                // File exists add to filesToAdd
+                                filesToAdd.Add(filePath);
+                            }
+                            else if (stagedFiles.ContainsKey(filePath))
+                            {
+                                // File doesnt exist but is in stagedFiles mark as deleted
+                                deletedFiles.Add(filePath);
+                            }
+                        }
+
                     }
                     else if (File.Exists(arg))
                     {
@@ -865,13 +885,7 @@ namespace Janus
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 // Get files from working directory (excluding .janus files)
-                var workingFiles = CommandHelper.GetAllFilesInWorkingDir(Paths.WorkingDir).ToList();
-
-
-                foreach (var file in Directory.EnumerateFiles(Paths.WorkingDir, "*", SearchOption.AllDirectories))
-                {
-                    Console.WriteLine($"File: {Path.GetRelativePath(".", file)}");
-                }
+                var workingFiles = CommandHelper.GetAllFilesInDir(Paths, Paths.WorkingDir).ToList();
 
 
                 // Check .janusignore for ingored patterns

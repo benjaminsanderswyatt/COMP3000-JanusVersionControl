@@ -251,5 +251,131 @@ namespace CLITests
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+        [Test]
+        public void ShouldAddAllFilesInDirectory_WhenDirectoryIsSpecified()
+        {
+            // Arrange: Create a test directory with multiple files
+            var dirPath = Path.Combine(_testDir, "testDir");
+            Directory.CreateDirectory(dirPath);
+            var file1Path = Path.Combine(dirPath, "file1.txt");
+            var file2Path = Path.Combine(dirPath, "file2.txt");
+
+            File.WriteAllText(file1Path, "content of file1");
+            File.WriteAllText(file2Path, "content of file2");
+
+            // Act: Execute 'janus add testDir'
+            var args = new string[] { "testDir" };
+            _addCommand.Execute(args);
+
+            // Assert: Verify that both files in the directory are staged
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+            Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
+            Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
+
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
+        }
+
+        [Test]
+        public void ShouldAddAllFiles_WhenAllArgumentIsProvided()
+        {
+            // Arrange: Create multiple test files
+            var file1Path = Path.Combine(_testDir, "file1.txt");
+            var file2Path = Path.Combine(_testDir, "file2.txt");
+
+            File.WriteAllText(file1Path, "content of file1");
+            File.WriteAllText(file2Path, "content of file2");
+
+            // Act: Execute 'janus add all'
+            var args = new string[] { "all" };
+            _addCommand.Execute(args);
+
+            // Assert: Verify that all files in the directory are staged
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+            Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
+            Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
+
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
+        }
+
+        [Test]
+        public void ShouldWarnUser_WhenMultipleArgsGivenWithAll()
+        {
+            // Arrange
+
+            // Act: Execute 'janus add test all thing'
+            var args = new string[] { "test", "all", "thing" };
+            _addCommand.Execute(args);
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log("Warning using 'all' will override other arguments."), Times.Once);
+        }
+
+
+
+        [Test]
+        public void ShouldMarkMultipleFilesAsDeleted_WhenFilesAreDeleted()
+        {
+            // Arrange: Create and add multiple files
+            var file1Path = Path.Combine(_testDir, "file1.txt");
+            var file2Path = Path.Combine(_testDir, "file2.txt");
+
+            File.WriteAllText(file1Path, "content of file1");
+            File.WriteAllText(file2Path, "content of file2");
+
+            var args = new string[] { "file1.txt", "file2.txt" };
+            _addCommand.Execute(args);
+
+            // Act: Delete both files and re execute 'janus add file1.txt file2.txt'
+            File.Delete(file1Path);
+            File.Delete(file2Path);
+            _addCommand.Execute(args);
+
+            // Assert: Verify that both files are marked as deleted
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+            Assert.AreEqual(stagedFiles["file1.txt"], "Deleted");
+            Assert.AreEqual(stagedFiles["file2.txt"], "Deleted");
+        }
+
+
+        [Test]
+        public void ShouldMarkDeletedFilesInDirectory_WhenDirectoryFilesAreDeleted()
+        {
+            // Arrange: Create a directory and add multiple files inside it
+            var dirPath = Path.Combine(_testDir, "testDir");
+            Directory.CreateDirectory(dirPath);
+            var file1Path = Path.Combine(dirPath, "file1.txt");
+            var file2Path = Path.Combine(dirPath, "file2.txt");
+
+            File.WriteAllText(file1Path, "content of file1");
+            File.WriteAllText(file2Path, "content of file2");
+
+            var args = new string[] { "testDir" };
+            _addCommand.Execute(args);
+
+            // Act: Delete files in the directory and re execute 'janus add testDir'
+            File.Delete(file1Path);
+            File.Delete(file2Path);
+            _addCommand.Execute(args);
+
+            // Assert: Verify that both files in the directory are marked as deleted
+            var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+            Assert.AreEqual(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)], "Deleted");
+            Assert.AreEqual(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)], "Deleted");
+        }
+
     }
 }
