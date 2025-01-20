@@ -363,13 +363,20 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
+            Console.WriteLine("Created");
+
             var args = new string[] { "testDir" };
             _addCommand.Execute(args);
+
+            Console.WriteLine("Added");
+            Console.WriteLine("Index printed:" + File.ReadAllText(_paths.Index));
 
             // Act: Delete files in the directory and re execute 'janus add testDir'
             File.Delete(file1Path);
             File.Delete(file2Path);
             _addCommand.Execute(args);
+
+            Console.WriteLine("Index printed2:" + File.ReadAllText(_paths.Index));
 
             // Assert: Verify that both files in the directory are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
