@@ -189,30 +189,16 @@ namespace Janus
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
 
-                Console.WriteLine("Starting Index:");
-                foreach (var item in stagedFiles)
-                {
-                    Console.WriteLine(item.Key + " | " + item.Value);
-                }
-
-                Console.WriteLine($"Foreach arguments:");
-                foreach (var item in args)
-                {
-                    Console.WriteLine(args);
-                }
                 foreach (var arg in args)
                 {
-                    Console.WriteLine($"For arg: {arg}");
                     if (Directory.Exists(arg)) // Directory
                     {
-                        Console.WriteLine($"DirectoryExists");
                         // Get all files in the given directory recursively
                         var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, arg);
 
                         // Handle files in dir
                         foreach (var filePath in directoryFiles)
                         {
-                            Console.WriteLine($"    filepath in dir: {filePath}");
                             // File exists in dir add to filesToAdd
                             filesToAdd.Add(filePath);
                         }
@@ -224,7 +210,6 @@ namespace Janus
                         // Handle deleted files in dir
                         foreach (var filepath in stagedFilesInFolder)
                         {
-                            Console.WriteLine($"    filepath in index: {filepath}");
                             deletedFiles.Add(filepath);
                         }
 
@@ -232,13 +217,11 @@ namespace Janus
                     }
                     else if (File.Exists(arg)) // File
                     {
-                        Console.WriteLine($"FileExists");
                         // Add the file
                         filesToAdd.Add(arg);
                     }
                     else // Doesnt exist -> check index
                     {
-                        Console.WriteLine($"DoesntExists");
                         var stagedFilesInFolder = stagedFiles.Keys
                                                         .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
@@ -260,18 +243,6 @@ namespace Janus
                     }
                 }
 
-                Console.WriteLine("filesToAdd");
-                foreach (var item in filesToAdd)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("deletedFiles");
-                foreach (var item in deletedFiles)
-                {
-                    Console.WriteLine(item);
-                }
-
-                Console.WriteLine($"Out of foreach loop");
 
                 // Check .janusignore for ingored patterns
                 var ignoredPatterns = File.Exists(".janusignore")
@@ -280,43 +251,35 @@ namespace Janus
 
                 filesToAdd = filesToAdd.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
 
-                Console.WriteLine($"Done ignore");
 
 
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
                 {
-                    Console.WriteLine($"RelativePath: {relativeFilePath}");
                     // Compute file hash
                     var (fileHash, content) = HashHelper.ComputeHashAndGetContent(Paths.WorkingDir, relativeFilePath);
 
-                    Console.WriteLine($"fileHash: {relativeFilePath}, Content: {content}");
 
                     // If the file isnt already staged or the file has been modified stage it
                     if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                     {
-                        Console.WriteLine($"Modified");
                         // Write file content to objects directory
                         string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
                         if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
                         {
-                            Console.WriteLine($"Exists");
                             File.WriteAllText(objectFilePath, content);
                         }
 
-                        Console.WriteLine($"Added '{relativeFilePath}' to the staging area.");
                         stagedFiles[relativeFilePath] = fileHash;
                         Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
                     {
-                        Console.WriteLine($"Already Staged");
                         Logger.Log($"File '{relativeFilePath}' is already staged.");
                     }
                     
                 }
 
-                Console.WriteLine($"Done Staging");
 
                 // Mark deleted files "Deleted"
                 foreach (string relativeFilePath in deletedFiles)
@@ -325,19 +288,11 @@ namespace Janus
                     Logger.Log($"Marked '{relativeFilePath}' as deleted.");
                 }
 
-                Console.WriteLine($"Done Deleting");
 
                 // Update index
                 IndexHelper.SaveIndex(Paths.Index, stagedFiles);
 
-                Console.WriteLine("Ending index:");
-                foreach (var item in stagedFiles)
-                {
-                    Console.WriteLine(item.Key + " | " + item.Value);
-                }
-
-
-
+                
                 Logger.Log($"{filesToAdd.Count + deletedFiles.Count} files processed.");
             }
         }

@@ -250,8 +250,10 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldAddAllFilesInDirectory_WhenDirectoryIsSpecified()
+        public void ShouldAddAllFilesInDirectory_WhenDirectoryIsProvided()
         {
+            Console.WriteLine("ShouldAddAllFilesInDirectory_WhenDirectoryIsProvided");
+
             // Arrange: Create a test directory with multiple files
             var dirPath = Path.Combine(_testDir, "testDir");
             Directory.CreateDirectory(dirPath);
@@ -261,12 +263,23 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
+            Console.WriteLine($"File1Path: {file1Path}");
+            Console.WriteLine($"File2Path: {file2Path}");
+
             // Act: Execute 'janus add testDir'
             var args = new string[] { "testDir" };
             _addCommand.Execute(args);
 
             // Assert: Verify that both files in the directory are staged
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
+
+            Console.WriteLine("Index");
+            foreach (var item in stagedFiles)
+            {
+                Console.WriteLine(item.Key + " | " + item.Value);
+            }
+
+
             Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
             Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
 
