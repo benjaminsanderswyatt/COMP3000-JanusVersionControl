@@ -189,28 +189,35 @@ namespace Janus
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
 
+                Console.WriteLine("");
+                Console.WriteLine($"Starting Index: {stagedFiles}");
+
+                Console.WriteLine($"Foreach arguments: {args}");
                 foreach (var arg in args)
                 {
+                    Console.WriteLine($"For arg: {arg}");
                     if (Directory.Exists(arg)) // Directory
                     {
+                        Console.WriteLine($"DirectoryExists");
                         // Get all files in the given directory recursively
                         var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, arg);
 
                         // Handle files in dir
                         foreach (var filePath in directoryFiles)
                         {
+                            Console.WriteLine($"    filepath in dir: {filePath}");
                             // File exists in dir add to filesToAdd
                             filesToAdd.Add(filePath);
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
                                                         .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
-                                                            && !directoryFiles.Contains(filePath))
-                                                        .ToList();
+                                                            && !directoryFiles.Contains(filePath));
 
                         // Handle deleted files in dir
                         foreach (var filepath in stagedFilesInFolder)
                         {
+                            Console.WriteLine($"    filepath in index: {filepath}");
                             deletedFiles.Add(filepath);
                         }
 
@@ -218,11 +225,13 @@ namespace Janus
                     }
                     else if (File.Exists(arg)) // File
                     {
+                        Console.WriteLine($"FileExists");
                         // Add the file
                         filesToAdd.Add(arg);
                     }
                     else // Doesnt exist -> check index
                     {
+                        Console.WriteLine($"DoesntExists");
                         var stagedFilesInFolder = stagedFiles.Keys
                                                         .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
@@ -243,7 +252,7 @@ namespace Janus
 
                     }
                 }
-
+                Console.WriteLine($"Out of foreach loop");
 
                 // Check .janusignore for ingored patterns
                 var ignoredPatterns = File.Exists(".janusignore")
