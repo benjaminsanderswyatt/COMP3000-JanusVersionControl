@@ -288,7 +288,10 @@ namespace Janus
                 {
                     Console.WriteLine($"RelativePath: {relativeFilePath}");
                     // Compute file hash
-                    var (fileHash, content) = HashHelper.ComputeHashAndGetContent(relativeFilePath);
+                    string fullpath = Path.Combine(Paths.WorkingDir, relativeFilePath);
+                    Console.WriteLine($"fullPath: {fullpath}");
+
+                    var (fileHash, content) = HashHelper.ComputeHashAndGetContent(fullpath);
 
                     Console.WriteLine($"fileHash: {relativeFilePath}, Content: {content}");
 
