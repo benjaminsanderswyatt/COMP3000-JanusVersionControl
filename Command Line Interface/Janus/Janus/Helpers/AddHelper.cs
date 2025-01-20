@@ -14,21 +14,5 @@ namespace Janus.Helpers
         }
 
 
-
-        public static string ComputeHash_GivenFilepath(string filePath)
-        {
-            using (SHA1 sha1 = SHA1.Create())
-            {
-                using (var stream = File.OpenRead(filePath))
-                {
-                    byte[] hashBytes = sha1.ComputeHash(stream);
-                    return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-                }
-            }
-            
-        }
-
-
-
     }
 }

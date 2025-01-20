@@ -103,26 +103,6 @@ namespace Janus.Helpers
 
 
 
-
-        public static string ComputeHash(string content)
-        {
-            using (SHA1 sha1 = SHA1.Create())
-            {
-                byte[] contentBytes = Encoding.UTF8.GetBytes(content);
-                byte[] hashBytes = sha1.ComputeHash(contentBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "");
-            }
-        }
-
-        public static string ComputeCommitHash(string treeHash, string commitMessage)
-        {
-            string combined = treeHash + commitMessage;
-
-            return ComputeHash(combined);
-        }
-
-
-
         public static string GetCurrentBranchRelPath(Paths paths)
         {
             // Ensure the HEAD file exists

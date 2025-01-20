@@ -102,7 +102,7 @@ namespace CLITests
             // Assert: Verify that the file is staged correctly
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
-            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file.txt"), stagedFiles["file.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file.txt"), stagedFiles["file.txt"]);
 
         }
 
@@ -128,8 +128,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
 
-            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
-            Assert.AreEqual(AddHelper.ComputeHash_GivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
 
         }
 

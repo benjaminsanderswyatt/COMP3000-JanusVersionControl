@@ -13,7 +13,7 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private LogCommand _logCommand;
-        static string initialCommitHash = "4A35387BE739933F7C9E6486959EC1AFFB2C1648";
+        static string initialCommitHash = "4a35387be739933f7c9e6486959ec1affb2c1648";
 
         private string _testDir;
 
@@ -51,7 +51,7 @@ namespace CLITests
             for (int num = 1; num < howMany + 1; num++)
             {
                 // Generate commit metadata
-                string commitHash = CommandHelper.ComputeCommitHash($"treeHash{num}", $"commitMessage{num}{seperator}");
+                string commitHash = HashHelper.ComputeCommitHash($"treeHash{num}", $"commitMessage{num}{seperator}");
 
                 string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", $"treeHash{num}", $"commitMessage{num}", parentCommitHash, author);
 
@@ -140,7 +140,7 @@ namespace CLITests
         public void ShouldDisplayCommits_WhenCommitsExist()
         {
             // Arrange: Create 5 commits
-            CreateManyCommits(5, "main", "testAuthor", "4A35387BE739933F7C9E6486959EC1AFFB2C1648");
+            CreateManyCommits(5, "main", "testAuthor", "4a35387be739933f7c9e6486959ec1affb2c1648");
             var args = new string[] { };
 
             // Act

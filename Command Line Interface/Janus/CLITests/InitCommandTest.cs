@@ -113,7 +113,7 @@ namespace CLITests
 
             Assert.That(mainBranch.Name, Is.EqualTo("main"));
             Assert.That(mainBranch.ParentBranch, Is.Null);
-            Assert.That(mainBranch.InitialCommit, Is.EqualTo("4A35387BE739933F7C9E6486959EC1AFFB2C1648"));
+            Assert.That(mainBranch.InitialCommit, Is.EqualTo("4a35387be739933f7c9e6486959ec1affb2c1648"));
             Assert.That(mainBranch.CreatedBy, Is.Null);
 
         }

@@ -40,14 +40,25 @@ namespace Janus.Helpers
             // Deserialise into commitMetadata
             CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
             
-            string tree = File.ReadAllText(Path.Combine(paths.TreeDir, metadata.Tree));
+            if (string.IsNullOrEmpty(metadata.Tree))
+            {
+                return new Dictionary<string, object>();
+            }
 
-            var treeObject = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(tree);
-
-            var parsedTree = ParseTree(treeObject);
+            var parsedTree = GetTreeFromTreeHash(paths, metadata.Tree);
 
             return parsedTree;
         }
+
+        public static Dictionary<string, object> GetTreeFromTreeHash(Paths paths, string treeHash)
+        {
+            string tree = File.ReadAllText(Path.Combine(paths.TreeDir, treeHash));
+
+            var treeObject = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(tree);
+
+            return ParseTree(treeObject);
+        }
+
 
 
         private static Dictionary<string, object> ParseTree(Dictionary<string, JsonElement> tree)
@@ -87,7 +98,6 @@ namespace Janus.Helpers
 
                 if (!currentTree.ContainsKey(part))
                 {
-                    Console.WriteLine($"Key '{part}' not found in currentTree. Available keys: {string.Join(", ", currentTree.Keys)}");
                     // The file or folder does not exist in the tree
                     return null;
                 }

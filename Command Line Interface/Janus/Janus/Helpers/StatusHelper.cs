@@ -7,6 +7,22 @@ namespace Janus.Helpers
 {
     public class StatusHelper
     {
+        public static bool HasAnythingBeenStagedForCommit(Paths paths, string commitHash, Dictionary<string, string> stagedFiles)
+        {
+            // Get the tree from commit hash
+            Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(paths, commitHash);
+
+            var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = GetNotStagedUntracked(tree, stagedFiles);
+
+            if (stagedForCommitModified.Any() || stagedForCommitAdded.Any() || stagedForCommitDeleted.Any())
+            {
+                return true;
+            }
+
+            // Nothing to commit
+            return false;
+        }
+
 
         public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetNotStagedUntracked(Dictionary<string, object> tree , Dictionary<string, string> stagedFiles)
         {
@@ -61,7 +77,7 @@ namespace Janus.Helpers
                     continue;
                 }
 
-                string fileHash = AddHelper.ComputeHash_GivenFilepath(filePath);
+                string fileHash = HashHelper.ComputeHashGivenFilepath(filePath);
                 if (fileHash != stagedFiles[filePath])
                 {
                     notStaged.Add(filePath); // (not staged)

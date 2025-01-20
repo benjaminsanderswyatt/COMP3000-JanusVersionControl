@@ -111,7 +111,7 @@ namespace Janus
                     // Create initial commit
                     string initialCommitMessage = "Initial commit";
                     var emptyTreeHash = "";
-                    string initCommitHash = CommandHelper.ComputeCommitHash(emptyTreeHash, initialCommitMessage);
+                    string initCommitHash = HashHelper.ComputeCommitHash(emptyTreeHash, initialCommitMessage);
 
                     string commitMetadata = CommandHelper.GenerateCommitMetadata("main", initCommitHash, emptyTreeHash, initialCommitMessage, null, null);
 
@@ -227,11 +227,18 @@ namespace Janus
                 foreach (string relativeFilePath in filesToAdd)
                 {
                     // Compute file hash
-                    string fileHash = AddHelper.ComputeHash_GivenFilepath(relativeFilePath);
+                    var (fileHash, content) = HashHelper.ComputeHashAndGetContent(relativeFilePath);
 
                     // If the file isnt already staged or the file has been modified stage it
                     if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
                     {
+                        // Write file content to objects directory
+                        string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
+                        if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
+                        {
+                            File.WriteAllText(objectFilePath, content);
+                        }
+
                         stagedFiles[relativeFilePath] = fileHash;
                         Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
@@ -292,12 +299,15 @@ namespace Janus
                 
                 string branch = CommandHelper.GetCurrentBranchName(Paths);
 
-                
-                // TODO /////////////////////////////////////////////////////////////////////////////////////////////
-                // Check if there are any changes to commit (compare index to head commit as if they the same then no changes have been added)
-
-
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+
+                // Check if there are any changes to commit
+                if (!StatusHelper.HasAnythingBeenStagedForCommit(Paths, parentCommit, stagedFiles))
+                {
+                    Logger.Log("No changes to commit.");
+                    return;
+                }
+
 
 
                 var treeStructure = new Dictionary<string, object>();
@@ -318,16 +328,6 @@ namespace Janus
                     {
                         try
                         {
-                            // Read file content and create object
-                            string content = File.ReadAllText(relativeFilePath);
-
-                            // Write file content to objects directory
-                            string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
-                            if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
-                            {
-                                File.WriteAllText(objectFilePath, content);
-                            }
-
                             // Add to tree
                             string[] pathParts = relativeFilePath.Split(Path.DirectorySeparatorChar);
                             TreeHelper.AddToTreeRecursive(treeStructure, pathParts, fileHash);
@@ -345,13 +345,13 @@ namespace Janus
                 {
                     // Create tree object and store in trees
                     string treeJson = JsonSerializer.Serialize(treeStructure, new JsonSerializerOptions { WriteIndented = true });
-                    string rootTreeHash = CommandHelper.ComputeHash(treeJson);
+                    string rootTreeHash = HashHelper.ComputeHash(treeJson);
                     string treeFilePath = Path.Combine(Paths.TreeDir, rootTreeHash);
 
                     File.WriteAllText(treeFilePath, treeJson);
 
                     // Generate commit metadata
-                    string commitHash = CommandHelper.ComputeCommitHash(rootTreeHash, commitMessage);
+                    string commitHash = HashHelper.ComputeCommitHash(rootTreeHash, commitMessage);
                     string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, CommandHelper.GetUsername());
 
                     // Save commit object
@@ -883,7 +883,7 @@ namespace Janus
 
 
 
-                // Get the treefrom the HEAD commit
+                // Get the tree from the HEAD commit
                 string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
                 Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(Paths, headCommitHash);
 
@@ -908,7 +908,7 @@ namespace Janus
 
 
 
-                // Display modified by not staged files
+                // Not staged files
                 // Untracked
                 var (notStaged, untracked) = StatusHelper.GetNotStagedUntracked(workingFiles, stagedFiles);
 
@@ -930,7 +930,7 @@ namespace Janus
 
 
                 // When there is nothing to commit, stage or being untracked
-                if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any() || notStaged.Any() || untracked.Any())
+                if (!(stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any() || notStaged.Any() || untracked.Any()))
                 {
                     Logger.Log("All clean.");
                 }
