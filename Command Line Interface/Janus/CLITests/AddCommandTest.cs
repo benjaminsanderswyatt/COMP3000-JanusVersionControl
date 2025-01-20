@@ -22,9 +22,12 @@ namespace CLITests
             _loggerMock = new Mock<ILogger>();
 
             // Set the base directory path for testing
-            _testDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "JanusTest"); // Using temp directory for testing
+            _testDir = Path.Combine(Path.GetTempPath(), "JanusTest"); // Using temp directory for testing
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
+
+
+            Console.WriteLine($"------ TestPath: {Path.GetTempPath()} ---------");
 
             Directory.SetCurrentDirectory(_testDir);
 
@@ -45,7 +48,7 @@ namespace CLITests
         public void TearDown()
         {
             // Clean up after each test
-            Directory.SetCurrentDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop))); // Cant delete dir if in it
+            Directory.SetCurrentDirectory(Path.GetTempPath()); // Cant delete dir if in it
 
             if (Directory.Exists(_testDir))
             {
@@ -249,6 +252,20 @@ namespace CLITests
         }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         [Test]
         public void ShouldAddAllFilesInDirectory_WhenDirectoryIsProvided()
         {
@@ -363,14 +380,20 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
+            Console.WriteLine("Created");
+
             var args = new string[] { "testDir" };
             _addCommand.Execute(args);
-            
+
+            Console.WriteLine("Added");
+            Console.WriteLine("Index printed:" + File.ReadAllText(_paths.Index));
+
             // Act: Delete files in the directory and re execute 'janus add testDir'
             File.Delete(file1Path);
             File.Delete(file2Path);
             _addCommand.Execute(args);
 
+            Console.WriteLine("Index printed2:" + File.ReadAllText(_paths.Index));
 
             // Assert: Verify that both files in the directory are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);

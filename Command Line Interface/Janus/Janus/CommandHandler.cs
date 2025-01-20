@@ -205,7 +205,8 @@ namespace Janus
 
                         var stagedFilesInFolder = stagedFiles.Keys
                                                         .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
-                                                            && !directoryFiles.Contains(filePath));
+                                                            && !directoryFiles.Contains(filePath))
+                                                        .ToList();
 
                         // Handle deleted files in dir
                         foreach (var filepath in stagedFilesInFolder)
