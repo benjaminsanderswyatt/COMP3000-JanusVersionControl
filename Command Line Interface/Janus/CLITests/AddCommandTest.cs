@@ -14,26 +14,6 @@ namespace CLITests
 
         private string _testDir;
 
-        public static string GetRelativePath(string fromPath, string toPath)
-        {
-            // Ensure paths are absolute
-            fromPath = Path.GetFullPath(fromPath);
-            toPath = Path.GetFullPath(toPath);
-
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(toPath);
-
-            if (fromUri.Scheme != toUri.Scheme)
-            {
-                // Paths are on different volumes or schemes
-                return toPath;
-            }
-
-            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            return Uri.UnescapeDataString(relativeUri.ToString().Replace('/', Path.DirectorySeparatorChar));
-        }
-
-
 
         [SetUp]
         public void Setup()
@@ -57,9 +37,6 @@ namespace CLITests
             string relativePathO = Path.GetRelativePath(_paths.WorkingDir, fullFilePath);
             Console.WriteLine($"Relative path Orginal: {relativePathO}");
 
-
-            string relativePathN = GetRelativePath(_paths.WorkingDir, fullFilePath);
-            Console.WriteLine($"Relative path: {relativePathN}");
 
             Directory.SetCurrentDirectory(_testDir);
 
