@@ -27,10 +27,12 @@ namespace Janus.Helpers
         }
 
 
-        public static string ComputeHashGivenFilepath(string filePath)
+        public static string ComputeHashGivenFilepath(string workingDir, string relativeFilePath)
         {
+            string fullpath = Path.Combine(workingDir, relativeFilePath);
+
             // Read file content
-            string content = File.ReadAllText(filePath);
+            string content = File.ReadAllText(fullpath);
 
             // Compute the hash from the content
             string fileHash = ComputeHash(content);
@@ -39,10 +41,12 @@ namespace Janus.Helpers
         }
 
 
-        public static (string fileHash, string content) ComputeHashAndGetContent(string filePath)
+        public static (string fileHash, string content) ComputeHashAndGetContent(string workingDir, string relativeFilePath)
         {
+            string fullpath = Path.Combine(workingDir, relativeFilePath);
+
             // Read file content
-            string content = File.ReadAllText(filePath);
+            string content = File.ReadAllText(fullpath);
 
             // Compute the hash from the content
             string fileHash = ComputeHash(content);

@@ -102,7 +102,7 @@ namespace CLITests
             // Assert: Verify that the file is staged correctly
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file.txt"), stagedFiles["file.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file.txt"), stagedFiles["file.txt"]);
 
         }
 
@@ -128,8 +128,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
 
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file1.txt"), stagedFiles["file1.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file2.txt"), stagedFiles["file2.txt"]);
 
         }
 
@@ -270,8 +270,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
             Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
 
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)]);
         }
 
         [Test]
@@ -293,8 +293,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
 
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file1.txt"), stagedFiles["file1.txt"]);
-            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath("file2.txt"), stagedFiles["file2.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file1.txt"), stagedFiles["file1.txt"]);
+            Assert.AreEqual(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file2.txt"), stagedFiles["file2.txt"]);
         }
 
         [Test]

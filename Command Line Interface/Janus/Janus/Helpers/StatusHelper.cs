@@ -62,7 +62,7 @@ namespace Janus.Helpers
         }
 
 
-        public static (List<string> notStaged, List<string> untracked) GetNotStagedUntracked(List<string> workingFiles, Dictionary<string, string> stagedFiles)
+        public static (List<string> notStaged, List<string> untracked) GetNotStagedUntracked(string workingDir, List<string> workingFiles, Dictionary<string, string> stagedFiles)
         {
             // Compare workingDir to index, if the files differ from index they are not staged for commit, if not in index they are untracked
             var notStaged = new List<string>();
@@ -77,7 +77,7 @@ namespace Janus.Helpers
                     continue;
                 }
 
-                string fileHash = HashHelper.ComputeHashGivenFilepath(filePath);
+                string fileHash = HashHelper.ComputeHashGivenFilepath(workingDir, filePath);
                 if (fileHash != stagedFiles[filePath])
                 {
                     notStaged.Add(filePath); // (not staged)

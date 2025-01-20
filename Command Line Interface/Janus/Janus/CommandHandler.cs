@@ -288,10 +288,7 @@ namespace Janus
                 {
                     Console.WriteLine($"RelativePath: {relativeFilePath}");
                     // Compute file hash
-                    string fullpath = Path.Combine(Paths.WorkingDir, relativeFilePath);
-                    Console.WriteLine($"fullPath: {fullpath}");
-
-                    var (fileHash, content) = HashHelper.ComputeHashAndGetContent(fullpath);
+                    var (fileHash, content) = HashHelper.ComputeHashAndGetContent(Paths.WorkingDir, relativeFilePath);
 
                     Console.WriteLine($"fileHash: {relativeFilePath}, Content: {content}");
 
@@ -989,7 +986,7 @@ namespace Janus
 
                 // Not staged files
                 // Untracked
-                var (notStaged, untracked) = StatusHelper.GetNotStagedUntracked(workingFiles, stagedFiles);
+                var (notStaged, untracked) = StatusHelper.GetNotStagedUntracked(Paths.WorkingDir, workingFiles, stagedFiles);
 
 
                 if (notStaged.Any())
