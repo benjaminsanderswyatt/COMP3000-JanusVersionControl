@@ -192,7 +192,7 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
-                    arg.Replace('/', Path.PathSeparator);
+                    Path.Combine(Paths.WorkingDir, arg);
 
 
                     if (Directory.Exists(arg)) // Directory
