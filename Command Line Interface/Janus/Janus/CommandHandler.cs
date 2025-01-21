@@ -220,15 +220,15 @@ namespace Janus
 
 
                     }
-                    else if (File.Exists(argument)) // File
+                    else if (File.Exists(arg)) // File
                     {
                         // Add the file
-                        filesToAdd.Add(argument);
+                        filesToAdd.Add(arg);
                     }
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(argument, StringComparison.OrdinalIgnoreCase))
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
 
                         if (stagedFilesInFolder.Any())
@@ -241,7 +241,7 @@ namespace Janus
                         }
                         else
                         {
-                            Logger.Log($"Error: Path '{argument}' does not exist.");
+                            Logger.Log($"Error: Path '{arg}' does not exist.");
                             return;
                         }
 
