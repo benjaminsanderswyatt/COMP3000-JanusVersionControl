@@ -192,13 +192,13 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
-                    Path.Combine(Paths.WorkingDir, arg);
+                    var argument = Path.Combine(Paths.WorkingDir, arg);
 
 
-                    if (Directory.Exists(arg)) // Directory
+                    if (Directory.Exists(argument)) // Directory
                     {
                         // Get all files in the given directory recursively
-                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, arg);
+                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, argument);
 
                         // Handle files in dir
                         foreach (var filePath in directoryFiles)
@@ -208,7 +208,7 @@ namespace Janus
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
+                                                        .Where(filePath => filePath.StartsWith(argument, StringComparison.OrdinalIgnoreCase)
                                                             && !directoryFiles.Contains(filePath))
                                                         .ToList();
 
@@ -220,15 +220,15 @@ namespace Janus
 
 
                     }
-                    else if (File.Exists(arg)) // File
+                    else if (File.Exists(argument)) // File
                     {
                         // Add the file
-                        filesToAdd.Add(arg);
+                        filesToAdd.Add(argument);
                     }
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
+                                                        .Where(filePath => filePath.StartsWith(argument, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
 
                         if (stagedFilesInFolder.Any())
@@ -241,7 +241,7 @@ namespace Janus
                         }
                         else
                         {
-                            Logger.Log($"Error: Path '{arg}' does not exist.");
+                            Logger.Log($"Error: Path '{argument}' does not exist.");
                             return;
                         }
 
