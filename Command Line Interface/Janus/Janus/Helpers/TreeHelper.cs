@@ -1,10 +1,6 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Janus.Helpers
 {
@@ -39,7 +35,7 @@ namespace Janus.Helpers
 
             // Deserialise into commitMetadata
             CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
-            
+
             if (string.IsNullOrEmpty(metadata.Tree))
             {
                 return new Dictionary<string, object>();
@@ -101,13 +97,13 @@ namespace Janus.Helpers
                     // The file or folder does not exist in the tree
                     return null;
                 }
-                
+
 
                 if (i == pathParts.Length - 1)
                 {
                     // If we are at the last part of the path, it should be a file
                     return currentTree[part] as string; // Found the hash
-                    
+
                 }
                 else
                 {
@@ -122,7 +118,7 @@ namespace Janus.Helpers
                         return null;
                     }
                 }
-                
+
             }
 
             // An error occured if your here

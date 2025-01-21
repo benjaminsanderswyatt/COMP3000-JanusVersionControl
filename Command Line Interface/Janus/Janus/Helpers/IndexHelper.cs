@@ -1,9 +1,4 @@
-﻿using Janus.Models;
-using Janus.Plugins;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Janus.Helpers
+﻿namespace Janus.Helpers
 {
     public class IndexHelper
     {

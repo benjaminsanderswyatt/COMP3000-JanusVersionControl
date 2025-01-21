@@ -2,7 +2,6 @@ using Janus;
 using Janus.Helpers;
 using Janus.Plugins;
 using Moq;
-using System.ComponentModel;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -39,7 +38,7 @@ namespace CLITests
             // Create Log Command instance
             _logCommand = new LogCommand(_loggerMock.Object, _paths);
 
-            
+
         }
 
 

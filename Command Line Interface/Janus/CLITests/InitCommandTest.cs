@@ -1,8 +1,6 @@
-using Janus;
 using Janus.Models;
 using Janus.Plugins;
 using Moq;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using static Janus.CommandHandler;
 
@@ -83,7 +81,6 @@ namespace CLITests
 
             var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
             CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
-            Console.WriteLine(initialCommit);
 
             Assert.That(initialCommitData.Parent, Is.Null);
 

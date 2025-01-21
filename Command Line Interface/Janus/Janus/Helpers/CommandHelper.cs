@@ -1,7 +1,5 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 
@@ -195,22 +193,14 @@ namespace Janus.Helpers
             logger.Log(new string('-', 50));
         }
 
-       
+
 
 
         public static IEnumerable<string> GetAllFilesInDir(Paths paths, string directory)
         {
-            Console.WriteLine($"Starting dir: {directory}");
-
             var directoryFiles = Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories)
                                                       .Select(filePath => Path.GetRelativePath(paths.WorkingDir, filePath))
                                                       .Where(path => !path.StartsWith(".janus" + Path.DirectorySeparatorChar));
-
-            Console.WriteLine($"Dir files");
-            foreach (var directoryFile in directoryFiles)
-            {
-                Console.WriteLine($"File: {directoryFile}");
-            }
 
             return directoryFiles;
         }

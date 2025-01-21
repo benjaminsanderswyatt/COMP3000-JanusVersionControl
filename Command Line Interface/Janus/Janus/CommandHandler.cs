@@ -2,7 +2,6 @@
 using Janus.Models;
 using Janus.Plugins;
 using System.Data;
-using System.IO;
 using System.Text.Json;
 
 
@@ -137,7 +136,7 @@ namespace Janus
                     };
 
                     string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
-                    
+
                     // Create branch folder and store the branch info and index
                     string branchFolderPath = Path.Combine(Paths.BranchesDir, "main");
                     Directory.CreateDirectory(branchFolderPath);
@@ -186,8 +185,8 @@ namespace Janus
                 // Load existing staged files
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
-              
-                
+
+
 
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
@@ -284,7 +283,7 @@ namespace Janus
                     {
                         Logger.Log($"File '{relativeFilePath}' is already staged.");
                     }
-                    
+
                 }
 
 
@@ -299,7 +298,7 @@ namespace Janus
                 // Update index
                 IndexHelper.SaveIndex(Paths.Index, stagedFiles);
 
-                
+
                 Logger.Log($"{filesToAdd.Count + deletedFiles.Count} files processed.");
             }
         }
@@ -335,8 +334,8 @@ namespace Janus
 
                 // Validate commit message
                 if (!CommitHelper.ValidateCommitMessage(Logger, args, out string commitMessage)) return;
-                
-                
+
+
                 string branch = CommandHelper.GetCurrentBranchName(Paths);
 
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
@@ -418,7 +417,7 @@ namespace Janus
         }
 
 
-        
+
 
 
 
@@ -927,13 +926,13 @@ namespace Janus
 
 
                 // Staged for commit
-                var(stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetNotStagedUntracked(tree, stagedFiles);
+                var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetNotStagedUntracked(tree, stagedFiles);
 
 
                 if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any())
                 {
                     Logger.Log("Changes to be committed:");
- 
+
                     StatusHelper.DisplayStatus(Logger, stagedForCommitAdded, ConsoleColor.Green, "(added)");
                     StatusHelper.DisplayStatus(Logger, stagedForCommitModified, ConsoleColor.Yellow, "(modified)");
                     StatusHelper.DisplayStatus(Logger, stagedForCommitDeleted, ConsoleColor.Red, "(deleted)");

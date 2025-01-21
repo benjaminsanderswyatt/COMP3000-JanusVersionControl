@@ -1,15 +1,4 @@
-﻿using DiffPlex;
-using DiffPlex.DiffBuilder;
-using DiffPlex.DiffBuilder.Model;
-using Janus.Models;
-using System.Globalization;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-
-namespace Janus.Helpers
+﻿namespace Janus.Helpers
 {
     internal class PushHelper
     {

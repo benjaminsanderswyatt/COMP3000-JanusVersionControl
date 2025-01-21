@@ -1,11 +1,5 @@
-using Janus.Helpers;
-using Janus.Models;
 using Janus.Plugins;
 using Moq;
-using NuGet.Frameworks;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -115,7 +109,8 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldDisplayUntrackedFiles_WhenFilesAreUntracked() {
+        public void ShouldDisplayUntrackedFiles_WhenFilesAreUntracked()
+        {
 
         }
 
@@ -130,7 +125,7 @@ namespace CLITests
         [Test]
         public void ShouldDisplayCurrentBranch()
         {
-            
+
         }
 
 

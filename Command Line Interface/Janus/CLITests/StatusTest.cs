@@ -1,9 +1,5 @@
-using Janus;
 using Janus.Plugins;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Moq;
-using System.Runtime.InteropServices;
-using static Janus.CommandHandler;
 
 namespace CLITests
 {
@@ -47,7 +43,7 @@ namespace CLITests
         }
 
 
-        
+
 
 
     }

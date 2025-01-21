@@ -2,10 +2,7 @@ using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Moq;
-using NuGet.Frameworks;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -173,7 +170,7 @@ namespace CLITests
         }
 
 
-        
+
 
 
 
@@ -362,7 +359,7 @@ namespace CLITests
                 .ToList();
 
             Assert.That(commitPathsInFolder.Count, Is.EqualTo(2), "Should have initial commit object and one created.");
-            
+
             CommitMetadata initialCommitData = commitPathsInFolder[0];
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
@@ -401,7 +398,7 @@ namespace CLITests
             // Act: Execute 'janus commit "Same name commit"'
             commitArgs = new string[] { "Same name commit" };
             _commitCommand.Execute(commitArgs);
-            
+
 
             // Assert: Verify that both files are committed successfully
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.StartsWith("Committed as"))), Times.Exactly(2));

@@ -1,11 +1,7 @@
-using Janus;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Moq;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using static Janus.CommandHandler;
 
@@ -213,7 +209,7 @@ namespace CLITests
 
             // Assert
             Assert.IsEmpty(tree);
-            
+
         }
 
     }

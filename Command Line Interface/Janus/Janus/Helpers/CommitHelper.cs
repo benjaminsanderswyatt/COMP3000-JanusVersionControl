@@ -1,15 +1,11 @@
-﻿using Janus.Models;
-using Janus.Plugins;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
+﻿using Janus.Plugins;
 
 namespace Janus.Helpers
 {
 
     public class CommitHelper
     {
-       
+
         public static bool ValidateCommitMessage(ILogger Logger, string[] args, out string commitMessage)
         {
             commitMessage = args.Length > 0 ? args[0] : string.Empty;
@@ -31,7 +27,7 @@ namespace Janus.Helpers
 
 
 
-        
+
 
 
 

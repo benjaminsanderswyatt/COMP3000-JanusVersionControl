@@ -26,18 +26,6 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
-            Console.WriteLine("");
-            Console.WriteLine($"T  ------ TestPath: {Path.GetTempPath()} ---------");
-
-            string fullFilePath = Path.Combine(_paths.WorkingDir, "testDir", "file1.txt");
-            Console.WriteLine($"T  Full file path: {fullFilePath}");
-            Console.WriteLine($"T  Working directory: {_paths.WorkingDir}");
-
-            // Method to calculate the relative path
-            string relativePathO = Path.GetRelativePath(_paths.WorkingDir, fullFilePath);
-            Console.WriteLine($"T  Relative path Orginal: {relativePathO}");
-
-
             Directory.SetCurrentDirectory(_testDir);
 
             // Set up Janus repo
@@ -194,7 +182,7 @@ namespace CLITests
             File.WriteAllText(ignoredFilePath, "ignored content");
 
             // Create .janusignore to ignore "ignoredfile.txt"
-            File.WriteAllLines(Path.Combine(_testDir, ".janusignore"), [ "ignoredfile.txt" ]);
+            File.WriteAllLines(Path.Combine(_testDir, ".janusignore"), ["ignoredfile.txt"]);
 
 
             // Act: Add both files, one should be ignored
@@ -278,8 +266,6 @@ namespace CLITests
         [Test]
         public void ShouldAddAllFilesInDirectory_WhenDirectoryIsProvided()
         {
-            Console.WriteLine("ShouldAddAllFilesInDirectory_WhenDirectoryIsProvided");
-
             // Arrange: Create a test directory with multiple files
             var dirPath = Path.Combine(_testDir, "testDir");
             Directory.CreateDirectory(dirPath);
@@ -289,23 +275,12 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
-            Console.WriteLine($"File1Path: {file1Path}");
-            Console.WriteLine($"File2Path: {file2Path}");
-
             // Act: Execute 'janus add testDir'
             var args = new string[] { "testDir" };
             _addCommand.Execute(args);
 
             // Assert: Verify that both files in the directory are staged
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
-
-            Console.WriteLine("Index");
-            foreach (var item in stagedFiles)
-            {
-                Console.WriteLine(item.Key + " | " + item.Value);
-            }
-
-
 
             Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
             Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
@@ -389,20 +364,14 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
-            Console.WriteLine("Created");
 
             var args = new string[] { "testDir" };
             _addCommand.Execute(args);
-
-            Console.WriteLine("Added");
-            Console.WriteLine("Index printed:" + File.ReadAllText(_paths.Index));
 
             // Act: Delete files in the directory and re execute 'janus add testDir'
             File.Delete(file1Path);
             File.Delete(file2Path);
             _addCommand.Execute(args);
-
-            Console.WriteLine("Index printed2:" + File.ReadAllText(_paths.Index));
 
             // Assert: Verify that both files in the directory are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);

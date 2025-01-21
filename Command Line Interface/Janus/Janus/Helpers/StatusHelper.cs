@@ -1,7 +1,4 @@
-﻿using Janus.Models;
-using Janus.Plugins;
-using System.Security.Cryptography;
-using System.Text;
+﻿using Janus.Plugins;
 
 namespace Janus.Helpers
 {
@@ -24,7 +21,7 @@ namespace Janus.Helpers
         }
 
 
-        public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetNotStagedUntracked(Dictionary<string, object> tree , Dictionary<string, string> stagedFiles)
+        public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetNotStagedUntracked(Dictionary<string, object> tree, Dictionary<string, string> stagedFiles)
         {
             // Compare index to tree, if they differ they are changes to be committed (if index hash == "Deleted" then file is deleted otherwise modified)
             var stagedForCommitModified = new List<string>();
@@ -88,7 +85,7 @@ namespace Janus.Helpers
 
             return (notStaged, untracked);
         }
-        
+
 
 
         public static void DisplayStatus(ILogger logger, List<string> list, ConsoleColor? colour = null, string addon = null)
@@ -105,7 +102,7 @@ namespace Janus.Helpers
 
             Console.ResetColor();
         }
-        
+
 
 
 
