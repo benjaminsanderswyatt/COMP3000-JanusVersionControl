@@ -192,6 +192,9 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
+                    arg.Replace('/', Path.PathSeparator);
+
+
                     if (Directory.Exists(arg)) // Directory
                     {
                         // Get all files in the given directory recursively
