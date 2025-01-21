@@ -176,16 +176,18 @@ namespace Janus
                     return;
                 }
 
-                // Load existing staged files
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-
-              
                 if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
                 {
                     Logger.Log("Warning using 'all' will override other arguments.");
 
                     args = new string[] { Paths.WorkingDir }; // replaces args with 1 argument of the whole working directory
                 }
+
+                // Load existing staged files
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+
+              
+                
 
                 var filesToAdd = new List<string>();
                 var deletedFiles = new List<string>();
@@ -208,7 +210,7 @@ namespace Janus
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(argument, StringComparison.OrdinalIgnoreCase)
+                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
                                                             && !directoryFiles.Contains(filePath))
                                                         .ToList();
 
@@ -220,7 +222,7 @@ namespace Janus
 
 
                     }
-                    else if (File.Exists(arg)) // File
+                    else if (File.Exists(argument)) // File
                     {
                         // Add the file
                         filesToAdd.Add(arg);

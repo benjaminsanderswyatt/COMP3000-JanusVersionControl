@@ -206,6 +206,7 @@ namespace Janus.Helpers
                                                       .Select(filePath => Path.GetRelativePath(paths.WorkingDir, filePath))
                                                       .Where(path => !path.StartsWith(".janus" + Path.DirectorySeparatorChar));
 
+            Console.WriteLine($"Dir files");
             foreach (var directoryFile in directoryFiles)
             {
                 Console.WriteLine($"File: {directoryFile}");
