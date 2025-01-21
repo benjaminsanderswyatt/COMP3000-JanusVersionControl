@@ -99,6 +99,7 @@ const styles = {
     textDecoration: 'underline',
     fontSize: '1rem',
     cursor: 'pointer',
+    marginBottom: '20px',
   }
 }
 

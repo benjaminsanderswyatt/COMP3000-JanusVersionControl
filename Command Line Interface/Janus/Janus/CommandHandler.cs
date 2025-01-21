@@ -27,6 +27,8 @@ namespace Janus
                 new SwitchCommitCommand(logger, paths),
                 */
                 new StatusCommand(logger, paths),
+
+                new DiffCommand(logger, paths),
                 
                 //new PushCommand(),
                 
@@ -36,6 +38,42 @@ namespace Janus
 
             return commands;
         }
+
+        public class DiffCommand : BaseCommand
+        {
+            public DiffCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "diff";
+            public override string Description => "Displays the difference between two files.";
+            public override void Execute(string[] args)
+            {
+                string file1 = args[0];
+                string file2 = args[1];
+
+                string before = File.ReadAllText(file1);
+                string after = File.ReadAllText(file2);
+
+                Diff.TestDiff(before, after);
+
+
+                // This command will
+                // Read the metadata of the commit
+                // get the tree and decifer the commits 
+                // work out the diff delta between the commit files
+                // display the diff
+
+                // file name - path
+                // diff
+
+
+
+
+            }
+        }
+
+
+
+
+
 
         public class TestCommand : BaseCommand
         {
