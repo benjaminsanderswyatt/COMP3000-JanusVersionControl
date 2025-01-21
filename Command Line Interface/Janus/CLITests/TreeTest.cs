@@ -61,7 +61,7 @@ namespace CLITests
 
             // Assert
             Assert.IsTrue(_tree.ContainsKey("file.txt"));
-            Assert.AreEqual(fileHash, _tree["file.txt"]);
+            Assert.That(_tree["file.txt"], Is.EqualTo(fileHash));
         }
 
 
@@ -85,7 +85,7 @@ namespace CLITests
             var subSubTree = subTree["subfolder"] as Dictionary<string, object>;
 
             Assert.IsNotNull(subSubTree);
-            Assert.AreEqual(fileHash, subSubTree["file.txt"]);
+            Assert.That(subSubTree["file.txt"], Is.EqualTo(fileHash));
 
         }
 
@@ -116,19 +116,19 @@ namespace CLITests
             var folder1Tree = _tree["folder1"] as Dictionary<string, object>;
             Assert.IsNotNull(folder1Tree);
 
-            Assert.IsTrue(folder1Tree.ContainsKey("subfolder1"));
+            Assert.That(folder1Tree.ContainsKey("subfolder1"), Is.True);
             var subfolder1Tree = folder1Tree["subfolder1"] as Dictionary<string, object>;
             Assert.IsNotNull(subfolder1Tree);
 
-            Assert.AreEqual(fileHash1, subfolder1Tree["file1.txt"]);
-            Assert.AreEqual(fileHash2, subfolder1Tree["file2.txt"]);
+            Assert.That(subfolder1Tree["file1.txt"], Is.EqualTo(fileHash1));
+            Assert.That(subfolder1Tree["file2.txt"], Is.EqualTo(fileHash2));
 
             // file 3 & file 4
             Assert.IsTrue(_tree.ContainsKey("folder2"));
             var folder2Tree = _tree["folder2"] as Dictionary<string, object>;
             Assert.IsNotNull(folder2Tree);
 
-            Assert.AreEqual(fileHash3, folder2Tree["file3.txt"]);
+            Assert.That(folder2Tree["file3.txt"], Is.EqualTo(fileHash3));
 
             Assert.IsTrue(folder2Tree.ContainsKey("subfolder2"));
             var subfolder2Tree = folder2Tree["subfolder2"] as Dictionary<string, object>;
@@ -138,7 +138,7 @@ namespace CLITests
             var subsubfolderTree = subfolder2Tree["subsubfolder"] as Dictionary<string, object>;
             Assert.IsNotNull(subsubfolderTree);
 
-            Assert.AreEqual(fileHash4, subsubfolderTree["file4.txt"]);
+            Assert.That(subsubfolderTree["file4.txt"], Is.EqualTo(fileHash4));
         }
 
 
@@ -153,7 +153,7 @@ namespace CLITests
             string fileHash = TreeHelper.GetHashFromTree(_tree, "folder/file.txt".Replace('/', Path.DirectorySeparatorChar));
 
             // Assert
-            Assert.AreEqual("12345", fileHash);
+            Assert.That(fileHash, Is.EqualTo("12345"));
         }
 
 
@@ -194,7 +194,7 @@ namespace CLITests
             var tree = TreeHelper.GetTreeFromCommitHash(_paths, commitHash);
 
             // Assert: tree is equal to inputted
-            Assert.AreEqual(treeContent, tree);
+            Assert.That(tree, Is.EqualTo(treeContent));
         }
 
 
