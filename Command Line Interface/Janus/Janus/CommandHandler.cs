@@ -193,8 +193,9 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
+                    // Ensure the path is a fullpath
                     var argument = Path.Combine(Paths.WorkingDir, arg);
-
+                    
 
                     if (Directory.Exists(argument)) // Directory
                     {
