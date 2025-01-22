@@ -223,7 +223,8 @@ namespace Janus
                 // Load existing staged files
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
-
+                // Load ignore patterns
+                var (includePatterns, excludePatterns) = IgnoreHelper.LoadIgnorePatterns(Paths.WorkingDir);
 
 
                 var filesToAdd = new List<string>();
@@ -233,6 +234,12 @@ namespace Janus
                 {
                     string relPath = arg.Replace('/', Path.DirectorySeparatorChar);
 
+                    if(IgnoreHelper.ShouldIgnore(relPath, includePatterns, excludePatterns))
+                    {
+                        Logger.Log($"Ignoring '{relPath}' due to '.janusignore' file");
+                        continue;
+                    }
+
                     // Ensure the path is a fullpath
                     var fullPath = Path.Combine(Paths.WorkingDir, relPath);
                     
@@ -240,7 +247,7 @@ namespace Janus
                     if (Directory.Exists(fullPath)) // Directory
                     {
                         // Get all files in the given directory recursively
-                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, fullPath);
+                        var directoryFiles = GetFilesHelper.GetAllFilesInDir(Paths, fullPath);
 
                         // Handle files in dir
                         foreach (var filePath in directoryFiles)
@@ -289,15 +296,6 @@ namespace Janus
 
                     }
                 }
-
-
-                // Check .janusignore for ingored patterns
-                var ignoredPatterns = File.Exists(".janusignore")
-                    ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
-                    : new List<string>();
-
-                filesToAdd = filesToAdd.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
-
 
 
                 // Stage each file
@@ -948,17 +946,8 @@ namespace Janus
 
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
-                // Get files from working directory (excluding .janus files)
-                var workingFiles = CommandHelper.GetAllFilesInDir(Paths, Paths.WorkingDir).ToList();
-
-
-                // Check .janusignore for ingored patterns
-                var ignoredPatterns = File.Exists(".janusignore")
-                    ? File.ReadAllLines(".janusignore").Select(pattern => pattern.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList()
-                    : new List<string>();
-
-                workingFiles = workingFiles.Where(file => !AddHelper.IsFileIgnored(file, ignoredPatterns)).ToList();
-
+                // Get files from working directory (excluding .janus files & ignored files)
+                var workingFiles = GetFilesHelper.GetAllFilesInDir(Paths, Paths.WorkingDir).ToList();
 
 
                 // Get the tree from the HEAD commit

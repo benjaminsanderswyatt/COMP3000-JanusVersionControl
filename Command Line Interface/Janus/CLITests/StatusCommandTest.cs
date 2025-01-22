@@ -291,18 +291,44 @@ namespace CLITests
         }
 
 
-
-
-
-
-
-
-
         [Test]
         public void ShouldIgnoreFilesInTheIgnoreFile()
         {
+            // Arrange: Create a .janusignore file
+            string ignoreFilePath = Path.Combine(_testDir, ".janusignore");
+            File.WriteAllLines(ignoreFilePath, new[] { "*.log", "ignored_dir/**/*" });
 
+            // Create files and dirs to test
+            string ignoredFile = Path.Combine(_testDir, "ignored.log");
+            File.WriteAllText(ignoredFile, "This is a log file that should be ignored.");
+
+            string notIgnoredFile = Path.Combine(_testDir, "not_ignored.txt");
+            File.WriteAllText(notIgnoredFile, "This file should not be ignored.");
+
+            string ignoredDir = Path.Combine(_testDir, "ignored_dir");
+            Directory.CreateDirectory(ignoredDir);
+            string fileInIgnoredDir = Path.Combine(ignoredDir, "file_in_ignored_dir.txt");
+            File.WriteAllText(fileInIgnoredDir, "This file is in an ignored directory.");
+
+            // Act: Execute the status command
+            _statusCommand.Execute(new string[0]);
+
+            // Assert: Verify that the correct files are ignored
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("ignored.log"))), Times.Never);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("file_in_ignored_dir.txt"))), Times.Never);
+
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("not_ignored.txt"))), Times.Once);
+
+            _loggerMock.Verify(logger => logger.Log("Untracked files:"), Times.Once);
         }
+
+
+
+
+
+
+
+
 
 
         [Test]

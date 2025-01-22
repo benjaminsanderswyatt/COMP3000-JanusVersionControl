@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.2" />
+    <PackageReference Include="Glob" Version="1.1.9" />
   </ItemGroup>
 
   <ItemGroup>
