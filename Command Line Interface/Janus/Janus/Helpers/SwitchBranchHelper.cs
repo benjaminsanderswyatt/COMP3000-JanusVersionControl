@@ -95,9 +95,7 @@ namespace Janus.Helpers
                 foreach (var file in GetFilesHelper.GetAllFilesInDir(paths, paths.WorkingDir))
                 {
                     logger.Log($"Backing up: {file}");
-                    string relativePath = Path.GetRelativePath(paths.WorkingDir, file);
-                    logger.Log($"RelativePath: {relativePath}");
-                    string destPath = Path.Combine(backupWorkingDir, relativePath);
+                    string destPath = Path.Combine(backupWorkingDir, file);
                     logger.Log($"DestPath: {destPath}");
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
                     logger.Log($"Directory created");
