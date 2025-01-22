@@ -109,7 +109,7 @@ namespace CLITests
 
 
         [Test]
-        public void Execute_ShouldLogError_WhenBranchAlreadyExists()
+        public void ShouldLogError_WhenBranchAlreadyExists()
         {
             // Arrange
             string branchName = "existing_branch";
@@ -123,8 +123,9 @@ namespace CLITests
         }
 
 
+        
         [Test]
-        public void Execute_ShouldCreateBranch_WhenBranchNameIsValid()
+        public void ShouldCreateBranch_WhenBranchNameIsValid2()
         {
             // Arrange
             string branchName = "new_branch";
@@ -137,10 +138,17 @@ namespace CLITests
             Assert.IsTrue(File.Exists(branchPath), "Branch head file should exist.");
 
             string branchFolderPath = Path.Combine(_paths.BranchesDir, branchName);
-            Assert.IsTrue(Directory.Exists(branchFolderPath), "Branch folder should exist.");
-            Assert.IsTrue(File.Exists(Path.Combine(branchFolderPath, branchName)), "Branch metadata file should exist.");
-            Assert.IsTrue(File.Exists(Path.Combine(branchFolderPath, "index")), "Branch index file should exist.");
+            string metadataPath = Path.Combine(branchFolderPath, branchName);
 
+            Assert.IsTrue(File.Exists(metadataPath), "Branch metadata file should exist.");
+
+            var branchJson = File.ReadAllText(metadataPath);
+            var branch = JsonSerializer.Deserialize<Branch>(branchJson);
+
+            Assert.That(branch.Name, Is.EqualTo(branchName), "Branch name should match.");
+            Assert.That(branch.CreatedBy, Is.EqualTo(CommandHelper.GetUsername()), "CreatedBy should match current user.");
+            Assert.That(branch.ParentBranch, Is.EqualTo(CommandHelper.GetCurrentBranchName(_paths)), "Parent branch should match.");
+        
             _loggerMock.Verify(logger => logger.Log($"Created new branch {branchName}"), Times.Once);
         }
 
