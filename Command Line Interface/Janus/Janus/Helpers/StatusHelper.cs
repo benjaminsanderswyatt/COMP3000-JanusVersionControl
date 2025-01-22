@@ -9,7 +9,7 @@ namespace Janus.Helpers
             // Get the tree from commit hash
             Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(paths, commitHash);
 
-            var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = GetNotStagedUntracked(tree, stagedFiles);
+            var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = GetStaged(tree, stagedFiles);
 
             if (stagedForCommitModified.Any() || stagedForCommitAdded.Any() || stagedForCommitDeleted.Any())
             {
@@ -21,7 +21,7 @@ namespace Janus.Helpers
         }
 
 
-        public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetNotStagedUntracked(Dictionary<string, object> tree, Dictionary<string, string> stagedFiles)
+        public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetStaged(Dictionary<string, object> tree, Dictionary<string, string> stagedFiles)
         {
             // Compare index to tree, if they differ they are changes to be committed (if index hash == "Deleted" then file is deleted otherwise modified)
             var stagedForCommitModified = new List<string>();
@@ -59,7 +59,7 @@ namespace Janus.Helpers
         }
 
 
-        public static (List<string> notStaged, List<string> untracked) GetNotStagedUntracked(string workingDir, List<string> workingFiles, Dictionary<string, string> stagedFiles)
+        public static (List<string> notStaged, List<string> untracked) GetNotStagedUntracked(string workingDir, IEnumerable<string> workingFiles, Dictionary<string, string> stagedFiles)
         {
             // Compare workingDir to index, if the files differ from index they are not staged for commit, if not in index they are untracked
             var notStaged = new List<string>();
