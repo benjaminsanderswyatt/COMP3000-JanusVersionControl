@@ -231,14 +231,16 @@ namespace Janus
 
                 foreach (var arg in args)
                 {
+                    string relPath = arg.Replace('/', Path.DirectorySeparatorChar);
+
                     // Ensure the path is a fullpath
-                    var argument = Path.Combine(Paths.WorkingDir, arg);
+                    var fullPath = Path.Combine(Paths.WorkingDir, relPath);
                     
 
-                    if (Directory.Exists(argument)) // Directory
+                    if (Directory.Exists(fullPath)) // Directory
                     {
                         // Get all files in the given directory recursively
-                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, argument);
+                        var directoryFiles = CommandHelper.GetAllFilesInDir(Paths, fullPath);
 
                         // Handle files in dir
                         foreach (var filePath in directoryFiles)
@@ -248,7 +250,7 @@ namespace Janus
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase)
+                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.OrdinalIgnoreCase)
                                                             && !directoryFiles.Contains(filePath))
                                                         .ToList();
 
@@ -260,15 +262,15 @@ namespace Janus
 
 
                     }
-                    else if (File.Exists(argument)) // File
+                    else if (File.Exists(fullPath)) // File
                     {
                         // Add the file
-                        filesToAdd.Add(arg);
+                        filesToAdd.Add(relPath);
                     }
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(arg, StringComparison.OrdinalIgnoreCase))
+                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.OrdinalIgnoreCase))
                                                         .ToList();
 
                         if (stagedFilesInFolder.Any())
