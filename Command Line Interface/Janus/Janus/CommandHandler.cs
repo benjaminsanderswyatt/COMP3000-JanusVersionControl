@@ -19,8 +19,9 @@ namespace Janus
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
                 new LogCommand(logger, paths),
-                /*
+                
                 new ListBranchesCommand(logger, paths),
+                /*
                 new CreateBranchCommand(logger, paths),
                 new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
@@ -763,7 +764,7 @@ namespace Janus
         }
 
 
-
+        */
 
         public class ListBranchesCommand : BaseCommand
         {
@@ -804,7 +805,7 @@ namespace Janus
             }
         }
 
-
+        /*
 
         public class SwitchBranchCommand : BaseCommand
         {

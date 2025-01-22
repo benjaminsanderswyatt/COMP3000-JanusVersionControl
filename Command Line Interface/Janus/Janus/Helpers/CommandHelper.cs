@@ -130,8 +130,11 @@ namespace Janus.Helpers
 
         public static string GetCurrentBranchName(Paths paths)
         {
+            // Get path to the current branch
+            string path = GetCurrentBranchRelPath(paths);
+
             // Get the current branch name
-            return GetCurrentBranchRelPath(paths).Split('/').Last();
+            return Path.GetFileName(path);
         }
 
 
