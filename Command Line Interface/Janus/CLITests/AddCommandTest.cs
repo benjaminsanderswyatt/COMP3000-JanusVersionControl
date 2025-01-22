@@ -54,6 +54,7 @@ namespace CLITests
         }
 
 
+
         [Test]
         public void ShouldLogError_WhenNoFilesOrDirsAreProvided()
         {
@@ -285,8 +286,9 @@ namespace CLITests
             File.WriteAllText(file1Path, "content of file1");
             File.WriteAllText(file2Path, "content of file2");
 
+
             // Act: Execute 'janus add all'
-            var args = new string[] { "all" };
+            var args = new string[] { "all", "--force" };
             _addCommand.Execute(args);
 
             // Assert: Verify that all files in the directory are staged
@@ -297,20 +299,6 @@ namespace CLITests
             Assert.That(stagedFiles["file1.txt"], Is.EqualTo(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file1.txt")));
             Assert.That(stagedFiles["file2.txt"], Is.EqualTo(HashHelper.ComputeHashGivenFilepath(_paths.WorkingDir, "file2.txt")));
         }
-
-        [Test]
-        public void ShouldWarnUser_WhenMultipleArgsGivenWithAll()
-        {
-            // Arrange
-
-            // Act: Execute 'janus add test all thing'
-            var args = new string[] { "test", "all", "thing" };
-            _addCommand.Execute(args);
-
-            // Assert
-            _loggerMock.Verify(logger => logger.Log("Warning using 'all' will override other arguments."), Times.Once);
-        }
-
 
 
         [Test]

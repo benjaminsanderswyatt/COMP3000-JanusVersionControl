@@ -44,8 +44,13 @@ namespace Janus.Helpers
         }
 
 
-        public static bool ConfirmAction(ILogger logger, string message)
+        public static bool ConfirmAction(ILogger logger, string message, bool force)
         {
+            if (force)
+            {
+                return true;
+            }
+
             while (true)
             {
                 logger.Log($"{message} (Y/N)");

@@ -216,7 +216,15 @@ namespace Janus
 
                 if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
                 {
-                    Logger.Log("Warning using 'all' will override other arguments.");
+                    bool force = args.Contains("--force") ? true : false;
+
+
+                    Console.WriteLine("UserConfirm");
+                    if (!CommandHelper.ConfirmAction(Logger, "Warning using 'all' will override other arguments. Are you sure you want to continue?", force))
+                    {
+                        Logger.Log("Cancelling add.");
+                        return;
+                    }
 
                     args = new string[] { Paths.WorkingDir }; // replaces args with 1 argument of the whole working directory
                 }
@@ -808,7 +816,7 @@ namespace Janus
             }
         }
 
-        /*
+        
 
         public class SwitchBranchCommand : BaseCommand
         {
@@ -835,31 +843,32 @@ namespace Janus
                     return;
                 }
 
-                // TODO
-                // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
-                // if(ConfirmAction($"")) 
+                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
+                // Check if the repo is clean as the switch will override uncommitted changes
+                bool force = args.Contains("--force") ? true : false;
+                if (!force) // Force skips the check
+                {
+                    if (StatusHelper.HasAnythingBeenStagedForCommit(Paths, headCommitHash, stagedFiles))
+                    {
+
+                        // Promt user to confirm branch switch
+                        if (!CommandHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
+                        {
+                            Logger.Log("Branch switch cancelled.");
+                            return;
+                        }
+                    }
+                }
+                
 
 
                 try
                 {
-                    // Update the working directory with the files from the new branch
-                    BranchHelper.UpdateWorkingDirectory(Logger, Paths, branchName);
+                    // Switch Branch
+                    SwitchBranchHelper.SwitchBranch(Logger, Paths, branchName);
 
-
-                    // Store the index state into the previous branch
-                    string previousBranch = CommandHelper.GetCurrentBranchName(Paths);
-                    File.Copy(Paths.Index, Path.Combine(Paths.BranchesDir, previousBranch, "index"));
-
-                    // Load the index for new branch
-                    File.Copy(Path.Combine(Paths.BranchesDir, previousBranch, "index"), Paths.Index);
-
-
-                    // Update HEAD to point to the switched to branch
-                    File.WriteAllText(Paths.HEAD, $"ref: heads/{branchName}");
-
-
-                    Logger.Log($"Switched to branch {branchName}.");
                 }
                 catch (Exception ex)
                 {
@@ -870,7 +879,7 @@ namespace Janus
             }
         }
 
-
+        /*
 
 
         public class SwitchCommitCommand : BaseCommand
@@ -960,7 +969,7 @@ namespace Janus
 
 
                 // Staged for commit
-                var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetNotStagedUntracked(tree, stagedFiles);
+                var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetStaged(tree, stagedFiles);
 
 
                 if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any())
