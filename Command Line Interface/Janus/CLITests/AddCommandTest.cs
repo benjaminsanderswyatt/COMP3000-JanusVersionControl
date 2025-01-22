@@ -288,7 +288,7 @@ namespace CLITests
 
 
             // Act: Execute 'janus add all'
-            var args = new string[] { "all", "--force" };
+            var args = new string[] { "all" };
             _addCommand.Execute(args);
 
             // Assert: Verify that all files in the directory are staged

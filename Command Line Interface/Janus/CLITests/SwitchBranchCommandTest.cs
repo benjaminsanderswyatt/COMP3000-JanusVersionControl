@@ -1,3 +1,4 @@
+using Janus;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
@@ -75,6 +76,17 @@ namespace CLITests
 
 
         [Test]
+        public void ShouldLogError_WhenBranchNameIsNotProvided()
+        {
+            // Act
+            _switchBranchCommand.Execute(new string[0]);
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log("Please provide a branch name."), Times.Once);
+        }
+
+
+        [Test]
         public void ShouldLogError_WhenBranchDoesNotExists()
         {
             // Arrange
@@ -89,7 +101,7 @@ namespace CLITests
 
 
         [Test]
-        public void SwitchBranch_SuccessfulSwitch()
+        public void ShouldSwitchBranchSuccessfully_WhenRepoIsClean()
         {
             // Arrange
             string branchName = "test_branch";
@@ -101,10 +113,14 @@ namespace CLITests
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
+            // TODO
+            // Assert that the new branch index and head is correct
+            // Assert that HEAD has been updated
+            // Assert that the working directory has been updated
         }
 
         [Test]
-        public void SwitchBranch_UncommittedChanges_UserConfirms()
+        public void ShouldSwitchBranch_WhenUncommittedFilesExist()
         {
             // Arrange: Create a branch and have something uncommitted
             string branchName = "test_branch";
@@ -118,16 +134,64 @@ namespace CLITests
             _addCommand.Execute(new string[] { filePath });
 
 
-            // Act
+            // Act: switch to the new branch
             _switchBranchCommand.Execute(new[] { branchName, "--force" }); // Force to bypass user confirmation
 
-            // Assert
-            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
+
+            // Assert: 
+            _loggerMock.Verify(logger => logger.Log($"Successfully switched to branch '{branchName}'."), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
+
+            // TODO
+            // Assert that the new branch index and head is correct
+            // Assert that HEAD has been updated
+            // Assert that the working directory has been updated
+        }
+
+        [Test]
+        public void ShouldKeepIgnoredFiles_WhenSwitchingBranch()
+        {
+
         }
 
 
-        
+
+        [Test]
+        public void ShouldRollback_WhenErrorOccursDuringSwitch()
+        {
+
+        }
+
+
+        [Test]
+        public void ShouldRestoreWorkingDir_WhenErrorOccursDuringSwitch()
+        {
+
+        }
+
+
+        [Test]
+        public void ShouldHandleManyFiles_WhenSwitchingBranch()
+        {
+
+        }
+
+
+        [Test]
+        public void ShouldHandleLargeFiles_WhenSwitchingBranch()
+        {
+
+        }
+
+
+        [Test]
+        public void ShouldHandleBinaryFiles_WhenSwitchingBranch()
+        {
+
+        }
+
+
+
     }
 
     

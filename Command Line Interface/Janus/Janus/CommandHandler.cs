@@ -19,14 +19,12 @@ namespace Janus
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
                 new LogCommand(logger, paths),
-                
                 new ListBranchesCommand(logger, paths),
-                /*
                 new CreateBranchCommand(logger, paths),
-                new DeleteBranchCommand(logger, paths),
+                //new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
-                new SwitchCommitCommand(logger, paths),
-                */
+                //new SwitchCommitCommand(logger, paths),
+                
                 new StatusCommand(logger, paths),
 
                 new DiffCommand(logger, paths),
@@ -216,16 +214,6 @@ namespace Janus
 
                 if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
                 {
-                    bool force = args.Contains("--force") ? true : false;
-
-
-                    Console.WriteLine("UserConfirm");
-                    if (!CommandHelper.ConfirmAction(Logger, "Warning using 'all' will override other arguments. Are you sure you want to continue?", force))
-                    {
-                        Logger.Log("Cancelling add.");
-                        return;
-                    }
-
                     args = new string[] { Paths.WorkingDir }; // replaces args with 1 argument of the whole working directory
                 }
 
@@ -478,7 +466,7 @@ namespace Janus
             public LogCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "log";
-            public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<> verbose=<>'";
+            public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<>'";
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
@@ -792,22 +780,20 @@ namespace Janus
 
                 var currentBranch = CommandHelper.GetCurrentBranchName(Paths);
 
-
+                Logger.Log("Branches:");
                 foreach (string branchPath in allBranchesPaths)
                 {
                     string branch = Path.GetFileName(branchPath);
 
                     if (branch == currentBranch)
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Logger.Log($"-> {branch}");
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Logger.Log($"   {branch}");
                     }
-
-                    Logger.Log(branch);
 
                     Console.ResetColor();
                 }
@@ -852,7 +838,6 @@ namespace Janus
                 {
                     if (StatusHelper.HasAnythingBeenStagedForCommit(Paths, headCommitHash, stagedFiles))
                     {
-
                         // Promt user to confirm branch switch
                         if (!CommandHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
                         {
@@ -862,8 +847,6 @@ namespace Janus
                     }
                 }
                 
-
-
                 try
                 {
                     // Switch Branch

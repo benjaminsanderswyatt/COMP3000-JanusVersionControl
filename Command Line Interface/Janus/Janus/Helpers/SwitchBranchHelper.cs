@@ -139,8 +139,6 @@ namespace Janus.Helpers
                 }
             }
 
-            logger.Log("Recreated working directory.");
-
         }
 
 
