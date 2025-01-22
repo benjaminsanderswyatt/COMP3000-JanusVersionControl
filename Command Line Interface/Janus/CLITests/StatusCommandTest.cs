@@ -161,7 +161,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(logger => logger.Log("Changes not staged for commit:"), Times.Once);
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains(@"dir\file.txt "))), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("dir/file.txt ".Replace('/', Path.DirectorySeparatorChar)))), Times.Once);
         }
 
 
@@ -195,7 +195,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(logger => logger.Log("Untracked files:"), Times.Once);
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains(@"dir\untracked.txt "))), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("dir/untracked.txt ".Replace('/', Path.DirectorySeparatorChar)))), Times.Once);
         }
 
 
@@ -231,7 +231,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(logger => logger.Log("Changes to be committed:"), Times.Once);
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains(@"dir\file.txt") && msg.Contains("(added)"))), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("dir/file.txt".Replace('/', Path.DirectorySeparatorChar)) && msg.Contains("(added)"))), Times.Once);
         }
 
 
@@ -287,11 +287,6 @@ namespace CLITests
 
             _loggerMock.Verify(logger => logger.Log("Untracked files:"), Times.Once);
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("untracked.txt "))), Times.Once);
-
-
-            // Assert
-            //_loggerMock.Verify(logger => logger.Log("modified.txt (modified)"), Times.Once);
-            //_loggerMock.Verify(logger => logger.Log("deleted.txt (deleted)"), Times.Once);
 
         }
 
