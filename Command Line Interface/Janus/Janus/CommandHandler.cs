@@ -627,7 +627,7 @@ namespace Janus
 
 
 
-        /*
+        
 
 
 
@@ -693,6 +693,9 @@ namespace Janus
                 Logger.Log($"Created new branch {branchName}");
             }
         }
+
+
+        /*
 
         public class DeleteBranchCommand : BaseCommand
         {
