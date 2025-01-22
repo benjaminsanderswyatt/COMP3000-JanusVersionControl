@@ -58,7 +58,7 @@ namespace Janus.Helpers
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to backup index and HEAD.", ex);
+                throw new Exception("Failed to backup index and HEAD.", ex);
             }
         }
 
@@ -89,25 +89,31 @@ namespace Janus.Helpers
         {
             try
             {
+                logger.Log("Backing up");
                 // Backup working directory
                 Directory.CreateDirectory(backupWorkingDir);
                 foreach (var file in GetFilesHelper.GetAllFilesInDir(paths, paths.WorkingDir))
                 {
+                    logger.Log($"Backing up: {file}");
                     string relativePath = Path.GetRelativePath(paths.WorkingDir, file);
+                    logger.Log($"RelativePath: {relativePath}");
                     string destPath = Path.Combine(backupWorkingDir, relativePath);
+                    logger.Log($"DestPath: {destPath}");
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                    logger.Log($"Directory created");
                     File.Copy(file, destPath, overwrite: true);
+                    logger.Log($"File copied");
                 }
-
+                logger.Log("Recreate");
                 // Recreate working directory with branch files
                 RecreateWorkingDirectory(logger, paths, backupWorkingDir, files);
-
+                logger.Log("Replace");
                 // Replace working directory
                 ReplaceWorkingDirectory(paths, backupWorkingDir);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to replace the working directory.", ex);
+                throw new Exception($"Failed to replace the working directory. {ex}", ex);
             }
         }
 
