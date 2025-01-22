@@ -212,5 +212,66 @@ namespace CLITests
 
         }
 
+
+
+        [Test]
+        public void ShouldReturnEmptyList_WhenTreeIsEmpty()
+        {
+            // Act
+            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+
+            // Assert
+            Assert.IsEmpty(filePaths);
+        }
+
+
+        [Test]
+        public void ShouldReturnAllFilePaths()
+        {
+            // Arrange
+            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder1", "file1.txt" }, "hash1");
+            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder2", "subfolder", "file2.txt" }, "hash2");
+            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder3", "file3.txt" }, "hash3");
+
+            // Act
+            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+
+            // Assert
+            var expectedFilePaths = new List<string>
+            {
+                Path.Combine("folder1", "file1.txt"),
+                Path.Combine("folder2", "subfolder", "file2.txt"),
+                Path.Combine("folder3", "file3.txt"),
+            };
+
+            Assert.That(filePaths, Is.EquivalentTo(expectedFilePaths));
+        }
+
+
+
+        [Test]
+        public void ShouldHandleDeeplyNestedTree()
+        {
+            // Arrange
+            TreeHelper.AddToTreeRecursive(_tree, new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt" }, "hash1");
+            TreeHelper.AddToTreeRecursive(_tree, new[] { "x", "y", "z", "file2.txt" }, "hash2");
+
+            // Act
+            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+
+            // Assert
+            var expectedFilePaths = new List<string>
+            {
+                Path.Combine("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt"),
+                Path.Combine("x", "y", "z", "file2.txt"),
+            };
+
+            Assert.That(filePaths, Is.EquivalentTo(expectedFilePaths));
+        }
+
+
+
+
+
     }
 }

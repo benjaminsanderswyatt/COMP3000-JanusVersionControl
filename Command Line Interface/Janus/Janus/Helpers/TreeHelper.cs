@@ -126,6 +126,30 @@ namespace Janus.Helpers
         }
 
 
+        public static List<string> GetAllFilePathsRecursive(Dictionary<string, object> tree, string currentPath = "")
+        {
+            var filePaths = new List<string>();
+
+            foreach (var entry in tree)
+            {
+                string fullPath = string.IsNullOrEmpty(currentPath) ? entry.Key : Path.Combine(currentPath, entry.Key);
+
+                if (entry.Value is Dictionary<string, object> subTree)
+                {
+                    // Go into the subdirectory
+                    filePaths.AddRange(GetAllFilePathsRecursive(subTree, fullPath));
+                }
+                else if (entry.Value is string)
+                {
+                    // Add the file path to the list
+                    filePaths.Add(fullPath);
+                }
+            }
+
+            return filePaths;
+        }
+
+
 
 
 
