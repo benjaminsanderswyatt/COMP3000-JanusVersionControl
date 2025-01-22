@@ -218,10 +218,10 @@ namespace CLITests
         public void ShouldReturnEmptyList_WhenTreeIsEmpty()
         {
             // Act
-            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
 
             // Assert
-            Assert.IsEmpty(filePaths);
+            Assert.IsEmpty(filePathsWithHashes);
         }
 
 
@@ -234,17 +234,17 @@ namespace CLITests
             TreeHelper.AddToTreeRecursive(_tree, new[] { "folder3", "file3.txt" }, "hash3");
 
             // Act
-            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
 
             // Assert
-            var expectedFilePaths = new List<string>
+            var expectedFilePaths = new Dictionary<string, string>
             {
-                Path.Combine("folder1", "file1.txt"),
-                Path.Combine("folder2", "subfolder", "file2.txt"),
-                Path.Combine("folder3", "file3.txt"),
+                { Path.Combine("folder1", "file1.txt"), "hash1" },
+                { Path.Combine("folder2", "subfolder", "file2.txt"), "hash2" },
+                { Path.Combine("folder3", "file3.txt"), "hash3" },
             };
 
-            Assert.That(filePaths, Is.EquivalentTo(expectedFilePaths));
+            Assert.That(filePathsWithHashes, Is.EquivalentTo(expectedFilePaths));
         }
 
 
@@ -257,16 +257,16 @@ namespace CLITests
             TreeHelper.AddToTreeRecursive(_tree, new[] { "x", "y", "z", "file2.txt" }, "hash2");
 
             // Act
-            var filePaths = TreeHelper.GetAllFilePathsRecursive(_tree);
+            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
 
             // Assert
-            var expectedFilePaths = new List<string>
+            var expectedFilePaths = new Dictionary<string, string>
             {
-                Path.Combine("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt"),
-                Path.Combine("x", "y", "z", "file2.txt"),
+                { Path.Combine("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt"), "hash1" },
+                { Path.Combine("x", "y", "z", "file2.txt"), "hash2" },
             };
 
-            Assert.That(filePaths, Is.EquivalentTo(expectedFilePaths));
+            Assert.That(filePathsWithHashes, Is.EquivalentTo(expectedFilePaths));
         }
 
 

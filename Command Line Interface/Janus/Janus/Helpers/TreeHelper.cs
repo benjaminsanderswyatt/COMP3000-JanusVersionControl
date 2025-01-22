@@ -126,9 +126,9 @@ namespace Janus.Helpers
         }
 
 
-        public static List<string> GetAllFilePathsRecursive(Dictionary<string, object> tree, string currentPath = "")
+        public static Dictionary<string, string> GetAllFilePathsWithHashesRecursive(Dictionary<string, object> tree, string currentPath = "")
         {
-            var filePaths = new List<string>();
+            var filePathHash = new Dictionary<string, string>();
 
             foreach (var entry in tree)
             {
@@ -137,16 +137,21 @@ namespace Janus.Helpers
                 if (entry.Value is Dictionary<string, object> subTree)
                 {
                     // Go into the subdirectory
-                    filePaths.AddRange(GetAllFilePathsRecursive(subTree, fullPath));
+                    var subTreeFilePaths = GetAllFilePathsWithHashesRecursive(subTree, fullPath);
+
+                    foreach (var kvp in subTreeFilePaths)
+                    {
+                        filePathHash[kvp.Key] = kvp.Value;
+                    }
                 }
-                else if (entry.Value is string)
+                else if (entry.Value is string fileHash)
                 {
-                    // Add the file path to the list
-                    filePaths.Add(fullPath);
+                    // Add the file path and hash to the dictionary
+                    filePathHash[fullPath] = fileHash;
                 }
             }
 
-            return filePaths;
+            return filePathHash;
         }
 
 
