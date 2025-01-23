@@ -243,8 +243,27 @@ namespace Janus.Helpers
 
                     if (File.Exists(fullPath))
                     {
-                        Console.WriteLine($"Deleting file: {fullPath}");
-                        File.Delete(fullPath);
+                        try
+                        {
+                            using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                            {
+
+                                File.Delete(fullPath);
+                                Console.WriteLine($"Deleting file: {fullPath}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Failed to delete file {fullPath}: {ex.Message}");
+                        }
+
+
+
+
+
+
+
+                        //File.Delete(fullPath);
                     }
                     else
                     {
