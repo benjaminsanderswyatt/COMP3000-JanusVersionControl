@@ -19,21 +19,22 @@ namespace Janus.Helpers
             {
                 // Backup the index and HEAD
                 BackupIndexAndHead(paths, backupIndex, backupHEAD);
+                Console.WriteLine("Fin BackupIndexAndHead");
 
 
                 // Load branch data
                 var files = LoadBranchData(paths, branchName);
-
+                Console.WriteLine("Fin LoadBranchData");
 
                 // Backup and replace working directory
                 BackupAndReplaceWorkingDirectory(logger, paths, files, backupWorkingDir);
-
+                Console.WriteLine("Fin BackupAndReplaceWorkingDirectory");
 
                 // Update branch metadata
                 UpdateBranchMetadata(logger, paths, branchName);
+                Console.WriteLine("Fin UpdateBranchMetadata");
 
-
-                logger.Log($"Successfully switched to branch '{branchName}'.");
+                Console.WriteLine($"Successfully switched to branch '{branchName}'.");
             }
             catch (Exception ex)
             {
@@ -75,6 +76,11 @@ namespace Janus.Helpers
                 // Retrieve file states from the branch
                 var tree = TreeHelper.GetTreeFromCommitHash(paths, branchHeadCommit);
                 var files = TreeHelper.GetAllFilePathsWithHashesRecursive(tree, paths.ObjectDir);
+
+                foreach (var thing in files)
+                {
+                    Console.WriteLine($"Tree: {thing.Key} , {thing.Value}");
+                }
 
                 return files;
             }
@@ -226,12 +232,25 @@ namespace Janus.Helpers
         {
             try
             {
+                Console.WriteLine("Clearing working directory...");
                 // Add all files in the directory recursively
                 var directoryFiles = GetFilesHelper.GetAllFilesInDir(paths, paths.WorkingDir);
 
                 foreach (var file in directoryFiles)
                 {
-                    File.Delete(file);
+                    string fullPath = Path.Combine(paths.WorkingDir, file);
+
+
+                    if (File.Exists(fullPath))
+                    {
+                        Console.WriteLine($"Deleting file: {fullPath}");
+                        File.Delete(fullPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Doesnt exist: {fullPath}");
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -239,8 +258,6 @@ namespace Janus.Helpers
                 throw new InvalidOperationException("Failed to clear working directory.", ex);
             }
         }
-
-
 
 
     }

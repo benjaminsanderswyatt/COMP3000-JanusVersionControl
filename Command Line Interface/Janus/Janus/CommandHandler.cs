@@ -70,10 +70,6 @@ namespace Janus
         }
 
 
-
-
-
-
         public class TestCommand : BaseCommand
         {
             public TestCommand(ILogger logger, Paths paths) : base(logger, paths) { }
@@ -254,7 +250,7 @@ namespace Janus
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.OrdinalIgnoreCase)
+                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal)
                                                             && !directoryFiles.Contains(filePath))
                                                         .ToList();
 
@@ -274,7 +270,7 @@ namespace Janus
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.OrdinalIgnoreCase))
+                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal))
                                                         .ToList();
 
                         if (stagedFilesInFolder.Any())
@@ -820,6 +816,9 @@ namespace Janus
                     return;
                 }
 
+
+
+
                 string branchName = args[0];
                 string branchPath = Path.Combine(Paths.HeadsDir, branchName);
 
@@ -828,6 +827,14 @@ namespace Janus
                     Logger.Log($"Branch '{branchName}' doesnt exists.");
                     return;
                 }
+
+                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                if (currentBranch == branchName)
+                {
+                    Logger.Log($"Already on branch '{branchName}'.");
+                    return;
+                }
+
 
                 string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
