@@ -136,7 +136,7 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldSwitchBranchSuccessfully_WhenRepoIsClean()
+        public void ShouldSwitchBranchSuccessfully_WhenRepoIsEmpty()
         {
             // Arrange
             string branchName = "test_branch";
@@ -148,14 +148,14 @@ namespace CLITests
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
-            // TODO
-            // Assert that the new branch index and head is correct
-            // Assert that HEAD has been updated
-            // Assert that the working directory has been updated
+            
+            string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
+            Assert.That(File.ReadAllText(_paths.Index), Is.EqualTo(branchIndex));
+
         }
 
         [Test]
-        public void ShouldSwitchBranch_WhenUncommittedFilesExist()
+        public void ShouldSwitchBranch_WhenForcedWithUncommittedFilesExist()
         {
             // Arrange: Create a branch and have something uncommitted
             string branchName = "test_branch";
@@ -177,50 +177,13 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log($"Successfully switched to branch '{branchName}'."), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
 
-            // TODO
-            // Assert that the new branch index and head is correct
-            // Assert that HEAD has been updated
-            // Assert that the working directory has been updated
-        }
-
-        [Test]
-        public void ShouldKeepIgnoredFiles_WhenSwitchingBranch()
-        {
-
-        }
-
-
-
-        [Test]
-        public void ShouldRollback_WhenErrorOccursDuringSwitch()
-        {
-
+            string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
+            Assert.That(File.ReadAllText(_paths.Index), Is.EqualTo(branchIndex));
         }
 
 
         [Test]
-        public void ShouldRestoreWorkingDir_WhenErrorOccursDuringSwitch()
-        {
-
-        }
-
-
-        [Test]
-        public void ShouldHandleManyFiles_WhenSwitchingBranch()
-        {
-
-        }
-
-
-        [Test]
-        public void ShouldHandleLargeFiles_WhenSwitchingBranch()
-        {
-
-        }
-
-
-        [Test]
-        public void ShouldHandleBinaryFiles_WhenSwitchingBranch()
+        public void ShouldPreserveCorrectFiles_AfterBranchSwitch()
         {
 
         }
