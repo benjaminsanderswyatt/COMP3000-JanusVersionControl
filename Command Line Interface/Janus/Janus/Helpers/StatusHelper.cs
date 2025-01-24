@@ -4,6 +4,38 @@ namespace Janus.Helpers
 {
     public class StatusHelper
     {
+
+        public static bool AreThereUncommittedChanges(Paths paths)
+        {
+            // Get the head commit hash
+            string commitHash = CommandHelper.GetCurrentHEAD(paths);
+
+            // Get the tree from commit hash
+            Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(paths, commitHash);
+
+            var stagedFiles = IndexHelper.LoadIndex(paths.Index);
+
+            var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = GetStaged(tree, stagedFiles);
+
+            if (stagedForCommitModified.Any() || stagedForCommitAdded.Any() || stagedForCommitDeleted.Any())
+            {
+                return true;
+            }
+
+
+            var workingFiles = GetFilesHelper.GetAllFilesInDir(paths, paths.WorkingDir);
+
+            var (notStaged, untracked) = GetNotStagedUntracked(paths.WorkingDir, workingFiles, stagedFiles);
+
+            if (notStaged.Any() || untracked.Any())
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
         public static bool HasAnythingBeenStagedForCommit(Paths paths, string commitHash, Dictionary<string, string> stagedFiles)
         {
             // Get the tree from commit hash

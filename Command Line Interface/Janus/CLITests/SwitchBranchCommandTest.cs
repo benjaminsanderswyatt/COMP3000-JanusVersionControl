@@ -101,6 +101,41 @@ namespace CLITests
 
 
         [Test]
+        public void ShouldLogError_WhenAlreadyOnBranch()
+        {
+            // Arrange
+            string branchName = "main";
+
+            // Act
+            _switchBranchCommand.Execute(new string[] { branchName });
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log($"Already on branch '{branchName}'."), Times.Once);
+        }
+
+
+        [Test]
+        public void ShouldLogError_WhenAlreadyOnCreatedBranch()
+        {
+            // Arrange
+            string branchName = "test_branch";
+            _createBranchCommand.Execute(new string[] { branchName });
+            _switchBranchCommand.Execute(new string[] { branchName });
+
+            // Act
+            _switchBranchCommand.Execute(new string[] { branchName });
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log($"Already on branch '{branchName}'."), Times.Once);
+        }
+
+
+
+
+
+
+
+        [Test]
         public void ShouldSwitchBranchSuccessfully_WhenRepoIsClean()
         {
             // Arrange

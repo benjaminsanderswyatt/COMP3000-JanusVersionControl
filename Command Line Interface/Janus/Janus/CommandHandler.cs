@@ -836,14 +836,11 @@ namespace Janus
                 }
 
 
-                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-
                 // Check if the repo is clean as the switch will override uncommitted changes
                 bool force = args.Contains("--force") ? true : false;
                 if (!force) // Force skips the check
                 {
-                    if (StatusHelper.HasAnythingBeenStagedForCommit(Paths, headCommitHash, stagedFiles))
+                    if (StatusHelper.AreThereUncommittedChanges(Paths))
                     {
                         // Promt user to confirm branch switch
                         if (!CommandHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
@@ -853,11 +850,13 @@ namespace Janus
                         }
                     }
                 }
-                
+
+
+
                 try
                 {
                     // Switch Branch
-                    SwitchBranchHelper.SwitchBranch(Logger, Paths, branchName);
+                    SwitchBranchHelper.SwitchBranch(Logger, Paths, currentBranch, branchName);
 
                 }
                 catch (Exception ex)
@@ -950,7 +949,7 @@ namespace Janus
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 // Get files from working directory (excluding .janus files & ignored files)
-                var workingFiles = GetFilesHelper.GetAllFilesInDir(Paths, Paths.WorkingDir).ToList();
+                var workingFiles = GetFilesHelper.GetAllFilesInDir(Paths, Paths.WorkingDir);
 
 
                 // Get the tree from the HEAD commit
