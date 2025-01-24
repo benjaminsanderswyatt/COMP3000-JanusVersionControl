@@ -5,7 +5,16 @@ namespace Janus.Helpers
 {
     public class HashHelper
     {
-        public static string ComputeHash(string content)
+        public static string ComputeHash(byte[] contentBytes)
+        {
+            using (SHA1 sha1 = SHA1.Create())
+            {
+                byte[] hashBytes = sha1.ComputeHash(contentBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        public static string ComputeTreeHash(string content)
         {
             using (SHA1 sha1 = SHA1.Create())
             {
@@ -17,7 +26,7 @@ namespace Janus.Helpers
 
         public static string ComputeCommitHash(string treeHash, string commitMessage)
         {
-            string combined = treeHash + commitMessage;
+            byte[] combined = Encoding.UTF8.GetBytes(treeHash + commitMessage);
 
             return ComputeHash(combined);
         }
@@ -28,7 +37,7 @@ namespace Janus.Helpers
             string fullpath = Path.Combine(workingDir, relativeFilePath);
 
             // Read file content
-            string content = File.ReadAllText(fullpath);
+            byte[] content = File.ReadAllBytes(fullpath);
 
             // Compute the hash from the content
             string fileHash = ComputeHash(content);
@@ -37,12 +46,12 @@ namespace Janus.Helpers
         }
 
 
-        public static (string fileHash, string content) ComputeHashAndGetContent(string workingDir, string relativeFilePath)
+        public static (string fileHash, byte[] content) ComputeHashAndGetContent(string workingDir, string relativeFilePath)
         {
             string fullpath = Path.Combine(workingDir, relativeFilePath);
 
             // Read file content
-            string content = File.ReadAllText(fullpath);
+            byte[] content = File.ReadAllBytes(fullpath);
 
             // Compute the hash from the content
             string fileHash = ComputeHash(content);

@@ -49,9 +49,9 @@ namespace Janus.Helpers
             {
                 //var filePath = file.Key;
                 var filePath = Path.Combine(paths.WorkingDir, file.Key);
-                var fileContents = File.ReadAllText(Path.Combine(paths.ObjectDir, file.Value));
+                var fileContents = File.ReadAllBytes(Path.Combine(paths.ObjectDir, file.Value));
 
-                File.WriteAllText(filePath, fileContents);
+                File.WriteAllBytes(filePath, fileContents);
             }
 
             // Delete files

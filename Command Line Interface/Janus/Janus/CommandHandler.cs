@@ -2,6 +2,7 @@
 using Janus.Models;
 using Janus.Plugins;
 using System.Data;
+using System.Text;
 using System.Text.Json;
 
 
@@ -305,7 +306,7 @@ namespace Janus
                         string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
                         if (!File.Exists(objectFilePath)) // Dont rewrite existing objects (this way they can be reused)
                         {
-                            File.WriteAllText(objectFilePath, content);
+                            File.WriteAllBytes(objectFilePath, content);
                         }
 
                         stagedFiles[relativeFilePath] = fileHash;
@@ -416,7 +417,7 @@ namespace Janus
                 {
                     // Create tree object and store in trees
                     string treeJson = JsonSerializer.Serialize(treeStructure, new JsonSerializerOptions { WriteIndented = true });
-                    string rootTreeHash = HashHelper.ComputeHash(treeJson);
+                    string rootTreeHash = HashHelper.ComputeTreeHash(treeJson);
                     string treeFilePath = Path.Combine(Paths.TreeDir, rootTreeHash);
 
                     File.WriteAllText(treeFilePath, treeJson);
@@ -501,7 +502,7 @@ namespace Janus
                 try
                 {
                     commitPathsInFolder = commitFiles
-                        .Select(file => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(file)))
+                        .Select(commit => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commit)))
                         .Where(metadata => metadata != null) // Exclude invalid or null metadata
                         .Where(metadata =>
 
