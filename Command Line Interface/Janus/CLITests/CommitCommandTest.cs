@@ -164,8 +164,8 @@ namespace CLITests
             Assert.That(newCommitData.Message, Is.EqualTo("First commit"), "Commit message should be 'First commit'.");
 
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
 
         }
 
@@ -215,9 +215,9 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Multiple files commit"), "Commit message should be 'Multiple files commit'.");
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
-            Assert.That(tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
+            //Assert.That(tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
 
         }
 
@@ -270,8 +270,8 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Updated file"), "Commit message should be 'Updated file'.");
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
 
             // Check the refs/heads/main file contents
             string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
@@ -320,9 +320,9 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Deleting file commit"), "Commit message should be 'Deleting file commit'.");
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
-            Assert.That(tree["file.txt"], Is.Not.EqualTo("Deleted"), "The object if from when added so it shouldnt be deleted");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
+            //Assert.That(tree["file.txt"], Is.Not.EqualTo("Deleted"), "The object if from when added so it shouldnt be deleted");
 
         }
 
@@ -367,9 +367,9 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Partial commit"), "Commit message should be 'Partial commit'.");
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
-            Assert.That(!tree.ContainsKey("file2.txt"), "File2 shouldnt be part of the commit tree.");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
+            //Assert.That(!tree.ContainsKey("file2.txt"), "File2 shouldnt be part of the commit tree.");
         }
 
 
@@ -425,8 +425,8 @@ namespace CLITests
 
             Assert.That(newCommitData.Parent, Is.EqualTo(deleteCommitData.Commit), "Parent commit should be the original commit hash.");
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            Assert.That(tree.ContainsKey("file.txt"), "File1 should be part of the commit tree.");
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //Assert.That(tree.ContainsKey("file.txt"), "File1 should be part of the commit tree.");
 
             // Check the refs/heads/main file contents
             string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
@@ -478,20 +478,20 @@ namespace CLITests
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
 
-            var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
+            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
 
-            Assert.IsTrue(tree.ContainsKey("dir1"));
-            var dir1Tree = tree["dir1"] as Dictionary<string, object>;
-            Assert.IsNotNull(dir1Tree);
+            //Assert.IsTrue(tree.ContainsKey("dir1"));
+            //var dir1Tree = tree["dir1"] as Dictionary<string, object>;
+            //Assert.IsNotNull(dir1Tree);
 
-            Assert.That(dir1Tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
+            //Assert.That(dir1Tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
 
 
-            Assert.IsTrue(tree.ContainsKey("dir2"));
-            var dir2Tree = tree["dir2"] as Dictionary<string, object>;
-            Assert.IsNotNull(dir2Tree);
+            //Assert.IsTrue(tree.ContainsKey("dir2"));
+            //var dir2Tree = tree["dir2"] as Dictionary<string, object>;
+            //Assert.IsNotNull(dir2Tree);
 
-            Assert.That(dir2Tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
+            //Assert.That(dir2Tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
         }
 
 

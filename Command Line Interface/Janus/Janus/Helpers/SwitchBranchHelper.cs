@@ -1,5 +1,6 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -8,8 +9,8 @@ namespace Janus.Helpers
 
     public class SwitchBranchHelper
     {
-        
-        public static void SwitchBranch(ILogger logger, Paths paths,string currentBranch, string branchName)
+        /*
+        public static void SwitchBranch(ILogger logger, Paths paths, string currentBranch, string branchName)
         {
 
             // Get file states for current and target branch
@@ -19,20 +20,18 @@ namespace Janus.Helpers
             var currentTree = TreeHelper.GetTreeFromCommitHash(paths, headCommitHash);
             var currentFiles = TreeHelper.GetAllFilePathsWithHashesRecursive(currentTree, paths.WorkingDir);
 
+
+
             // Get the target branch
             string targetCommit = File.ReadAllText(Path.Combine(paths.HeadsDir, branchName));
             var targetTree = TreeHelper.GetTreeFromCommitHash(paths, targetCommit);
             var targetFiles = TreeHelper.GetAllFilePathsWithHashesRecursive(targetTree, paths.WorkingDir);
 
 
-
-
-
             // Work out files to add, update or delete
             // Add -> file exists in target but not in current working dir
             // Update -> file exists in target and in current working dir but hashes are different
             // Delete -> file exists in current working dir but not in target
-
             var filesToAddOrUpdate = targetFiles.Where(file =>
                                         !currentFiles.ContainsKey(file.Key)
                                         || currentFiles[file.Key] != file.Value);
@@ -84,8 +83,115 @@ namespace Janus.Helpers
 
             logger.Log($"Successfully switched to branch '{branchName}'.");
         }
+        */
+    
+
+
+        public static void SwitchBranch(ILogger logger, Paths paths, string currentBranch, string branchName)
+        {
+            // Initialize TreeBuilder for operations
+            var treeBuilder = new TreeBuilder(paths);
+
+            // Get the current branch
+            string headCommitHash = CommandHelper.GetCurrentHEAD(paths);
+            var currentTree = treeBuilder.RecreateTree(logger, headCommitHash);
+
+            // Get the target branch
+            string targetCommitHash = File.ReadAllText(Path.Combine(paths.HeadsDir, branchName));
+            var targetTree = treeBuilder.RecreateTree(logger, targetCommitHash);
+
+            // Compare the current and target trees to determine actions
+            //var comparisonResult = treeBuilder.CompareTrees(
+            //    treeBuilder.GetWorkingDirTree(paths.WorkingDir),
+            //    targetTree
+            //);
+
+            var comparisonResult = new TreeBuilder.TreeComparisonResult();
+
+            // Perform actions based on the comparison result
+            // Add or update files
+            foreach (var filePath in comparisonResult.Added.Concat(comparisonResult.Modified))
+            {
+                string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
+                string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree
+                string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
+
+                // Ensure the object file exists
+                if (File.Exists(objectFilePath))
+                {
+                    var fileContents = File.ReadAllBytes(objectFilePath);
+                    File.WriteAllBytes(filePath, fileContents);
+                }
+                else
+                {
+                    logger.Log($"Warning: Object file for {relativePath} not found in {paths.ObjectDir}");
+                }
+            }
+
+            // Delete files
+            foreach (var filePath in comparisonResult.Deleted)
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+            // Update HEAD to point to the target branch
+            File.WriteAllText(paths.HEAD, targetCommitHash);
+
+            // Save the current branch's index and HEAD
+            var currentBranchIndexPath = Path.Combine(paths.BranchesDir, currentBranch, "index");
+            File.Copy(paths.Index, currentBranchIndexPath, overwrite: true);
+
+            // Update index and HEAD for the new branch
+            var targetBranchIndexPath = Path.Combine(paths.BranchesDir, branchName, "index");
+            if (File.Exists(targetBranchIndexPath))
+            {
+                File.Copy(targetBranchIndexPath, paths.Index, overwrite: true);
+            }
+            else
+            {
+                logger.Log($"Warning: Index file for branch '{branchName}' not found. Using an empty index.");
+                File.WriteAllText(paths.Index, string.Empty); // Clear index if it doesn't exist for the target branch
+            }
+
+            // Update HEAD reference
+            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
+
+            logger.Log($"Successfully switched to branch '{branchName}'.");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public static string GetHashFromTree(TreeNode tree, string relativePath)
+        {
+            string[] pathParts = PathHelper.PathSplitter(relativePath);
+            TreeNode currentNode = tree;
+
+            foreach (var part in pathParts)
+            {
+                currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
+                if (currentNode == null) break;
+            }
+
+            return currentNode?.Hash;
+        }
 
     }
 
-}
 
+
+
+}

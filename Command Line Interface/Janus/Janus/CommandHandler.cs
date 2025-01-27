@@ -1,9 +1,13 @@
 ﻿using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
+using Microsoft.VisualBasic;
 using System.Data;
-using System.Text;
+using System.Reflection.Emit;
 using System.Text.Json;
+using System.Xml.Linq;
+using static Janus.Utils.TreeBuilder;
 
 
 namespace Janus
@@ -79,6 +83,71 @@ namespace Janus
             public override void Execute(string[] args)
             {
                 //await CommandHelper.ExecuteAsync();
+
+                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+
+                var treeBuilder = new TreeBuilder(Paths);
+                var indexTree = treeBuilder.BuildTreeFromDiction(stagedFiles);
+
+
+                Console.WriteLine("---------------------------");
+                Console.WriteLine("Index");
+                treeBuilder.PrintTree();
+
+                Console.WriteLine("---------------------------");
+
+                // Serialize the tree into objects
+                var rootTreeHash = treeBuilder.SaveTree(); // Save index tree
+
+                
+                Console.WriteLine("Tree hash: " + rootTreeHash);
+
+
+                Console.WriteLine("---------------------------");
+                Console.WriteLine("Recreated Tree");
+
+                TreeBuilder newTreeBuilder = new TreeBuilder(Paths);
+
+                var newtree = newTreeBuilder.RecreateTree(Logger, rootTreeHash);
+
+                
+                newTreeBuilder.PrintTree();
+
+                Console.WriteLine("---------------------------");
+                Console.WriteLine("Working Dir Tree");
+
+
+                var workingDirFiles = GetFilesHelper.GetWorkingDirFileHash(Paths);
+
+
+                TreeBuilder wdTreeBuilder = new TreeBuilder(Paths);
+
+                var wdTree = wdTreeBuilder.BuildTreeFromDiction(workingDirFiles);
+
+                
+                wdTreeBuilder.PrintTree();
+
+
+                Console.WriteLine("---------------------------");
+                Console.WriteLine("Differntces");
+
+                TreeBuilder builder = new TreeBuilder(Paths);
+
+
+                // Compare the two trees
+                TreeComparisonResult result = builder.CompareTrees(newtree, wdTree);
+
+                // Output the results
+                Console.WriteLine("Added:");
+                result.Added.ForEach(Console.WriteLine);
+
+                Console.WriteLine("Modified:");
+                result.Modified.ForEach(Console.WriteLine);
+
+                Console.WriteLine("Deleted:");
+                result.Deleted.ForEach(Console.WriteLine);
+
+
                 Logger.Log("Test End");
 
             }
@@ -373,54 +442,59 @@ namespace Janus
 
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
+                /*
                 // Check if there are any changes to commit
                 if (!StatusHelper.HasAnythingBeenStagedForCommit(Paths, parentCommit, stagedFiles))
                 {
                     Logger.Log("No changes to commit.");
                     return;
                 }
+                */
+                
 
 
 
-                var treeStructure = new Dictionary<string, object>();
 
-                foreach (var file in stagedFiles)
-                {
-                    string relativeFilePath = file.Key;
-                    string fileHash = file.Value;
 
-                    if (fileHash == "Deleted")
-                    {
-                        // Add to tree
-                        string[] pathParts = relativeFilePath.Split(Path.DirectorySeparatorChar);
-                        TreeHelper.AddToTreeRecursive(treeStructure, pathParts, fileHash);
 
-                    }
-                    else
-                    {
-                        try
-                        {
-                            // Add to tree
-                            string[] pathParts = relativeFilePath.Split(Path.DirectorySeparatorChar);
-                            TreeHelper.AddToTreeRecursive(treeStructure, pathParts, fileHash);
 
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log($"Error committing file '{relativeFilePath}': {ex.Message}");
-                            return;
-                        }
-                    }
-                }
+
+
 
                 try
                 {
-                    // Create tree object and store in trees
-                    string treeJson = JsonSerializer.Serialize(treeStructure, new JsonSerializerOptions { WriteIndented = true });
-                    string rootTreeHash = HashHelper.ComputeTreeHash(treeJson);
-                    string treeFilePath = Path.Combine(Paths.TreeDir, rootTreeHash);
+                    var treeBuilder = new TreeBuilder(Paths);
+                    var indexTree = treeBuilder.BuildTreeFromDiction(stagedFiles);
 
-                    File.WriteAllText(treeFilePath, treeJson);
+                    treeBuilder.PrintTree();
+
+                    // Serialize the tree into objects
+                    var rootTreeHash = treeBuilder.SaveTree(); // Save index tree
+
+                    /*
+                    Console.WriteLine("Tree hash: " + rootTreeHash);
+
+
+                    Console.WriteLine("---------------------------");
+
+                    TreeBuilder newTreeBuilder = new TreeBuilder(Paths.TreeDir);
+
+                    var newtree = newTreeBuilder.RecreateTree(rootTreeHash);
+
+
+
+
+                    var results = newTreeBuilder.CompareTrees(origTree, Paths.WorkingDir);
+
+                    Console.WriteLine();
+                    Console.WriteLine("Results:");
+                    results.Added.ForEach(f => Console.WriteLine("Added: " + f));
+                    results.Modified.ForEach(f => Console.WriteLine("Modified: " + f));
+                    results.Deleted.ForEach(f => Console.WriteLine("Deleted: " + f));
+                    Console.WriteLine();
+                    */
+
+
 
                     // Generate commit metadata
                     string commitHash = HashHelper.ComputeCommitHash(rootTreeHash, commitMessage);
@@ -446,6 +520,7 @@ namespace Janus
                 {
                     Logger.Log($"Error saving commit: {ex.Message}");
                 }
+
             }
         }
 
@@ -688,8 +763,8 @@ namespace Janus
         }
 
 
+        
         /*
-
         public class DeleteBranchCommand : BaseCommand
         {
             public DeleteBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
@@ -725,12 +800,20 @@ namespace Janus
                 }
 
 
-                // Prompt user to confirm deletion
-                if (!CommandHelper.ConfirmAction(Logger, $"Are you sure you want to delete branch '{branchName}'?"))
+                // Check if the repo is clean as the switch will override uncommitted changes
+                bool force = args.Contains("--force") ? true : false;
+                if (!force) // Force skips the check
                 {
-                    Logger.Log("Branch deletion cancelled.");
-                    return;
+                    // Promt user to confirm branch switch
+                    if (!CommandHelper.ConfirmAction(Logger, $"Are you sure you want to delete branch '{branchName}'?", force))
+                    {
+                        Logger.Log("Branch deletion cancelled.");
+                        return;
+                    }
+                    
                 }
+
+
 
 
                 try
@@ -758,9 +841,9 @@ namespace Janus
                 Logger.Log($"Deleted branch {branchName}.");
             }
         }
-
-
         */
+
+        
 
         public class ListBranchesCommand : BaseCommand
         {
@@ -836,11 +919,12 @@ namespace Janus
                     return;
                 }
 
-
+                
                 // Check if the repo is clean as the switch will override uncommitted changes
                 bool force = args.Contains("--force") ? true : false;
                 if (!force) // Force skips the check
                 {
+                    /*
                     if (StatusHelper.AreThereUncommittedChanges(Paths))
                     {
                         // Promt user to confirm branch switch
@@ -850,6 +934,7 @@ namespace Janus
                             return;
                         }
                     }
+                    */
                 }
 
 
@@ -947,7 +1032,55 @@ namespace Janus
                 CommandHelper.DisplaySeperator(Logger);
 
 
+
+
+                // Get the tree from the HEAD commit
+                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
+
+                // Get tree hash from headCommitHash
+                string contents = File.ReadAllText(Path.Combine(Paths.CommitDir, headCommitHash));
+                CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
+                string headTreeHash = metadata.Tree;
+
+
+
+
+
+                var treeBuilder = new TreeBuilder(Paths);
+
+                var headTree = treeBuilder.RebuildTree(Logger, headTreeHash);
+
+
+
+
+                // Load index tree (staging area)
                 var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+                var indexTree = new TreeBuilder(Paths).BuildTreeFromDiction(stagedFiles);
+
+
+                //var workingTree = new TreeBuilder(Paths).GetWorkingDirTree(Paths.WorkingDir);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                /*
+                 * var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
 
                 // Get files from working directory (excluding .janus files & ignored files)
                 var workingFiles = GetFilesHelper.GetAllFilesInDir(Paths, Paths.WorkingDir);
@@ -955,20 +1088,40 @@ namespace Janus
 
                 // Get the tree from the HEAD commit
                 string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
+                 * 
                 Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(Paths, headCommitHash);
+
+                // Get tree hash from commit
+                string contents = File.ReadAllText(Path.Combine(Paths.CommitDir, headCommitHash));
+
+                // Deserialise into commitMetadata
+                CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
+
+
+
+                var treeBuilder = new TreeBuilder(Paths.TreeDir);
+
+                
+
+                var tree = treeBuilder.RecreateTree(metadata.Tree);
 
 
                 // Staged for commit
-                var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetStaged(tree, stagedFiles);
+                //var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetStaged(tree, stagedFiles);
 
 
-                if (stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any())
+                var treeComparisonResult = treeBuilder.CompareTrees(
+                    treeBuilder.GetWorkingDirTree(Paths.WorkingDir),
+                    tree);
+
+
+                if (treeComparisonResult.Added.Any() || treeComparisonResult.Modified.Any() || treeComparisonResult.Deleted.Any())
                 {
                     Logger.Log("Changes to be committed:");
 
-                    StatusHelper.DisplayStatus(Logger, stagedForCommitAdded, ConsoleColor.Green, "(added)");
-                    StatusHelper.DisplayStatus(Logger, stagedForCommitModified, ConsoleColor.Yellow, "(modified)");
-                    StatusHelper.DisplayStatus(Logger, stagedForCommitDeleted, ConsoleColor.Red, "(deleted)");
+                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Added, ConsoleColor.Green, "(added)");
+                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Modified, ConsoleColor.Yellow, "(modified)");
+                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Deleted, ConsoleColor.Red, "(deleted)");
 
 
                     CommandHelper.DisplaySeperator(Logger);
@@ -1000,17 +1153,13 @@ namespace Janus
 
 
                 // When there is nothing to commit, stage or being untracked
-                if (!(stagedForCommitModified.Any() || stagedForCommitDeleted.Any() || stagedForCommitAdded.Any() || notStaged.Any() || untracked.Any()))
+                if (!(treeComparisonResult.Added.Any() || treeComparisonResult.Modified.Any() || treeComparisonResult.Deleted.Any() || notStaged.Any() || untracked.Any()))
                 {
                     Logger.Log("All clean.");
                 }
-
+                */
             }
         }
-
-
-
-
 
 
     }

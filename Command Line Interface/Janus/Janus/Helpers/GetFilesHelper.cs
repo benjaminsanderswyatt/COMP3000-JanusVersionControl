@@ -31,8 +31,18 @@ namespace Janus.Helpers
             return patterns.Any(pattern => pattern.IsMatch(path));
         }
 
-        
+        public static Dictionary<string, string> GetWorkingDirFileHash(Paths paths)
+        {
+            var workingDirFiles = GetAllFilesInDir(paths, paths.WorkingDir);
 
+            var filePathHash = new Dictionary<string, string>();
+            foreach (var filepath in workingDirFiles)
+            {
+                filePathHash[filepath] = HashHelper.ComputeHashGivenRelFilepath(paths.WorkingDir, filepath);
+            }
+
+            return filePathHash;
+        }
 
 
     }

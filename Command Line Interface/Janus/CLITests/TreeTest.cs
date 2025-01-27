@@ -1,18 +1,21 @@
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
 
 namespace CLITests
 {
+
     [TestFixture]
     public class TreeTest
     {
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
-        private Dictionary<string, object> _tree;
+        private TreeBuilder _treeBuilder;
+
 
         private string _testDir;
 
@@ -33,7 +36,7 @@ namespace CLITests
 
             Directory.SetCurrentDirectory(_testDir);
 
-            _tree = new Dictionary<string, object>();
+            _treeBuilder = new TreeBuilder(_paths);
         }
 
         [TearDown]
@@ -50,223 +53,200 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldAddSingleFileToTree()
+        public void ShouldBuildTreeFromDictionary()
         {
             // Arrange
-            string[] pathParts = { "file.txt" };
-            string fileHash = "12345";
-
-            // Act
-            TreeHelper.AddToTreeRecursive(_tree, pathParts, fileHash);
-
-            // Assert
-            Assert.IsTrue(_tree.ContainsKey("file.txt"));
-            Assert.That(_tree["file.txt"], Is.EqualTo(fileHash));
-        }
-
-
-        [Test]
-        public void ShouldAddSingleFilePathToTree()
-        {
-            // Arrange
-            string[] pathParts = { "folder", "subfolder", "file.txt" };
-            string fileHash = "12345";
-
-            // Act
-            TreeHelper.AddToTreeRecursive(_tree, pathParts, fileHash);
-
-            // Assert
-            Assert.IsTrue(_tree.ContainsKey("folder"));
-            var subTree = _tree["folder"] as Dictionary<string, object>;
-
-            Assert.IsNotNull(subTree);
-            Assert.IsTrue(subTree.ContainsKey("subfolder"));
-
-            var subSubTree = subTree["subfolder"] as Dictionary<string, object>;
-
-            Assert.IsNotNull(subSubTree);
-            Assert.That(subSubTree["file.txt"], Is.EqualTo(fileHash));
-
-        }
-
-
-        [Test]
-        public void ShouldAddMultipleFilesToTree()
-        {
-            // Arrange
-            string[] pathParts1 = { "folder1", "subfolder1", "file1.txt" };
-            string[] pathParts2 = { "folder1", "subfolder1", "file2.txt" };
-            string[] pathParts3 = { "folder2", "file3.txt" };
-            string[] pathParts4 = { "folder2", "subfolder2", "subsubfolder", "file4.txt" };
-
-            string fileHash1 = "12345";
-            string fileHash2 = "67890";
-            string fileHash3 = "abcde";
-            string fileHash4 = "fghij";
-
-            // Act
-            TreeHelper.AddToTreeRecursive(_tree, pathParts1, fileHash1);
-            TreeHelper.AddToTreeRecursive(_tree, pathParts2, fileHash2);
-            TreeHelper.AddToTreeRecursive(_tree, pathParts3, fileHash3);
-            TreeHelper.AddToTreeRecursive(_tree, pathParts4, fileHash4);
-
-            // Assert
-            // file 1 & file 2
-            Assert.IsTrue(_tree.ContainsKey("folder1"));
-            var folder1Tree = _tree["folder1"] as Dictionary<string, object>;
-            Assert.IsNotNull(folder1Tree);
-
-            Assert.That(folder1Tree.ContainsKey("subfolder1"), Is.True);
-            var subfolder1Tree = folder1Tree["subfolder1"] as Dictionary<string, object>;
-            Assert.IsNotNull(subfolder1Tree);
-
-            Assert.That(subfolder1Tree["file1.txt"], Is.EqualTo(fileHash1));
-            Assert.That(subfolder1Tree["file2.txt"], Is.EqualTo(fileHash2));
-
-            // file 3 & file 4
-            Assert.IsTrue(_tree.ContainsKey("folder2"));
-            var folder2Tree = _tree["folder2"] as Dictionary<string, object>;
-            Assert.IsNotNull(folder2Tree);
-
-            Assert.That(folder2Tree["file3.txt"], Is.EqualTo(fileHash3));
-
-            Assert.IsTrue(folder2Tree.ContainsKey("subfolder2"));
-            var subfolder2Tree = folder2Tree["subfolder2"] as Dictionary<string, object>;
-            Assert.IsNotNull(subfolder2Tree);
-
-            Assert.IsTrue(subfolder2Tree.ContainsKey("subsubfolder"));
-            var subsubfolderTree = subfolder2Tree["subsubfolder"] as Dictionary<string, object>;
-            Assert.IsNotNull(subsubfolderTree);
-
-            Assert.That(subsubfolderTree["file4.txt"], Is.EqualTo(fileHash4));
-        }
-
-
-
-        [Test]
-        public void ShouldGetHashFromTree_WhenGivenFilePath()
-        {
-            // Arrange
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder", "file.txt" }, "12345");
-
-            // Act
-            string fileHash = TreeHelper.GetHashFromTree(_tree, "folder/file.txt".Replace('/', Path.DirectorySeparatorChar));
-
-            // Assert
-            Assert.That(fileHash, Is.EqualTo("12345"));
-        }
-
-
-        [Test]
-        public void ShouldReturnNull_WhenGivenNonExistentFilePath()
-        {
-            // Act
-            string fileHash = TreeHelper.GetHashFromTree(_tree, "nonexistent/file.txt".Replace('/', Path.DirectorySeparatorChar));
-
-            // Assert
-            Assert.IsNull(fileHash);
-        }
-
-
-        [Test]
-        public void ShouldGetTreeFromCommitMetadata_GivenCommitHash()
-        {
-            // Arrange: create a tree and save it in treeDir
-            string commitHash = "abc123";
-            string treeHash = "tree123";
-
-            var commitMetadata = new CommitMetadata { Tree = treeHash };
-            File.WriteAllText(Path.Combine(_paths.CommitDir, commitHash), JsonSerializer.Serialize(commitMetadata));
-
-            var treeContent = new Dictionary<string, object>
+            var index = new Dictionary<string, string>
             {
-                { "folder", new Dictionary<string, object>
-                    {
-                        { "file.txt", "12345" }
-                    }
-                }
+                { "file1.txt", "hash1" },
+                { "dir1/file2.txt", "hash2" },
+                { "dir1/file3.txt", "hash3" },
+                { "dir2/file4.txt", "hash4" },
+                { "dir2/subdir1/file5.txt", "hash5" }
             };
 
-            File.WriteAllText(Path.Combine(_paths.TreeDir, treeHash), JsonSerializer.Serialize(treeContent));
-
-
             // Act
-            var tree = TreeHelper.GetTreeFromCommitHash(_paths, commitHash);
-
-            // Assert: tree is equal to inputted
-            Assert.That(tree, Is.EqualTo(treeContent));
-        }
+            var root = _treeBuilder.BuildTreeFromDiction(index);
 
 
-        [Test]
-        public void ShouldGetEmptyTree_WhenGivenInitialCommitHash()
-        {
-            // Arrange: Initial commit hash
-            string commitHash = "4a35387be739933f7c9e6486959ec1affb2c1648";
-
-            // Act
-            var tree = TreeHelper.GetTreeFromCommitHash(_paths, commitHash);
+            _treeBuilder.PrintTree();
 
             // Assert
-            Assert.IsEmpty(tree);
+            // Root
+            Assert.That(root.Name, Is.EqualTo("root"));
+            Assert.That(root.Children.Count, Is.EqualTo(3));
+
+            // File 1
+            var file1 = root.Children.FirstOrDefault(c => c.Name == "file1.txt");
+            Assert.That(file1.Hash, Is.EqualTo("hash1"));
+
+            // Dir 1
+            var dir1 = root.Children.FirstOrDefault(c => c.Name == "dir1");
+            Assert.That(dir1.Hash, Is.Null);
+            Assert.That(dir1.Children.Count, Is.EqualTo(2));
+
+            // File 2
+            var file2 = dir1.Children.FirstOrDefault(c => c.Name == "file2.txt");
+            Assert.That(file2.Hash, Is.EqualTo("hash2"));
+
+            // File 3
+            var file3 = dir1.Children.FirstOrDefault(c => c.Name == "file3.txt");
+            Assert.That(file3.Hash, Is.EqualTo("hash3"));
+
+
+            // Dir 2
+            var dir2 = root.Children.FirstOrDefault(c => c.Name == "dir2");
+            Assert.That(dir2.Hash, Is.Null);
+            Assert.That(dir2.Children.Count, Is.EqualTo(2));
+
+            // File 4
+            var file4 = dir2.Children.FirstOrDefault(c => c.Name == "file4.txt");
+            Assert.That(file4.Hash, Is.EqualTo("hash4"));
+
+
+            // Subdir1
+            var subdir1 = dir2.Children.FirstOrDefault(c => c.Name == "subdir1");
+            Assert.That(subdir1.Hash, Is.Null);
+            Assert.That(subdir1.Children.Count, Is.EqualTo(1));
+
+            // File 5
+            var file5 = subdir1.Children.FirstOrDefault(c => c.Name == "file5.txt");
+            Assert.That(file5.Hash, Is.EqualTo("hash5"));
 
         }
 
 
-
         [Test]
-        public void ShouldReturnEmptyList_WhenTreeIsEmpty()
-        {
-            // Act
-            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
-
-            // Assert
-            Assert.IsEmpty(filePathsWithHashes);
-        }
-
-
-        [Test]
-        public void ShouldReturnAllFilePaths()
-        {
-            // Arrange
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder1", "file1.txt" }, "hash1");
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder2", "subfolder", "file2.txt" }, "hash2");
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "folder3", "file3.txt" }, "hash3");
-
-            // Act
-            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
-
-            // Assert
-            var expectedFilePaths = new Dictionary<string, string>
-            {
-                { Path.Combine("folder1", "file1.txt"), "hash1" },
-                { Path.Combine("folder2", "subfolder", "file2.txt"), "hash2" },
-                { Path.Combine("folder3", "file3.txt"), "hash3" },
-            };
-
-            Assert.That(filePathsWithHashes, Is.EquivalentTo(expectedFilePaths));
-        }
-
-
-
-        [Test]
-        public void ShouldHandleDeeplyNestedTree()
+        public void ShouldSaveTree()
         {
             // Arrange
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt" }, "hash1");
-            TreeHelper.AddToTreeRecursive(_tree, new[] { "x", "y", "z", "file2.txt" }, "hash2");
-
-            // Act
-            var filePathsWithHashes = TreeHelper.GetAllFilePathsWithHashesRecursive(_tree);
-
-            // Assert
-            var expectedFilePaths = new Dictionary<string, string>
+            var index = new Dictionary<string, string>
             {
-                { Path.Combine("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "file1.txt"), "hash1" },
-                { Path.Combine("x", "y", "z", "file2.txt"), "hash2" },
+                { "file1.txt", "hash1" },
+                { "file2.txt", "hash2" },
+                { "file3.txt", "hash3" }
             };
 
-            Assert.That(filePathsWithHashes, Is.EquivalentTo(expectedFilePaths));
+            var root = _treeBuilder.BuildTreeFromDiction(index);
+
+
+            // Act
+            var rootHash = _treeBuilder.SaveTree();
+
+            // Assert
+            var treeFilePath = Path.Combine(_paths.TreeDir, rootHash);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.AreEqual(3, treeContent.Length);
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt hash1")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file2.txt hash2")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file3.txt hash3")));
+
+
+        }
+
+
+        [Test]
+        public void ShouldSaveTree_WithFolders()
+        {
+            // Arrange
+            var index = new Dictionary<string, string>
+            {
+                { "file1.txt", "hash1" },
+                { "dir1/file2.txt", "hash2" },
+                { "dir1/file3.txt", "hash3" },
+                { "dir2/file4.txt", "hash4" },
+                { "dir2/subdir1/file5.txt", "hash5" }
+            };
+
+            var root = _treeBuilder.BuildTreeFromDiction(index);
+
+            // Act
+            var rootHash = _treeBuilder.SaveTree();
+
+            // Assert
+            var treeFilePath = Path.Combine(_paths.TreeDir, rootHash);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(3));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt hash1")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir1 ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir2 ")));
+
+            // Dir 1
+            var dir1Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree dir1 ")));
+            var dir1Path = Path.Combine(_paths.TreeDir, dir1Hash);
+            Assert.IsTrue(File.Exists(dir1Path));
+
+            var dir1Content = File.ReadAllLines(dir1Path);
+            Assert.That(dir1Content.Length, Is.EqualTo(2));
+            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob file2.txt hash2")));
+            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob file3.txt hash3")));
+
+            // Dir 2
+            var dir2Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree dir2 ")));
+            var dir2Path = Path.Combine(_paths.TreeDir, dir2Hash);
+            Assert.IsTrue(File.Exists(dir2Path));
+
+            var dir2Content = File.ReadAllLines(dir2Path);
+            Assert.That(dir2Content.Length, Is.EqualTo(2));
+            Assert.IsTrue(dir2Content.Any(line => line.Contains("blob file4.txt hash4")));
+            Assert.IsTrue(dir2Content.Any(line => line.StartsWith("tree subdir1 ")));
+
+            // Subdir 1
+            var subdir1Hash = GetHashFromTreeLine(dir2Content.First(line => line.StartsWith("tree subdir1 ")));
+            var subdir1Path = Path.Combine(_paths.TreeDir, subdir1Hash);
+            Assert.IsTrue(File.Exists(subdir1Path));
+
+            var subdir1Content = File.ReadAllLines(subdir1Path);
+            Assert.That(subdir1Content.Length, Is.EqualTo(1));
+            Assert.IsTrue(subdir1Content.Any(line => line.Contains("blob file5.txt hash5")));
+        }
+
+        private string GetHashFromTreeLine(string treeLine)
+        {
+            var parts = treeLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length > 2 ? parts[2] : string.Empty;
+        }
+
+
+
+
+
+        [Test]
+        public void ShouldRebuildTreeFromHash()
+        {
+            // Arrange
+            var index = new Dictionary<string, string>
+            {
+                { "file1.txt", "hash1" },
+                { "dir1/file2.txt", "hash2" },
+                { "dir1/file3.txt", "hash3" },
+                { "dir2/file4.txt", "hash4" },
+                { "dir2/subdir1/file5.txt", "hash5" }
+            };
+
+            var root = _treeBuilder.BuildTreeFromDiction(index);
+            var rootHash = _treeBuilder.SaveTree();
+
+            Console.WriteLine("1    ");
+            _treeBuilder.PrintTree();
+
+            // Act
+            var recreatedTree = _treeBuilder.RecreateTree(_loggerMock.Object, rootHash);
+
+            // Assert
+            Console.WriteLine("2    ");
+            _treeBuilder.PrintTree();
+
+            Assert.That(recreatedTree.Name, Is.EqualTo(root.Name));
+            Assert.That(recreatedTree.Hash, Is.EqualTo(root.Hash));
+            Assert.That(recreatedTree.Children, Is.EqualTo(root.Children));
+
         }
 
 
@@ -274,4 +254,6 @@ namespace CLITests
 
 
     }
+
+    
 }

@@ -4,7 +4,7 @@ namespace Janus.Helpers
 {
     public class StatusHelper
     {
-
+        /*
         public static bool AreThereUncommittedChanges(Paths paths)
         {
             // Get the head commit hash
@@ -34,8 +34,9 @@ namespace Janus.Helpers
 
             return false;
         }
+        */
 
-
+        /*
         public static bool HasAnythingBeenStagedForCommit(Paths paths, string commitHash, Dictionary<string, string> stagedFiles)
         {
             // Get the tree from commit hash
@@ -51,8 +52,8 @@ namespace Janus.Helpers
             // Nothing to commit
             return false;
         }
-
-
+        */
+        /*
         public static (List<string> stagedForCommitModified, List<string> stagedForCommitAdded, List<string> stagedForCommitDeleted) GetStaged(Dictionary<string, object> tree, Dictionary<string, string> stagedFiles)
         {
             // Compare index to tree, if they differ they are changes to be committed (if index hash == "Deleted" then file is deleted otherwise modified)
@@ -89,7 +90,7 @@ namespace Janus.Helpers
 
             return (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted);
         }
-
+        */
 
         public static (List<string> notStaged, List<string> untracked) GetNotStagedUntracked(string workingDir, IEnumerable<string> workingFiles, Dictionary<string, string> stagedFiles)
         {
@@ -106,7 +107,7 @@ namespace Janus.Helpers
                     continue;
                 }
 
-                string fileHash = HashHelper.ComputeHashGivenFilepath(workingDir, filePath);
+                string fileHash = HashHelper.ComputeHashGivenRelFilepath(workingDir, filePath);
                 if (fileHash != stagedFiles[filePath])
                 {
                     notStaged.Add(filePath); // (not staged)
