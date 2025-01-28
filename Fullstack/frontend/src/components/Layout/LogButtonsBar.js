@@ -35,7 +35,7 @@ const styles = {
         buttonLogin: {
         backgroundColor: 'var(--secondary)',
         borderRadius: '8px',
-        border: 'var(--border) solid 1px',
+        border: 'none',
         width: '83px',
         color: 'black',
         fontSize: '0.9rem',
@@ -45,7 +45,7 @@ const styles = {
         backgroundColor: 'var(--primary)',
         color: 'white',
         borderRadius: '8px',
-        border: 'var(--border) solid 1px',
+        border: 'none',
         width: '83px',
         fontSize: '0.9rem',
         cursor: 'pointer',

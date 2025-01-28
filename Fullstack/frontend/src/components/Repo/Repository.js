@@ -37,7 +37,7 @@ const Repository = () => {
 const styles = {
   container: {
     display: "block",
-    width: "90%",
+    width: "100%",
     background: "var(--card)",
     border: 'var(--border) thin solid',
     borderRadius: "8px",

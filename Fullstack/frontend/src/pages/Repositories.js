@@ -76,7 +76,11 @@ const styles = {
     justifyItems: "center",
   },
   repoHolder: {
-    
+    width: "90%",
+    justifyItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
   },
   PATHolder: {
     width: "100%",
