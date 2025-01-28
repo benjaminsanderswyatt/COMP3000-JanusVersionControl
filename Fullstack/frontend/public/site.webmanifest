@@ -1,5 +1,5 @@
 {
-  "name": "Janus Version Control",
+  "name": "Janus Version Control System",
   "short_name": "Janus",
   "icons": [
     {
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#6870a7",
+  "background_color": "#6870a7",
   "display": "standalone"
 }

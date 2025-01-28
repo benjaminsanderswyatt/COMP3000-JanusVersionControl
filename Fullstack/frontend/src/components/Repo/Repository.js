@@ -43,12 +43,14 @@ const styles = {
     borderRadius: "8px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     padding: "20px",
+    maxWidth: "1000px",
   },
   header: {
     display: "flex",
-    marginBottom: "10px",
     color: "var(--text)",
     flexWrap: "wrap",
+    gap: "10px",
+    overflow: "hidden",
   },
   repoName: {
     fontSize: "1.2rem",
@@ -75,7 +77,8 @@ const styles = {
   },
   divider: {
     border: "none",
-    borderTop: "2px solid var(--primary)"
+    borderTop: "2px solid var(--primary)",
+    margin: "10px 0px"
   },
   description: {
     fontSize: "0.9rem",
@@ -85,6 +88,7 @@ const styles = {
     fontStyle: "italic",
     fontSize: "0.8rem",
     color: "var(--primary)",
+    float: "right",
   },
 };
 

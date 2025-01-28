@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Repository from '../components/Repo/Repository';
+
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 
 
@@ -47,6 +49,14 @@ const Repositories = () => {
 return (
   <div style={styles.container}>
     <h1>Repos</h1>
+
+    <div style={styles.repoHolder}>
+      <Repository/>
+      <Repository/>
+      <Repository/>
+    </div>
+
+
     <button onClick={handleGenAccessToken}>Generate PAT</button>
     {loading && <p>Loading...</p>}
     {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -64,6 +74,9 @@ const styles = {
   container: {
     width: "100%",
     justifyItems: "center",
+  },
+  repoHolder: {
+    
   },
   PATHolder: {
     width: "100%",

@@ -10,7 +10,7 @@ const Header = () => {
 
   return (
     <header style={styles.header}>
-      <img src="/logo.png"
+      <img src="/logo.svg"
        alt="Logo"
        style={styles.logo}
        onClick={() => navigate("/")}
