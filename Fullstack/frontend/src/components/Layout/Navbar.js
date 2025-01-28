@@ -1,9 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 
 
 const LoggedInHeader = ({ authUser }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   return (
     <div style={styles.container}>
@@ -13,26 +14,37 @@ const LoggedInHeader = ({ authUser }) => {
 
       {/* Navbar section */}
       <nav style={styles.navbar}>
-        <ul style={styles.navbarLinks}>
-          <button style={styles.navbarItem} onClick={() => navigate("/repositories")}>Repositories</button>
-        </ul>
-        <div style={styles.navbarSpacer}></div>
-        <ul style={styles.navbarLinks}>
-          <button style={styles.navbarItem} onClick={() => navigate("/account")}>Account</button>
-        </ul>
+        <button
+          style={{ ...styles.navbarItem, ...(location.pathname === "/repositories" ? styles.selected : {}) }}
+          onClick={() => navigate("/repositories")}
+        >
+          My Repositories
+        </button>
+        <button
+          style={{ ...styles.navbarItem, ...(location.pathname === "/collaborating" ? styles.selected : {}) }}
+          onClick={() => navigate("/collaborating")}
+        >
+          Collaborating
+        </button>
+        <button
+          style={{ ...styles.navbarItem, ...(location.pathname === "/commandline" ? styles.selected : {}) }}
+          onClick={() => navigate("/commandline")}
+        >
+          Command Line
+        </button>
       </nav>
 
+
       {/* Username section */}
-      <button style={styles.username}>{authUser}</button>
-
-
+      <button style={{ ...styles.username, ...(location.pathname === "/account" ? styles.selected : {}) }}
+       onClick={() => navigate("/account")}>{authUser}</button>
 
       {/* Settings section */}
       <div style={styles.settings}>
         <img src="/Icons/account.svg"
-        alt="Settings"
+        alt="Account"
         style={styles.iconAccount}
-        onClick={() => navigate("/settings")}
+        onClick={() => navigate("/account")}
         />
 
         <img src="/Icons/settings.svg"
@@ -75,11 +87,13 @@ const styles = {
   },
   username: {
     margin: '0px 10px',
-    fontWeight: '600',
     fontSize: '1.1rem',
     color: 'var(--text)',
     background: 'none',
     border: 'none',
+    cursor: "pointer",
+    padding: "8px 12px",
+    borderRadius: "8px",
   },
   navbar: {
     display: "flex",
@@ -87,26 +101,22 @@ const styles = {
     height: "100%",
     width: '100%',
     margin: "0",
-    gap: "2px",
+    gap: "10px",
     listStyle: "none",
     justifyContent: "left",
     alignItems: "center",
-  },
-  navbarLinks: {
-    padding: "0px",
-    margin: "0px",
   },
   navbarItem: {
     cursor: "pointer",
     border: "none",
     background: "none",
     color: "var(--text)",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    fontSize: "0.9rem",
   },
-  navbarSpacer: {
-    width: "1px",
-    height: "24px",
-    backgroundColor: "var(--lighttext)",
-    margin: "0 0px",
+  selected: {
+    background: "var(--border)",
   },
 };
 
