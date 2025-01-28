@@ -1,9 +1,7 @@
-using Janus.Helpers;
-using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
-using System.Text.Json;
+using System.Text;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -233,24 +231,115 @@ namespace CLITests
             var root = _treeBuilder.BuildTreeFromDiction(index);
             var rootHash = _treeBuilder.SaveTree();
 
-            Console.WriteLine("1    ");
-            _treeBuilder.PrintTree();
-
             // Act
             var recreatedTree = _treeBuilder.RecreateTree(_loggerMock.Object, rootHash);
 
             // Assert
-            Console.WriteLine("2    ");
-            _treeBuilder.PrintTree();
 
-            Assert.That(recreatedTree.Name, Is.EqualTo(root.Name));
-            Assert.That(recreatedTree.Hash, Is.EqualTo(root.Hash));
-            Assert.That(recreatedTree.Children, Is.EqualTo(root.Children));
+            // Root
+            Assert.That(recreatedTree.Name, Is.EqualTo("root"));
+            Assert.That(recreatedTree.Children.Count, Is.EqualTo(3));
 
+            // File 1
+            var file1 = recreatedTree.Children.FirstOrDefault(c => c.Name == "file1.txt");
+            Assert.That(file1.Hash, Is.EqualTo("hash1"));
+
+            // Dir 1
+            var dir1 = recreatedTree.Children.FirstOrDefault(c => c.Name == "dir1");
+            Assert.That(dir1.Hash, Is.Null);
+            Assert.That(dir1.Children.Count, Is.EqualTo(2));
+
+            // File 2
+            var file2 = dir1.Children.FirstOrDefault(c => c.Name == "file2.txt");
+            Assert.That(file2.Hash, Is.EqualTo("hash2"));
+
+            // File 3
+            var file3 = dir1.Children.FirstOrDefault(c => c.Name == "file3.txt");
+            Assert.That(file3.Hash, Is.EqualTo("hash3"));
+
+            // Dir 2
+            var dir2 = recreatedTree.Children.FirstOrDefault(c => c.Name == "dir2");
+            Assert.That(dir2.Hash, Is.Null);
+            Assert.That(dir2.Children.Count, Is.EqualTo(2));
+
+            // File 4
+            var file4 = dir2.Children.FirstOrDefault(c => c.Name == "file4.txt");
+            Assert.That(file4.Hash, Is.EqualTo("hash4"));
+
+            // Subdir1
+            var subdir1 = dir2.Children.FirstOrDefault(c => c.Name == "subdir1");
+            Assert.That(subdir1.Hash, Is.Null);
+            Assert.That(subdir1.Children.Count, Is.EqualTo(1));
+
+            // File 5
+            var file5 = subdir1.Children.FirstOrDefault(c => c.Name == "file5.txt");
+            Assert.That(file5.Hash, Is.EqualTo("hash5"));
         }
 
 
+        [Test]
+        public void ShouldCompareTrees()
+        {
+            // Arrange
+            var index1 = new Dictionary<string, string>
+            {
+                { "file1.txt", "hash1" },
+                { "dir1/file2.txt", "hash2" },
+                { "dir1/file3.txt", "hash3" },
+                { "dir2/file4.txt", "hash4" },
+                { "dir2/subdir1/file5.txt", "hash5" }
+            };
 
+            var index2 = new Dictionary<string, string>
+            {
+                { "file1.txt", "hash1" },
+                { "dir1/file2.txt", "hash2_modified" }, // Modified file
+                { "dir1/file3.txt", "hash3" },
+                { "dir2/file6.txt", "hash6" }, // New file
+                { "dir3/file7.txt", "hash7" } // New directory with file
+            };
+
+            var tree1 = _treeBuilder.BuildTreeFromDiction(index1);
+
+            _treeBuilder.PrintTree();
+
+            var tree2 = _treeBuilder.BuildTreeFromDiction(index2);
+
+            _treeBuilder.PrintTree();
+
+            
+
+            // Act
+            var comparisonResult = _treeBuilder.CompareTrees(tree1, tree2);
+
+
+            foreach (var added in comparisonResult.Added)
+            {
+                Console.WriteLine($"Added: {added}");
+            }
+
+            foreach (var modified in comparisonResult.Modified)
+            {
+                Console.WriteLine($"Modified: {modified}");
+            }
+
+            foreach (var deleted in comparisonResult.Deleted)
+            {
+                Console.WriteLine($"Deleted: {deleted}");
+            }
+
+
+            // Assert
+            Assert.That(comparisonResult.Added, Has.Count.EqualTo(2));
+            Assert.That(comparisonResult.Added, Does.Contain(Path.Combine("dir2", "file6.txt")));
+            Assert.That(comparisonResult.Added, Does.Contain(Path.Combine("dir3", "file7.txt")));
+
+            Assert.That(comparisonResult.Modified, Has.Count.EqualTo(1));
+            Assert.That(comparisonResult.Modified, Does.Contain(Path.Combine("dir1", "file2.txt")));
+
+            Assert.That(comparisonResult.Deleted, Has.Count.EqualTo(1));
+            Assert.That(comparisonResult.Deleted, Does.Contain(Path.Combine("dir2", "subdir1", "file5.txt")));
+        }
 
 
     }

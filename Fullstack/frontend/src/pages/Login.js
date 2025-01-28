@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 import LoginForm from '../components/Login/LoginForm';
 
+import Repository from '../components/Repo/Repository';
+
 
 const Login = () => {
   const { login } = useAuth();
@@ -42,6 +44,18 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
+
+      <Repository></Repository>
+
+
+
+
+
+
+
+
+
+
       <h1 style={styles.heading}>Login</h1>
 
       <div style={styles.main}>
