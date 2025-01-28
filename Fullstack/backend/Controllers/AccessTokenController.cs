@@ -13,7 +13,7 @@ namespace backend.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    [EnableRateLimiting("CLIRateLimit")]
+    [EnableRateLimiting("FrontendRateLimit")]
     public class AccessTokenController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
@@ -25,13 +25,16 @@ namespace backend.Controllers
             _accessTokenHelper = accessTokenHelper;
         }
 
-        // POST: api/AccessToken/GenPAT
+        // POST: api/AccessToken/GeneratePAT
         [Authorize(Policy = "FrontendPolicy")]
         [EnableCors("FrontendPolicy")]
-        [HttpPost("GenPAT")]
+        [HttpPost("GeneratePAT")]
         public async Task<IActionResult> GeneratePAT([FromBody] PatDto request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            Console.WriteLine($"jepted Entered");
+
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -44,10 +47,14 @@ namespace backend.Controllers
                 return BadRequest(new { message = "Expiration time must be between 12 hours and 1 year." });
             }
 
+            Console.WriteLine($"Request: {request.ExpirationInHours}");
+
 
             var token = _accessTokenHelper.GenerateAccessToken(userId, request.ExpirationInHours);
 
-            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
+            Console.WriteLine($"jepted Token: {token}");
+
+            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token)});
         }
 
 
@@ -64,7 +71,7 @@ namespace backend.Controllers
 
             if (existingToken != null)
             {
-                return BadRequest("This token is already revoked.");
+                return BadRequest(new { message = "This token is already revoked." });
             }
 
 
@@ -90,7 +97,7 @@ namespace backend.Controllers
             _janusDbContext.AccessTokenBlacklists.Add(token);
             await _janusDbContext.SaveChangesAsync();
 
-            return Ok("Token has been revoked.");
+            return Ok(new { message = "Token has been revoked." });
         }
 
     }

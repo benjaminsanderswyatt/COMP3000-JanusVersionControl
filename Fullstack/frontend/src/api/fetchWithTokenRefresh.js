@@ -13,6 +13,7 @@ const fetchWithTokenRefresh = async (url, options = {}, sessionExpired) => {
   const headers = {
     ...options.headers,
     'Authorization': `Bearer ${token}`,
+    credentials: 'include',
   };
 
   const response = await fetch(url, { ...options, headers });

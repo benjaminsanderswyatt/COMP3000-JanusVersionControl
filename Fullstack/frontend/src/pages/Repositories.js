@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 
+
+
+import { useAuth  } from '../contexts/AuthContext';
+
+
 const Repositories = () => {
   const [tokenData , setTokenData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+
+
+
+  const { sessionExpired } = useAuth();
 
   const handleGenAccessToken = async () => {
     setLoading(true);
@@ -12,7 +22,9 @@ const Repositories = () => {
     setTokenData (null);
     try {
       
-      const response = await GenAccessToken();
+      const ExpirationInHours = 30;
+
+      const response = await GenAccessToken(ExpirationInHours, sessionExpired);
       console.log('Finished response Try');
 
       if (!response.success) {
@@ -28,25 +40,39 @@ const Repositories = () => {
       console.log('Final');
       setLoading(false);
     }
-  };
+};
 
 
 
-  return (
-    <div>
-      <h1>Repos</h1>
-      <button onClick={handleGenAccessToken}>Generate PAT</button>
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {tokenData  && (
-        <div>
-          <h2>Token Generated:</h2>
-          <pre>{JSON.stringify(tokenData, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-    );
-  };
-  
-  export default Repositories;
+return (
+  <div style={styles.container}>
+    <h1>Repos</h1>
+    <button onClick={handleGenAccessToken}>Generate PAT</button>
+    {loading && <p>Loading...</p>}
+    {error && <p style={{ color: 'red' }}>{error}</p>}
+    {tokenData  && (
+      <div style={styles.PATHolder}>
+        <h2>Token Generated:</h2>
+        <pre style={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
+      </div>
+    )}
+  </div>
+  );
+};
+
+const styles = {
+  container: {
+    width: "100%",
+    justifyItems: "center",
+  },
+  PATHolder: {
+    width: "100%",
+  },
+  GenPAT: {
+    overflow: "auto",
+  },
+}
+
+
+export default Repositories;
   

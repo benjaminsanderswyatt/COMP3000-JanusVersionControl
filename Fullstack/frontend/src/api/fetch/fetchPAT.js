@@ -1,26 +1,32 @@
-const API_URL = 'https://localhost:82/api/AccessToken/GenPAT';
+import fetchWithTokenRefresh from '../fetchWithTokenRefresh';
+
+const API_URL = 'https://localhost:82/api/AccessToken/GeneratePAT';
 
 
-export async function GenAccessToken() {
+export async function GenAccessToken(ExpirationInHours, sessionExpired) {
     try {
-        const response = await fetch(`${API_URL}`, {
+        const response = await fetchWithTokenRefresh(`${API_URL}`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-                }
-        });
-        // Check if the response is JSON
-        const contentType = response.headers.get("content-type");
-        let responseJson = null;
-
-        console.log("Full response: " + response.text);
-        console.log("Full body: " + response.body);
-        if (contentType && contentType.includes("application/json")) {
-            responseJson = await response.json();
-        }
+            },
+            body: JSON.stringify({ ExpirationInHours }),
+        }, sessionExpired);
 
         //const responseJson = await response.json();
+        const responseText = await response.text();
+        console.log("Response text:", responseText);
+
+        if (!responseText) {
+            throw new Error("The server returned an empty response.");
+        }
+
+        // Parse JSON
+        const responseJson = JSON.parse(responseText);
+
+        if (!response.ok) {
+            throw new Error(responseJson.message || "GFailed to generate access token.");
+        }
 
         if (!response.ok) {
             throw new Error(responseJson.message || "Failed to generate access token.");
@@ -29,6 +35,6 @@ export async function GenAccessToken() {
         return {success: true, token: responseJson.token};
     
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: "hello" + error.message };
     }
-  }
+}
