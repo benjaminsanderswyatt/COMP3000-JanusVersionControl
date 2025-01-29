@@ -133,7 +133,7 @@ namespace Janus
 
                 TreeBuilder builder = new TreeBuilder(Paths);
 
-
+                /*
                 // Compare the two trees
                 TreeComparisonResult result = builder.CompareTrees(newtree, wdTree);
 
@@ -147,7 +147,7 @@ namespace Janus
                 Console.WriteLine("Deleted:");
                 result.Deleted.ForEach(Console.WriteLine);
 
-
+                */
                 Logger.Log("Test End");
 
             }

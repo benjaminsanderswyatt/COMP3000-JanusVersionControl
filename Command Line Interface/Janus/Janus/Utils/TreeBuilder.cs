@@ -180,6 +180,12 @@ namespace Janus.Utils
             }
         }
 
+    }
+
+
+
+    public static class Tree
+    {
         public class TreeComparisonResult
         {
             public List<string> Added { get; set; } = new();
@@ -188,7 +194,7 @@ namespace Janus.Utils
         }
 
 
-        public TreeComparisonResult CompareTrees(TreeNode tree1, TreeNode tree2)
+        public static TreeComparisonResult CompareTrees(TreeNode tree1, TreeNode tree2)
         {
             var result = new TreeComparisonResult();
 
@@ -219,7 +225,7 @@ namespace Janus.Utils
         }
 
 
-        private void CollectPaths(TreeNode node, string currentPath, List<string> result)
+        private static void CollectPaths(TreeNode node, string currentPath, List<string> result)
         {
             if (node == null) return;
 
@@ -241,7 +247,7 @@ namespace Janus.Utils
         }
 
 
-        private void CompareNodes(TreeNode node1, TreeNode node2, string currentPath, TreeComparisonResult result)
+        private static void CompareNodes(TreeNode node1, TreeNode node2, string currentPath, TreeComparisonResult result)
         {
             // Collect children as dictionaries for easier lookup
             var node1Files = node1?.Children?.Where(c => c.Hash != null).ToDictionary(c => c.Name, c => c) ?? new Dictionary<string, TreeNode>();
@@ -291,7 +297,7 @@ namespace Janus.Utils
                 CompareNodes(childNode1, childNode2, Path.Combine(currentPath, dirName), result);
             }
         }
-
-
     }
+
+
 }

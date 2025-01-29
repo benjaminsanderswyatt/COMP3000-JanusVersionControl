@@ -281,7 +281,7 @@ namespace CLITests
         public void ShouldCompareTrees()
         {
             // Arrange
-            var index1 = new Dictionary<string, string>
+            var diction1 = new Dictionary<string, string>
             {
                 { "file1.txt", "hash1" },
                 { "dir1/file2.txt", "hash2" },
@@ -290,55 +290,41 @@ namespace CLITests
                 { "dir2/subdir1/file5.txt", "hash5" }
             };
 
-            var index2 = new Dictionary<string, string>
+            var diction2 = new Dictionary<string, string>
             {
                 { "file1.txt", "hash1" },
                 { "dir1/file2.txt", "hash2_modified" }, // Modified file
                 { "dir1/file3.txt", "hash3" },
                 { "dir2/file6.txt", "hash6" }, // New file
-                { "dir3/file7.txt", "hash7" } // New directory with file
+                { "dir3/file7.txt", "hash7" } // New file
             };
 
-            var tree1 = _treeBuilder.BuildTreeFromDiction(index1);
+            var tree1 = _treeBuilder.BuildTreeFromDiction(diction1);
 
-            _treeBuilder.PrintTree();
-
-            var tree2 = _treeBuilder.BuildTreeFromDiction(index2);
-
-            _treeBuilder.PrintTree();
+            var tree2Builder = new TreeBuilder(_paths);
+            var tree2 = tree2Builder.BuildTreeFromDiction(diction2);
 
             
-
             // Act
-            var comparisonResult = _treeBuilder.CompareTrees(tree1, tree2);
-
-
-            foreach (var added in comparisonResult.Added)
-            {
-                Console.WriteLine($"Added: {added}");
-            }
-
-            foreach (var modified in comparisonResult.Modified)
-            {
-                Console.WriteLine($"Modified: {modified}");
-            }
-
-            foreach (var deleted in comparisonResult.Deleted)
-            {
-                Console.WriteLine($"Deleted: {deleted}");
-            }
+            var comparisonResult = Tree.CompareTrees(tree1, tree2);
 
 
             // Assert
-            Assert.That(comparisonResult.Added, Has.Count.EqualTo(2));
-            Assert.That(comparisonResult.Added, Does.Contain(Path.Combine("dir2", "file6.txt")));
-            Assert.That(comparisonResult.Added, Does.Contain(Path.Combine("dir3", "file7.txt")));
+            comparisonResult.Added.ForEach(item => { Console.WriteLine($"Added: {item}"); });
+            comparisonResult.Modified.ForEach(item => { Console.WriteLine($"Modified: {item}"); });
+            comparisonResult.Deleted.ForEach(item => { Console.WriteLine($"Deleted: {item}"); });
 
-            Assert.That(comparisonResult.Modified, Has.Count.EqualTo(1));
-            Assert.That(comparisonResult.Modified, Does.Contain(Path.Combine("dir1", "file2.txt")));
+            Assert.That(comparisonResult.Added.Count, Is.EqualTo(2));
+            Assert.That(comparisonResult.Modified.Count, Is.EqualTo(1));
+            Assert.That(comparisonResult.Deleted.Count, Is.EqualTo(2));
 
-            Assert.That(comparisonResult.Deleted, Has.Count.EqualTo(1));
-            Assert.That(comparisonResult.Deleted, Does.Contain(Path.Combine("dir2", "subdir1", "file5.txt")));
+            Assert.Contains("dir2/file6.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Added);
+            Assert.Contains("dir3/file7.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Added);
+
+            Assert.Contains("dir1/file2.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Modified);
+
+            Assert.Contains("dir2/file4.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);
+            Assert.Contains("dir2/subdir1/file5.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);
         }
 
 

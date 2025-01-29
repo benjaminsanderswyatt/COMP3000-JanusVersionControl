@@ -106,7 +106,7 @@ namespace Janus.Helpers
             //    targetTree
             //);
 
-            var comparisonResult = new TreeBuilder.TreeComparisonResult();
+            var comparisonResult = new Tree.TreeComparisonResult();
 
             // Perform actions based on the comparison result
             // Add or update files
