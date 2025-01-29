@@ -33,6 +33,8 @@ const styles = {
     justifyContent: "left",
     alignItems: "center",
     borderBottom: 'var(--border) solid 1px',
+
+    maxWidth: "100%",
   },
   logo: {
     width: 'auto',

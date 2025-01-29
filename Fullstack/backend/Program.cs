@@ -36,6 +36,9 @@ builder.Services.AddDbContext<JanusDbContext>(options =>
     new MySqlServerVersion(new Version(8, 0, 21)),
     mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
+// Initialize database
+builder.Services.AddHostedService<DatabaseInitialiser>();
+
 
 // Token blacklist cleanup service
 builder.Services.AddHostedService<PATBlacklistCleanupService>();
@@ -179,7 +182,6 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-PrepDB.PrepPopulation(app);
 
 app.UseHttpsRedirection();
 

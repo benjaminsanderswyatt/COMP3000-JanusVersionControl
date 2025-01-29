@@ -7,7 +7,7 @@ const Layout = () => {
 
 
   return (
-    <div style={styles.constainer}>
+    <div style={styles.container}>
       <Header />
        
       
@@ -22,7 +22,7 @@ const Layout = () => {
 };
 
 const styles = {
-  constainer: {
+  container: {
     backgroundColor: 'var(--background)',
     minHeight: "100vh",
     display: "flex",
