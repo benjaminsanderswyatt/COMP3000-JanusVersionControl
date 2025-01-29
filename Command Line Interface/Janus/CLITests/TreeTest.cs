@@ -310,18 +310,18 @@ namespace CLITests
 
 
             // Assert
-            comparisonResult.Added.ForEach(item => { Console.WriteLine($"Added: {item}"); });
-            comparisonResult.Modified.ForEach(item => { Console.WriteLine($"Modified: {item}"); });
+            comparisonResult.AddedOrUntracked.ForEach(item => { Console.WriteLine($"Added: {item}"); });
+            comparisonResult.ModifiedOrNotStaged.ForEach(item => { Console.WriteLine($"Modified: {item}"); });
             comparisonResult.Deleted.ForEach(item => { Console.WriteLine($"Deleted: {item}"); });
 
-            Assert.That(comparisonResult.Added.Count, Is.EqualTo(2));
-            Assert.That(comparisonResult.Modified.Count, Is.EqualTo(1));
+            Assert.That(comparisonResult.AddedOrUntracked.Count, Is.EqualTo(2));
+            Assert.That(comparisonResult.ModifiedOrNotStaged.Count, Is.EqualTo(1));
             Assert.That(comparisonResult.Deleted.Count, Is.EqualTo(2));
 
-            Assert.Contains("dir2/file6.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Added);
-            Assert.Contains("dir3/file7.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Added);
+            Assert.Contains("dir2/file6.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.AddedOrUntracked);
+            Assert.Contains("dir3/file7.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.AddedOrUntracked);
 
-            Assert.Contains("dir1/file2.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Modified);
+            Assert.Contains("dir1/file2.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.ModifiedOrNotStaged);
 
             Assert.Contains("dir2/file4.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);
             Assert.Contains("dir2/subdir1/file5.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);

@@ -7,28 +7,33 @@ namespace Janus.Helpers
 {
     public class StatusHelper
     {
-        public static bool HasAnythingBeenStagedForCommit(ILogger logger, Paths paths, TreeNode stagedTree)
+        // stagedTree and headTree are optional
+        public static bool HasAnythingBeenStagedForCommit(ILogger logger, Paths paths, TreeNode stagedTree = null, TreeNode headTree = null)
         {
-            
+            var comparisonResult = GetAddedModifiedDeleted(logger, paths, stagedTree, headTree);
+
+            if (comparisonResult.AddedOrUntracked.Any() || comparisonResult.ModifiedOrNotStaged.Any() || comparisonResult.Deleted.Any())
+            {
+                return true;
+            }
+
+            return false;
+        }
 
 
-            // Get the head commit hash
-            string commitHash = CommandHelper.GetCurrentHEAD(paths);
+        public static bool AreThereUncommittedChanges(ILogger logger, Paths paths, TreeNode stagedTree = null, TreeNode workingTree = null)
+        {
+            var addedModifiedDeleted = GetAddedModifiedDeleted(logger, paths, stagedTree);
 
-            // Get the tree from commit hash
-            string commitFilePath = Path.Combine(paths.CommitDir, commitHash);
+            if (addedModifiedDeleted.AddedOrUntracked.Any() || addedModifiedDeleted.ModifiedOrNotStaged.Any() || addedModifiedDeleted.Deleted.Any())
+            {
+                return true;
+            }
 
-            CommitMetadata commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitFilePath));
 
-            // Recreate tree from the treehash
-            var treeBuilder = new TreeBuilder(paths);
+            var notStagedUntracked = GetNotStagedUntracked(paths, stagedTree, workingTree);
 
-            TreeNode headTree = treeBuilder.RecreateTree(logger, commitMetadata.Tree);
-
-            // Compare index to tree (differances are changes to be committed)
-            var comparisonResult = Tree.CompareTrees(headTree, stagedTree);
-
-            if (comparisonResult.Added.Any() || comparisonResult.Modified.Any() || comparisonResult.Deleted.Any())
+            if (notStagedUntracked.ModifiedOrNotStaged.Any() || notStagedUntracked.AddedOrUntracked.Any())
             {
                 return true;
             }
@@ -42,7 +47,90 @@ namespace Janus.Helpers
 
 
 
+        // Compare head to tree
+        public static TreeComparisonResult GetAddedModifiedDeleted(ILogger logger, Paths paths, TreeNode stagedTree = null, TreeNode headTree = null)
+        {
+            // Load staged tree if not provided
+            if (stagedTree == null)
+            {
+                stagedTree = GetStagedTree(paths);
+            }
 
+
+            // Load head tree if not provided
+            if (headTree == null)
+            {
+                headTree = GetHeadTree(logger, paths);
+            }
+
+
+            // Compare head to staged tree (differances are changes to be committed)
+            var comparisonResult = Tree.CompareTrees(headTree, stagedTree);
+
+            return comparisonResult;
+        }
+
+        // Compare staged to working
+        public static TreeComparisonResult GetNotStagedUntracked(Paths paths, TreeNode stagedTree = null, TreeNode workingTree = null)
+        {
+            // Load staged tree if not provided
+            if (stagedTree == null)
+            {
+                stagedTree = GetStagedTree(paths);
+            }
+
+            // Load working tree if not provided
+            if (workingTree == null)
+            {
+                workingTree = GetWorkingTree(paths);
+            }
+
+
+            // Compare staged tree to working tree (differances are not staged for commit or untracked)
+            var comparisonResult = Tree.CompareTrees(stagedTree, workingTree);
+
+            return comparisonResult;
+        }
+
+
+
+        public static TreeNode GetStagedTree(Paths paths)
+        {
+            var stagedFiles = IndexHelper.LoadIndex(paths.Index);
+            var stagedTreeBuilder = new TreeBuilder(paths);
+            var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(stagedFiles);
+
+            return stagedTree;
+        }
+
+
+        public static TreeNode GetHeadTree(ILogger logger, Paths paths)
+        {
+            string commitHash = CommandHelper.GetCurrentHEAD(paths);
+            string commitFilePath = Path.Combine(paths.CommitDir, commitHash);
+            CommitMetadata commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitFilePath));
+
+            var treeBuilder = new TreeBuilder(paths);
+            var headTree = treeBuilder.RecreateTree(logger, commitMetadata.Tree);
+
+            return headTree;
+        }
+
+
+        public static TreeNode GetWorkingTree(Paths paths, Dictionary<string, string> workingDirFiles = null)
+        {
+            // Load working directory files if not provided
+            if (workingDirFiles == null)
+            {
+                workingDirFiles = GetFilesHelper.GetWorkingDirFileHash(paths);
+            }
+
+
+            var workingTreeBuilder = new TreeBuilder(paths);
+            var workingTree = workingTreeBuilder.BuildTreeFromDiction(workingDirFiles);
+
+            return workingTree;
+        }
 
 
 

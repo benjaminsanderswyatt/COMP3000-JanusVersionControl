@@ -139,10 +139,10 @@ namespace Janus
 
                 // Output the results
                 Console.WriteLine("Added:");
-                result.Added.ForEach(Console.WriteLine);
+                result.AddedOrUntracked.ForEach(Console.WriteLine);
 
                 Console.WriteLine("Modified:");
-                result.Modified.ForEach(Console.WriteLine);
+                result.ModifiedOrNotStaged.ForEach(Console.WriteLine);
 
                 Console.WriteLine("Deleted:");
                 result.Deleted.ForEach(Console.WriteLine);
@@ -888,8 +888,8 @@ namespace Janus
                 bool force = args.Contains("--force") ? true : false;
                 if (!force) // Force skips the check
                 {
-                    /*
-                    if (StatusHelper.AreThereUncommittedChanges(Paths))
+                    
+                    if (StatusHelper.AreThereUncommittedChanges(Logger, Paths))
                     {
                         // Promt user to confirm branch switch
                         if (!CommandHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
@@ -898,7 +898,7 @@ namespace Janus
                             return;
                         }
                     }
-                    */
+                    
                 }
 
 
@@ -998,95 +998,19 @@ namespace Janus
 
 
 
-                // Get the tree from the HEAD commit
-                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
-
-                // Get tree hash from headCommitHash
-                string contents = File.ReadAllText(Path.Combine(Paths.CommitDir, headCommitHash));
-                CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
-                string headTreeHash = metadata.Tree;
+                // Get Added, Modified & Deleted files
+                var addedModifiedDeleted = StatusHelper.GetAddedModifiedDeleted(Logger, Paths);
 
 
+                bool anyAMD = addedModifiedDeleted.AddedOrUntracked.Any() || addedModifiedDeleted.ModifiedOrNotStaged.Any() || addedModifiedDeleted.Deleted.Any();
 
-
-
-                var treeBuilder = new TreeBuilder(Paths);
-
-                var headTree = treeBuilder.RebuildTree(Logger, headTreeHash);
-
-
-
-
-                // Load index tree (staging area)
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-                var indexTree = new TreeBuilder(Paths).BuildTreeFromDiction(stagedFiles);
-
-
-                //var workingTree = new TreeBuilder(Paths).GetWorkingDirTree(Paths.WorkingDir);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                /*
-                 * var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-
-                // Get files from working directory (excluding .janus files & ignored files)
-                var workingFiles = GetFilesHelper.GetAllFilesInDir(Paths, Paths.WorkingDir);
-
-
-                // Get the tree from the HEAD commit
-                string headCommitHash = CommandHelper.GetCurrentHEAD(Paths);
-                 * 
-                Dictionary<string, object> tree = TreeHelper.GetTreeFromCommitHash(Paths, headCommitHash);
-
-                // Get tree hash from commit
-                string contents = File.ReadAllText(Path.Combine(Paths.CommitDir, headCommitHash));
-
-                // Deserialise into commitMetadata
-                CommitMetadata metadata = JsonSerializer.Deserialize<CommitMetadata>(contents);
-
-
-
-                var treeBuilder = new TreeBuilder(Paths.TreeDir);
-
-                
-
-                var tree = treeBuilder.RecreateTree(metadata.Tree);
-
-
-                // Staged for commit
-                //var (stagedForCommitModified, stagedForCommitAdded, stagedForCommitDeleted) = StatusHelper.GetStaged(tree, stagedFiles);
-
-
-                var treeComparisonResult = treeBuilder.CompareTrees(
-                    treeBuilder.GetWorkingDirTree(Paths.WorkingDir),
-                    tree);
-
-
-                if (treeComparisonResult.Added.Any() || treeComparisonResult.Modified.Any() || treeComparisonResult.Deleted.Any())
+                if (anyAMD)
                 {
                     Logger.Log("Changes to be committed:");
 
-                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Added, ConsoleColor.Green, "(added)");
-                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Modified, ConsoleColor.Yellow, "(modified)");
-                    StatusHelper.DisplayStatus(Logger, treeComparisonResult.Deleted, ConsoleColor.Red, "(deleted)");
-
+                    StatusHelper.DisplayStatus(Logger, addedModifiedDeleted.AddedOrUntracked, ConsoleColor.Green, "(added)");
+                    StatusHelper.DisplayStatus(Logger, addedModifiedDeleted.ModifiedOrNotStaged, ConsoleColor.Yellow, "(modified)");
+                    StatusHelper.DisplayStatus(Logger, addedModifiedDeleted.Deleted, ConsoleColor.Red, "(deleted)");
 
                     CommandHelper.DisplaySeperator(Logger);
                 }
@@ -1095,33 +1019,37 @@ namespace Janus
 
 
 
-                // Not staged files
-                // Untracked
-                var (notStaged, untracked) = StatusHelper.GetNotStagedUntracked(Paths.WorkingDir, workingFiles, stagedFiles);
 
+                // Get Not Staged & Untracked files
+                var notStagedUntracked = StatusHelper.GetNotStagedUntracked(Paths);
 
-                if (notStaged.Any())
+                bool anyNS = notStagedUntracked.ModifiedOrNotStaged.Any();
+                bool anyU = notStagedUntracked.AddedOrUntracked.Any();
+
+                if (anyNS)
                 {
                     Logger.Log("Changes not staged for commit:");
-                    StatusHelper.DisplayStatus(Logger, notStaged, ConsoleColor.Cyan);
+                    StatusHelper.DisplayStatus(Logger, notStagedUntracked.ModifiedOrNotStaged, ConsoleColor.Cyan);
                     CommandHelper.DisplaySeperator(Logger);
                 }
 
-                if (untracked.Any())
+                if (anyU)
                 {
                     Logger.Log("Untracked files:");
-                    StatusHelper.DisplayStatus(Logger, untracked, ConsoleColor.Blue);
+                    StatusHelper.DisplayStatus(Logger, notStagedUntracked.AddedOrUntracked, ConsoleColor.Blue);
                     CommandHelper.DisplaySeperator(Logger);
                 }
+
 
 
 
                 // When there is nothing to commit, stage or being untracked
-                if (!(treeComparisonResult.Added.Any() || treeComparisonResult.Modified.Any() || treeComparisonResult.Deleted.Any() || notStaged.Any() || untracked.Any()))
+                if (!(anyAMD || anyNS || anyU))
                 {
                     Logger.Log("All clean.");
                 }
-                */
+
+
             }
         }
 

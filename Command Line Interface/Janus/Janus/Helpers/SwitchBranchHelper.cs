@@ -106,11 +106,11 @@ namespace Janus.Helpers
             //    targetTree
             //);
 
-            var comparisonResult = new Tree.TreeComparisonResult();
+            var comparisonResult = new TreeComparisonResult();
 
             // Perform actions based on the comparison result
             // Add or update files
-            foreach (var filePath in comparisonResult.Added.Concat(comparisonResult.Modified))
+            foreach (var filePath in comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged))
             {
                 string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
                 string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree

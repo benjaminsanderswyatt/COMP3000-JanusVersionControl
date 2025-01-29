@@ -183,17 +183,16 @@ namespace Janus.Utils
     }
 
 
+    // Represents the results of comparing two trees
+    public class TreeComparisonResult
+    {
+        public List<string> AddedOrUntracked { get; set; } = new(); // GetAddedModifiedDeleted -> Added, GetNotStagedUntracked -> Untracked
+        public List<string> ModifiedOrNotStaged { get; set; } = new(); // GetAddedModifiedDeleted -> Modified, GetNotStagedUntracked -> Not Staged
+        public List<string> Deleted { get; set; } = new();
+    }
 
     public static class Tree
     {
-        public class TreeComparisonResult
-        {
-            public List<string> Added { get; set; } = new();
-            public List<string> Modified { get; set; } = new();
-            public List<string> Deleted { get; set; } = new();
-        }
-
-
         public static TreeComparisonResult CompareTrees(TreeNode tree1, TreeNode tree2)
         {
             var result = new TreeComparisonResult();
@@ -207,7 +206,7 @@ namespace Janus.Utils
             if (tree1 == null)
             {
                 // All files in tree2 are added
-                CollectPaths(tree2, "", result.Added);
+                CollectPaths(tree2, "", result.AddedOrUntracked);
                 return result;
             }
 
@@ -263,7 +262,7 @@ namespace Janus.Utils
                 if (!node1Files.ContainsKey(key)) // Added
                 {
                     // File is only in tree2
-                    result.Added.Add(path);
+                    result.AddedOrUntracked.Add(path);
                 }
                 else if (!node2Files.ContainsKey(key)) // Deleted
                 {
@@ -278,7 +277,7 @@ namespace Janus.Utils
 
                     if (file1.Hash != file2.Hash) // Modified
                     {
-                        result.Modified.Add(path);
+                        result.ModifiedOrNotStaged.Add(path);
                     }
                 }
             }
