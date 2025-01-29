@@ -81,6 +81,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "18px",
+    alignItems: "center",
   },
   PATHolder: {
     width: "100%",
