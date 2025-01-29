@@ -425,7 +425,7 @@ namespace Janus
                 string parentCommit;
                 try
                 {
-                    parentCommit = CommandHelper.GetCurrentHEAD(Paths);
+                    parentCommit = CommandHelper.GetCurrentHeadCommitHash(Paths);
                 }
                 catch (Exception ex)
                 {
@@ -698,7 +698,7 @@ namespace Janus
 
 
                 // Put the latest commit of the current branch into the new branch file
-                string branchHeadCommit = CommandHelper.GetCurrentHEAD(Paths);
+                string branchHeadCommit = CommandHelper.GetCurrentHeadCommitHash(Paths);
 
                 File.WriteAllText(branchPath, branchHeadCommit);
 

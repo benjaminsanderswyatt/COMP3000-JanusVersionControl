@@ -93,12 +93,10 @@ namespace Janus.Helpers
             var treeBuilder = new TreeBuilder(paths);
 
             // Get the current branch
-            string headCommitHash = CommandHelper.GetCurrentHEAD(paths);
-            var currentTree = treeBuilder.RecreateTree(logger, headCommitHash);
+            var currentTree = Tree.GetHeadTree(logger, paths);
 
-            // Get the target branch
-            string targetCommitHash = File.ReadAllText(Path.Combine(paths.HeadsDir, branchName));
-            var targetTree = treeBuilder.RecreateTree(logger, targetCommitHash);
+            // Get the target branch tree
+            var targetTree = Tree.GetHeadTree(logger, paths, branchName);
 
             // Compare the current and target trees to determine actions
             //var comparisonResult = treeBuilder.CompareTrees(
@@ -137,8 +135,10 @@ namespace Janus.Helpers
                 }
             }
 
+
+
             // Update HEAD to point to the target branch
-            File.WriteAllText(paths.HEAD, targetCommitHash);
+            BranchHelper.SetCurrentHEAD(paths, branchName);
 
             // Save the current branch's index and HEAD
             var currentBranchIndexPath = Path.Combine(paths.BranchesDir, currentBranch, "index");
@@ -155,9 +155,6 @@ namespace Janus.Helpers
                 logger.Log($"Warning: Index file for branch '{branchName}' not found. Using an empty index.");
                 File.WriteAllText(paths.Index, string.Empty); // Clear index if it doesn't exist for the target branch
             }
-
-            // Update HEAD reference
-            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
 
             logger.Log($"Successfully switched to branch '{branchName}'.");
         }

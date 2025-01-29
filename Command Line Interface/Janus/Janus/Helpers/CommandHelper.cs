@@ -145,7 +145,7 @@ namespace Janus.Helpers
 
 
 
-        public static string GetCurrentHEAD(Paths paths)
+        public static string GetCurrentHeadCommitHash(Paths paths)
         {
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
@@ -174,6 +174,9 @@ namespace Janus.Helpers
 
             return commitHash;
         }
+
+
+
 
 
         public static string GenerateCommitMetadata(string branch, string commitHash, string treeHash, string commitMessage, string parentCommit, string author)

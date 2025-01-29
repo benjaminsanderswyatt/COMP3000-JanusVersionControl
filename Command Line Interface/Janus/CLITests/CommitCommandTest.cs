@@ -1,6 +1,7 @@
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
@@ -164,9 +165,14 @@ namespace CLITests
             Assert.That(newCommitData.Message, Is.EqualTo("First commit"), "Commit message should be 'First commit'.");
 
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
 
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
         }
 
 
@@ -215,9 +221,16 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Multiple files commit"), "Commit message should be 'Multiple files commit'.");
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
-            //Assert.That(tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
+
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(2));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file2.txt ")));
 
         }
 
@@ -270,8 +283,16 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Updated file"), "Commit message should be 'Updated file'.");
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
+
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+
 
             // Check the refs/heads/main file contents
             string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
@@ -320,9 +341,16 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Deleting file commit"), "Commit message should be 'Deleting file commit'.");
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file.txt"), "File should be part of the commit tree.");
-            //Assert.That(tree["file.txt"], Is.Not.EqualTo("Deleted"), "The object if from when added so it shouldnt be deleted");
+
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+
 
         }
 
@@ -367,9 +395,18 @@ namespace CLITests
 
             Assert.That(newCommitData.Message, Is.EqualTo("Partial commit"), "Commit message should be 'Partial commit'.");
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
-            //Assert.That(!tree.ContainsKey("file2.txt"), "File2 shouldnt be part of the commit tree.");
+
+
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt ")));
+            Assert.IsFalse(treeContent.Any(line => line.Contains("blob file2.txt ")));
+
         }
 
 
@@ -425,8 +462,16 @@ namespace CLITests
 
             Assert.That(newCommitData.Parent, Is.EqualTo(deleteCommitData.Commit), "Parent commit should be the original commit hash.");
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
-            //Assert.That(tree.ContainsKey("file.txt"), "File1 should be part of the commit tree.");
+
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[2].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
+
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+
 
             // Check the refs/heads/main file contents
             string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
@@ -478,20 +523,41 @@ namespace CLITests
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
 
-            //var tree = TreeHelper.GetTreeFromTreeHash(_paths, newCommitData.Tree);
 
-            //Assert.IsTrue(tree.ContainsKey("dir1"));
-            //var dir1Tree = tree["dir1"] as Dictionary<string, object>;
-            //Assert.IsNotNull(dir1Tree);
+            // Check that the commit tree contains the file
+            var treeFilePath = Path.Combine(_paths.TreeDir, commitPathsInFolder[1].Tree);
+            Assert.IsTrue(File.Exists(treeFilePath));
 
-            //Assert.That(dir1Tree.ContainsKey("file1.txt"), "File1 should be part of the commit tree.");
+            var treeContent = File.ReadAllLines(treeFilePath);
+
+            Assert.That(treeContent.Length, Is.EqualTo(2));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir1 ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir2 ")));
 
 
-            //Assert.IsTrue(tree.ContainsKey("dir2"));
-            //var dir2Tree = tree["dir2"] as Dictionary<string, object>;
-            //Assert.IsNotNull(dir2Tree);
+            // Extract tree hashes for dir1
+            var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree dir1 "))?.Split(' ')[2];
+            
+            var dir1TreeFilePath = Path.Combine(_paths.TreeDir, dir1TreeHash);
+            Assert.IsTrue(File.Exists(dir1TreeFilePath));
 
-            //Assert.That(dir2Tree.ContainsKey("file2.txt"), "File2 should be part of the commit tree.");
+            var dir1TreeContent = File.ReadAllLines(dir1TreeFilePath);
+
+            Assert.That(dir1TreeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(dir1TreeContent.Any(line => line.Contains("blob file1.txt ")));
+
+
+            // Extract tree hashes for dir2
+            var dir2TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree dir2 "))?.Split(' ')[2];
+
+            var dir2TreeFilePath = Path.Combine(_paths.TreeDir, dir2TreeHash);
+            Assert.IsTrue(File.Exists(dir2TreeFilePath));
+
+            var dir2TreeContent = File.ReadAllLines(dir2TreeFilePath);
+
+            Assert.That(dir2TreeContent.Length, Is.EqualTo(1));
+            Assert.IsTrue(dir2TreeContent.Any(line => line.Contains("blob file2.txt ")));
+
         }
 
 

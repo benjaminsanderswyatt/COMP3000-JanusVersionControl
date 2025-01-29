@@ -1,14 +1,21 @@
 ﻿
+using Janus.Helpers;
 using Janus.Plugins;
 
 namespace Janus
 {
     public class HeadHelper
     {
-        public static void SetHeadCommit(Paths paths, string commitHash)
+        public static void SetHeadCommit(Paths paths, string commitHash, string branchName = null)
         {
-            var refHead = File.ReadAllText(paths.HEAD).Substring(5); // Remove the "ref: " at the start
-            File.WriteAllText(Path.Combine(paths.JanusDir, refHead), commitHash);
+            if (branchName == null)
+            {
+                branchName = CommandHelper.GetCurrentBranchName(paths);
+            }
+
+            string branchHeadPath = Path.Combine(paths.HeadsDir, branchName);
+
+            File.WriteAllText(branchHeadPath, commitHash);
         }
 
 

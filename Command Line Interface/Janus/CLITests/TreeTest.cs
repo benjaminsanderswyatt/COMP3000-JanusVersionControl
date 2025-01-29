@@ -137,7 +137,7 @@ namespace CLITests
 
             var treeContent = File.ReadAllLines(treeFilePath);
 
-            Assert.AreEqual(3, treeContent.Length);
+            Assert.That(treeContent.Length, Is.EqualTo(3));
             Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt hash1")));
             Assert.IsTrue(treeContent.Any(line => line.Contains("blob file2.txt hash2")));
             Assert.IsTrue(treeContent.Any(line => line.Contains("blob file3.txt hash3")));

@@ -125,18 +125,25 @@ namespace Janus.Utils
 
         public TreeNode RecreateTree(ILogger logger, string treeHash)
         {
-            TreeNode node = RebuildTree(logger, treeHash);
+            if (string.IsNullOrEmpty(treeHash)) // Initial commit
+            {
+                return new TreeNode("root");
+            }
+
+            TreeNode node = RebuildTreeRecursive(logger, treeHash);
 
             return node;
         }
 
 
-        public TreeNode RebuildTree(ILogger logger, string treeHash)
+        private TreeNode RebuildTreeRecursive(ILogger logger, string treeHash)
         {
             try
             {
                 // Load the tree content from storage
-                string[] treeContent = File.ReadAllLines(Path.Combine(_paths.TreeDir, treeHash));
+                string treePath = Path.Combine(_paths.TreeDir, treeHash);
+                string[] treeContent = File.ReadAllLines(treePath);
+
 
                 // Create a new TreeNode for the current tree
                 var treeNode = new TreeNode("root");
@@ -154,7 +161,7 @@ namespace Janus.Utils
                         if (type == "tree")
                         {
                             // Recursively rebuild the child tree
-                            var childTree = RebuildTree(logger, hash);
+                            var childTree = RebuildTreeRecursive(logger, hash);
                             if (childTree != null)
                             {
                                 childTree.Name = name;
@@ -176,7 +183,8 @@ namespace Janus.Utils
             catch (Exception ex)
             {
                 logger.Log($"Failed to recreate tree: {ex.Message}");
-                return null;
+                throw new Exception("Failed to recreate tree", ex);
+                //return null;
             }
         }
 
@@ -296,6 +304,63 @@ namespace Janus.Utils
                 CompareNodes(childNode1, childNode2, Path.Combine(currentPath, dirName), result);
             }
         }
+
+
+
+
+        public static TreeNode GetStagedTree(Paths paths)
+        {
+            var stagedFiles = IndexHelper.LoadIndex(paths.Index);
+            var stagedTreeBuilder = new TreeBuilder(paths);
+            var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(stagedFiles);
+
+            return stagedTree;
+        }
+
+
+        public static TreeNode GetHeadTree(ILogger logger, Paths paths, string branchName = null)
+        {
+            string commitHash;
+
+            // Get the head tree of the current branch if not provided
+            if (branchName == null)
+            {
+                commitHash = CommandHelper.GetCurrentHeadCommitHash(paths);
+            }
+            else
+            {
+                commitHash = BranchHelper.GetBranchHead(paths, branchName);
+            }
+
+
+            string treeHash = HashHelper.GetTreeHashFromCommitHash(paths, commitHash);
+
+            var treeBuilder = new TreeBuilder(paths);
+            var headTree = treeBuilder.RecreateTree(logger, treeHash);
+
+            return headTree;
+        }
+
+        public static TreeNode GetWorkingTree(Paths paths, Dictionary<string, string> workingDirFiles = null)
+        {
+            // Load working directory files if not provided
+            if (workingDirFiles == null)
+            {
+                workingDirFiles = GetFilesHelper.GetWorkingDirFileHash(paths);
+            }
+
+
+            var workingTreeBuilder = new TreeBuilder(paths);
+            var workingTree = workingTreeBuilder.BuildTreeFromDiction(workingDirFiles);
+
+            return workingTree;
+        }
+
+
+
+
+
+
     }
 
 

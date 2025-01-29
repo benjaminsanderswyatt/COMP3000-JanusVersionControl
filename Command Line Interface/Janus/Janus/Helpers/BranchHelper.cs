@@ -8,8 +8,6 @@ namespace Janus.Helpers
 
     public class BranchHelper
     {
-        
-
         public static bool IsValidBranchName(string branchName)
         {
             if (string.IsNullOrWhiteSpace(branchName))
@@ -23,6 +21,46 @@ namespace Janus.Helpers
 
             return true;
         }
+
+        // Get the head commit hash from the branch
+        public static string GetBranchHead(Paths paths, string branchName)
+        {
+            string headPath = Path.Combine(paths.HeadsDir, branchName);
+
+            if (!File.Exists(headPath))
+            {
+                throw new Exception("Error: Couldn't find branch head");
+            }
+
+            string targetCommitHash = File.ReadAllText(headPath);
+
+            return targetCommitHash;
+        }
+
+
+        public static void SetCurrentHEAD(Paths paths, string branchName)
+        {
+            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /*
 

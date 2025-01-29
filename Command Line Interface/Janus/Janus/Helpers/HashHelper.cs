@@ -1,5 +1,8 @@
-﻿using System.Security.Cryptography;
+﻿using Janus.Models;
+using Janus.Plugins;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace Janus.Helpers
 {
@@ -68,6 +71,24 @@ namespace Janus.Helpers
             string fileHash = ComputeHash(content);
 
             return (fileHash, content);
+        }
+
+
+
+        public static string GetTreeHashFromCommitHash(Paths paths, string commitHash)
+        {
+            string commitPath = Path.Combine(paths.CommitDir, commitHash);
+
+            if (!File.Exists(commitPath))
+            {
+                throw new Exception("Error: Couldn't find commit");
+            }
+
+            string content = File.ReadAllText(commitPath);
+
+            CommitMetadata commit = JsonSerializer.Deserialize<CommitMetadata>(content);
+
+            return commit.Tree;
         }
 
     }
