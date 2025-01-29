@@ -1,9 +1,52 @@
-﻿using Janus.Plugins;
+﻿using Janus.Models;
+using Janus.Plugins;
+using Janus.Utils;
+using System.Text.Json;
 
 namespace Janus.Helpers
 {
     public class StatusHelper
     {
+        public static bool HasAnythingBeenStagedForCommit(ILogger logger, Paths paths, TreeNode stagedTree)
+        {
+            
+
+
+            // Get the head commit hash
+            string commitHash = CommandHelper.GetCurrentHEAD(paths);
+
+            // Get the tree from commit hash
+            string commitFilePath = Path.Combine(paths.CommitDir, commitHash);
+
+            CommitMetadata commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitFilePath));
+
+            // Recreate tree from the treehash
+            var treeBuilder = new TreeBuilder(paths);
+
+            TreeNode headTree = treeBuilder.RecreateTree(logger, commitMetadata.Tree);
+
+            // Compare index to tree (differances are changes to be committed)
+            var comparisonResult = Tree.CompareTrees(headTree, stagedTree);
+
+            if (comparisonResult.Added.Any() || comparisonResult.Modified.Any() || comparisonResult.Deleted.Any())
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         /*
         public static bool AreThereUncommittedChanges(Paths paths)
         {

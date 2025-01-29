@@ -133,9 +133,9 @@ namespace Janus
 
                 TreeBuilder builder = new TreeBuilder(Paths);
 
-                /*
+                
                 // Compare the two trees
-                TreeComparisonResult result = builder.CompareTrees(newtree, wdTree);
+                var result = Tree.CompareTrees(newtree, wdTree);
 
                 // Output the results
                 Console.WriteLine("Added:");
@@ -147,7 +147,7 @@ namespace Janus
                 Console.WriteLine("Deleted:");
                 result.Deleted.ForEach(Console.WriteLine);
 
-                */
+                
                 Logger.Log("Test End");
 
             }
@@ -438,63 +438,27 @@ namespace Janus
                 if (!CommitHelper.ValidateCommitMessage(Logger, args, out string commitMessage)) return;
 
 
-                string branch = CommandHelper.GetCurrentBranchName(Paths);
-
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-
-                /*
-                // Check if there are any changes to commit
-                if (!StatusHelper.HasAnythingBeenStagedForCommit(Paths, parentCommit, stagedFiles))
-                {
-                    Logger.Log("No changes to commit.");
-                    return;
-                }
-                */
-                
-
-
-
-
-
-
-
-
-
 
                 try
                 {
-                    var treeBuilder = new TreeBuilder(Paths);
-                    var indexTree = treeBuilder.BuildTreeFromDiction(stagedFiles);
-
-                    treeBuilder.PrintTree();
-
-                    // Serialize the tree into objects
-                    var rootTreeHash = treeBuilder.SaveTree(); // Save index tree
-
-                    /*
-                    Console.WriteLine("Tree hash: " + rootTreeHash);
+                    // Get staged files
+                    var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
+                    var stagedTreeBuilder = new TreeBuilder(Paths);
+                    var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(stagedFiles);
 
 
-                    Console.WriteLine("---------------------------");
-
-                    TreeBuilder newTreeBuilder = new TreeBuilder(Paths.TreeDir);
-
-                    var newtree = newTreeBuilder.RecreateTree(rootTreeHash);
-
-
-
-
-                    var results = newTreeBuilder.CompareTrees(origTree, Paths.WorkingDir);
-
-                    Console.WriteLine();
-                    Console.WriteLine("Results:");
-                    results.Added.ForEach(f => Console.WriteLine("Added: " + f));
-                    results.Modified.ForEach(f => Console.WriteLine("Modified: " + f));
-                    results.Deleted.ForEach(f => Console.WriteLine("Deleted: " + f));
-                    Console.WriteLine();
-                    */
+                    // Check if there are any changes to commit
+                    if (!StatusHelper.HasAnythingBeenStagedForCommit(Logger, Paths, stagedTree))
+                    {
+                        Logger.Log("No changes to commit.");
+                        return;
+                    }
 
 
+                    var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
+
+
+                    string branch = CommandHelper.GetCurrentBranchName(Paths);
 
                     // Generate commit metadata
                     string commitHash = HashHelper.ComputeCommitHash(rootTreeHash, commitMessage);
