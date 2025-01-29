@@ -264,7 +264,7 @@ namespace Janus.Utils
                     // File is only in tree2
                     result.AddedOrUntracked.Add(path);
                 }
-                else if (!node2Files.ContainsKey(key)) // Deleted
+                else if (!node2Files.ContainsKey(key) || node2Files[key].Hash == "Deleted") // Deleted
                 {
                     // File is only in tree1 (not in tree2)
                     result.Deleted.Add(path);
