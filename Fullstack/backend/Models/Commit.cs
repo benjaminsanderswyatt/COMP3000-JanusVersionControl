@@ -6,7 +6,8 @@ namespace backend.Models
     public class Commit
     {
         [Key]
-        public int CommitId { get; set; }
+        [StringLength(40)]
+        public string CommitHash { get; set; }
 
         [ForeignKey("Branch")]
         public int BranchId { get; set; }
@@ -14,9 +15,6 @@ namespace backend.Models
         [ForeignKey("User")]
         public int UserId { get; set; }
 
-        [Required]
-        [MaxLength(64)] // TODO: Determain constraint for hash length
-        public string CommitHash { get; set; }
 
         [MaxLength(256)]
         public string Message { get; set; }

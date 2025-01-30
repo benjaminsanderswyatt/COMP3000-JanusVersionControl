@@ -6,21 +6,14 @@ namespace backend.Models
     public class File
     {
         [Key]
-        public int FileId { get; set; }
-
-        [ForeignKey("Commit")]
-        public int CommitId { get; set; }
-
-        [Required]
-        public string FilePath { get; set; }
-
-        [Required]
+        [StringLength(40)]
         public string FileHash { get; set; }
 
+        public int Size { get; set; }
 
+        [Required]
+        public byte[] Content { get; set; }
 
-        public Commit Commit { get; set; }
-        public FileContent FileContents { get; set; }
 
     }
 
