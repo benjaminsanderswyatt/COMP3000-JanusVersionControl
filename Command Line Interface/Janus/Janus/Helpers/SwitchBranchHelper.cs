@@ -99,12 +99,8 @@ namespace Janus.Helpers
             var targetTree = Tree.GetHeadTree(logger, paths, branchName);
 
             // Compare the current and target trees to determine actions
-            //var comparisonResult = treeBuilder.CompareTrees(
-            //    treeBuilder.GetWorkingDirTree(paths.WorkingDir),
-            //    targetTree
-            //);
+            var comparisonResult = Tree.CompareTrees(currentTree, targetTree);
 
-            var comparisonResult = new TreeComparisonResult();
 
             // Perform actions based on the comparison result
             // Add or update files
@@ -114,7 +110,7 @@ namespace Janus.Helpers
                 string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree
                 string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
 
-                // Ensure the object file exists
+                // Check the object file exists
                 if (File.Exists(objectFilePath))
                 {
                     var fileContents = File.ReadAllBytes(objectFilePath);

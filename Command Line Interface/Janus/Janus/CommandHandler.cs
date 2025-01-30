@@ -280,7 +280,7 @@ namespace Janus
 
                 if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
                 {
-                    args = new string[] { Paths.WorkingDir }; // replaces args with 1 argument of the whole working directory
+                    args = new string[] { "" }; // replaces args with 1 argument of the whole working directory
                 }
 
                 // Load existing staged files
@@ -444,7 +444,12 @@ namespace Janus
                     // Get staged files
                     var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
                     var stagedTreeBuilder = new TreeBuilder(Paths);
-                    var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(stagedFiles);
+
+                    // Clean up index removing deleted files
+                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
+                                          .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                    var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(updatedIndex);
 
 
                     // Check if there are any changes to commit
@@ -472,9 +477,8 @@ namespace Janus
                     HeadHelper.SetHeadCommit(Paths, commitHash);
 
 
-                    // Clean up index removing deleted files
-                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
-                                          .ToDictionary(kv => kv.Key, kv => kv.Value);
+                    
+                    // Save cleaned up index
                     IndexHelper.SaveIndex(Paths.Index, updatedIndex);
 
                     Logger.Log($"Committed as {commitHash}");
