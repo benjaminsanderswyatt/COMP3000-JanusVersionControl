@@ -15,6 +15,7 @@ namespace backend.Helpers
 
         public async Task<int?> GetParentCommitIdAsync(string parentCommitHash)
         {
+            /*
             if (string.IsNullOrWhiteSpace(parentCommitHash))
                 return null;
 
@@ -24,6 +25,8 @@ namespace backend.Helpers
 
             // Return the ParentCommitId or null if not found
             return parentCommit?.CommitId;
+            */
+            return null;
         }
     }
 }

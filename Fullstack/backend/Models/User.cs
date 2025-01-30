@@ -8,17 +8,19 @@ namespace backend.Models
         public int UserId { get; set; }
 
         [Required]
-        [MaxLength(64)] // TODO: Determain string length constraint
+        [MaxLength(63)]
         public string Username { get; set; }
 
         [Required]
         [EmailAddress]
-        [MaxLength(256)]
+        [MaxLength(255)]
         public string Email { get; set; }
 
         [Required]
+        [MaxLength(64)]
         public string PasswordHash { get; set; }
 
+        [Required]
         public byte[] Salt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -29,8 +31,8 @@ namespace backend.Models
 
 
 
-        public ICollection<Repository> Repositories { get; set; }
-        public ICollection<Collaborator> Collaborators { get; set; }
+        public ICollection<Repository> Repositories { get; set; } = new List<Repository>();
+        public ICollection<RepoAccess> RepoAccesses { get; set; } = new List<RepoAccess>();
 
     }
 

@@ -9,27 +9,63 @@ namespace backend.Models
         public DbSet<AccessTokenBlacklist> AccessTokenBlacklists { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Repository> Repositories { get; set; }
-        public DbSet<Collaborator> Collaborators { get; set; }
+        public DbSet<RepoAccess> RepoAccess { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Commit> Commits { get; set; }
+        public DbSet<CommitParent> CommitParents { get; set; }
+        public DbSet<Tree> Trees { get; set; }
         public DbSet<File> Files { get; set; }
-        public DbSet<FileContent> FileContents { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Manual set foreign keys as Collaborator has compound primary keys
-            modelBuilder.Entity<Collaborator>()
-                .HasKey(c => new { c.RepoId, c.UserId });
+            // Unique constraints
+            modelBuilder.Entity<Repository>()
+                .HasIndex(r => new { r.OwnerId, r.RepoName })
+                .IsUnique();
 
-            modelBuilder.Entity<Collaborator>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Collaborators)
-                .HasForeignKey(c => c.UserId);
+            modelBuilder.Entity<Branch>()
+                .HasIndex(b => new { b.RepoId, b.BranchName })
+                .IsUnique();
 
-            modelBuilder.Entity<Collaborator>()
-                .HasOne(c => c.Repository)
-                .WithMany(r => r.Collaborators)
-                .HasForeignKey(c => c.RepoId);
+
+
+            // Composite PK
+            modelBuilder.Entity<CommitParent>()
+                .HasKey(cp => new { cp.ChildHash, cp.ParentHash });
+
+            //modelBuilder.Entity<Tree>()
+            //    .HasKey(t => new { t.TreeHash, t.EntryName });
+
+            modelBuilder.Entity<RepoAccess>()
+                .HasKey(ra => new { ra.RepoId, ra.UserId });
+
+
+
+            // Delete cascade
+            modelBuilder.Entity<CommitParent>()
+                .HasOne(cp => cp.Child)
+                .WithMany(c => c.Parents)
+                .HasForeignKey(cp => cp.ChildHash)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RepoAccess>()
+                .HasOne(ra => ra.Repository)
+                .WithMany(r => r.RepoAccesses)
+                .HasForeignKey(ra => ra.RepoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+
+            // Indexes
+            modelBuilder.Entity<Commit>()
+                .HasIndex(c => c.CommittedAt);
+
+            modelBuilder.Entity<File>()
+                .HasIndex(f => f.FileHash);
+
+
+            Tree.ConfigureEntity(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
 

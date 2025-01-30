@@ -117,6 +117,7 @@ namespace backend.Controllers
 
             try
             {
+                /*
                 string repoName = repoNameBranch.RepoName;
                 string branchName = repoNameBranch.BranchName;
 
@@ -177,7 +178,10 @@ namespace backend.Controllers
                     return BadRequest("Couldn't find remote repo's latest commit");
                 }
 
-                return Ok(new { CommitHash = commitHash });
+                */
+
+                //return Ok(new { CommitHash = commitHash });
+                return Ok();
 
             }
             catch (Exception ex)
@@ -255,6 +259,7 @@ namespace backend.Controllers
 
             try
             {
+                /*
                 // Execute all operations in the execution strategy
                 await strategy.ExecuteAsync(async () =>
                 {
@@ -264,7 +269,7 @@ namespace backend.Controllers
                     {
                         // Check repo and branch
                         // Send along repo and branch data from local
-
+                        
 
 
 
@@ -308,6 +313,7 @@ namespace backend.Controllers
                     }
                 });
 
+                */
                 return Ok(); // If everything succeeds, return OK
             }
             catch (Exception ex)

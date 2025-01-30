@@ -12,7 +12,7 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(JanusDbContext))]
-    [Migration("20250112011502_Init")]
+    [Migration("20250130215003_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -58,26 +58,104 @@ namespace backend.Migrations
 
                     b.Property<string>("BranchName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("LatestCommitId")
-                        .HasColumnType("int");
+                    b.Property<string>("LatestCommitHash")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
 
                     b.HasKey("BranchId");
 
-                    b.HasIndex("RepoId");
+                    b.HasIndex("RepoId", "BranchName")
+                        .IsUnique();
 
                     b.ToTable("Branches");
                 });
 
-            modelBuilder.Entity("backend.Models.Collaborator", b =>
+            modelBuilder.Entity("backend.Models.Commit", b =>
+                {
+                    b.Property<string>("CommitHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("AuthorEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("CommittedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TreeHash")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("CommitHash");
+
+                    b.HasIndex("CommittedAt");
+
+                    b.ToTable("Commits");
+                });
+
+            modelBuilder.Entity("backend.Models.CommitParent", b =>
+                {
+                    b.Property<string>("ChildHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("ParentHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("ParentCommitHash")
+                        .IsRequired()
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("ChildHash", "ParentHash");
+
+                    b.HasIndex("ParentCommitHash");
+
+                    b.ToTable("CommitParents");
+                });
+
+            modelBuilder.Entity("backend.Models.File", b =>
+                {
+                    b.Property<string>("FileHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("FileHash");
+
+                    b.HasIndex("FileHash");
+
+                    b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("backend.Models.RepoAccess", b =>
                 {
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
@@ -85,97 +163,14 @@ namespace backend.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("AccessLevel")
+                        .HasColumnType("int");
 
                     b.HasKey("RepoId", "UserId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Collaborators");
-                });
-
-            modelBuilder.Entity("backend.Models.Commit", b =>
-                {
-                    b.Property<int>("CommitId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CommitId"));
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CommitHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("varchar(64)");
-
-                    b.Property<DateTimeOffset>("CommittedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("varchar(512)");
-
-                    b.Property<int?>("ParentCommitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommitId");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Commits");
-                });
-
-            modelBuilder.Entity("backend.Models.File", b =>
-                {
-                    b.Property<int>("FileId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("FileId"));
-
-                    b.Property<int>("CommitId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FileHash")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("FileId");
-
-                    b.HasIndex("CommitId");
-
-                    b.ToTable("Files");
-                });
-
-            modelBuilder.Entity("backend.Models.FileContent", b =>
-                {
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
-                        .HasColumnType("longblob");
-
-                    b.HasKey("FileId");
-
-                    b.ToTable("FileContents");
+                    b.ToTable("RepoAccess");
                 });
 
             modelBuilder.Entity("backend.Models.Repository", b =>
@@ -189,22 +184,56 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
                     b.Property<string>("RepoName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
-
-                    b.Property<bool>("Visibility")
-                        .HasColumnType("tinyint(1)");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.HasKey("RepoId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("OwnerId", "RepoName")
+                        .IsUnique();
 
                     b.ToTable("Repositories");
+                });
+
+            modelBuilder.Entity("backend.Models.Tree", b =>
+                {
+                    b.Property<string>("TreeHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<string>("EntryName")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("EntryHash")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<int>("EntryType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ParentEntryName")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ParentTreeHash")
+                        .HasColumnType("varchar(40)");
+
+                    b.HasKey("TreeHash", "EntryName");
+
+                    b.HasIndex("EntryHash");
+
+                    b.HasIndex("ParentTreeHash", "ParentEntryName");
+
+                    b.ToTable("Trees");
                 });
 
             modelBuilder.Entity("backend.Models.User", b =>
@@ -220,12 +249,13 @@ namespace backend.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");
@@ -239,8 +269,8 @@ namespace backend.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("varchar(64)");
+                        .HasMaxLength(63)
+                        .HasColumnType("varchar(63)");
 
                     b.HasKey("UserId");
 
@@ -258,16 +288,35 @@ namespace backend.Migrations
                     b.Navigation("Repository");
                 });
 
-            modelBuilder.Entity("backend.Models.Collaborator", b =>
+            modelBuilder.Entity("backend.Models.CommitParent", b =>
                 {
-                    b.HasOne("backend.Models.Repository", "Repository")
-                        .WithMany("Collaborators")
-                        .HasForeignKey("RepoId")
+                    b.HasOne("backend.Models.Commit", "Child")
+                        .WithMany("Parents")
+                        .HasForeignKey("ChildHash")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Models.Commit", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentCommitHash")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Child");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("backend.Models.RepoAccess", b =>
+                {
+                    b.HasOne("backend.Models.Repository", "Repository")
+                        .WithMany("RepoAccesses")
+                        .HasForeignKey("RepoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("backend.Models.User", "User")
-                        .WithMany("Collaborators")
+                        .WithMany("RepoAccesses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -275,47 +324,6 @@ namespace backend.Migrations
                     b.Navigation("Repository");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Models.Commit", b =>
-                {
-                    b.HasOne("backend.Models.Branch", "Branch")
-                        .WithMany("Commits")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Models.File", b =>
-                {
-                    b.HasOne("backend.Models.Commit", "Commit")
-                        .WithMany("Files")
-                        .HasForeignKey("CommitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Commit");
-                });
-
-            modelBuilder.Entity("backend.Models.FileContent", b =>
-                {
-                    b.HasOne("backend.Models.File", "File")
-                        .WithOne("FileContents")
-                        .HasForeignKey("backend.Models.FileContent", "FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("File");
                 });
 
             modelBuilder.Entity("backend.Models.Repository", b =>
@@ -329,32 +337,44 @@ namespace backend.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("backend.Models.Branch", b =>
+            modelBuilder.Entity("backend.Models.Tree", b =>
                 {
-                    b.Navigation("Commits");
+                    b.HasOne("backend.Models.File", "File")
+                        .WithMany()
+                        .HasForeignKey("EntryHash");
+
+                    b.HasOne("backend.Models.Tree", "ParentTree")
+                        .WithMany("SubTrees")
+                        .HasForeignKey("ParentTreeHash", "ParentEntryName")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("File");
+
+                    b.Navigation("ParentTree");
                 });
 
             modelBuilder.Entity("backend.Models.Commit", b =>
                 {
-                    b.Navigation("Files");
-                });
+                    b.Navigation("Children");
 
-            modelBuilder.Entity("backend.Models.File", b =>
-                {
-                    b.Navigation("FileContents")
-                        .IsRequired();
+                    b.Navigation("Parents");
                 });
 
             modelBuilder.Entity("backend.Models.Repository", b =>
                 {
                     b.Navigation("Branches");
 
-                    b.Navigation("Collaborators");
+                    b.Navigation("RepoAccesses");
+                });
+
+            modelBuilder.Entity("backend.Models.Tree", b =>
+                {
+                    b.Navigation("SubTrees");
                 });
 
             modelBuilder.Entity("backend.Models.User", b =>
                 {
-                    b.Navigation("Collaborators");
+                    b.Navigation("RepoAccesses");
 
                     b.Navigation("Repositories");
                 });

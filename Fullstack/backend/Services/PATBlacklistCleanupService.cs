@@ -1,17 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using backend.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 
 // Cleans up the token blacklist, removes tokens which have expired exery x days
 public class PATBlacklistCleanupService : IHostedService, IDisposable
 {
 
-    private readonly JanusDbContext _janusDbContext;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private Timer _timer;
 
-    public PATBlacklistCleanupService(JanusDbContext janusDbContext)
+    public PATBlacklistCleanupService(IServiceScopeFactory serviceScopeFactory)
     {
-        _janusDbContext = janusDbContext;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
 
@@ -35,20 +36,24 @@ public class PATBlacklistCleanupService : IHostedService, IDisposable
 
     private async void CleanupExpiredTokens(object state)
     {
-        var timeAtStart = DateTime.UtcNow;
-
-
-        // Find expired tokens
-        var expiredTokens = await _janusDbContext.AccessTokenBlacklists
-            .Where(t => t.Expires <= timeAtStart)
-            .ToListAsync();
-
-
-        if (expiredTokens.Any())
+        using (var scope = _serviceScopeFactory.CreateScope())
         {
-            // Remove all expired tokens
-            _janusDbContext.AccessTokenBlacklists.RemoveRange(expiredTokens);
-            await _janusDbContext.SaveChangesAsync();
+            var dbContext = scope.ServiceProvider.GetRequiredService<JanusDbContext>();
+            var timeAtStart = DateTime.UtcNow;
+
+
+            // Find expired tokens
+            var expiredTokens = await dbContext.AccessTokenBlacklists
+                .Where(t => t.Expires <= timeAtStart)
+                .ToListAsync();
+
+
+            if (expiredTokens.Any())
+            {
+                // Remove all expired tokens
+                dbContext.AccessTokenBlacklists.RemoveRange(expiredTokens);
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 

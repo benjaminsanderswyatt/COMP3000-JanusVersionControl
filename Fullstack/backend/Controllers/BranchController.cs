@@ -30,6 +30,8 @@ namespace backend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
@@ -61,6 +63,7 @@ namespace backend.Controllers
 
             try
             {
+                /*
                 await strategy.ExecuteAsync(async () =>
                 {
                     await using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
@@ -68,7 +71,7 @@ namespace backend.Controllers
                     try
                     {
                         // Create new branch
-                        var newBranch = new Branch
+                        var newBranch = new Branches
                         {
                             RepoId = branchDto.RepoId, // Link branch to the repo
                             BranchName = branchDto.BranchName,
@@ -88,6 +91,8 @@ namespace backend.Controllers
                     }
                 });
 
+
+                */
                 return Ok(new { message = "Branch created successfully." });
             }
             catch (Exception ex)

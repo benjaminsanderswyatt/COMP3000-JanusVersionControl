@@ -8,20 +8,21 @@ namespace backend.Models
         [Key]
         public int BranchId { get; set; }
 
-        [ForeignKey("Repository")]
+        [Required]
+        [MaxLength(255)]
+        public string BranchName { get; set; }
+       
+        [Required]
         public int RepoId { get; set; }
 
         [Required]
-        [MaxLength(256)] // TODO: Determain branch length constraint
-        public string BranchName { get; set; }
+        public string LatestCommitHash { get; set; }
 
-        public int? LatestCommitId { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
 
+        [ForeignKey("RepoId")]
         public Repository Repository { get; set; }
-        public ICollection<Commit> Commits { get; set; }
 
     }
 

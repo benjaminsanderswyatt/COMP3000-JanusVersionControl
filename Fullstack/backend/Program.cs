@@ -41,6 +41,7 @@ builder.Services.AddHostedService<DatabaseInitialiser>();
 
 
 // Token blacklist cleanup service
+builder.Services.AddSingleton<PATBlacklistCleanupService>();
 builder.Services.AddHostedService<PATBlacklistCleanupService>();
 
 

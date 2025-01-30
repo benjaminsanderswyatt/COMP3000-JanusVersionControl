@@ -9,25 +9,28 @@ namespace backend.Models
         [StringLength(40)]
         public string CommitHash { get; set; }
 
-        [ForeignKey("Branch")]
-        public int BranchId { get; set; }
+        [Required]
+        [StringLength(40)]
+        public string TreeHash { get; set; }
 
-        [ForeignKey("User")]
-        public int UserId { get; set; }
+        [Required]
+        [MaxLength(255)]
+        public string AuthorName { get; set; }
 
+        [Required]
+        [MaxLength(255)]
+        public string AuthorEmail { get; set; }
 
-        [MaxLength(256)]
+        [Required]
         public string Message { get; set; }
 
-        public int? ParentCommitId { get; set; }  // Null for initial commit
-
-        public DateTimeOffset CommittedAt { get; set; }
-
+        [Required]
+        public DateTime CommittedAt { get; set; } = DateTime.UtcNow;
 
 
-        public User User { get; set; }
-        public Branch Branch { get; set; }
-        public ICollection<File> Files { get; set; }
+
+        public ICollection<CommitParent> Parents { get; set; } = new List<CommitParent>();
+        public ICollection<CommitParent> Children { get; set; } = new List<CommitParent>();
 
     }
 

@@ -12,8 +12,7 @@ namespace backend.Models
         public int Size { get; set; }
 
         [Required]
-        public byte[] Content { get; set; }
-
+        public string StoragePath { get; set; } // Stored in external
 
     }
 
