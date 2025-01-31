@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -105,7 +106,26 @@ builder.Services.AddAuthentication(options =>
                     if (isBlacklisted)
                     {
                         context.Fail("The provided token is invalid or has been revoked."); // Token has been revoked
+                        return;
                     }
+
+                    var userIdClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (int.TryParse(userIdClaim, out int userId))
+                    {
+                        var user = await janusDbContext.Users.FindAsync(userId);
+                        if (user == null)
+                        {
+                            context.Fail("The provided token is invalid or has been revoked.");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        context.Fail("The provided token is invalid or has been revoked.");
+                        return;
+                    }
+
+
                 }
                 catch (Exception ex)
                 {

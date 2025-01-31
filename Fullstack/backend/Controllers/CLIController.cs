@@ -39,7 +39,7 @@ namespace backend.Controllers
 
             try
             {
-                Console.WriteLine("hello");
+                Console.WriteLine($"hello: {userId}");
 
                 return Ok(new { message = "hello"});
 
