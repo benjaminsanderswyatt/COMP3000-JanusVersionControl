@@ -257,41 +257,6 @@ namespace CLITests
                     file6.txt - content6
             */
 
-            // Assert: Check that the main working tree is as expected
-            var workingTree = Tree.GetWorkingTree(_paths);
-
-            //workingTree.Children.ForEach(child => Console.WriteLine(child.Name));
-
-            Assert.That(workingTree.Children.Count(), Is.EqualTo(4));
-
-            var child0 = workingTree.Children[0];
-            var child1 = workingTree.Children[1];
-            var child2 = workingTree.Children[2];
-            var child3 = workingTree.Children[3];
-
-            Assert.That(child0.Name, Is.EqualTo("file1.txt"));
-            Assert.That(child1.Name, Is.EqualTo("file2.txt"));
-            Assert.That(child2.Name, Is.EqualTo("file3.txt"));
-            Assert.That(child3.Name, Is.EqualTo("dir"));
-
-            //child3.Children.ForEach(child => Console.WriteLine(child.Name));
-
-            Assert.That(child3.Children.Count(), Is.EqualTo(3)); // dir
-
-            var dirChild0 = child3.Children[0];
-            var dirChild1 = child3.Children[1];
-            var dirChild2 = child3.Children[2];
-
-            Assert.That(dirChild0.Name, Is.EqualTo("file4.txt"));
-            Assert.That(dirChild1.Name, Is.EqualTo("file5.txt"));
-            Assert.That(dirChild2.Name, Is.EqualTo("file6.txt"));
-
-
-
-
-            // Act
-            _switchBranchCommand.Execute(new string[] { branchName });
-
             /*
             Expected newBranch:
                 file1.txt - modifiedContent1        modified
@@ -306,66 +271,41 @@ namespace CLITests
                 dir/file6                           deleted
             */
 
+            // Assert: Check that the main working tree is as expected
+            var mainTreeFiles = Tree.GetWorkingTree(_paths).Children.Select(child => child.Name).ToHashSet();
+            var expectedMainFiles = new HashSet<string> { "file1.txt", "file2.txt", "file3.txt", "dir" };
+            Assert.That(mainTreeFiles, Is.EquivalentTo(expectedMainFiles));
+
+            var mainDirChildren = Tree.GetWorkingTree(_paths).Children.First(c => c.Name == "dir").Children.Select(child => child.Name).ToHashSet();
+            var expectedMainDirChildren = new HashSet<string> { "file4.txt", "file5.txt", "file6.txt" };
+            Assert.That(mainDirChildren, Is.EquivalentTo(expectedMainDirChildren));
+
+
+            // Act: Switch to new branch
+            _switchBranchCommand.Execute(new string[] { branchName });
+
             // Assert: Check that the NewBranch working tree is as expected
-            var branchWorkingTree = Tree.GetWorkingTree(_paths);
+            var branchTreeFiles = Tree.GetWorkingTree(_paths).Children.Select(child => child.Name).ToHashSet();
+            var expectedBranchFiles = new HashSet<string> { "file1.txt", "file2.txt", "added1.txt", "dir" };
+            Assert.That(branchTreeFiles, Is.EquivalentTo(expectedBranchFiles));
 
-            //branchWorkingTree.Children.ForEach(child => Console.WriteLine(child.Name));
-
-            Assert.That(branchWorkingTree.Children.Count(), Is.EqualTo(4));
-
-            var branchChild0 = branchWorkingTree.Children[0];
-            var branchChild1 = branchWorkingTree.Children[1];
-            var branchChild2 = branchWorkingTree.Children[2];
-            var branchChild3 = branchWorkingTree.Children[3];
-
-            Assert.That(branchChild0.Name, Is.EqualTo("added1.txt"));
-            Assert.That(branchChild1.Name, Is.EqualTo("file1.txt"));
-            Assert.That(branchChild2.Name, Is.EqualTo("file2.txt"));
-            Assert.That(branchChild3.Name, Is.EqualTo("dir"));
-
-            //branchChild3.Children.ForEach(child => Console.WriteLine(child.Name));
-
-            Assert.That(branchChild3.Children.Count(), Is.EqualTo(3)); // dir
-
-            var branchDirChild0 = branchChild3.Children[0];
-            var branchDirChild1 = branchChild3.Children[1];
-            var branchDirChild2 = branchChild3.Children[2];
-
-            Assert.That(branchDirChild0.Name, Is.EqualTo("added2.txt"));
-            Assert.That(branchDirChild1.Name, Is.EqualTo("file4.txt"));
-            Assert.That(branchDirChild2.Name, Is.EqualTo("file5.txt"));
+            var branchDirChildren = Tree.GetWorkingTree(_paths).Children.First(c => c.Name == "dir").Children.Select(child => child.Name).ToHashSet();
+            var expectedBranchDirChildren = new HashSet<string> { "file4.txt", "file5.txt", "added2.txt" };
+            Assert.That(branchDirChildren, Is.EquivalentTo(expectedBranchDirChildren));
 
 
-
-
-
-            // Act: Switch back to main
+            // Act: Switch back to main to ensure its as expected
             _switchBranchCommand.Execute(new string[] { "main" });
 
-            // Assert: Same as first
-            var workingTreeA = Tree.GetWorkingTree(_paths);
+            // Assert: Same as the first
+            var mainTreeFiles2 = Tree.GetWorkingTree(_paths).Children.Select(child => child.Name).ToHashSet();
+            var expectedMainFiles2 = new HashSet<string> { "file1.txt", "file2.txt", "file3.txt", "dir" };
+            Assert.That(mainTreeFiles2, Is.EquivalentTo(expectedMainFiles2));
 
-            Assert.That(workingTreeA.Children.Count(), Is.EqualTo(4));
+            var mainDirChildren2 = Tree.GetWorkingTree(_paths).Children.First(c => c.Name == "dir").Children.Select(child => child.Name).ToHashSet();
+            var expectedMainDirChildren2 = new HashSet<string> { "file4.txt", "file5.txt", "file6.txt" };
+            Assert.That(mainDirChildren2, Is.EquivalentTo(expectedMainDirChildren2));
 
-            var child0A = workingTree.Children[0];
-            var child1A = workingTree.Children[1];
-            var child2A = workingTree.Children[2];
-            var child3A = workingTree.Children[3];
-
-            Assert.That(child0A.Name, Is.EqualTo("file1.txt"));
-            Assert.That(child1A.Name, Is.EqualTo("file2.txt"));
-            Assert.That(child2A.Name, Is.EqualTo("file3.txt"));
-            Assert.That(child3A.Name, Is.EqualTo("dir"));
-
-            Assert.That(child3.Children.Count(), Is.EqualTo(3)); // dir
-
-            var dirChild0A = child3A.Children[0];
-            var dirChild1A = child3A.Children[1];
-            var dirChild2A = child3A.Children[2];
-
-            Assert.That(dirChild0A.Name, Is.EqualTo("file4.txt"));
-            Assert.That(dirChild1A.Name, Is.EqualTo("file5.txt"));
-            Assert.That(dirChild2A.Name, Is.EqualTo("file6.txt"));
 
         }
 
