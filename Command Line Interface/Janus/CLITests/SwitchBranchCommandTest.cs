@@ -246,6 +246,8 @@ namespace CLITests
             // Act
             _switchBranchCommand.Execute(new string[] { "main" });
 
+            System.Threading.Thread.Sleep(200);
+
             Console.WriteLine("Current working tree files 'main':");
             Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
 
@@ -288,6 +290,8 @@ namespace CLITests
             // Act: Switch to new branch
             _switchBranchCommand.Execute(new string[] { branchName });
 
+            System.Threading.Thread.Sleep(200);
+
             Console.WriteLine("Current working tree files 'newBranch':");
             Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
 
@@ -306,6 +310,7 @@ namespace CLITests
             // Act: Switch back to main to ensure its as expected
             _switchBranchCommand.Execute(new string[] { "main" });
 
+            System.Threading.Thread.Sleep(200);
 
             Console.WriteLine("Current working tree files 'main2':");
             Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
