@@ -27,6 +27,63 @@ namespace backend.Controllers
         }
 
 
+        // POST: api/CLI/SayHello
+        [HttpPost("SayHello")]
+        public async Task<IActionResult> SayHello()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                Console.WriteLine("hello");
+
+                return Ok(new { message = "hello"});
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /*
         // POST: api/CLI/Push
         [HttpPost("Push")]

@@ -77,76 +77,10 @@ namespace Janus
             public TestCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "test";
             public override string Description => "Send a test request to backend";
-            public override void Execute(string[] args)
+            public override async void Execute(string[] args)
             {
-                //await CommandHelper.ExecuteAsync();
-
-                var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
-
-                var treeBuilder = new TreeBuilder(Paths);
-                var indexTree = treeBuilder.BuildTreeFromDiction(stagedFiles);
-
-
-                Console.WriteLine("---------------------------");
-                Console.WriteLine("Index");
-                treeBuilder.PrintTree();
-
-                Console.WriteLine("---------------------------");
-
-                // Serialize the tree into objects
-                var rootTreeHash = treeBuilder.SaveTree(); // Save index tree
-
-
-                Console.WriteLine("Tree hash: " + rootTreeHash);
-
-
-                Console.WriteLine("---------------------------");
-                Console.WriteLine("Recreated Tree");
-
-                TreeBuilder newTreeBuilder = new TreeBuilder(Paths);
-
-                var newtree = newTreeBuilder.RecreateTree(Logger, rootTreeHash);
-
-
-                newTreeBuilder.PrintTree();
-
-                Console.WriteLine("---------------------------");
-                Console.WriteLine("Working Dir Tree");
-
-
-                var workingDirFiles = GetFilesHelper.GetWorkingDirFileHash(Paths);
-
-
-                TreeBuilder wdTreeBuilder = new TreeBuilder(Paths);
-
-                var wdTree = wdTreeBuilder.BuildTreeFromDiction(workingDirFiles);
-
-
-                wdTreeBuilder.PrintTree();
-
-
-                Console.WriteLine("---------------------------");
-                Console.WriteLine("Differntces");
-
-                TreeBuilder builder = new TreeBuilder(Paths);
-
-
-                // Compare the two trees
-                var result = Tree.CompareTrees(newtree, wdTree);
-
-                // Output the results
-                Console.WriteLine("Added:");
-                result.AddedOrUntracked.ForEach(Console.WriteLine);
-
-                Console.WriteLine("Modified:");
-                result.ModifiedOrNotStaged.ForEach(Console.WriteLine);
-
-                Console.WriteLine("Deleted:");
-                result.Deleted.ForEach(Console.WriteLine);
-
-
+                await MiscHelper.ExecuteAsync();
                 Logger.Log("Test End");
-
             }
         }
 

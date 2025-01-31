@@ -30,6 +30,17 @@ namespace backend.Models
 
 
 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+
+
+
             // Composite PK
             modelBuilder.Entity<CommitParent>()
                 .HasKey(cp => new { cp.ChildHash, cp.ParentHash });

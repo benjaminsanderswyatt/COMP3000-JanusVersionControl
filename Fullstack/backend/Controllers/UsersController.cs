@@ -34,6 +34,9 @@ namespace backend.Controllers
 
             try
             {
+                if (await _janusDbContext.Users.AnyAsync(u => u.Username == newUser.Username))
+                    throw new Exception("Username has already been taken");
+
                 if (await _janusDbContext.Users.AnyAsync(u => u.Email == newUser.Email))
                     throw new Exception("Email has already been taken");
 

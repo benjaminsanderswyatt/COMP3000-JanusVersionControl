@@ -9,10 +9,12 @@ namespace Janus.Helpers
     {
         public static async Task ExecuteAsync()
         {
-            string apiUrl = "https://localhost:82/api/Test/SayHello";
+            string apiUrl = "https://localhost:82/api/CLI/SayHello";
 
             // The data you want to send
             string testMessage = "Hello from the console app!";
+
+            Console.WriteLine("Sending...");
 
             using (HttpClient client = new HttpClient())
             {
@@ -41,6 +43,8 @@ namespace Janus.Helpers
                     Console.WriteLine($"Request error: {ex.Message}");
                 }
             }
+
+            Console.WriteLine("Sent.");
         }
 
 

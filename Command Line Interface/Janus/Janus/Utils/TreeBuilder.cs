@@ -153,8 +153,6 @@ namespace Janus.Utils
 
                 foreach (var line in treeContent)
                 {
-                    Console.WriteLine(line);
-
                     var parts = line.Split('|');
 
                     if (parts.Length >= 3)
