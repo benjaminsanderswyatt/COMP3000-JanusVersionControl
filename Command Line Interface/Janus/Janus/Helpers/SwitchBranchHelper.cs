@@ -102,6 +102,11 @@ namespace Janus.Helpers
             var comparisonResult = Tree.CompareTrees(currentTree, targetTree);
 
             Console.WriteLine("Comparison Results:");
+            Console.WriteLine($"AddedOrUntracked: {string.Join(", ", comparisonResult.AddedOrUntracked)}");
+            Console.WriteLine($"ModifiedOrNotStaged: {string.Join(", ", comparisonResult.ModifiedOrNotStaged)}");
+            Console.WriteLine($"Deleted: {string.Join(", ", comparisonResult.Deleted)}");
+
+            Console.WriteLine("Actions Performed:");
 
             // Perform actions based on the comparison result
             // Add or update files
