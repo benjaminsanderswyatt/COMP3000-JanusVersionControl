@@ -1,8 +1,5 @@
-﻿using Janus.Models;
-using Janus.Plugins;
+﻿using Janus.Plugins;
 using Janus.Utils;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace Janus.Helpers
 {
@@ -84,7 +81,7 @@ namespace Janus.Helpers
             logger.Log($"Successfully switched to branch '{branchName}'.");
         }
         */
-    
+
 
 
         public static void SwitchBranch(ILogger logger, Paths paths, string currentBranch, string branchName)
@@ -101,34 +98,15 @@ namespace Janus.Helpers
             // Compare the current and target trees to determine actions
             var comparisonResult = Tree.CompareTrees(currentTree, targetTree);
 
-            Console.WriteLine("Comparison Results:");
-            Console.WriteLine($"AddedOrUntracked: {string.Join(", ", comparisonResult.AddedOrUntracked)}");
-            Console.WriteLine($"ModifiedOrNotStaged: {string.Join(", ", comparisonResult.ModifiedOrNotStaged)}");
-            Console.WriteLine($"Deleted: {string.Join(", ", comparisonResult.Deleted)}");
-
-            // print concat to console
-            Console.WriteLine("Concat: " + string.Join(", ", comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged)));
-
-
-            Console.WriteLine("Actions Performed:");
 
             // Perform actions based on the comparison result
             // Add or update files
             foreach (var filePath in comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged))
             {
-                string fullPath = Path.Combine(paths.WorkingDir, filePath);
                 string relativePath = filePath;
 
-                
-                //string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
-                
-
-
-                string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree
+                string targetHash = GetHashFromTree(targetTree, relativePath);
                 string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
-                
-
-                Console.WriteLine($"Add/Update:     Filepath: {filePath}, Rel: {relativePath}, Object: {objectFilePath}");
 
 
                 // Check the object file exists
@@ -146,7 +124,6 @@ namespace Janus.Helpers
             // Delete files
             foreach (var filePath in comparisonResult.Deleted)
             {
-                Console.WriteLine($"Delete:     Filepath: {filePath}");
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);

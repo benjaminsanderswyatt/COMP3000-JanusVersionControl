@@ -1,15 +1,12 @@
-﻿using Janus.Models;
-using Janus.Plugins;
-using System.Text.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Janus.Helpers
 {
 
     public class DeleteBranchHelper
     {
-        
-        
+
+
         public static bool IsValidBranchName(string branchName)
         {
             if (string.IsNullOrWhiteSpace(branchName))
@@ -17,7 +14,7 @@ namespace Janus.Helpers
 
 
             // ivalid characters: ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
-            var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)"; 
+            var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
             if (Regex.IsMatch(branchName, invalidCharsPattern))
                 return false;
 

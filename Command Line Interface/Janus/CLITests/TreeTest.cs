@@ -1,7 +1,6 @@
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
-using System.Text;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -304,7 +303,7 @@ namespace CLITests
             var tree2Builder = new TreeBuilder(_paths);
             var tree2 = tree2Builder.BuildTreeFromDiction(diction2);
 
-            
+
             // Act
             var comparisonResult = Tree.CompareTrees(tree1, tree2);
 
@@ -330,5 +329,5 @@ namespace CLITests
 
     }
 
-    
+
 }

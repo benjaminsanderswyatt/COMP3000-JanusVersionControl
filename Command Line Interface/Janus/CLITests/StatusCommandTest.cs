@@ -347,7 +347,7 @@ namespace CLITests
             // Act
 
             // Assert: Verify that the new branch is displayed
-            
+
         }
 
 

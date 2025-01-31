@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GlobExpressions;
-using Janus.Plugins;
-
-namespace Janus.Helpers
+﻿namespace Janus.Helpers
 {
     public static class PathHelper
     {

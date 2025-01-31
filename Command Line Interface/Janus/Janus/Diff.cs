@@ -1,8 +1,5 @@
-﻿using DiffPlex;
+﻿using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
-using DiffPlex.DiffBuilder;
-using Janus.Plugins;
-using System.Diagnostics.Metrics;
 
 namespace Janus
 {

@@ -1,6 +1,4 @@
-﻿using Janus.Models;
-using Janus.Plugins;
-using System.Text.Json;
+﻿using Janus.Plugins;
 using System.Text.RegularExpressions;
 
 namespace Janus.Helpers
@@ -15,7 +13,7 @@ namespace Janus.Helpers
 
 
             // ivalid characters: ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
-            var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)"; 
+            var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
             if (Regex.IsMatch(branchName, invalidCharsPattern))
                 return false;
 

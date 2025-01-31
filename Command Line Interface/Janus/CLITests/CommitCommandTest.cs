@@ -1,7 +1,5 @@
-using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
-using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
@@ -537,7 +535,7 @@ namespace CLITests
 
             // Extract tree hashes for dir1
             var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree dir1 "))?.Split(' ')[2];
-            
+
             var dir1TreeFilePath = Path.Combine(_paths.TreeDir, dir1TreeHash);
             Assert.IsTrue(File.Exists(dir1TreeFilePath));
 

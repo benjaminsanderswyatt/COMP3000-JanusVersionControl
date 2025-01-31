@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GlobExpressions;
-using Janus.Plugins;
+﻿using GlobExpressions;
 
 namespace Janus.Helpers
 {
@@ -41,7 +34,7 @@ namespace Janus.Helpers
             return excludePatterns.Any(pattern => pattern.IsMatch(relPath)) &&
                    !includePatterns.Any(pattern => pattern.IsMatch(relPath));
         }
-        
+
 
 
 

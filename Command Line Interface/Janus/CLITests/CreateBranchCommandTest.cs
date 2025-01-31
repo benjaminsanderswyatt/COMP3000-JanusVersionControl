@@ -3,7 +3,6 @@ using Janus.Models;
 using Janus.Plugins;
 using Moq;
 using System.Text.Json;
-using System.Xml.Serialization;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -94,7 +93,7 @@ namespace CLITests
 
         }
 
-        
+
         [Test]
         public void ShouldLogError_WhenBranchNameIsInvalid()
         {
@@ -123,7 +122,7 @@ namespace CLITests
         }
 
 
-        
+
         [Test]
         public void ShouldCreateBranch_WhenBranchNameIsValid2()
         {
@@ -148,7 +147,7 @@ namespace CLITests
             Assert.That(branch.Name, Is.EqualTo(branchName), "Branch name should match.");
             Assert.That(branch.CreatedBy, Is.EqualTo(CommandHelper.GetUsername()), "CreatedBy should match current user.");
             Assert.That(branch.ParentBranch, Is.EqualTo(CommandHelper.GetCurrentBranchName(_paths)), "Parent branch should match.");
-        
+
             _loggerMock.Verify(logger => logger.Log($"Created new branch {branchName}"), Times.Once);
         }
 

@@ -2,12 +2,8 @@
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
-using Microsoft.VisualBasic;
 using System.Data;
-using System.Reflection.Emit;
 using System.Text.Json;
-using System.Xml.Linq;
-using static Janus.Utils.TreeBuilder;
 
 
 namespace Janus
@@ -99,7 +95,7 @@ namespace Janus
                 // Serialize the tree into objects
                 var rootTreeHash = treeBuilder.SaveTree(); // Save index tree
 
-                
+
                 Console.WriteLine("Tree hash: " + rootTreeHash);
 
 
@@ -110,7 +106,7 @@ namespace Janus
 
                 var newtree = newTreeBuilder.RecreateTree(Logger, rootTreeHash);
 
-                
+
                 newTreeBuilder.PrintTree();
 
                 Console.WriteLine("---------------------------");
@@ -124,7 +120,7 @@ namespace Janus
 
                 var wdTree = wdTreeBuilder.BuildTreeFromDiction(workingDirFiles);
 
-                
+
                 wdTreeBuilder.PrintTree();
 
 
@@ -133,7 +129,7 @@ namespace Janus
 
                 TreeBuilder builder = new TreeBuilder(Paths);
 
-                
+
                 // Compare the two trees
                 var result = Tree.CompareTrees(newtree, wdTree);
 
@@ -147,7 +143,7 @@ namespace Janus
                 Console.WriteLine("Deleted:");
                 result.Deleted.ForEach(Console.WriteLine);
 
-                
+
                 Logger.Log("Test End");
 
             }
@@ -297,7 +293,7 @@ namespace Janus
                 {
                     string relPath = arg.Replace('/', Path.DirectorySeparatorChar);
 
-                    if(IgnoreHelper.ShouldIgnore(relPath, includePatterns, excludePatterns))
+                    if (IgnoreHelper.ShouldIgnore(relPath, includePatterns, excludePatterns))
                     {
                         Logger.Log($"Ignoring '{relPath}' due to '.janusignore' file");
                         continue;
@@ -305,7 +301,7 @@ namespace Janus
 
                     // Ensure the path is a fullpath
                     var fullPath = Path.Combine(Paths.WorkingDir, relPath);
-                    
+
 
                     if (Directory.Exists(fullPath)) // Directory
                     {
@@ -477,7 +473,7 @@ namespace Janus
                     HeadHelper.SetHeadCommit(Paths, commitHash);
 
 
-                    
+
                     // Save cleaned up index
                     IndexHelper.SaveIndex(Paths.Index, updatedIndex);
 
@@ -663,7 +659,7 @@ namespace Janus
 
 
 
-        
+
 
 
 
@@ -731,7 +727,7 @@ namespace Janus
         }
 
 
-        
+
         /*
         public class DeleteBranchCommand : BaseCommand
         {
@@ -811,7 +807,7 @@ namespace Janus
         }
         */
 
-        
+
 
         public class ListBranchesCommand : BaseCommand
         {
@@ -850,7 +846,7 @@ namespace Janus
             }
         }
 
-        
+
 
         public class SwitchBranchCommand : BaseCommand
         {
@@ -887,12 +883,12 @@ namespace Janus
                     return;
                 }
 
-                
+
                 // Check if the repo is clean as the switch will override uncommitted changes
                 bool force = args.Contains("--force") ? true : false;
                 if (!force) // Force skips the check
                 {
-                    
+
                     if (StatusHelper.AreThereUncommittedChanges(Logger, Paths))
                     {
                         // Promt user to confirm branch switch
@@ -902,7 +898,7 @@ namespace Janus
                             return;
                         }
                     }
-                    
+
                 }
 
 

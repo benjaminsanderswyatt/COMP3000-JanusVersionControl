@@ -1,11 +1,6 @@
-using Janus;
-using Janus.Helpers;
-using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
-using System.Text.Json;
-using System.Xml.Serialization;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -151,7 +146,7 @@ namespace CLITests
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
-            
+
             string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
             Assert.That(File.ReadAllText(_paths.Index), Is.EqualTo(branchIndex));
 
@@ -313,7 +308,7 @@ namespace CLITests
             var expectedBranchDirChildren = new HashSet<string> { "file4.txt", "file5.txt", "added2.txt" };
             Assert.That(branchDirChildren, Is.EquivalentTo(expectedBranchDirChildren));
 
-            
+
             // Act: Switch back to main to ensure its as expected
             _switchBranchCommand.Execute(new string[] { "main" });
 
@@ -337,5 +332,5 @@ namespace CLITests
 
     }
 
-    
+
 }
