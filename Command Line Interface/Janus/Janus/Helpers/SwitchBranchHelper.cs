@@ -106,15 +106,27 @@ namespace Janus.Helpers
             Console.WriteLine($"ModifiedOrNotStaged: {string.Join(", ", comparisonResult.ModifiedOrNotStaged)}");
             Console.WriteLine($"Deleted: {string.Join(", ", comparisonResult.Deleted)}");
 
+            // print concat to console
+            Console.WriteLine("Concat: " + string.Join(", ", comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged)));
+
+
             Console.WriteLine("Actions Performed:");
 
             // Perform actions based on the comparison result
             // Add or update files
             foreach (var filePath in comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged))
             {
-                string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
+                string fullPath = Path.Combine(paths.WorkingDir, filePath);
+                string relativePath = filePath;
+
+                
+                //string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
+                
+
+
                 string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree
                 string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
+                
 
                 Console.WriteLine($"Add/Update:     Filepath: {filePath}, Rel: {relativePath}, Object: {objectFilePath}");
 
@@ -137,7 +149,6 @@ namespace Janus.Helpers
                 Console.WriteLine($"Delete:     Filepath: {filePath}");
                 if (File.Exists(filePath))
                 {
-                    Console.WriteLine("Deleted");
                     File.Delete(filePath);
                 }
             }
