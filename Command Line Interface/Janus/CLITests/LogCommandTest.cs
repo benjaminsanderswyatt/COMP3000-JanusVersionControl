@@ -52,7 +52,7 @@ namespace CLITests
                 // Generate commit metadata
                 string commitHash = HashHelper.ComputeCommitHash($"treeHash{num}", $"commitMessage{num}{seperator}");
 
-                string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, $"commitHash{num}", $"treeHash{num}", $"commitMessage{num}", parentCommitHash, author);
+                string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, $"commitHash{num}", $"treeHash{num}", $"commitMessage{num}", parentCommitHash, author);
 
                 // Save commit object
                 string commitFilePath = Path.Combine(_paths.CommitDir, commitHash);

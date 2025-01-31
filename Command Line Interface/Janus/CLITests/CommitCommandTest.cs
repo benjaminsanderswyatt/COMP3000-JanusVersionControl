@@ -170,7 +170,7 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
         }
 
 
@@ -227,8 +227,8 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(2));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt ")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file2.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file2.txt|")));
 
         }
 
@@ -289,7 +289,7 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
 
 
             // Check the refs/heads/main file contents
@@ -347,7 +347,7 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
 
 
         }
@@ -402,8 +402,8 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt ")));
-            Assert.IsFalse(treeContent.Any(line => line.Contains("blob file2.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|")));
+            Assert.IsFalse(treeContent.Any(line => line.Contains("blob|file2.txt|")));
 
         }
 
@@ -468,7 +468,7 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file.txt ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
 
 
             // Check the refs/heads/main file contents
@@ -529,12 +529,12 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(2));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir1 ")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir2 ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir1|")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir2|")));
 
 
             // Extract tree hashes for dir1
-            var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree dir1 "))?.Split(' ')[2];
+            var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir1|"))?.Split('|')[2];
 
             var dir1TreeFilePath = Path.Combine(_paths.TreeDir, dir1TreeHash);
             Assert.IsTrue(File.Exists(dir1TreeFilePath));
@@ -542,11 +542,11 @@ namespace CLITests
             var dir1TreeContent = File.ReadAllLines(dir1TreeFilePath);
 
             Assert.That(dir1TreeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(dir1TreeContent.Any(line => line.Contains("blob file1.txt ")));
+            Assert.IsTrue(dir1TreeContent.Any(line => line.Contains("blob|file1.txt|")));
 
 
             // Extract tree hashes for dir2
-            var dir2TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree dir2 "))?.Split(' ')[2];
+            var dir2TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir2|"))?.Split('|')[2];
 
             var dir2TreeFilePath = Path.Combine(_paths.TreeDir, dir2TreeHash);
             Assert.IsTrue(File.Exists(dir2TreeFilePath));
@@ -554,7 +554,7 @@ namespace CLITests
             var dir2TreeContent = File.ReadAllLines(dir2TreeFilePath);
 
             Assert.That(dir2TreeContent.Length, Is.EqualTo(1));
-            Assert.IsTrue(dir2TreeContent.Any(line => line.Contains("blob file2.txt ")));
+            Assert.IsTrue(dir2TreeContent.Any(line => line.Contains("blob|file2.txt|")));
 
         }
 

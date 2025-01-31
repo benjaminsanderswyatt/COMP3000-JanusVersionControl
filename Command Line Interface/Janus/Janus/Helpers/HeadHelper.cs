@@ -10,7 +10,7 @@ namespace Janus
         {
             if (branchName == null)
             {
-                branchName = CommandHelper.GetCurrentBranchName(paths);
+                branchName = MiscHelper.GetCurrentBranchName(paths);
             }
 
             string branchHeadPath = Path.Combine(paths.HeadsDir, branchName);

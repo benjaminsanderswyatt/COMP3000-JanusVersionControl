@@ -210,7 +210,7 @@ namespace Janus
                     var emptyTreeHash = "";
                     string initCommitHash = HashHelper.ComputeCommitHash(emptyTreeHash, initialCommitMessage);
 
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata("main", initCommitHash, emptyTreeHash, initialCommitMessage, null, null);
+                    string commitMetadata = MiscHelper.GenerateCommitMetadata("main", initCommitHash, emptyTreeHash, initialCommitMessage, null, null);
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -266,7 +266,7 @@ namespace Janus
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 // No arguments given so command should return error
                 if (args.Length < 1)
@@ -417,12 +417,12 @@ namespace Janus
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 string parentCommit;
                 try
                 {
-                    parentCommit = CommandHelper.GetCurrentHeadCommitHash(Paths);
+                    parentCommit = MiscHelper.GetCurrentHeadCommitHash(Paths);
                 }
                 catch (Exception ex)
                 {
@@ -460,11 +460,11 @@ namespace Janus
                     var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
 
 
-                    string branch = CommandHelper.GetCurrentBranchName(Paths);
+                    string branch = MiscHelper.GetCurrentBranchName(Paths);
 
                     // Generate commit metadata
                     string commitHash = HashHelper.ComputeCommitHash(rootTreeHash, commitMessage);
-                    string commitMetadata = CommandHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, CommandHelper.GetUsername());
+                    string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, MiscHelper.GetUsername());
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
@@ -507,7 +507,7 @@ namespace Janus
             public override void Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 if (!Directory.Exists(Paths.CommitDir))
                 {
@@ -608,7 +608,7 @@ namespace Janus
 
                     // Reset color after each commit log
                     Console.ResetColor();
-                    CommandHelper.DisplaySeperator(Logger);
+                    MiscHelper.DisplaySeperator(Logger);
                 }
 
 
@@ -673,7 +673,7 @@ namespace Janus
             public override string Description => "Creates a branch from the head commit of current branch.";
             public override void Execute(string[] args)
             {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 if (args.Length < 1)
                 {
@@ -699,7 +699,7 @@ namespace Janus
 
 
                 // Put the latest commit of the current branch into the new branch file
-                string branchHeadCommit = CommandHelper.GetCurrentHeadCommitHash(Paths);
+                string branchHeadCommit = MiscHelper.GetCurrentHeadCommitHash(Paths);
 
                 File.WriteAllText(branchPath, branchHeadCommit);
 
@@ -708,8 +708,8 @@ namespace Janus
                 {
                     Name = branchName,
                     InitialCommit = branchHeadCommit,
-                    CreatedBy = CommandHelper.GetUsername(),
-                    ParentBranch = CommandHelper.GetCurrentBranchName(Paths),
+                    CreatedBy = MiscHelper.GetUsername(),
+                    ParentBranch = MiscHelper.GetCurrentBranchName(Paths),
                     Created = DateTimeOffset.Now
                 };
 
@@ -818,12 +818,12 @@ namespace Janus
             public override string Description => "list branch help";
             public override void Execute(string[] args)
             {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 // Get all branches in heads directory
                 string[] allBranchesPaths = Directory.GetFiles(Paths.HeadsDir);
 
-                var currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                var currentBranch = MiscHelper.GetCurrentBranchName(Paths);
 
                 Logger.Log("Branches:");
                 foreach (string branchPath in allBranchesPaths)
@@ -857,7 +857,7 @@ namespace Janus
             public override string Description => "switch branch help";
             public override void Execute(string[] args)
             {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 if (args.Length < 1)
                 {
@@ -877,7 +877,7 @@ namespace Janus
                     return;
                 }
 
-                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                string currentBranch = MiscHelper.GetCurrentBranchName(Paths);
                 if (currentBranch == branchName)
                 {
                     Logger.Log($"Already on branch '{branchName}'.");
@@ -893,7 +893,7 @@ namespace Janus
                     if (StatusHelper.AreThereUncommittedChanges(Logger, Paths))
                     {
                         // Promt user to confirm branch switch
-                        if (!CommandHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
+                        if (!MiscHelper.ConfirmAction(Logger, "Are you sure you want to switch branches? Uncommitted changes will be lost.", force))
                         {
                             Logger.Log("Branch switch cancelled.");
                             return;
@@ -981,20 +981,20 @@ namespace Janus
             public override string Description => "Displays the status of the repository.";
             public override void Execute(string[] args)
             {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 // Get the current branch
-                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
+                string currentBranch = MiscHelper.GetCurrentBranchName(Paths);
                 Logger.Log($"On branch:");
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Logger.Log($"    {currentBranch}");
                 Console.ResetColor();
-                CommandHelper.DisplaySeperator(Logger);
+                MiscHelper.DisplaySeperator(Logger);
 
                 // TODO Check the status of the current branch against the remote branch
                 // Show branch sync status
                 Logger.Log("Remote sync status will be displayed here.");
-                CommandHelper.DisplaySeperator(Logger);
+                MiscHelper.DisplaySeperator(Logger);
 
 
 
@@ -1013,7 +1013,7 @@ namespace Janus
                     StatusHelper.DisplayStatus(Logger, addedModifiedDeleted.ModifiedOrNotStaged, ConsoleColor.Yellow, "(modified)");
                     StatusHelper.DisplayStatus(Logger, addedModifiedDeleted.Deleted, ConsoleColor.Red, "(deleted)");
 
-                    CommandHelper.DisplaySeperator(Logger);
+                    MiscHelper.DisplaySeperator(Logger);
                 }
                 // else -> Nothing to commit
 
@@ -1031,14 +1031,14 @@ namespace Janus
                 {
                     Logger.Log("Changes not staged for commit:");
                     StatusHelper.DisplayStatus(Logger, notStagedUntracked.ModifiedOrNotStaged, ConsoleColor.Cyan);
-                    CommandHelper.DisplaySeperator(Logger);
+                    MiscHelper.DisplaySeperator(Logger);
                 }
 
                 if (anyU)
                 {
                     Logger.Log("Untracked files:");
                     StatusHelper.DisplayStatus(Logger, notStagedUntracked.AddedOrUntracked, ConsoleColor.Blue);
-                    CommandHelper.DisplaySeperator(Logger);
+                    MiscHelper.DisplaySeperator(Logger);
                 }
 
 

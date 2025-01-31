@@ -100,13 +100,13 @@ namespace Janus.Utils
                 if (child.Hash != null)
                 {
                     // File entry
-                    lines.Add($"blob {child.Name} {child.Hash}");
+                    lines.Add($"blob|{child.Name}|{child.Hash}");
                 }
                 else
                 {
                     // Directory entry
                     string childHash = SaveTreeRecursively(child);
-                    lines.Add($"tree {child.Name} {childHash}");
+                    lines.Add($"tree|{child.Name}|{childHash}");
                 }
             }
 
@@ -141,19 +141,29 @@ namespace Janus.Utils
 
         private TreeNode RebuildTreeRecursive(ILogger logger, string treeHash)
         {
+            Console.WriteLine("TreeHash: " + treeHash);
             try
             {
                 // Load the tree content from storage
                 string treePath = Path.Combine(_paths.TreeDir, treeHash);
                 string[] treeContent = File.ReadAllLines(treePath, Encoding.UTF8);
 
+                // Write treeContent to console
+                foreach (var line in treeContent)
+                {
+                    Console.WriteLine(line);
+                }
+
+                Console.WriteLine("   ");
 
                 // Create a new TreeNode for the current tree
                 var treeNode = new TreeNode("root");
 
                 foreach (var line in treeContent)
                 {
-                    var parts = line.Split(' ');
+                    Console.WriteLine(line);
+
+                    var parts = line.Split('|');
 
                     if (parts.Length >= 3)
                     {
@@ -328,7 +338,7 @@ namespace Janus.Utils
             // Get the head tree of the current branch if not provided
             if (branchName == null)
             {
-                commitHash = CommandHelper.GetCurrentHeadCommitHash(paths);
+                commitHash = MiscHelper.GetCurrentHeadCommitHash(paths);
             }
             else
             {

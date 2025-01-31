@@ -146,8 +146,8 @@ namespace CLITests
             var branch = JsonSerializer.Deserialize<Branch>(branchJson);
 
             Assert.That(branch.Name, Is.EqualTo(branchName), "Branch name should match.");
-            Assert.That(branch.CreatedBy, Is.EqualTo(CommandHelper.GetUsername()), "CreatedBy should match current user.");
-            Assert.That(branch.ParentBranch, Is.EqualTo(CommandHelper.GetCurrentBranchName(_paths)), "Parent branch should match.");
+            Assert.That(branch.CreatedBy, Is.EqualTo(MiscHelper.GetUsername()), "CreatedBy should match current user.");
+            Assert.That(branch.ParentBranch, Is.EqualTo(MiscHelper.GetCurrentBranchName(_paths)), "Parent branch should match.");
 
             _loggerMock.Verify(logger => logger.Log($"Created new branch {branchName}"), Times.Once);
         }

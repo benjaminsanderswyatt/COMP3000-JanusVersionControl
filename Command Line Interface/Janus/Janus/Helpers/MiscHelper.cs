@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Janus.Helpers
 {
-    public class CommandHelper
+    public class MiscHelper
     {
         public static async Task ExecuteAsync()
         {

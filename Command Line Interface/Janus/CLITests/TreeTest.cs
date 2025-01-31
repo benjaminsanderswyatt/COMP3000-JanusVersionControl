@@ -137,9 +137,9 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(3));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt hash1")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file2.txt hash2")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file3.txt hash3")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|hash1")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file2.txt|hash2")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file3.txt|hash3")));
 
 
         }
@@ -170,43 +170,43 @@ namespace CLITests
             var treeContent = File.ReadAllLines(treeFilePath);
 
             Assert.That(treeContent.Length, Is.EqualTo(3));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob file1.txt hash1")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir1 ")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree dir2 ")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|hash1")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir1|")));
+            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir2|")));
 
             // Dir 1
-            var dir1Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree dir1 ")));
+            var dir1Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree|dir1|")));
             var dir1Path = Path.Combine(_paths.TreeDir, dir1Hash);
             Assert.IsTrue(File.Exists(dir1Path));
 
             var dir1Content = File.ReadAllLines(dir1Path);
             Assert.That(dir1Content.Length, Is.EqualTo(2));
-            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob file2.txt hash2")));
-            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob file3.txt hash3")));
+            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob|file2.txt|hash2")));
+            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob|file3.txt|hash3")));
 
             // Dir 2
-            var dir2Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree dir2 ")));
+            var dir2Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree|dir2|")));
             var dir2Path = Path.Combine(_paths.TreeDir, dir2Hash);
             Assert.IsTrue(File.Exists(dir2Path));
 
             var dir2Content = File.ReadAllLines(dir2Path);
             Assert.That(dir2Content.Length, Is.EqualTo(2));
-            Assert.IsTrue(dir2Content.Any(line => line.Contains("blob file4.txt hash4")));
-            Assert.IsTrue(dir2Content.Any(line => line.StartsWith("tree subdir1 ")));
+            Assert.IsTrue(dir2Content.Any(line => line.Contains("blob|file4.txt|hash4")));
+            Assert.IsTrue(dir2Content.Any(line => line.StartsWith("tree|subdir1|")));
 
             // Subdir 1
-            var subdir1Hash = GetHashFromTreeLine(dir2Content.First(line => line.StartsWith("tree subdir1 ")));
+            var subdir1Hash = GetHashFromTreeLine(dir2Content.First(line => line.StartsWith("tree|subdir1|")));
             var subdir1Path = Path.Combine(_paths.TreeDir, subdir1Hash);
             Assert.IsTrue(File.Exists(subdir1Path));
 
             var subdir1Content = File.ReadAllLines(subdir1Path);
             Assert.That(subdir1Content.Length, Is.EqualTo(1));
-            Assert.IsTrue(subdir1Content.Any(line => line.Contains("blob file5.txt hash5")));
+            Assert.IsTrue(subdir1Content.Any(line => line.Contains("blob|file5.txt|hash5")));
         }
 
         private string GetHashFromTreeLine(string treeLine)
         {
-            var parts = treeLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var parts = treeLine.Split('|', StringSplitOptions.RemoveEmptyEntries);
             return parts.Length > 2 ? parts[2] : string.Empty;
         }
 
