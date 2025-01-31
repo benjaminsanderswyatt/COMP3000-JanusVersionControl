@@ -101,6 +101,7 @@ namespace Janus.Helpers
             // Compare the current and target trees to determine actions
             var comparisonResult = Tree.CompareTrees(currentTree, targetTree);
 
+            Console.WriteLine("Comparison Results:");
 
             // Perform actions based on the comparison result
             // Add or update files
@@ -109,6 +110,9 @@ namespace Janus.Helpers
                 string relativePath = Path.GetRelativePath(paths.WorkingDir, filePath);
                 string targetHash = GetHashFromTree(targetTree, relativePath); // Helper to get the hash of a file from the tree
                 string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
+
+                Console.WriteLine($"Add/Update:     Filepath: {filePath}, Rel: {relativePath}, Object: {objectFilePath}");
+
 
                 // Check the object file exists
                 if (File.Exists(objectFilePath))
@@ -125,8 +129,10 @@ namespace Janus.Helpers
             // Delete files
             foreach (var filePath in comparisonResult.Deleted)
             {
+                Console.WriteLine($"Delete:     Filepath: {filePath}");
                 if (File.Exists(filePath))
                 {
+                    Console.WriteLine("Deleted");
                     File.Delete(filePath);
                 }
             }
