@@ -1,4 +1,4 @@
-﻿namespace Janus.Helpers
+﻿namespace Janus.CommandHelpers
 {
     internal class PushHelper
     {

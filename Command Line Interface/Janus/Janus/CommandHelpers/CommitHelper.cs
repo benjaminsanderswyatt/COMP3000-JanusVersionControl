@@ -1,6 +1,6 @@
 ﻿using Janus.Plugins;
 
-namespace Janus.Helpers
+namespace Janus.CommandHelpers
 {
 
     public class CommitHelper

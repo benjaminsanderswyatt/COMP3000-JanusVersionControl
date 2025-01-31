@@ -1,11 +1,12 @@
-﻿using Janus.Plugins;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace Janus.Helpers
+namespace Janus.CommandHelpers
 {
 
-    public class BranchHelper
+    public class DeleteBranchHelper
     {
+
+
         public static bool IsValidBranchName(string branchName)
         {
             if (string.IsNullOrWhiteSpace(branchName))
@@ -20,49 +21,9 @@ namespace Janus.Helpers
             return true;
         }
 
-        // Get the head commit hash from the branch
-        public static string GetBranchHead(Paths paths, string branchName)
-        {
-            string headPath = Path.Combine(paths.HeadsDir, branchName);
-
-            if (!File.Exists(headPath))
-            {
-                throw new Exception("Error: Couldn't find branch head");
-            }
-
-            string targetCommitHash = File.ReadAllText(headPath);
-
-            return targetCommitHash;
-        }
-
-
-        public static void SetCurrentHEAD(Paths paths, string branchName)
-        {
-            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         /*
-
-
         public static void DeleteBranchCommitAndFiles(ILogger logger, Paths paths, string branchName)
         {
             string tempDeletionDir = Path.Combine(paths.JanusDir, ".temp_deletion");
@@ -224,8 +185,8 @@ namespace Janus.Helpers
             return allCommits;
         }
 
-
-
         */
+
+
     }
 }
