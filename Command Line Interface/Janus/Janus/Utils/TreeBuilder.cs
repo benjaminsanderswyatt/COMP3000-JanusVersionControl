@@ -141,20 +141,12 @@ namespace Janus.Utils
 
         private TreeNode RebuildTreeRecursive(ILogger logger, string treeHash)
         {
-            Console.WriteLine("TreeHash: " + treeHash);
             try
             {
                 // Load the tree content from storage
                 string treePath = Path.Combine(_paths.TreeDir, treeHash);
                 string[] treeContent = File.ReadAllLines(treePath, Encoding.UTF8);
 
-                // Write treeContent to console
-                foreach (var line in treeContent)
-                {
-                    Console.WriteLine(line);
-                }
-
-                Console.WriteLine("   ");
 
                 // Create a new TreeNode for the current tree
                 var treeNode = new TreeNode("root");
@@ -195,7 +187,6 @@ namespace Janus.Utils
             }
             catch (Exception ex)
             {
-                logger.Log($"Failed to recreate tree: {ex.Message}");
                 throw new Exception("Failed to recreate tree", ex);
                 //return null;
             }
