@@ -271,11 +271,13 @@ namespace Janus.Utils
 
                 if (!node1Files.ContainsKey(key)) // Added
                 {
+                    Console.WriteLine($"Added {path}: {key}");
                     // File is only in tree2
                     result.AddedOrUntracked.Add(path);
                 }
                 else if (!node2Files.ContainsKey(key) || node2Files[key].Hash == "Deleted") // Deleted
                 {
+                    Console.WriteLine($"Deleted {path}: {(node2Files.ContainsKey(key) ? node2Files[key].Hash : "No Exist")}");
                     // File is only in tree1 (not in tree2)
                     result.Deleted.Add(path);
                 }
@@ -284,6 +286,8 @@ namespace Janus.Utils
                     // File exists in both
                     var file1 = node1Files[key];
                     var file2 = node2Files[key];
+
+                    Console.WriteLine($"Comparing {path}: Hash same {(file1.Hash == file2.Hash ? "true" : "false")}");
 
                     if (file1.Hash != file2.Hash) // Modified
                     {
