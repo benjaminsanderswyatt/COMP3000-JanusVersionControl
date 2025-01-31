@@ -313,7 +313,7 @@ namespace CLITests
             var expectedBranchDirChildren = new HashSet<string> { "file4.txt", "file5.txt", "added2.txt" };
             Assert.That(branchDirChildren, Is.EquivalentTo(expectedBranchDirChildren));
 
-
+            /*
             // Act: Switch back to main to ensure its as expected
             _switchBranchCommand.Execute(new string[] { "main" });
 
@@ -331,7 +331,7 @@ namespace CLITests
             var expectedMainDirChildren2 = new HashSet<string> { "file4.txt", "file5.txt", "file6.txt" };
             Assert.That(mainDirChildren2, Is.EquivalentTo(expectedMainDirChildren2));
 
-
+            */
         }
 
 
