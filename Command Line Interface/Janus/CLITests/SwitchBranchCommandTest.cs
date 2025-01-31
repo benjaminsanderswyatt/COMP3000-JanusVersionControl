@@ -246,6 +246,10 @@ namespace CLITests
             // Act
             _switchBranchCommand.Execute(new string[] { "main" });
 
+            Console.WriteLine("Current working tree files 'main':");
+            Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
+
+
             /*
             Expected main:
                 file1.txt - content1
@@ -284,6 +288,11 @@ namespace CLITests
             // Act: Switch to new branch
             _switchBranchCommand.Execute(new string[] { branchName });
 
+            Console.WriteLine("Current working tree files 'newBranch':");
+            Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
+
+
+
             // Assert: Check that the NewBranch working tree is as expected
             var branchTreeFiles = Tree.GetWorkingTree(_paths).Children.Select(child => child.Name).ToHashSet();
             var expectedBranchFiles = new HashSet<string> { "file1.txt", "file2.txt", "added1.txt", "dir" };
@@ -296,6 +305,11 @@ namespace CLITests
 
             // Act: Switch back to main to ensure its as expected
             _switchBranchCommand.Execute(new string[] { "main" });
+
+
+            Console.WriteLine("Current working tree files 'main2':");
+            Tree.GetWorkingTree(_paths).Children.ForEach(child => Console.WriteLine(child.Name));
+
 
             // Assert: Same as the first
             var mainTreeFiles2 = Tree.GetWorkingTree(_paths).Children.Select(child => child.Name).ToHashSet();
