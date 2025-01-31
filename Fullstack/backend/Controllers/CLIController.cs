@@ -41,7 +41,7 @@ namespace backend.Controllers
             {
                 Console.WriteLine($"hello: {userId}");
 
-                return Ok(new { message = "hello"});
+                return Ok(new { message = $"hello {userId}"});
 
             }
             catch (Exception ex)
@@ -55,6 +55,13 @@ namespace backend.Controllers
 
 
 
+        // POST: api/CLI/Init
+
+        // POST: api/CLI/Push
+
+        // POST: api/CLI/Pull
+
+        // POST: api/CLI/Clone
 
 
 
