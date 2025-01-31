@@ -144,10 +144,7 @@ namespace Janus.Utils
             {
                 // Load the tree content from storage
                 string treePath = Path.Combine(_paths.TreeDir, treeHash);
-                string[] treeContent = File.ReadAllLines(treePath, Encoding.UTF8)
-                    .Select(line => line.Trim()) // Normalise whitespace
-                    .Where(line => !string.IsNullOrWhiteSpace(line)) // Skip empty lines
-                    .ToArray();
+                string[] treeContent = File.ReadAllLines(treePath, Encoding.UTF8);
 
 
                 // Create a new TreeNode for the current tree
@@ -160,7 +157,7 @@ namespace Janus.Utils
                     if (parts.Length >= 3)
                     {
                         string type = parts[0]; // blob or tree
-                        string name = parts[1].ToLowerInvariant(); // Name of the file or directory
+                        string name = parts[1]; // Name of the file or directory
                         string hash = parts[2]; // Hash of the file or directory
 
                         if (type == "tree")
