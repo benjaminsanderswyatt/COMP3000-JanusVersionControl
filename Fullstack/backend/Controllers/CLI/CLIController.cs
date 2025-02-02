@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace backend.Controllers
+namespace backend.Controllers.CLI
 {
-    [Route("api/[controller]")]
+    [Route("api/cli/[controller]")]
     [ApiController]
     [EnableCors("CLIPolicy")]
     [Authorize(Policy = "CLIPolicy")]
@@ -41,7 +41,7 @@ namespace backend.Controllers
             {
                 Console.WriteLine($"hello: {userId}");
 
-                return Ok(new { message = $"hello {userId}"});
+                return Ok(new { message = $"hello {userId}" });
 
             }
             catch (Exception ex)

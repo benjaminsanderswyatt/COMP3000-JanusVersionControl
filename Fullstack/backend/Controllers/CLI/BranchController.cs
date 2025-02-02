@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace backend.Controllers
+namespace backend.Controllers.CLI
 {
-    [Route("api/[controller]")]
+    [Route("api/cli/[controller]")]
     [ApiController]
     [EnableCors("CLIPolicy")]
     [Authorize(Policy = "CLIPolicy")]
@@ -30,7 +30,7 @@ namespace backend.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            
+
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))

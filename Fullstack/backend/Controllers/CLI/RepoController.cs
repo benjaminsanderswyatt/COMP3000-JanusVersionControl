@@ -1,28 +1,117 @@
 ﻿using backend.DataTransferObjects;
 using backend.Models;
+using backend.Utils.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace backend.Controllers
+namespace backend.Controllers.CLI
 {
-    [Route("api/[controller]")]
+    [Route("api/cli/[controller]")]
     [ApiController]
     [EnableCors("CLIPolicy")]
     [Authorize(Policy = "CLIPolicy")]
     public class RepoController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
+        private RepoManagement _repoManagement;
 
-        public RepoController(JanusDbContext janusDbContext)
+        public RepoController(JanusDbContext janusDbContext, RepoManagement repoManagement)
         {
             _janusDbContext = janusDbContext;
+            _repoManagement = repoManagement;
+        }
+
+
+        // Get all repos of user
+        [HttpGet("GetRepos")]
+        public async Task<IActionResult> GetUserRepos()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var repos = await _repoManagement.GetAllReposOfUserAsync(userId);
+
+                return Ok(repos);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred while retrieving repositories");
+            }
+        }
+
+
+        // Create a repo
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateRepo([FromBody] RepositoryDto newRepo)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var newRepository = new Repository
+            {
+                OwnerId = userId,
+                RepoName = newRepo.RepoName,
+            };
+
+            try
+            {
+                var result = await _repoManagement.CreateRepoAsync(newRepository);
+                
+                if (!result.Success)
+                    return BadRequest(result);
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred while creating the repository");
+            }
+
+        }
+
+
+        // Delete repo
+        [HttpDelete("{repoId}")]
+        public async Task<IActionResult> DeleteRepo(int repoId)
+        {
+            return BadRequest();
         }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*
         // POST: api/Repo/Create
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] RepositoryDto repositoryDto)
@@ -130,7 +219,7 @@ namespace backend.Controllers
 
         }
 
-
+        */
 
     }
 }

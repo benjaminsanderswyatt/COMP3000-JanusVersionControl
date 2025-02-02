@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace backend.Controllers
+namespace backend.Controllers.Frontend
 {
     [Route("api/web/[controller]")]
     [EnableCors("FrontendPolicy")]
