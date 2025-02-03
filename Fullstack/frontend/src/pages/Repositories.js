@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Repository from '../components/Repo/Repository';
+import RepoBar from '../components/Repo/RepoBar';
 
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 
@@ -50,6 +51,9 @@ return (
   <div style={styles.container}>
     <h1>Repos</h1>
 
+    <RepoBar/>
+
+
     <div style={styles.repoHolder}>
       <Repository/>
       <Repository/>
@@ -72,11 +76,11 @@ return (
 
 const styles = {
   container: {
-    width: "100%",
+    width: "90%",
     justifyItems: "center",
   },
   repoHolder: {
-    width: "90%",
+    width: "100%",
     justifyItems: "center",
     display: "flex",
     flexDirection: "column",

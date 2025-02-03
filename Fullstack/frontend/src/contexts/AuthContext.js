@@ -10,6 +10,9 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Default needs to be set localstorage token if its valid
 
   useEffect(() => {
+    setIsLoggedIn(true);
+
+
     const token = localStorage.getItem('token');
     if (token) {
       try {
