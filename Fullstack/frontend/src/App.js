@@ -14,6 +14,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import Repositories from './pages/Repositories';
+import RepoCreate from './pages/Create';
+
 import Account from './pages/Account';
 
 import TermsOfUse from './pages/legal/TermsOfUse'
@@ -66,6 +68,12 @@ const App = () => {
               <Route path="repositories" element={<ProtectedRoute />}>
                 <Route index element={<Repositories />}/>
               </Route>
+
+                <Route path="repositories/create" element={<ProtectedRoute />}>
+                  <Route index element={<RepoCreate />}/>
+                </Route>
+
+
 
               <Route path="account" element={<ProtectedRoute />}>
                 <Route index element={<Account />}/>

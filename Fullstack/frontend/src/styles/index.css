@@ -21,16 +21,17 @@ code {
   --background: #F4F4F6;
   --border: #d9d9d9;
   --card: white;
+  --darkcard: #ebebeb;
+  
 
   --button: #F5F5F5;
 
   --primary: #6971A9;
   --secondary: #C2B1CB;
-  --accent: #848CB9;
+  --accent: #b7bbd2;
 
   --primary-rgb: rgb(105 113 169);
   --secondary-rgb: rgb(194 177 203);
-  --accent-rgb: rgb(132 140 185);
 }
 
 /* Dark Theme */
@@ -42,6 +43,9 @@ code {
   --background: #181818;
   --border: #5c5c5c;
   --card: #313131;
+  --darkcard: #3D3D3D;
+
+  --button: #3c3c3c;
 
   --primary: #565d95;
   --secondary: #867491;

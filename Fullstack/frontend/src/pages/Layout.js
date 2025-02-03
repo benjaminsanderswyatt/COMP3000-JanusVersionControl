@@ -9,7 +9,6 @@ const Layout = () => {
   return (
     <div style={styles.container}>
       <Header />
-       
       
       
 

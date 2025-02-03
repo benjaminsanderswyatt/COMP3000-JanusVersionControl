@@ -44,14 +44,15 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     width: "100%",
+    maxWidth: "1000px",
   },
   input: {
     border: "none",
     background: "none",
     outline: "none",
     fontSize: "1rem",
-    padding: "10px 0px",
-    width: "100%"
+    padding: "8px 0px",
+    width: "100%",
   },
   searchBox: {
     display: "flex",
@@ -63,6 +64,7 @@ const styles = {
     width: "100%",
     minWidth: "180px",
     height: "min-content",
+    border: "var(--primary) thin solid",
   },
   
 

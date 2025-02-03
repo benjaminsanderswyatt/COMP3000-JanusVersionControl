@@ -15,19 +15,19 @@ const LoggedInHeader = ({ authUser }) => {
       {/* Navbar section */}
       <nav style={styles.navbar}>
         <button
-          style={{ ...styles.navbarItem, ...(location.pathname === "/repositories" ? styles.selected : {}) }}
+          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/repositories") ? styles.selected : {}) }}
           onClick={() => navigate("/repositories")}
         >
           My Repositories
         </button>
         <button
-          style={{ ...styles.navbarItem, ...(location.pathname === "/collaborating" ? styles.selected : {}) }}
+          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/collaborating") ? styles.selected : {}) }}
           onClick={() => navigate("/collaborating")}
         >
           Collaborating
         </button>
         <button
-          style={{ ...styles.navbarItem, ...(location.pathname === "/commandline" ? styles.selected : {}) }}
+          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/commandline") ? styles.selected : {}) }}
           onClick={() => navigate("/commandline")}
         >
           Command Line
@@ -36,7 +36,7 @@ const LoggedInHeader = ({ authUser }) => {
 
 
       {/* Username section */}
-      <button style={{ ...styles.username, ...(location.pathname === "/account" ? styles.selected : {}) }}
+      <button style={{ ...styles.username, ...(location.pathname.startsWith("/account") ? styles.selected : {}) }}
        onClick={() => navigate("/account")}>{authUser}</button>
 
       {/* Settings section */}
