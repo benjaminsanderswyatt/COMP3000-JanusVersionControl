@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import Repository from '../components/Repo/Repository';
+import Repository from '../../components/Repo/Repository';
 import { useNavigate, useLocation } from 'react-router';
-import RepoBar from '../components/Repo/RepoBar';
+import RepoBar from '../../components/Repo/RepoBar';
 
-import { GenAccessToken } from '../api/fetch/fetchPAT';
+import { GenAccessToken } from '../../api/fetch/fetchPAT';
 
-import SearchBox from '../components/SearchBox';
+import SearchBox from '../../components/SearchBox';
 
-import { useAuth  } from '../contexts/AuthContext';
+import { useAuth  } from '../../contexts/AuthContext';
 
 
 const Repositories = () => {
@@ -52,6 +52,10 @@ const Repositories = () => {
   }
 
 
+  const handleEnterRepo = (name) => {
+    navigate(`/repositories/${name}`);
+  }
+
 
   const CreateNewRepo = () => {
     navigate("/repositories/create");
@@ -60,6 +64,7 @@ const Repositories = () => {
   return (
     <div style={styles.container}>
 
+
       <header style={styles.header}>
         <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
@@ -67,9 +72,9 @@ const Repositories = () => {
 
       </header>
 
-
       <div style={styles.repoHolder}>
-        <Repository/>
+        {/* TODO For loop loads repos */}
+        <Repository enterRepo={() => handleEnterRepo("RepoNameHere")}/>
         <Repository/>
         <Repository/>
       </div>
@@ -91,13 +96,16 @@ const Repositories = () => {
 const styles = {
   header: {
     display: "flex",
-    width: "100%",
+    width: "90%",
     background: "var(--accent)",
     alignItems: "center",
     borderBottom: "var(--border) solid 1px",
     padding: "4px 10px",
     gap: "10px",
     justifyContent: "center",
+    marginTop: "20px",
+    borderRadius: "8px 8px 0px 0px",
+    minHeight: "46px",
   },
   button: {
     boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
@@ -116,13 +124,15 @@ const styles = {
     justifyItems: "center",
   },
   repoHolder: {
+    background: "var(--card)",
     width: "90%",
+    padding: "18px",
     justifyItems: "center",
     display: "flex",
     flexDirection: "column",
     gap: "18px",
     alignItems: "center",
-    marginTop: "20px",
+    borderRadius: "0px 0px 8px 8px",
   },
   PATHolder: {
     width: "100%",

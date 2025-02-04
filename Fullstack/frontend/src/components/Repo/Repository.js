@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Repository = () => {
+const Repository = ({ enterRepo }) => {
 
 
 
   return (
-    <div style={styles.container}>
+    <div onClick={() => enterRepo()} style={styles.container}>
       <div style={styles.header}>
         <h2 style={styles.repoName}>Repository Name</h2>
         <div style={styles.visability}>Visibility</div>
@@ -38,12 +38,13 @@ const styles = {
   container: {
     display: "block",
     width: "100%",
-    background: "var(--card)",
+    background: "var(--tintcard)",
     border: 'var(--border) thin solid',
     borderRadius: "8px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     padding: "20px",
     maxWidth: "1000px",
+    cursor: "pointer",
   },
   header: {
     display: "flex",
@@ -58,7 +59,7 @@ const styles = {
     color: "var(--text)",
   },
   visability: {
-    background: "var(--secondary)",
+    background: "var(--lightsecondary)",
     padding: "4px 8px",
     borderRadius: "4px",
     fontSize: "12px",

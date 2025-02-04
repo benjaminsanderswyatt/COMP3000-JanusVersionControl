@@ -21,6 +21,7 @@ code {
   --background: #F4F4F6;
   --border: #d9d9d9;
   --card: white;
+  --tintcard: #FCFCFD;
   --darkcard: #ebebeb;
   
 
@@ -28,6 +29,8 @@ code {
 
   --primary: #6971A9;
   --secondary: #C2B1CB;
+  --lightsecondary: #E8E0EC;
+  
   --accent: #b7bbd2;
 
   --primary-rgb: rgb(105 113 169);
