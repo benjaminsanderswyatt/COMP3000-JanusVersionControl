@@ -10,6 +10,10 @@ namespace backend.Models
         public string CommitHash { get; set; }
 
         [Required]
+        [MaxLength(255)]
+        public string BranchName { get; set; }
+
+        [Required]
         [StringLength(40)]
         public string TreeHash { get; set; }
 

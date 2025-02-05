@@ -1,28 +1,14 @@
 import React from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 
 import Commit from "../../components/Repo/Commit"
+import RepoPageHeader from "../../components/Repo/RepoPageHeader";
 
 const RepoPage = () => {
+  const navigate = useNavigate();
   const { name } = useParams(); // Get the name from the URL
 
 
-  const GotoFiles = () => {
-
-  }
-
-  const GotoCommits = () => {
-
-  }
-
-  const GotoContributors = () => {
-
-  }
-
-  const GotoSettings = () => {
-
-  }
-  
   
   return (
     <div style={styles.container}>
@@ -31,12 +17,7 @@ const RepoPage = () => {
           <h2>{name}</h2>
           <div style={styles.visability}>Visibility</div>
         </div>
-        <div style={styles.rightHeader}>
-          <button style={styles.button} onClick={() => GotoFiles()}>File</button>
-          <button style={styles.button} onClick={() => GotoCommits()}>Commits</button>
-          <button style={styles.button} onClick={() => GotoContributors()}>Contributors</button>
-          <button style={styles.button} onClick={() => GotoSettings()}>Settings</button>
-        </div>
+        <RepoPageHeader/>
         
       </header>
 
@@ -83,15 +64,6 @@ const styles = {
     color: "var(--text)",
     height: "fit-content",
   },
-  rightHeader: {
-    display: "flex",
-    justifyContent: "center",
-    flex: 1,
-    alignItems: "center",
-    gap: "8px",
-    flexWrap: "wrap"
-  },
-
   button: {
     boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
     backgroundColor: "var(--button)",

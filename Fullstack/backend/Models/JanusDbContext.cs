@@ -45,9 +45,6 @@ namespace backend.Models
             modelBuilder.Entity<CommitParent>()
                 .HasKey(cp => new { cp.ChildHash, cp.ParentHash });
 
-            //modelBuilder.Entity<Tree>()
-            //    .HasKey(t => new { t.TreeHash, t.EntryName });
-
             modelBuilder.Entity<RepoAccess>()
                 .HasKey(ra => new { ra.RepoId, ra.UserId });
 

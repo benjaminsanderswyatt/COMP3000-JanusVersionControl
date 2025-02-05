@@ -1,5 +1,6 @@
 ﻿using backend.DataTransferObjects;
 using backend.Models;
+using backend.Services;
 using backend.Utils.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -17,11 +18,13 @@ namespace backend.Controllers.CLI
     {
         private readonly JanusDbContext _janusDbContext;
         private RepoManagement _repoManagement;
+        private readonly RepoService _repoService;
 
-        public RepoController(JanusDbContext janusDbContext, RepoManagement repoManagement)
+        public RepoController(JanusDbContext janusDbContext, RepoManagement repoManagement, RepoService repoService)
         {
             _janusDbContext = janusDbContext;
             _repoManagement = repoManagement;
+            _repoService = repoService;
         }
 
 
@@ -59,31 +62,15 @@ namespace backend.Controllers.CLI
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid user ID" });
             }
 
+            var result = await _repoService.CreateRepoAsync(userId, newRepo);
 
-            var newRepository = new Repository
-            {
-                OwnerId = userId,
-                RepoName = newRepo.RepoName,
-            };
+            if (!result.Success)
+                return BadRequest(result);
 
-            try
-            {
-                var result = await _repoManagement.CreateRepoAsync(newRepository);
-                
-                if (!result.Success)
-                    return BadRequest(result);
-
-                return Ok(result);
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("An error occurred while creating the repository");
-            }
-
+            return Ok(result);
         }
 
 

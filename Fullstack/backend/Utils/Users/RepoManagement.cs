@@ -1,16 +1,20 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace backend.Utils.Users
 {
     public class RepoManagement
     {
         private readonly JanusDbContext _janusDbContext;
+        private readonly UserManagement _userManagement;
 
-        public RepoManagement(JanusDbContext janusDbContext)
+        public RepoManagement(JanusDbContext janusDbContext, UserManagement userManagement)
         {
             _janusDbContext = janusDbContext;
+            _userManagement = userManagement;
         }
 
 
@@ -75,7 +79,135 @@ namespace backend.Utils.Users
         }
 
 
+        // Atomic repo init
+        public async Task<ReturnObject> InitRepoAsync(int ownerId, string repoName, bool isPrivate)
+        {
+            // Check if repo with same name exists
+            if (await RepoWithNameExistsAsync(ownerId, repoName))
+            {
+                return new ReturnObject { Success = false, Message = $"Repository '{repoName}' already exists" };
+            }
 
+            // Fetch the user's details (name and email) from the database
+            var user = await _janusDbContext.Users
+                .Where(u => u.UserId == ownerId)
+                .Select(u => new { u.Username, u.Email })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return new ReturnObject { Success = false, Message = "User not found" };
+
+            string authorName = user.Username;
+            string authorEmail = user.Email;
+
+
+            
+            var executionStrategy = _janusDbContext.Database.CreateExecutionStrategy();
+
+            return await executionStrategy.ExecuteAsync(async () =>
+            {
+                // Start transaction
+                using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
+
+
+                try
+                {
+                    // Create the repository
+                    var repo = new Repository
+                    {
+                        OwnerId = ownerId,
+                        RepoName = repoName,
+                        IsPrivate = isPrivate,
+                    };
+
+                    await _janusDbContext.Repositories.AddAsync(repo);
+                    await _janusDbContext.SaveChangesAsync();
+
+
+                    // Create repo access for owner
+                    var repoAccess = new RepoAccess
+                    {
+                        RepoId = repo.RepoId,
+                        UserId = ownerId,
+                        AccessLevel = AccessLevel.ADMIN
+                    };
+
+                    await _janusDbContext.RepoAccess.AddAsync(repoAccess);
+                    await _janusDbContext.SaveChangesAsync();
+
+
+
+                    // Create initial commit
+                    string initialCommitMessage = "Initial commit";
+                    string emptyTreeHash = "";
+                    string initCommitHash = ComputeCommitHash(emptyTreeHash, initialCommitMessage);
+
+                    var commit = new Commit
+                    {
+                        CommitHash = initCommitHash,
+                        TreeHash = emptyTreeHash,
+                        BranchName = "main",
+                        AuthorName = authorName,
+                        AuthorEmail = authorEmail,
+                        Message = initialCommitMessage
+                    };
+
+                    await _janusDbContext.Commits.AddAsync(commit);
+                    await _janusDbContext.SaveChangesAsync();
+
+
+                    // Create main branch
+                    var branch = new Branch
+                    {
+                        BranchName = "main",
+                        RepoId = repo.RepoId,
+                        LatestCommitHash = initCommitHash,
+                    };
+
+                    await _janusDbContext.Branches.AddAsync(branch);
+                    await _janusDbContext.SaveChangesAsync();
+
+
+
+
+
+
+                    // Commit the transaction
+                    await transaction.CommitAsync();
+
+                    return new ReturnObject { Success = true, Message = "Repository initialized successfully" };
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error!!!----------------");
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                    // Rollback transaction
+                    await transaction.RollbackAsync();
+                    return new ReturnObject { Success = false, Message = $"Failed to initialise repository: {ex.Message}" };
+                }
+
+            });
+
+        }
+
+        private static string ComputeCommitHash(string treeHash, string commitMessage)
+        {
+            byte[] combined = Encoding.UTF8.GetBytes(treeHash + commitMessage);
+
+            return ComputeHash(combined);
+        }
+
+        private static string ComputeHash(byte[] contentBytes)
+        {
+            using (SHA1 sha1 = SHA1.Create())
+            {
+                byte[] hashBytes = sha1.ComputeHash(contentBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
 
     }
 }

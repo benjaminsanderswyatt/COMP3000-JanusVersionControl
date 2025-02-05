@@ -16,6 +16,7 @@ import Register from './pages/Register';
 import Repositories from './pages/Repos/Repositories';
 import RepoCreate from './pages/Repos/Create';
 import RepoPage from './pages/Repos/RepoPage';
+import RepoCommits from './pages/Repos/Commits';
 
 import Account from './pages/Account';
 
@@ -77,6 +78,11 @@ const App = () => {
                 <Route path="repositories/:name" element={<ProtectedRoute />}>
                   <Route index element={<RepoPage />}/>
                 </Route>
+
+                <Route path="repositories/:name/commits" element={<ProtectedRoute />}>
+                  <Route index element={<RepoCommits />}/>
+                </Route>
+
 
 
               <Route path="account" element={<ProtectedRoute />}>

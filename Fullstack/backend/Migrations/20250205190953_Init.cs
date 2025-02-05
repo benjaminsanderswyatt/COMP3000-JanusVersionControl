@@ -38,6 +38,8 @@ namespace backend.Migrations
                 {
                     CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
@@ -272,6 +274,18 @@ namespace backend.Migrations
                 name: "IX_Trees_ParentTreeHash_ParentEntryName",
                 table: "Trees",
                 columns: new[] { "ParentTreeHash", "ParentEntryName" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />

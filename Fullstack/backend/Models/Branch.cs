@@ -15,10 +15,9 @@ namespace backend.Models
         [Required]
         public int RepoId { get; set; }
 
-        [Required]
         public string LatestCommitHash { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 
         [ForeignKey("RepoId")]

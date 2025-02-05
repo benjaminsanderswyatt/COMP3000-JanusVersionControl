@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
+
 
 const Commits = () => {
-  const navigate = useNavigate();
+  const { name } = useParams(); // Get the name from the URL
 
-  
+  const commits = [
+    { user: 'temp', message: 'Initial Commit', hash: '#4a35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-30T12:34:56Z' },
+    { user: 'temp', message: 'Fix bug in login', hash: '#5b35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-30T14:20:10Z' },
+    { user: 'temp', message: 'Add new feature', hash: '#6c35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-29T09:15:30Z' },
+    { user: 'temp', message: 'Refactor code', hash: '#7d35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-29T18:45:22Z' },
+    { user: 'temp', message: 'Update README', hash: '#8e35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-28T10:10:10Z' },
+  ];
+
+
+
 
   return (
     <div style={styles.container}>
       <header style={styles.header}>
       </header>
 
-      <Commits></Commits>
+      <div style={styles.createHolder}>
+        
+      </div>
 
     </div>
   );
@@ -50,5 +62,5 @@ const styles = {
 }
 
 
-export default Create;
+export default Commits;
   

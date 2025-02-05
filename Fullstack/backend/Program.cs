@@ -1,5 +1,7 @@
 using backend.Helpers;
 using backend.Models;
+using backend.Services;
+using backend.Utils.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,9 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<CLIHelper>();
+builder.Services.AddScoped<UserManagement>();
+builder.Services.AddScoped<RepoManagement>();
+builder.Services.AddScoped<RepoService>();
 
 
 // Add Db context

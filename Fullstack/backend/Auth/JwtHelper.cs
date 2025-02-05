@@ -14,6 +14,7 @@ public class JwtHelper
             new Claim("TokenType", "User")
         };
 
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__SecretKey_Web")));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
