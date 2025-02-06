@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using backend.Models;
-using Microsoft.Extensions.DependencyInjection;
+﻿using backend.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 // Cleans up the token blacklist, removes tokens which have expired exery x days

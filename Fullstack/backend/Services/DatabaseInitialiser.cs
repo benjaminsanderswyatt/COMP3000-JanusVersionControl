@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using backend.Models;
+﻿using backend.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 public class DatabaseInitialiser : IHostedService

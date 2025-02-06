@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace backend.DataTransferObjects
+﻿namespace backend.DataTransferObjects
 {
     public class PatDto
     {

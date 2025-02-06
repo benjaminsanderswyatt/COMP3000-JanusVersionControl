@@ -1,5 +1,4 @@
-﻿using backend.Auth;
-using backend.DataTransferObjects;
+﻿using backend.DataTransferObjects;
 using backend.Models;
 using backend.Services;
 using backend.Utils.Users;
@@ -7,8 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace backend.Controllers.Frontend

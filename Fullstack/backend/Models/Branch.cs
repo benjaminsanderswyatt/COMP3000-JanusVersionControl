@@ -11,7 +11,7 @@ namespace backend.Models
         [Required]
         [MaxLength(255)]
         public string BranchName { get; set; }
-       
+
         [Required]
         public int RepoId { get; set; }
 

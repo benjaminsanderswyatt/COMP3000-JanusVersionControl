@@ -1,6 +1,5 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -70,7 +69,7 @@ namespace backend.Utils.Users
         {
             var repository = await _janusDbContext.Repositories.FindAsync(repoId);
             if (repository == null)
-                return new ReturnObject { Success = false, Message = "Failed to delete repository"};
+                return new ReturnObject { Success = false, Message = "Failed to delete repository" };
 
             _janusDbContext.Repositories.Remove(repository);
             await _janusDbContext.SaveChangesAsync();
@@ -101,7 +100,7 @@ namespace backend.Utils.Users
             string authorEmail = user.Email;
 
 
-            
+
             var executionStrategy = _janusDbContext.Database.CreateExecutionStrategy();
 
             return await executionStrategy.ExecuteAsync(async () =>
@@ -122,6 +121,7 @@ namespace backend.Utils.Users
 
                     await _janusDbContext.Repositories.AddAsync(repo);
                     await _janusDbContext.SaveChangesAsync();
+
 
 
                     // Create repo access for owner
@@ -154,6 +154,7 @@ namespace backend.Utils.Users
 
                     await _janusDbContext.Commits.AddAsync(commit);
                     await _janusDbContext.SaveChangesAsync();
+
 
 
                     // Create main branch

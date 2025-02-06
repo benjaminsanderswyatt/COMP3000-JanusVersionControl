@@ -65,12 +65,12 @@ namespace backend.Utils.Users
 
 
                 return new ReturnObject { Success = true, Message = "User registered successfully" };
-            } 
+            }
             catch
             {
                 return new ReturnObject { Success = false, Message = "Failed to register user" };
             }
-            
+
         }
 
 
@@ -89,12 +89,12 @@ namespace backend.Utils.Users
                 await _janusDbContext.SaveChangesAsync();
 
                 return new ReturnObject { Success = true, Message = "User deleted successfully" };
-            } 
+            }
             catch
             {
                 return new ReturnObject { Success = false, Message = "Failed to delete user" };
             }
-            
+
         }
 
 

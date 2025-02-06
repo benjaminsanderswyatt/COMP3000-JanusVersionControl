@@ -54,7 +54,7 @@ namespace backend.Controllers
 
             Console.WriteLine($"jepted Token: {token}");
 
-            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token)});
+            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
 
