@@ -112,7 +112,7 @@ namespace Janus.Utils
 
             // Create the content for this directory
             string content = string.Join(Environment.NewLine, lines);
-            string hash = HashHelper.ComputeTreeHash(content);
+            string hash = HashHelper.ComputeHash(content);
 
             // Save the directory file (dont overide if already exists)
             string filePath = Path.Combine(_paths.TreeDir, hash);

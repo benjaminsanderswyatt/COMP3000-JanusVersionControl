@@ -1,3 +1,4 @@
+using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Moq;
@@ -110,7 +111,9 @@ namespace CLITests
 
             Assert.That(mainBranch.Name, Is.EqualTo("main"));
             Assert.That(mainBranch.ParentBranch, Is.Null);
-            Assert.That(mainBranch.InitialCommit, Is.EqualTo("4a35387be739933f7c9e6486959ec1affb2c1648"));
+
+            var (initCommitHash, commitMetadata) = MiscHelper.CreateInitData();
+            Assert.That(mainBranch.InitialCommit, Is.EqualTo(initCommitHash));
             Assert.That(mainBranch.CreatedBy, Is.Null);
 
         }

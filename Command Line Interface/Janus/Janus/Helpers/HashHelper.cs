@@ -8,7 +8,7 @@ namespace Janus.Helpers
 {
     public class HashHelper
     {
-        public static string ComputeHash(byte[] contentBytes)
+        public static string ComputeHashBytes(byte[] contentBytes)
         {
             using (SHA1 sha1 = SHA1.Create())
             {
@@ -17,7 +17,7 @@ namespace Janus.Helpers
             }
         }
 
-        public static string ComputeTreeHash(string content)
+        public static string ComputeHash(string content)
         {
             using (SHA1 sha1 = SHA1.Create())
             {
@@ -27,11 +27,12 @@ namespace Janus.Helpers
             }
         }
 
-        public static string ComputeCommitHash(string treeHash, string commitMessage)
+        public static string ComputeCommitHash(string parentHash, string branchName, string authorName, string authorEmail, DateTimeOffset date, string commitMessage, string treeHash)
         {
-            byte[] combined = Encoding.UTF8.GetBytes(treeHash + commitMessage);
+            // combine all inputs into one
+            string combinedInput = $"{parentHash}{branchName}{authorName}{authorEmail}{date.ToUnixTimeSeconds()}{commitMessage}{treeHash}";
 
-            return ComputeHash(combined);
+            return ComputeHash(combinedInput);
         }
 
 
@@ -43,7 +44,7 @@ namespace Janus.Helpers
             byte[] content = File.ReadAllBytes(fullpath);
 
             // Compute the hash from the content
-            string fileHash = ComputeHash(content);
+            string fileHash = ComputeHashBytes(content);
 
             return fileHash;
         }
@@ -54,7 +55,7 @@ namespace Janus.Helpers
             byte[] content = File.ReadAllBytes(fullFilePath);
 
             // Compute the hash from the content
-            string fileHash = ComputeHash(content);
+            string fileHash = ComputeHashBytes(content);
 
             return fileHash;
         }
@@ -68,7 +69,7 @@ namespace Janus.Helpers
             byte[] content = File.ReadAllBytes(fullpath);
 
             // Compute the hash from the content
-            string fileHash = ComputeHash(content);
+            string fileHash = ComputeHashBytes(content);
 
             return (fileHash, content);
         }

@@ -140,11 +140,7 @@ namespace Janus
 
 
                     // Create initial commit
-                    string initialCommitMessage = "Initial commit";
-                    var emptyTreeHash = "";
-                    string initCommitHash = HashHelper.ComputeCommitHash(emptyTreeHash, initialCommitMessage);
-
-                    string commitMetadata = MiscHelper.GenerateCommitMetadata("main", initCommitHash, emptyTreeHash, initialCommitMessage, null, null);
+                    var (initCommitHash, commitMetadata) = MiscHelper.CreateInitData();
 
                     // Save the commit object in the commit directory
                     string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
@@ -396,9 +392,13 @@ namespace Janus
 
                     string branch = MiscHelper.GetCurrentBranchName(Paths);
 
-                    // Generate commit metadata
-                    string commitHash = HashHelper.ComputeCommitHash(rootTreeHash, commitMessage);
-                    string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, MiscHelper.GetUsername());
+                    // Generate commit metadata rootTreeHash commitMessage
+                    var username = MiscHelper.GetUsername();
+                    var email = MiscHelper.GetEmail();
+
+                    string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTimeOffset.Now, commitMessage, rootTreeHash);
+                    string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, username, email);
+
 
                     // Save commit object
                     string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
@@ -483,8 +483,7 @@ namespace Janus
                             // Filter by branch
                             (string.IsNullOrEmpty(filters.Branch) || metadata.Branch.Equals(filters.Branch, StringComparison.OrdinalIgnoreCase)) &&
                             // Filter by author
-                            (string.IsNullOrEmpty(filters.Author) ||
-                                (metadata.Author != null && metadata.Author.Equals(filters.Author, StringComparison.OrdinalIgnoreCase))) &&
+                            (string.IsNullOrEmpty(filters.Author) || metadata.AuthorName.Equals(filters.Author, StringComparison.OrdinalIgnoreCase)) &&
                             // Filter by date range
                             (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTimeOffset.Parse(filters.Since)) &&
                             (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTimeOffset.Parse(filters.Until))
@@ -523,9 +522,13 @@ namespace Janus
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Logger.Log($"Commit:  {commit.Commit}");
 
-                    // Author
+                    // Author Name
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Logger.Log($"Author:  {commit.Author}");
+                    Logger.Log($"Author name:  {commit.AuthorName}");
+
+                    // Author Email
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Logger.Log($"Author email:  {commit.AuthorEmail}");
 
                     // Date
                     Console.ForegroundColor = ConsoleColor.Yellow;

@@ -95,6 +95,34 @@ namespace Janus.Helpers
             return Environment.UserName;
         }
 
+        public static string GetEmail()
+        {
+            // Get the email from configs
+            // TODO
+
+
+            return "";
+        }
+
+
+        public static (string, string) CreateInitData()
+        {
+            string initialCommitMessage = "Initial commit";
+            string emptyTreeHash = "";
+            string branchName = "main";
+            string? parentHash = null;
+            string? authorName = "janus";
+            string? authorEmail = null;
+
+            string initCommitHash = HashHelper.ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTimeOffset.Now, initialCommitMessage, emptyTreeHash);
+
+            string commitMetadata = MiscHelper.GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, parentHash, authorName, authorEmail);
+
+            return (initCommitHash, commitMetadata);
+        }
+
+
+
 
         public static bool ValidateRepoExists(ILogger Logger, Paths paths)
         {
@@ -183,14 +211,15 @@ namespace Janus.Helpers
 
 
 
-        public static string GenerateCommitMetadata(string branch, string commitHash, string treeHash, string commitMessage, string parentCommit, string author)
+        public static string GenerateCommitMetadata(string branch, string commitHash, string treeHash, string commitMessage, string parentCommit, string authorName, string authorEmail)
         {
             var metadata = new CommitMetadata
             {
                 Commit = commitHash,
                 Parent = parentCommit,
                 Branch = branch,
-                Author = author,
+                AuthorName = authorName,
+                AuthorEmail = authorEmail,
                 Date = DateTimeOffset.Now,
                 Message = commitMessage,
                 Tree = treeHash

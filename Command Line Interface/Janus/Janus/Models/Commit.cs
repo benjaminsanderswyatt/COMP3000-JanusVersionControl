@@ -5,7 +5,8 @@
         public string Commit { get; set; }
         public string Parent { get; set; }
         public string Branch { get; set; }
-        public string Author { get; set; }
+        public string AuthorName { get; set; }
+        public string AuthorEmail { get; set; }
         public DateTimeOffset Date { get; set; }
         public string Message { get; set; }
         public string Tree { get; set; }
