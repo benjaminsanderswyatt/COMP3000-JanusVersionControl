@@ -5,6 +5,9 @@ namespace backend.Models
     public class Commit
     {
         [Key]
+        public int CommitId { get; set; }
+
+        [Required]
         [StringLength(40)]
         public string CommitHash { get; set; }
 
@@ -17,6 +20,14 @@ namespace backend.Models
         public string TreeHash { get; set; }
 
         [Required]
+        [MaxLength(255)]
+        public string AuthorName { get; set; }
+
+        [Required]
+        [MaxLength(255)]
+        public string AuthorEmail { get; set; }
+
+        [Required]
         public string Message { get; set; }
 
         [Required]
@@ -26,9 +37,6 @@ namespace backend.Models
 
         public ICollection<CommitParent> Parents { get; set; } = new List<CommitParent>();
         public ICollection<CommitParent> Children { get; set; } = new List<CommitParent>();
-
-        // Foreign key to metadata
-        public ICollection<CommitMetadata> Metadata { get; set; } = new List<CommitMetadata>();
 
     }
 

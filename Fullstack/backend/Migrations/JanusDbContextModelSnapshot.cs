@@ -78,9 +78,11 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Commit", b =>
                 {
-                    b.Property<string>("CommitHash")
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
+                    b.Property<int>("CommitId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CommitId"));
 
                     b.Property<string>("AuthorEmail")
                         .IsRequired()
@@ -97,6 +99,11 @@ namespace backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("CommitHash")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
                     b.Property<DateTime>("CommittedAt")
                         .HasColumnType("datetime(6)");
 
@@ -109,7 +116,9 @@ namespace backend.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
-                    b.HasKey("CommitHash");
+                    b.HasKey("CommitId");
+
+                    b.HasIndex("CommitHash");
 
                     b.HasIndex("CommittedAt");
 
@@ -118,21 +127,15 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.CommitParent", b =>
                 {
-                    b.Property<string>("ChildHash")
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
+                    b.Property<int>("ChildId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ParentHash")
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ParentCommitHash")
-                        .IsRequired()
-                        .HasColumnType("varchar(40)");
+                    b.HasKey("ChildId", "ParentId");
 
-                    b.HasKey("ChildHash", "ParentHash");
-
-                    b.HasIndex("ParentCommitHash");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("CommitParents");
                 });
@@ -305,13 +308,13 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.Commit", "Child")
                         .WithMany("Parents")
-                        .HasForeignKey("ChildHash")
+                        .HasForeignKey("ChildId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backend.Models.Commit", "Parent")
                         .WithMany("Children")
-                        .HasForeignKey("ParentCommitHash")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -43,7 +43,7 @@ namespace backend.Models
 
             // Composite PK
             modelBuilder.Entity<CommitParent>()
-                .HasKey(cp => new { cp.ChildHash, cp.ParentHash });
+                .HasKey(cp => new { cp.ChildId, cp.ParentId });
 
             modelBuilder.Entity<RepoAccess>()
                 .HasKey(ra => new { ra.RepoId, ra.UserId });
@@ -54,7 +54,7 @@ namespace backend.Models
             modelBuilder.Entity<CommitParent>()
                 .HasOne(cp => cp.Child)
                 .WithMany(c => c.Parents)
-                .HasForeignKey(cp => cp.ChildHash)
+                .HasForeignKey(cp => cp.ChildId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RepoAccess>()
@@ -66,6 +66,9 @@ namespace backend.Models
 
 
             // Indexes
+            modelBuilder.Entity<Commit>()
+                .HasIndex(c => c.CommitHash);
+
             modelBuilder.Entity<Commit>()
                 .HasIndex(c => c.CommittedAt);
 

@@ -5,13 +5,11 @@ namespace backend.Models
 {
     public class CommitParent
     {
-        [ForeignKey("ChildHash")]
-        [StringLength(40)]
-        public string ChildHash { get; set; }
+        [ForeignKey("ChildId")]
+        public int ChildId { get; set; }
 
-        [ForeignKey("ParentHash")]
-        [StringLength(40)]
-        public string ParentHash { get; set; }
+        [ForeignKey("ParentId")]
+        public int ParentId { get; set; }
 
 
         public Commit Child { get; set; }

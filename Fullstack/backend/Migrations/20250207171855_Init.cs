@@ -36,6 +36,8 @@ namespace backend.Migrations
                 name: "Commits",
                 columns: table => new
                 {
+                    CommitId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
@@ -52,7 +54,7 @@ namespace backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Commits", x => x.CommitHash);
+                    table.PrimaryKey("PK_Commits", x => x.CommitId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -100,27 +102,23 @@ namespace backend.Migrations
                 name: "CommitParents",
                 columns: table => new
                 {
-                    ChildHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ParentHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ParentCommitHash = table.Column<string>(type: "varchar(40)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    ChildId = table.Column<int>(type: "int", nullable: false),
+                    ParentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommitParents", x => new { x.ChildHash, x.ParentHash });
+                    table.PrimaryKey("PK_CommitParents", x => new { x.ChildId, x.ParentId });
                     table.ForeignKey(
-                        name: "FK_CommitParents_Commits_ChildHash",
-                        column: x => x.ChildHash,
+                        name: "FK_CommitParents_Commits_ChildId",
+                        column: x => x.ChildId,
                         principalTable: "Commits",
-                        principalColumn: "CommitHash",
+                        principalColumn: "CommitId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommitParents_Commits_ParentCommitHash",
-                        column: x => x.ParentCommitHash,
+                        name: "FK_CommitParents_Commits_ParentId",
+                        column: x => x.ParentId,
                         principalTable: "Commits",
-                        principalColumn: "CommitHash",
+                        principalColumn: "CommitId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -242,9 +240,14 @@ namespace backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommitParents_ParentCommitHash",
+                name: "IX_CommitParents_ParentId",
                 table: "CommitParents",
-                column: "ParentCommitHash");
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Commits_CommitHash",
+                table: "Commits",
+                column: "CommitHash");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Commits_CommittedAt",

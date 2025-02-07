@@ -112,11 +112,11 @@ namespace Janus.Helpers
             string branchName = "main";
             string? parentHash = null;
             string? authorName = "janus";
-            string? authorEmail = null;
+            string? authorEmail = "janus";
 
             string initCommitHash = HashHelper.ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTimeOffset.Now, initialCommitMessage, emptyTreeHash);
 
-            string commitMetadata = MiscHelper.GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, parentHash, authorName, authorEmail);
+            string commitMetadata = GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, parentHash, authorName, authorEmail);
 
             return (initCommitHash, commitMetadata);
         }

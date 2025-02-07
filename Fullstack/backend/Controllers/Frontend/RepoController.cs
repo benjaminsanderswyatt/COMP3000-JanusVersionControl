@@ -59,9 +59,9 @@ namespace backend.Controllers.Frontend
 
 
             if (!result.Success)
-                return BadRequest(result);
+                return BadRequest(result.Message);
 
-            return Ok(result);
+            return Ok(result.Message);
         }
 
 
