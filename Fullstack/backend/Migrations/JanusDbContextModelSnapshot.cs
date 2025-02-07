@@ -192,6 +192,11 @@ namespace backend.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("RepoDescription")
+                        .IsRequired()
+                        .HasMaxLength(511)
+                        .HasColumnType("varchar(511)");
+
                     b.Property<string>("RepoName")
                         .IsRequired()
                         .HasMaxLength(255)

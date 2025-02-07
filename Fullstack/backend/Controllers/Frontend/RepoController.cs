@@ -51,6 +51,7 @@ namespace backend.Controllers.Frontend
             var result = await _repoManagement.InitRepoAsync(
                 ownerId: userId,
                 repoName: newRepo.RepoName,
+                repoDescription: newRepo.RepoDescription,
                 isPrivate: newRepo.IsPrivate
             );
 

@@ -5,8 +5,11 @@ namespace backend.DataTransferObjects
     public class RepositoryDto
     {
         [Required]
-        [StringLength(256, ErrorMessage = "Repository name cannot exceed 256 characters.")]
+        [StringLength(255, ErrorMessage = "Repository name cannot exceed 256 characters.")]
         public string RepoName { get; set; }
+
+        [StringLength(511, ErrorMessage = "Repository description cannot exceed 512 characters.")]
+        public string RepoDescription { get; set; }
 
         public bool IsPrivate { get; set; }
 

@@ -53,12 +53,12 @@ const Repositories = () => {
 
 
   const handleEnterRepo = (name) => {
-    navigate(`/repositories/${name}`);
+    navigate(`/repository/${name}`);
   }
 
 
   const CreateNewRepo = () => {
-    navigate("/repositories/create");
+    navigate("/repository/create");
   };
 
   return (

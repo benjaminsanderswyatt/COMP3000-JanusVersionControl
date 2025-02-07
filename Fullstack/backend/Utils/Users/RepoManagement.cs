@@ -79,7 +79,7 @@ namespace backend.Utils.Users
 
 
         // Atomic repo init
-        public async Task<ReturnObject> InitRepoAsync(int ownerId, string repoName, bool isPrivate)
+        public async Task<ReturnObject> InitRepoAsync(int ownerId, string repoName, string repoDescription, bool isPrivate)
         {
             // Check if repo with same name exists
             if (await RepoWithNameExistsAsync(ownerId, repoName))
@@ -116,6 +116,7 @@ namespace backend.Utils.Users
                     {
                         OwnerId = ownerId,
                         RepoName = repoName,
+                        RepoDescription = repoDescription,
                         IsPrivate = isPrivate,
                     };
 
@@ -181,9 +182,7 @@ namespace backend.Utils.Users
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error!!!----------------");
-                    Console.WriteLine($"Exception: {ex.Message}");
-                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                    Console.WriteLine($"Error creating repo: {ex.Message}");
 
                     // Rollback transaction
                     await transaction.RollbackAsync();

@@ -15,6 +15,9 @@ namespace backend.Models
         [StringLength(255)]
         public string RepoName { get; set; }
 
+        [StringLength(511)]
+        public string RepoDescription { get; set; } = string.Empty;
+
         [Required]
         public bool IsPrivate { get; set; } = true; // true - > hidden. false -> visable
 

@@ -8,7 +8,6 @@ const RepoPage = () => {
   const navigate = useNavigate();
   const { name } = useParams(); // Get the name from the URL
 
-
   
   return (
     <div style={styles.container}>

@@ -1,6 +1,6 @@
 import fetchWithTokenRefresh from '../fetchWithTokenRefresh';
 
-const API_URL = 'https://localhost:82/api/AccessToken/GeneratePAT';
+const API_URL = 'https://localhost:82/api/web/AccessToken/GeneratePAT';
 
 
 export async function GenAccessToken(ExpirationInHours, sessionExpired) {
@@ -25,16 +25,12 @@ export async function GenAccessToken(ExpirationInHours, sessionExpired) {
         const responseJson = JSON.parse(responseText);
 
         if (!response.ok) {
-            throw new Error(responseJson.message || "GFailed to generate access token.");
-        }
-
-        if (!response.ok) {
             throw new Error(responseJson.message || "Failed to generate access token.");
         }
     
         return {success: true, token: responseJson.token};
     
     } catch (error) {
-        return { success: false, message: "hello" + error.message };
+        return { success: false, message: error.message };
     }
 }

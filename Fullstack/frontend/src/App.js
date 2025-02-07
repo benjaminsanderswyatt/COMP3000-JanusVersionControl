@@ -71,15 +71,15 @@ const App = () => {
                 <Route index element={<Repositories />}/>
               </Route>
 
-                <Route path="repositories/create" element={<ProtectedRoute />}>
+                <Route path="repository/create" element={<ProtectedRoute />}>
                   <Route index element={<RepoCreate />}/>
                 </Route>
 
-                <Route path="repositories/:name" element={<ProtectedRoute />}>
+                <Route path="repository/:name" element={<ProtectedRoute />}>
                   <Route index element={<RepoPage />}/>
                 </Route>
 
-                <Route path="repositories/:name/commits" element={<ProtectedRoute />}>
+                <Route path="repository/:name/commits" element={<ProtectedRoute />}>
                   <Route index element={<RepoCommits />}/>
                 </Route>
 

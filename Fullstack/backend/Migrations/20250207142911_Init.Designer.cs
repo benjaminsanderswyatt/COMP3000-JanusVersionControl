@@ -12,7 +12,7 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(JanusDbContext))]
-    [Migration("20250205190953_Init")]
+    [Migration("20250207142911_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -194,6 +194,11 @@ namespace backend.Migrations
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
+
+                    b.Property<string>("RepoDescription")
+                        .IsRequired()
+                        .HasMaxLength(511)
+                        .HasColumnType("varchar(511)");
 
                     b.Property<string>("RepoName")
                         .IsRequired()

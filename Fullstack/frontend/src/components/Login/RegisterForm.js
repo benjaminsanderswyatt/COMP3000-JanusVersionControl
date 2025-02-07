@@ -1,6 +1,7 @@
 import React from 'react';
 import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
+import Checkbox from '../Checkbox';
 
 const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms }) => (
   <form onSubmit={onSubmit}>
@@ -40,30 +41,30 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
       placeholder="Confirm Password..." 
       required 
     />
-
+    
     <div>
-      <input
-      style={styles.checkbox}
-        type="checkbox"
+      <Checkbox
         id="terms"
         checked={agreedToTerms}
         onChange={(e) => setAgreedToTerms(e.target.checked)}
+        label={
+          <>
+            I agree to the{" "}
+            <a href="/legal/termsofuse" target="_blank" rel="noopener noreferrer">Terms of Use</a>{" "}
+            and{" "}
+            <a href="/legal/privacypolicy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+          </>
+        }
       />
-      <label htmlFor="terms">
-        I agree to the <a href="/legal/termsofuse" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a href="/legal/privacypolicy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-      </label>
     </div>
+
    
-    <button type="submit" style={styles.button}>Register</button>
+    <button type="submit" style={styles.button} disabled={!agreedToTerms}>Register</button>
     
   </form>
 );
 
 const styles = {
-  checkbox: {
-    accentColor: 'var(--secondary)',
-    marginRight: '4px',
-  },
   button: {
     width: '100%',
     padding: '10px',
