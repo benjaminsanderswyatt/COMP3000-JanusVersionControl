@@ -13,7 +13,6 @@ namespace backend.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    [EnableRateLimiting("FrontendRateLimit")]
     public class AccessTokenController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
@@ -26,6 +25,7 @@ namespace backend.Controllers
         }
 
         // POST: api/AccessToken/GeneratePAT
+        [EnableRateLimiting("FrontendRateLimit")]
         [Authorize(Policy = "FrontendPolicy")]
         [EnableCors("FrontendPolicy")]
         [HttpPost("GeneratePAT")]
@@ -52,14 +52,13 @@ namespace backend.Controllers
 
             var token = _accessTokenHelper.GenerateAccessToken(userId, request.ExpirationInHours);
 
-            Console.WriteLine($"jepted Token: {token}");
-
-            return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
 
 
         // POST: api/AccessToken/RevokePAT
+        [EnableRateLimiting("CLIRateLimit")]
         [Authorize(Policy = "CLIPolicy")]
         [EnableCors("CLIPolicy")]
         [HttpPost("RevokePAT")]

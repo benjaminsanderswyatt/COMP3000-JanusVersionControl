@@ -34,11 +34,13 @@ const fetchWithTokenRefresh = async (url, options = {}, sessionExpired) => {
     }
   }
 
+  const responseJson = await response.json();
+
   if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.statusText}`);
+    throw new Error(responseJson.message);
   }
 
-  return response;
+  return responseJson;
 };
 
 export default fetchWithTokenRefresh;
