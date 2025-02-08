@@ -62,8 +62,23 @@ namespace backend.Controllers
         [Authorize(Policy = "CLIPolicy")]
         [EnableCors("CLIPolicy")]
         [HttpPost("RevokePAT")]
-        public async Task<IActionResult> RevokePAT(string patToken)
+        public async Task<IActionResult> RevokePAT([FromHeader(Name = "Authorization")] string authHeader)
         {
+            
+            Console.WriteLine($"Revoke pat: {authHeader}");
+
+            // Remove the "Bearer " prefix if present
+            var patToken = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                ? authHeader.Substring("Bearer ".Length).Trim()
+                : authHeader;
+
+            Console.WriteLine($"Revoke pat: {patToken}");
+
+
+
+
+
+
             // Check if the token is already blacklisted
             var existingToken = await _janusDbContext.AccessTokenBlacklists
                 .FirstOrDefaultAsync(t => t.Token == patToken);
