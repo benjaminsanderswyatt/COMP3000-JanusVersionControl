@@ -64,19 +64,8 @@ namespace backend.Controllers
         [HttpPost("RevokePAT")]
         public async Task<IActionResult> RevokePAT([FromHeader(Name = "Authorization")] string authHeader)
         {
-            
-            Console.WriteLine($"Revoke pat: {authHeader}");
-
-            // Remove the "Bearer " prefix if present
-            var patToken = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
-                ? authHeader.Substring("Bearer ".Length).Trim()
-                : authHeader;
-
-            Console.WriteLine($"Revoke pat: {patToken}");
-
-
-
-
+            // Remove the Bearer
+            string patToken = authHeader.Substring("Bearer ".Length).Trim();
 
 
             // Check if the token is already blacklisted
@@ -87,7 +76,6 @@ namespace backend.Controllers
             {
                 return BadRequest(new { message = "This token is already revoked." });
             }
-
 
 
             // Get the exp claim from the JWT
