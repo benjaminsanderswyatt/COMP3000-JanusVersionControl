@@ -1,11 +1,13 @@
 ﻿using Janus.API;
 using Janus.CommandHelpers;
+using Janus.DataTransferObjects;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -137,32 +139,35 @@ namespace Janus
                         return;
                     }
 
-                    Console.WriteLine("Before");
 
                     // Auth on backend
-                    var (success, username, token) = await PatAuth.SendAuthenticateAsync(Logger, pat, email);
-                    
-                    
-                    Console.WriteLine("After");
+                    var body = new { Email = email };
+
+                    var (success, data) = await ApiHelper.SendPostAsync("AccessToken/Authenticate", body, pat);
+                    Console.WriteLine($"{success} {data}");
 
                     if (success)
                     {
+                        var dataObject = JsonSerializer.Deserialize<PatSuccessRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
                         var credentials = new UserCredentials
                         {
-                            Username = username,
+                            Username = dataObject.Username,
                             Email = email,
-                            Token = token
+                            Token = pat
                         };
 
                         // Save credentials
                         var credManager = new CredentialManager();
                         credManager.SaveCredentials(credentials);
 
-                        Logger.Log($"Successfully logged in as {credentials.Username} ({credentials.Email})");
+                        Logger.Log($"Successfully logged in as '{credentials.Username}' ({credentials.Email})");
                     }
                     else
                     {
-                        Logger.Log("Authentication failed");
+                        var dataObject = JsonSerializer.Deserialize<PatFailRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                        Logger.Log($"Authentication failed: {dataObject.Message}");
                     }
 
                 } 
@@ -176,9 +181,9 @@ namespace Janus
                 }
             }
         }
+
         
-        
-        
+
 
 
 

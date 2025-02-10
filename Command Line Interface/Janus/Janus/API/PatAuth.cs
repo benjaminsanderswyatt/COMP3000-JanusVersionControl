@@ -15,7 +15,7 @@ namespace Janus.API
             string pat = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJUb2tlblR5cGUiOiJQQVQiLCJleHAiOjE3MzkzMDgwMzQsImlzcyI6IkNMSUlzc3VlciIsImF1ZCI6IkNMSUF1ZGllbmNlIn0.P9hxDLL2oRGBCHkiqF7NxOGwbgL7EMIpygov8jMPeIQ";
             var requestData = new { Email = "test@test.com" };
 
-            using (var client = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true }))
+            using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
 

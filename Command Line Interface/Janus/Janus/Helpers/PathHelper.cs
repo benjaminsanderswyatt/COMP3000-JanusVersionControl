@@ -40,6 +40,8 @@ namespace Janus.Helpers
                 Directory.CreateDirectory(credentialPath);
             }
 
+            Console.WriteLine("Path: " + credentialPath);
+
             return credentialPath;
         }
     }

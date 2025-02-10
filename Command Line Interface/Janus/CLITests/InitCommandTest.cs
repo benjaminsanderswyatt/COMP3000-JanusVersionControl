@@ -1,3 +1,4 @@
+using Janus.DataTransferObjects;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;

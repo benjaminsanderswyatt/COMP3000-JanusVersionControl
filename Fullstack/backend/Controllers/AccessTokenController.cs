@@ -121,7 +121,7 @@ namespace backend.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized(new { message = "Invalid user" });
+                return Unauthorized(new { Message = "Invalid user" });
             }
 
             Console.WriteLine($"id: {userId}");
@@ -129,15 +129,15 @@ namespace backend.Controllers
             var user = await _userManagement.GetUserByIdAsync(userId);
 
             if (user == null)
-                return Unauthorized(new { message = "Invalid credentials" });
+                return Unauthorized(new { Message = "Invalid credentials" });
             
 
             if (user.Email != auth.Email)
-                return Unauthorized(new { message = "Invalid credentials" });
+                return Unauthorized(new { Message = "Invalid credentials" });
 
 
             Console.WriteLine($"Success");
-            return Ok(new { username = user.Username, message = "User authenticated" });
+            return Ok(new { Username = user.Username });
         }
 
 
