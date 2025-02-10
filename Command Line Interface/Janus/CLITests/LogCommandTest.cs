@@ -12,7 +12,6 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private LogCommand _logCommand;
-        static string initialCommitHash = "4a35387be739933f7c9e6486959ec1affb2c1648";
 
         private string _testDir;
 
@@ -45,7 +44,7 @@ namespace CLITests
 
         private string CreateManyCommits(int howMany, string branch, string authorName, string authorEmail, string startParentCommitHash = null, int seperator = 0)
         {
-            string parentCommitHash = startParentCommitHash ?? initialCommitHash;
+            string parentCommitHash = startParentCommitHash;
 
             for (int num = 1; num < howMany + 1; num++)
             {
