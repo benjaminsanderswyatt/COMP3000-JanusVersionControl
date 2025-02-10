@@ -1,5 +1,7 @@
 ﻿using backend.DataTransferObjects;
+using backend.DataTransferObjects.CLI;
 using backend.Models;
+using backend.Utils.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +19,13 @@ namespace backend.Controllers
     {
         private readonly JanusDbContext _janusDbContext;
         private readonly AccessTokenHelper _accessTokenHelper;
+        private readonly UserManagement _userManagement;
 
-        public AccessTokenController(JanusDbContext janusDbContext, AccessTokenHelper accessTokenHelper)
+        public AccessTokenController(JanusDbContext janusDbContext, AccessTokenHelper accessTokenHelper, UserManagement userManagement)
         {
             _janusDbContext = janusDbContext;
             _accessTokenHelper = accessTokenHelper;
+            _userManagement = userManagement;
         }
 
         // POST: api/AccessToken/GeneratePAT
@@ -32,8 +36,6 @@ namespace backend.Controllers
         public async Task<IActionResult> GeneratePAT([FromBody] PatDto request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            Console.WriteLine($"jepted Entered");
 
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
@@ -47,7 +49,6 @@ namespace backend.Controllers
                 return BadRequest(new { message = "Expiration time must be between 12 hours and 1 year." });
             }
 
-            Console.WriteLine($"Request: {request.ExpirationInHours}");
 
 
             var token = _accessTokenHelper.GenerateAccessToken(userId, request.ExpirationInHours);
@@ -101,6 +102,44 @@ namespace backend.Controllers
 
             return Ok(new { message = "Token has been revoked." });
         }
+
+
+
+        
+
+
+        // POST: api/AccessToken/Authenticate
+        [EnableRateLimiting("CLIRateLimit")]
+        [Authorize(Policy = "CLIPolicy")]
+        [EnableCors("CLIPolicy")]
+        [HttpPost("Authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody] AuthPatDto auth)
+        {
+            Console.WriteLine($"Entered: {auth.Email}");
+
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { message = "Invalid user" });
+            }
+
+            Console.WriteLine($"id: {userId}");
+
+            var user = await _userManagement.GetUserByIdAsync(userId);
+
+            if (user == null)
+                return Unauthorized(new { message = "Invalid credentials" });
+            
+
+            if (user.Email != auth.Email)
+                return Unauthorized(new { message = "Invalid credentials" });
+
+
+            Console.WriteLine($"Success");
+            return Ok(new { username = user.Username, message = "User authenticated" });
+        }
+
 
     }
 }

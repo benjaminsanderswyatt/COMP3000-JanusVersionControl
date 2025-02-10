@@ -1,4 +1,5 @@
 ﻿using backend.DataTransferObjects;
+using backend.DataTransferObjects.CLI;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
