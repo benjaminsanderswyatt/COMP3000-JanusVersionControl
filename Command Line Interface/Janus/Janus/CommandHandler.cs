@@ -1,11 +1,13 @@
-﻿using Janus.CommandHelpers;
+﻿using Janus.API;
+using Janus.CommandHelpers;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
-
 
 namespace Janus
 {
@@ -17,6 +19,9 @@ namespace Janus
             {
                 new TestCommand(logger, paths),
                 new HelpCommand(logger, paths),
+
+                new LoginCommand(logger, paths),
+
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
@@ -45,7 +50,7 @@ namespace Janus
             public DiffCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "diff";
             public override string Description => "Displays the difference between two files.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 string file1 = args[0];
                 string file2 = args[1];
@@ -77,7 +82,7 @@ namespace Janus
             public TestCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "test";
             public override string Description => "Send a test request to backend";
-            public override async void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 await MiscHelper.ExecuteAsync();
                 Logger.Log("Test End");
@@ -91,7 +96,7 @@ namespace Janus
 
             public override string Name => "help";
             public override string Description => "Displays a list of available commands.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 Logger.Log("Usage: janus <command>");
                 Logger.Log("Commands:");
@@ -102,13 +107,92 @@ namespace Janus
             }
         }
 
+        public class LoginCommand : BaseCommand
+        {
+            public LoginCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "login";
+            public override string Description => "Authenticate user";
+            public override async Task Execute(string[] args)
+            {
+                try
+                {
+                    // Prompt for credentials
+
+                    Console.WriteLine("Email: ");
+                    var email = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(email))
+                    {
+                        Logger.Log("Email is required");
+                        return;
+                    }
+
+                    Console.WriteLine("Personal access token (PAT): ");
+                    var pat = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(pat))
+                    {
+                        Logger.Log("The personal access token is required");
+                        return;
+                    }
+
+                    Console.WriteLine("Before");
+
+                    // Auth on backend
+                    var (success, username, token) = await PatAuth.SendAuthenticateAsync(Logger, pat, email);
+                    
+                    
+                    Console.WriteLine("After");
+
+                    if (success)
+                    {
+                        var credentials = new UserCredentials
+                        {
+                            Username = username,
+                            Email = email,
+                            Token = token
+                        };
+
+                        // Save credentials
+                        var credManager = new CredentialManager();
+                        credManager.SaveCredentials(credentials);
+
+                        Logger.Log($"Successfully logged in as {credentials.Username} ({credentials.Email})");
+                    }
+                    else
+                    {
+                        Logger.Log("Authentication failed");
+                    }
+
+                } 
+                catch (HttpRequestException ex)
+                {
+                    Logger.Log($"Network error: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Login error: {ex.Message}");
+                }
+            }
+        }
+        
+        
+        
+
+
+
+
+
+
+
 
         public class InitCommand : BaseCommand
         {
             public InitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "init";
             public override string Description => "Initializes the janus repository.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 try
                 {
@@ -193,7 +277,7 @@ namespace Janus
             public AddCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "add";
             public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -344,7 +428,7 @@ namespace Janus
             public CommitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "commit";
             public override string Description => "Saves changes to the repository.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -438,7 +522,7 @@ namespace Janus
 
             public override string Name => "log";
             public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<>'";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -608,7 +692,7 @@ namespace Janus
 
             public override string Name => "create_branch";
             public override string Description => "Creates a branch from the head commit of current branch.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
@@ -753,7 +837,7 @@ namespace Janus
 
             public override string Name => "list_branch";
             public override string Description => "list branch help";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
@@ -792,7 +876,7 @@ namespace Janus
 
             public override string Name => "switch_branch";
             public override string Description => "switch branch help";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
@@ -916,7 +1000,7 @@ namespace Janus
             public StatusCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "status";
             public override string Description => "Displays the status of the repository.";
-            public override void Execute(string[] args)
+            public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 

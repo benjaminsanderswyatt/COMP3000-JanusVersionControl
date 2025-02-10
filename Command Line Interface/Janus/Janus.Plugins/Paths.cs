@@ -14,6 +14,9 @@
         public string DETACHED_HEAD { get; }
         public string BranchesDir { get; }
 
+        public string Session { get; }
+        public string Config { get; }
+
         public Paths(string basePath)
         {
             WorkingDir = basePath;
@@ -27,6 +30,9 @@
             HEAD = Path.Combine(JanusDir, "HEAD");
             DETACHED_HEAD = Path.Combine(JanusDir, "DETACHED_HEAD");
             BranchesDir = Path.Combine(JanusDir, "branches");
+
+            Session = Path.Combine(JanusDir, "session");
+            Config = Path.Combine(JanusDir, "config");
 
         }
     }

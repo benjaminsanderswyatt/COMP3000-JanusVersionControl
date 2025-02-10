@@ -14,7 +14,7 @@ namespace Janus
         }
 
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Config Logger
             ILogger logger = new ConsoleLogger();
@@ -41,7 +41,7 @@ namespace Janus
             {
                 try
                 {
-                    command.Execute(args.Skip(1).ToArray());
+                    await command.Execute(args.Skip(1).ToArray());
                 }
                 catch (Exception ex)
                 {
