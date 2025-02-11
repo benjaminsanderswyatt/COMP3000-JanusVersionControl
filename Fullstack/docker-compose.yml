@@ -28,6 +28,7 @@ services:
    - "82:9000"
   volumes:
    - ./backend/certs:/https
+   - profile-pictures:/app/images
   depends_on:
    - db
   environment:
@@ -65,6 +66,7 @@ services:
 
 volumes:
   janus-db:
+  profile-pictures:
   
 networks:
   intranet:

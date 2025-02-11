@@ -114,7 +114,7 @@ namespace Janus
             public LoginCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "login";
-            public override string Description => "Authenticate user";
+            public override string Description => "Save your user credentials";
             public override async Task Execute(string[] args)
             {
                 try

@@ -29,6 +29,7 @@ namespace backend.Models
 
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
+        public string? ProfilePicturePath { get; set; } = null;
 
 
         public ICollection<Repository> Repositories { get; set; } = new List<Repository>();
