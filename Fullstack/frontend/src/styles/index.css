@@ -46,11 +46,14 @@ code {
   --background: #181818;
   --border: #5c5c5c;
   --card: #313131;
+  --tintcard: #252525;
   --darkcard: #3D3D3D;
 
   --button: #3c3c3c;
 
   --primary: #565d95;
   --secondary: #867491;
+  --lightsecondary: #3a2f3e;
+
   --accent: #474f7b;
 }
