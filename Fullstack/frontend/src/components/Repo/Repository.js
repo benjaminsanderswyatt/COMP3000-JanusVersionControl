@@ -37,7 +37,7 @@ const Repository = ({ enterRepo }) => {
 const styles = {
   container: {
     display: "block",
-    width: "100%",
+    width: "95%",
     background: "var(--tintcard)",
     border: 'var(--border) thin solid',
     borderRadius: "8px",
