@@ -33,7 +33,7 @@ namespace backend.Controllers.CLI
 
 
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized(new { error = "Invalid or missing user" });
@@ -109,7 +109,7 @@ namespace backend.Controllers.CLI
         [HttpDelete("Delete/{branchId}")]
         public async Task<IActionResult> Delete(int branchId)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized(new { error = "Invalid or missing user" });

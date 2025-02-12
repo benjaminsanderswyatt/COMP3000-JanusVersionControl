@@ -42,8 +42,8 @@ namespace backend.Controllers.Frontend
                 return BadRequest(ModelState);
 
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId)) 
             {
                 return BadRequest(new { message = "Invalid user ID" });
             }

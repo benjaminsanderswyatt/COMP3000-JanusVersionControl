@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
+import ProfilePic from '../images/ProfilePic';
+import { useAuth } from '../../contexts/AuthContext';
 
 
 const LoggedInHeader = ({ authUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { authUserId } = useAuth();
   
   return (
     <div style={styles.container}>
@@ -41,16 +44,18 @@ const LoggedInHeader = ({ authUser }) => {
 
       {/* Settings section */}
       <div style={styles.settings}>
-        <img src="/Icons/account.svg"
-        alt="Account"
-        style={styles.iconAccount}
-        onClick={() => navigate("/account")}
+
+
+        <ProfilePic
+          userId={authUserId}
+          style={styles.iconAccount}
+          handleClick={() => navigate("/account")}
         />
 
         <img src="/Icons/settings.svg"
-        alt="Settings"
-        style={styles.iconSettings}
-        onClick={() => navigate("/settings")}
+          alt="Settings"
+          style={styles.iconSettings}
+          onClick={() => navigate("/settings")}
         />
       </div>
       
@@ -70,8 +75,8 @@ const styles = {
     gap: "12px",
   },
   iconAccount: {
-    width: '40px',
-    height: '40px',
+    width: "45px",
+    height: "45px",
     cursor: 'pointer',
   },
   iconSettings: {

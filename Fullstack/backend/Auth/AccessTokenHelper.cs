@@ -10,7 +10,7 @@ public class AccessTokenHelper
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim("UserId", userId.ToString()),
             new Claim("TokenType", "PAT")
         };
 

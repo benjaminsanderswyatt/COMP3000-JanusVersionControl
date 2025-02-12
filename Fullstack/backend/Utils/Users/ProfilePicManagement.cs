@@ -16,16 +16,6 @@ namespace backend.Utils.Users
             _userManagement = userManagement;
         }
 
-        // Get profile picture path
-        public async Task<string> GetProfilePicturePathAsync(int userId)
-        {
-            var user = await _userManagement.GetUserByIdAsync(userId);
-            if (user == null)
-                return null;
-
-            return user.ProfilePicturePath;
-        }
-
 
 
 
@@ -44,8 +34,9 @@ namespace backend.Utils.Users
 
                 return new ReturnObject { Success = true, Message = "Profile picture updated successfully" };
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("jug Error: " + ex.Message);
                 return new ReturnObject { Success = false, Message = "Failed to update profile picture" };
             }
 

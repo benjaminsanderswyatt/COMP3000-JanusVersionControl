@@ -13,12 +13,12 @@ const fetchWithTokenRefresh = async (url, options = {}, sessionExpired) => {
   const headers = {
     ...options.headers,
     'Authorization': `Bearer ${token}`,
-    credentials: 'include',
+    credentials: 'include'
   };
 
   const response = await fetch(url, { ...options, headers });
 
-  if (response.status === 401) {
+  if (response.status === 401) { // Unauthorised
     // Token expired or invalid, try to refresh the token
     const newToken = await refreshAccessToken();
 
@@ -27,7 +27,10 @@ const fetchWithTokenRefresh = async (url, options = {}, sessionExpired) => {
       localStorage.setItem('token', newToken);
 
       // Retry the original request with the new token
-      return fetch(url, { ...options, headers: { ...headers, 'Authorization': `Bearer ${newToken}` } });
+      return fetch(url, { 
+        ...options,
+        headers: { ...headers, 'Authorization': `Bearer ${newToken}` }
+       });
     } else {
       sessionExpired();
       throw new Error('Failed to refresh token');
@@ -35,6 +38,7 @@ const fetchWithTokenRefresh = async (url, options = {}, sessionExpired) => {
   }
 
   const responseJson = await response.json();
+
 
   if (!response.ok) {
     throw new Error(responseJson.message);

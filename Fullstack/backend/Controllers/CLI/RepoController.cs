@@ -31,7 +31,7 @@ namespace backend.Controllers.CLI
         [HttpGet("GetRepos")]
         public async Task<IActionResult> GetUserRepos()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(ModelState);
@@ -58,7 +58,7 @@ namespace backend.Controllers.CLI
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(new { message = "Invalid user ID" });

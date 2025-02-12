@@ -12,7 +12,7 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(JanusDbContext))]
-    [Migration("20250207171855_Init")]
+    [Migration("20250212132412_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -269,6 +269,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
+
+                    b.Property<string>("ProfilePicturePath")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");

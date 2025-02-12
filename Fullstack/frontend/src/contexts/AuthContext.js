@@ -10,6 +10,11 @@ export const AuthProvider = ({ children }) => {
   const [authUserId, setAuthUserId] = useState(null); // Default needs to be set to UserId claim inside token
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Default needs to be set localstorage token if its valid
   const [loading, setLoading] = useState(true); // So that redirects wait for token to be validated
+  const [profilePicRefresh, setProfilePicRefresh] = useState(Date.now());
+
+  const updateProfilePicRefresh = () => {
+    setProfilePicRefresh(Date.now());
+  };
 
   useEffect(() => {
     // Bypass for debugging -------------------------------------------------------------
@@ -97,6 +102,8 @@ export const AuthProvider = ({ children }) => {
     authUserId,
     isLoggedIn,
     loading,
+    profilePicRefresh,
+    updateProfilePicRefresh,
     login,
     logout,
     register,

@@ -5,6 +5,7 @@ using backend.Utils.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<CLIHelper>();
 builder.Services.AddScoped<UserManagement>();
+builder.Services.AddScoped<ProfilePicManagement>();
 builder.Services.AddScoped<RepoManagement>();
 builder.Services.AddScoped<RepoService>();
 
@@ -114,7 +116,7 @@ builder.Services.AddAuthentication(options =>
                         return;
                     }
 
-                    var userIdClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var userIdClaim = context.Principal?.FindFirst("UserId")?.Value;
                     if (int.TryParse(userIdClaim, out int userId))
                     {
                         var user = await janusDbContext.Users.FindAsync(userId);

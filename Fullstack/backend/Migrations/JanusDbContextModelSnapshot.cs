@@ -267,6 +267,9 @@ namespace backend.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varchar(64)");
 
+                    b.Property<string>("ProfilePicturePath")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");
 

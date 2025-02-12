@@ -30,7 +30,7 @@ namespace backend.Controllers.CLI
         [HttpPost("SayHello")]
         public async Task<IActionResult> SayHello()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(ModelState);
@@ -172,7 +172,7 @@ namespace backend.Controllers.CLI
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(ModelState);
@@ -311,7 +311,7 @@ namespace backend.Controllers.CLI
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(ModelState);

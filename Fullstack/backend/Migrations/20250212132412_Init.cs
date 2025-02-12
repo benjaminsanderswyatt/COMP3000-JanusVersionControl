@@ -90,7 +90,9 @@ namespace backend.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ProfilePicturePath = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {

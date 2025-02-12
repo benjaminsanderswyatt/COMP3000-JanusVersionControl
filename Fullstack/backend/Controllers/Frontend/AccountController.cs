@@ -22,6 +22,8 @@ namespace backend.Controllers.Frontend
         private readonly JwtHelper _jwtHelper;
         private readonly ProfilePicManagement _profilePicManagement;
 
+        private readonly string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "/app/data/images");
+
         public AccountController(JanusDbContext janusDbContext, JwtHelper jwtHelper, ProfilePicManagement profilePicManagement)
         {
             _janusDbContext = janusDbContext;
@@ -30,36 +32,12 @@ namespace backend.Controllers.Frontend
         }
 
 
-        [HttpGet("GetProfilePic")]
-        public async Task<IActionResult> GetProfilePicture()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
-            {
-                return BadRequest(new { message = "Invalid user ID" });
-            }
-
-            var filePath = await _profilePicManagement.GetProfilePicturePathAsync(userId);
-
-            if (filePath == null)
-                return NotFound();
-
-
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-
-
-            return PhysicalFile(filePath, "image/jpeg");
-        }
-
-
-
         // Save a (new) profile picture
         // POST: api/web/Account/ChangeProfilePicture
         [HttpPost("ChangeProfilePicture")]
         public async Task<IActionResult> ChangeProfilePicture(IFormFile image)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(new { message = "Invalid user ID" });
@@ -67,20 +45,14 @@ namespace backend.Controllers.Frontend
 
             if (image == null || image.Length == 0)
             {
-                return BadRequest("Invalid file");
+                return BadRequest(new { message = "Invalid file" });
             }
 
-
-            string uploadsFolder = Path.Combine("/app/images", userId.ToString());
-
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
+  
             string fileExtension = Path.GetExtension(image.FileName);
-            string fileName = $"profile{fileExtension}";
-            string filePath = Path.Combine(uploadsFolder, fileName);
+            string fileName = $"{userId}{fileExtension}";
+            string filePath = Path.Combine(_imagePath, fileName);
+
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -89,10 +61,11 @@ namespace backend.Controllers.Frontend
 
             ReturnObject result = await _profilePicManagement.SaveProfilePicturePathAsync(userId, filePath);
 
+
             if (!result.Success)
                 return BadRequest(new { message = result.Message });
 
-            return Ok(new { message = result.Message });
+            return Ok(new { message = "Profile picture updated successfully", profilePictureUrl = $"/images/{fileName}" });
         }
 
 

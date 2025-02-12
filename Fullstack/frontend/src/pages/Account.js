@@ -1,49 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { deleteUser } from '../api/fetch/fetchUsers';
 
 import { useAuth  } from '../contexts/AuthContext';
 
 import ThemeToggle from '../components/ThemeToggle';
-import { getProfilePicture, uploadProfilePicture } from '../api/fetch/fetchAccount';
+import { uploadProfilePicture } from '../api/fetch/fetchAccount';
+import ProfilePic from '../components/images/ProfilePic';
 
 
 const Account = () => {
     const navigate = useNavigate();
-    const { logout, sessionExpired } = useAuth();
-    const [ profilePicture, setProfilePicture ] = useState(null);
-    const [ preview, setPreview ] = useState(null);
+    const { logout, sessionExpired, authUserId, updateProfilePicRefresh } = useAuth();
 
-    useEffect(() => {
-        loadProfilePicture();
-    }, []);
 
-    const loadProfilePicture = async () => {
-        const imageUrl = await getProfilePicture(sessionExpired);
-        
-        if (imageUrl){
-            setProfilePicture(imageUrl);
-        } else {
-            setProfilePicture(defaultProfilePic); // Default
-        }
-    }
 
     const handleUpload = async (event) => {
         const file = event.target.files[0];
         if (!file)
             return;
 
-        const objectURL = URL.createObjectURL(file)
-        setPreview(objectURL);
+        // Check if the file is a .png
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (fileExtension !== 'png') {
+            alert('Please upload a .png file.');
+            return;
+        }
 
         const result = await uploadProfilePicture(file, sessionExpired);
 
         if (result.success){
-            setProfilePicture(result.profilePictureUrl);
-            setPreview(null);
+            console.log("Successfully changed profile pic");
+            updateProfilePicRefresh(Date.now());
         } else {
             alert("Upload failed: " + result.message);
-            setPreview(null);
         }
     }
 
@@ -75,15 +65,12 @@ const Account = () => {
 
             <div style={styles.holder}>
                 
-                <div style={styles.imageContainer}>
-                    <img 
-                        src={preview || profilePicture || defaultProfilePic} 
-                        alt="Profile" 
-                        style={styles.profileImage} 
-                    />
-                </div>
+                <ProfilePic
+                    userId={authUserId}
+                    style={styles.profileImage}
+                />
 
-                <input type="file" accept="image/*" onChange={handleUpload} />
+                <input type="file" accept="image/png" onChange={handleUpload} />
 
 
 
@@ -121,16 +108,9 @@ const styles = {
         padding: '20px',
         width: 'auto',
     },
-    imageContainer: {
-        display: "flex",
-        justifyContent: "center",
-        marginBottom: "20px",
-    },
     profileImage: {
         width: "150px",
         height: "150px",
-        borderRadius: "50%",
-        objectFit: "cover",
     },
     buttonHolder: {
         display: 'flex',

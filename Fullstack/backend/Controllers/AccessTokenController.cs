@@ -35,7 +35,7 @@ namespace backend.Controllers
         [HttpPost("GeneratePAT")]
         public async Task<IActionResult> GeneratePAT([FromBody] PatDto request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
 
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
@@ -118,7 +118,7 @@ namespace backend.Controllers
             Console.WriteLine($"Entered: {auth.Email}");
 
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
                 return Unauthorized(new { Message = "Invalid user" });
