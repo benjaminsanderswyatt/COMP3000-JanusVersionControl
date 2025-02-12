@@ -40,7 +40,7 @@ code {
 /* Dark Theme */
 [data-theme="dark"] {
   --text: #eaeaea;
-  --lighttext: #999999;
+  --lighttext: #bbbbbb;
   --inverttext: black;
   
   --background: #181818;

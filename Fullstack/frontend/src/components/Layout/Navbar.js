@@ -51,12 +51,13 @@ const LoggedInHeader = ({ authUser }) => {
           style={styles.iconAccount}
           handleClick={() => navigate("/account")}
         />
-
+        {/*
         <img src="/Icons/settings.svg"
           alt="Settings"
           style={styles.iconSettings}
           onClick={() => navigate("/settings")}
         />
+        */}
       </div>
       
 
