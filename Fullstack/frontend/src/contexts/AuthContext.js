@@ -7,7 +7,9 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null); // Default needs to be set to Username claim inside token
+  const [authUserId, setAuthUserId] = useState(null); // Default needs to be set to UserId claim inside token
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Default needs to be set localstorage token if its valid
+  const [loading, setLoading] = useState(true); // So that redirects wait for token to be validated
 
   useEffect(() => {
     // Bypass for debugging -------------------------------------------------------------
@@ -18,9 +20,12 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
+
         // Check if the token is expired or not valid
         if (decodedToken.exp * 1000 > Date.now()) {
           setAuthUser(decodedToken.Username);
+          setAuthUserId(decodedToken.UserId);
+
           setIsLoggedIn(true);
         } else {
           logout(); // Token is expired, log the user out
@@ -29,6 +34,8 @@ export const AuthProvider = ({ children }) => {
         logout(); // Token is invalid, log the user out
       }
     }
+
+    setLoading(false); // Token check is done
   }, []);
 
 
@@ -43,6 +50,8 @@ export const AuthProvider = ({ children }) => {
       const decodedToken = jwtDecode(token);
 
       setAuthUser(decodedToken.Username);
+      setAuthUserId(decodedToken.UserId);
+
       setIsLoggedIn(true);
       localStorage.setItem('token', response.token);
 
@@ -77,13 +86,17 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = () => {
     setAuthUser(null);
+    setAuthUserId(null);
+
     setIsLoggedIn(false);
     localStorage.removeItem("token");
   }
 
   const value = {
     authUser,
+    authUserId,
     isLoggedIn,
+    loading,
     login,
     logout,
     register,

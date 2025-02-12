@@ -25,12 +25,17 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './styles/App.css';
+import Loader from './components/Loading';
 
 
 
 // ProtectedRoute you can only access if you have valid Json Web Token
 const ProtectedRoute = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
+
+  if (loading) { // Wait for the token to be validated
+    return <Loader/>;
+  }
 
   // If token exists, render the requested component
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
