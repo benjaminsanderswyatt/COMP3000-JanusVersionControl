@@ -13,6 +13,7 @@ services:
    - "81:80"
   volumes:
    - ./frontend/certs:/https
+   - ./data/images:/app/public/images
   environment:
    - HTTPS=true
    - SSL_CRT_FILE=https/frontend-certificate.crt
@@ -28,7 +29,8 @@ services:
    - "82:9000"
   volumes:
    - ./backend/certs:/https
-   - profile-pictures:/app/images
+   - ./data/images:/app/data/images
+  user: root
   depends_on:
    - db
   environment:
@@ -60,7 +62,7 @@ services:
   expose:
    - '3906'
   volumes:
-   - janus-db:/var/lib/mysql
+   - ./data/db:/var/lib/mysql
   networks:
       - intranet
 
