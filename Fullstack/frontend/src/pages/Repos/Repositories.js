@@ -3,7 +3,7 @@ import Repository from '../../components/Repo/Repository';
 import { useNavigate, useLocation } from 'react-router';
 import RepoBar from '../../components/Repo/RepoBar';
 
-import { GenAccessToken } from '../../api/fetch/fetchPAT';
+
 
 import SearchBox from '../../components/SearchBox';
 
@@ -11,9 +11,6 @@ import { useAuth  } from '../../contexts/AuthContext';
 
 
 const Repositories = () => {
-  const [tokenData , setTokenData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
 
@@ -21,35 +18,6 @@ const Repositories = () => {
     console.log('Searching repositories for:', query);
     // Search
   };
-
-
-  const { sessionExpired } = useAuth();
-
-  const handleGenAccessToken = async () => {
-    setLoading(true);
-    setError(null);
-    setTokenData (null);
-    try {
-      
-      const ExpirationInHours = 30;
-
-      const response = await GenAccessToken(ExpirationInHours, sessionExpired);
-      console.log('Finished response Try');
-
-      if (!response.success) {
-        console.log('Failed: ' + response.message + ' token: ' + response.token);
-        throw new Error(response.message);
-      }
-
-      setTokenData(response);
-    } catch (err) {
-      console.log('Catch');
-      setError(err.message);
-    } finally {
-      console.log('Final');
-      setLoading(false);
-    }
-  }
 
 
   const handleEnterRepo = (name) => {
@@ -64,7 +32,6 @@ const Repositories = () => {
   return (
     <div style={styles.container}>
 
-
       <header style={styles.header}>
         <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
@@ -72,40 +39,45 @@ const Repositories = () => {
 
       </header>
 
-      <div style={styles.repoHolder}>
-        {/* TODO For loop loads repos */}
-        <Repository enterRepo={() => handleEnterRepo("RepoNameHere")}/>
-        <Repository/>
-        <Repository/>
-      </div>
+
+      {/* TODO For loop loads repos */}
+      <Repository enterRepo={() => handleEnterRepo("RepoNameHere")}/>
+      <Repository/>
+      <Repository/>
+      
 
 
-      <button onClick={handleGenAccessToken}>Generate PAT</button>
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {tokenData  && (
-        <div style={styles.PATHolder}>
-          <h2>Token Generated:</h2>
-          <pre style={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
-        </div>
-      )}
+      
     </div>
   );
 };
 
 const styles = {
+  container: {
+    background: "var(--card)",
+    width: "90%",
+    justifyItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+    alignItems: "center",
+    borderRadius: "8px",
+    marginTop: "20px",
+    justifyItems: "center",
+    paddingBottom: "18px",
+    height: "fit-content",
+  },
   header: {
     display: "flex",
-    width: "90%",
+    width: "100%",
     background: "var(--accent)",
     alignItems: "center",
     borderBottom: "var(--border) solid 1px",
     padding: "4px 10px",
     gap: "10px",
     justifyContent: "center",
-    marginTop: "20px",
-    borderRadius: "8px 8px 0px 0px",
     minHeight: "46px",
+    borderRadius: "8px 8px 0px 0px",
   },
   button: {
     boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
@@ -119,27 +91,7 @@ const styles = {
     cursor: "pointer",
     whiteSpace: "nowrap",
   },
-  container: {
-    width: "100%",
-    justifyItems: "center",
-  },
-  repoHolder: {
-    background: "var(--card)",
-    width: "90%",
-    padding: "18px",
-    justifyItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    alignItems: "center",
-    borderRadius: "0px 0px 8px 8px",
-  },
-  PATHolder: {
-    width: "100%",
-  },
-  GenPAT: {
-    overflow: "auto",
-  },
+  
 }
 
 
