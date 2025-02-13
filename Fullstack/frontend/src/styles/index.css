@@ -33,8 +33,14 @@ code {
   
   --accent: #b7bbd2;
 
-  --primary-rgb: rgb(105 113 169);
-  --secondary-rgb: rgb(194 177 203);
+
+  --lightgreenbutton: #A8E6A2; /* Soft pastel green */
+  --greenbutton: #4CAF50; /* A nice green */
+  --darkgreenbutton: #388E3C; /* A darker green for hover */
+  
+  --lightredbutton: #F8BFBF; /* Soft pastel red */
+  --redbutton: #F44336; /* A vibrant red */
+  --darkredbutton: #D32F2F; /* A darker red for hover */
 }
 
 /* Dark Theme */
@@ -56,4 +62,13 @@ code {
   --lightsecondary: #3a2f3e;
 
   --accent: #474f7b;
+
+
+  --lightgreenbutton: #81C784; /* Soft but visible green */
+  --greenbutton: #3D8B40; /* A deep green */
+  --darkgreenbutton: #2E6B32; /* Even darker for hover */
+  
+  --lightredbutton: #E57373; /* Soft red for dark mode */
+  --redbutton: #D43729; /* A strong red */
+  --darkredbutton: #A52A24; /* A deeper red for hover */
 }

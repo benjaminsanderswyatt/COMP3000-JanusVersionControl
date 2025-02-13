@@ -9,7 +9,7 @@ const ThemeToggle = ({ style }) => {
   return (
     <button 
     onClick={toggleTheme}
-    style={{ ...styles.button, ...style }}
+    style={{ ...style, ...styles.button }}
     >
       Toggle theme
 

@@ -9,6 +9,7 @@ import { uploadProfilePicture } from '../api/fetch/fetchAccount';
 import ProfilePic from '../components/images/ProfilePic';
 
 import { GenAccessToken } from '../api/fetch/fetchPAT';
+import ProfilePictureCard from '../components/account/ProfileCard';
 
 
 const Account = () => {
@@ -18,12 +19,16 @@ const Account = () => {
     const navigate = useNavigate();
     const { logout, sessionExpired, authUserId, updateProfilePicRefresh } = useAuth();
 
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
 
-    const handleUpload = async (event) => {
+    const handleFileChange= async (event) => {
         const file = event.target.files[0];
         if (!file)
             return;
+
+        event.target.value = ""; // Clear previous files
 
         // Check if the file is a .png
         const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -32,15 +37,37 @@ const Account = () => {
             return;
         }
 
-        const result = await uploadProfilePicture(file, sessionExpired);
+        setSelectedFile(file);
 
-        if (result.success){
-            console.log("Successfully changed profile pic");
-            updateProfilePicRefresh(Date.now());
-        } else {
-            alert("Upload failed: " + result.message);
-        }
+        // Generate preview using FileReader
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
     }
+
+    const handleSubmitUpload = async () => {
+
+        const result = await uploadProfilePicture(selectedFile, sessionExpired);
+    
+        if (result.success) {
+          console.log("Successfully changed profile pic");
+          updateProfilePicRefresh(Date.now());
+
+          // Clear the file and preview after upload
+          setSelectedFile(null);
+          setPreviewUrl(null);
+        } else {
+          alert("Upload failed: " + result.message);
+        }
+    };
+
+    const handleCancelUpload = async () => {
+        // Clear the file and preview after upload
+        setSelectedFile(null);
+        setPreviewUrl(null);
+    };
 
     const handleLogout = () => {
         // Remove token from localStorage
@@ -88,33 +115,15 @@ const Account = () => {
         }
     }
 
-    const CreateNewRepo = async () => {
-
-    }
 
     return (
         <div style={styles.container}>
 
             <header style={styles.header}>
-                
-                <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
-
-                <ThemeToggle style={styles.button} />
+                <ThemeToggle style={styles.buttonHeader} />
             </header>
 
-            <ThemeToggle />
-            
-
-                
-            <ProfilePic
-                userId={authUserId}
-                style={styles.profileImage}
-            />
-
-            <input type="file" accept="image/png" onChange={handleUpload} />
-
-
-
+            <ProfilePictureCard/>
 
 
             <div style={styles.buttonHolder}>
@@ -155,8 +164,8 @@ const styles = {
         justifyItems: "center",
         paddingBottom: "18px",
         height: "fit-content",
-      },
-      header: {
+    },
+    header: {
         display: "flex",
         width: "100%",
         background: "var(--accent)",
@@ -168,10 +177,7 @@ const styles = {
         minHeight: "46px",
         borderRadius: "8px 8px 0px 0px",
     },
-
-
-      
-    button: {
+    buttonHeader: {
         boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
         backgroundColor: "var(--button)",
         color: "var(--lighttext)",
@@ -182,16 +188,6 @@ const styles = {
         borderRadius: "8px",
         cursor: "pointer",
         whiteSpace: "nowrap",
-    },
-
-    profileImage: {
-        width: "150px",
-        height: "150px",
-    },
-    buttonHolder: {
-        display: 'flex',
-        gap: '20px',
-        overflow: 'auto',
     },
     logoutButton: {
         background: '#FF4747',
@@ -223,6 +219,12 @@ const styles = {
     GenPAT: {
         overflow: "auto",
     },
+    buttonHolder: {
+        display: 'flex',
+        gap: '20px',
+        overflow: 'auto',
+    },
+
 };
 
 
