@@ -14,15 +14,3 @@ a {
 a:hover {
   color: var(--accent);
 }
-
-label {
-  color: var(--text);
-}
-
-h1 {
-  color: var(--text);
-}
-
-p {
-  color: var(--text);
-}

@@ -1,4 +1,3 @@
-// ProfilePictureCard.jsx
 import React, { useState } from 'react';
 import ProfilePic from '../../components/images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
@@ -36,6 +35,7 @@ const ProfilePictureCard = () => {
     if (result.success) {
       console.log("Successfully changed profile pic");
       updateProfilePicRefresh(Date.now());
+
       // Clear the file and preview after upload
       setSelectedFile(null);
       setPreviewUrl(null);
