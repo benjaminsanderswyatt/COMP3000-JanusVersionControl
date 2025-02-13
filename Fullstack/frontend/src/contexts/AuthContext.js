@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { login as apiLogin, register as apiRegister, logout as apiLogout } from "../api/fetch/fetchUsers";
 import { jwtDecode } from 'jwt-decode';
 
@@ -16,32 +16,6 @@ export const AuthProvider = ({ children }) => {
     setProfilePicRefresh(Date.now());
   };
 
-  useEffect(() => {
-    // Bypass for debugging -------------------------------------------------------------
-    //setIsLoggedIn(true);
-
-
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-
-        // Check if the token is expired or not valid
-        if (decodedToken.exp * 1000 > Date.now()) {
-          setAuthUser(decodedToken.Username);
-          setAuthUserId(decodedToken.UserId);
-
-          setIsLoggedIn(true);
-        } else {
-          logout(); // Token is expired, log the user out
-        }
-      } catch (error) {
-        logout(); // Token is invalid, log the user out
-      }
-    }
-
-    setLoading(false); // Token check is done
-  }, []);
 
 
 
@@ -78,10 +52,10 @@ export const AuthProvider = ({ children }) => {
   }
 
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await apiLogout();
     handleLogout();
-  };
+  }, []);
 
   // Session expired is like logout but keeping the refresh token
   const sessionExpired = () => {
@@ -96,6 +70,42 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     localStorage.removeItem("token");
   }
+
+
+
+  useEffect(() => {
+    // Bypass for debugging -------------------------------------------------------------
+    //setIsLoggedIn(true);
+
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+
+        // Check if the token is expired or not valid
+        if (decodedToken.exp * 1000 > Date.now()) {
+          setAuthUser(decodedToken.Username);
+          setAuthUserId(decodedToken.UserId);
+
+          setIsLoggedIn(true);
+        } else {
+          logout(); // Token is expired, log the user out
+        }
+      } catch (error) {
+        logout(); // Token is invalid, log the user out
+      }
+    }
+
+    setLoading(false); // Token check is done
+  }, [logout]);
+
+
+
+
+
+
+
 
   const value = {
     authUser,

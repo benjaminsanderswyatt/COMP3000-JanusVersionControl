@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { deleteUser } from '../api/fetch/fetchUsers';
 
-import { useAuth  } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 import ThemeToggle from '../components/ThemeToggle';
-import { uploadProfilePicture } from '../api/fetch/fetchAccount';
-import ProfilePic from '../components/images/ProfilePic';
 
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
@@ -17,57 +15,8 @@ const Account = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { logout, sessionExpired, authUserId, updateProfilePicRefresh } = useAuth();
+    const { logout, sessionExpired } = useAuth();
 
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
-
-
-    const handleFileChange= async (event) => {
-        const file = event.target.files[0];
-        if (!file)
-            return;
-
-        event.target.value = ""; // Clear previous files
-
-        // Check if the file is a .png
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        if (fileExtension !== 'png') {
-            alert('Please upload a .png file.');
-            return;
-        }
-
-        setSelectedFile(file);
-
-        // Generate preview using FileReader
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviewUrl(reader.result);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    const handleSubmitUpload = async () => {
-
-        const result = await uploadProfilePicture(selectedFile, sessionExpired);
-    
-        if (result.success) {
-          console.log("Successfully changed profile pic");
-          updateProfilePicRefresh(Date.now());
-
-          // Clear the file and preview after upload
-          setSelectedFile(null);
-          setPreviewUrl(null);
-        } else {
-          alert("Upload failed: " + result.message);
-        }
-    };
-
-    const handleCancelUpload = async () => {
-        // Clear the file and preview after upload
-        setSelectedFile(null);
-        setPreviewUrl(null);
-    };
 
     const handleLogout = () => {
         // Remove token from localStorage
@@ -154,7 +103,6 @@ const styles = {
     container: {
         background: "var(--card)",
         width: "90%",
-        justifyItems: "center",
         display: "flex",
         flexDirection: "column",
         gap: "18px",

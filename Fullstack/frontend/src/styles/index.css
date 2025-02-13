@@ -34,13 +34,13 @@ code {
   --accent: #b7bbd2;
 
 
-  --lightgreenbutton: #A8E6A2; /* Soft pastel green */
-  --greenbutton: #4CAF50; /* A nice green */
-  --darkgreenbutton: #388E3C; /* A darker green for hover */
+  --lightgreenbutton: #A8E6A2;
+  --greenbutton: #4CAF50;
+  --darkgreenbutton: #388E3C;
   
-  --lightredbutton: #F8BFBF; /* Soft pastel red */
-  --redbutton: #F44336; /* A vibrant red */
-  --darkredbutton: #D32F2F; /* A darker red for hover */
+  --lightredbutton: #F8BFBF;
+  --redbutton: #F44336;
+  --darkredbutton: #D32F2F;
 }
 
 /* Dark Theme */
@@ -64,11 +64,12 @@ code {
   --accent: #474f7b;
 
 
-  --lightgreenbutton: #81C784; /* Soft but visible green */
-  --greenbutton: #3D8B40; /* A deep green */
-  --darkgreenbutton: #2E6B32; /* Even darker for hover */
+  --darkgreenbutton: #81C784;
+  --greenbutton: #3D8B40;
+  --lightgreenbutton: #2E6B32;
   
-  --lightredbutton: #E57373; /* Soft red for dark mode */
-  --redbutton: #D43729; /* A strong red */
-  --darkredbutton: #A52A24; /* A deeper red for hover */
+  --darkredbutton: #E57373;
+  --redbutton: #D43729;
+  --lightredbutton: #A52A24;
+  
 }
