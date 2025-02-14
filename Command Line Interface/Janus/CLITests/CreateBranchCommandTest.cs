@@ -30,7 +30,7 @@ namespace CLITests
         [TestCase("new_branch", ExpectedResult = true)] // Valid
         public bool IsValidBranchNameTests(string branchName)
         {
-            return BranchHelper.IsValidBranchName(branchName);
+            return BranchHelper.IsValidRepoOrBranchName(branchName);
         }
     }
 

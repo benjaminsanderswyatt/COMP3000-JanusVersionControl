@@ -6,15 +6,15 @@ namespace Janus.CommandHelpers
 
     public class BranchHelper
     {
-        public static bool IsValidBranchName(string branchName)
+        public static bool IsValidRepoOrBranchName(string name)
         {
-            if (string.IsNullOrWhiteSpace(branchName))
+            if (string.IsNullOrWhiteSpace(name))
                 return false;
 
 
             // ivalid characters: ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
             var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
-            if (Regex.IsMatch(branchName, invalidCharsPattern))
+            if (Regex.IsMatch(name, invalidCharsPattern))
                 return false;
 
             return true;
