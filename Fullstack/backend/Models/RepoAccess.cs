@@ -27,6 +27,7 @@ namespace backend.Models
     {
         READ,
         WRITE,
-        ADMIN
+        ADMIN,
+        OWNER
     }
 }

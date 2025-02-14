@@ -17,6 +17,7 @@ namespace backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseCollation("utf8mb4_unicode_ci")
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
@@ -62,7 +63,6 @@ namespace backend.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("LatestCommitHash")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("RepoId")

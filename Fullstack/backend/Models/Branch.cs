@@ -15,7 +15,7 @@ namespace backend.Models
         [Required]
         public int RepoId { get; set; }
 
-        public string LatestCommitHash { get; set; }
+        public string? LatestCommitHash { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace backend.Controllers.CLI
@@ -56,109 +57,188 @@ namespace backend.Controllers.CLI
 
         // POST: api/CLI/Init
 
-        // POST: api/CLI/Push
-
-        // POST: api/CLI/Pull
-
-        // POST: api/CLI/Clone
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        // POST: api/CLI/Push
-        [HttpPost("Push")]
-        public async Task<IActionResult> Push([FromBody] List<CommitDto> commitDtos)
+        // GET: api/CLI/{owner}/{repoName}/LatestCommit
+        [HttpGet("{owner}/{repoName}/{branch}/latestcommit")]
+        public async Task<IActionResult> GetLatestCommit(string owner, string repoName, string branch)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // BranchId TODO
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int userId;
-            if (!Int32.TryParse(userIdClaim, out userId))
-            {
-                return BadRequest(ModelState);
-            }
-
-            using (var transaction = await _janusDbContext.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    //List<CommitDto> commitDtos = JsonConvert.DeserializeObject<List<CommitDto>>(commitJson);
-
-                    foreach (var commitDto in commitDtos)
-                    {
-                        // var BranchId
-
-                        var parentCommitId = await _cliHelper.GetParentCommitIdAsync(commitDto.ParentCommitHash);
-
-                        var commit = new Commit
-                        {
-                            BranchId = 0,
-                            UserId = userId,
-                            CommitHash = commitDto.CommitHash,
-                            Message = commitDto.Message,
-                            ParentCommitId = parentCommitId,
-                            CommittedAt = commitDto.CommittedAt,
-                            Files = commitDto.Files.Select(fileDto => new Models.File
-                            {
-                                FilePath = fileDto.FilePath,
-                                FileHash = fileDto.FileHash,
-                                FileContents = new FileContent
-                                {
-                                    Content = fileDto.FileContent
-                                }
-                            }).ToList()
-                        };
-
-                        // Add to database
-                        _janusDbContext.Commits.Add(commit);
-                    }
+            return Ok(new { LatestCommit = "" });
+        }
 
 
 
-                    await _janusDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    return Ok();
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest(new { error = ex.Message });
-                }
-            }
-
+        // POST: api/CLI/Push
+        /*
+        [HttpPost("Push")]
+        public async Task<IActionResult> Push([FromBody] PushDto pushDto)
+        {
 
         }
         */
 
-        public class RepoNameBranch
+
+
+        // POST: api/CLI/Pull
+
+
+
+
+
+        // GET: api/CLI/janus/{owner}/{repoName}
+        [HttpGet("janus/{owner}/{repoName}")]
+        public async Task<IActionResult> CloneRepo(string owner, string repoName)
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
+
+
+            // Get the owner of the repo
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (owner == null)
+                return NotFound(new { Message = "Owner not found" });
+
+            // Get the repo of the owner
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .Include(r => r.Branches)
+                .FirstOrDefaultAsync(r => 
+                    r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
+
+
+            // Private repos need access to the repo
+            if (repository.IsPrivate && !repository.RepoAccesses.Any(ra => ra.UserId == userId))
+                return NotFound(new { Message = "Repository not found" }); // Repository is hidden, mask unauthorised with not found error
+
+
+
+            // ---- return the SHALLOW clone data ----
+
+            string branchName = "main";
+            // Get the branch
+            var branch = repository.Branches.FirstOrDefault(b => b.BranchName == branchName);
+            if (branch == null)
+                return BadRequest(new { Message = $"{branchName} branch not found" });
+
+
+            // Get the latest commit hash of branch
+            var commit = await _janusDbContext.Commits.FirstOrDefaultAsync(c => c.CommitHash == branch.LatestCommitHash);
+            if (commit == null)
+                return BadRequest(new { Message = "Latest commit not found" });
+
+            // Build the tree from the commits treehash
+            // Parent tree hash is null for the root
+            var rootTree = await _janusDbContext.Trees
+                .FirstOrDefaultAsync(t => t.TreeHash == commit.TreeHash && t.ParentTreeHash == null);
+            if (rootTree == null)
+                return BadRequest(new { Message = "Root tree not found" });
+
+
+
+
+
+            return Ok(new { Data = "" });
+        }
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+    // POST: api/CLI/Push
+    [HttpPost("Push")]
+    public async Task<IActionResult> Push([FromBody] List<CommitDto> commitDtos)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        // BranchId TODO
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int userId;
+        if (!Int32.TryParse(userIdClaim, out userId))
+        {
+            return BadRequest(ModelState);
+        }
+
+        using (var transaction = await _janusDbContext.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                //List<CommitDto> commitDtos = JsonConvert.DeserializeObject<List<CommitDto>>(commitJson);
+
+                foreach (var commitDto in commitDtos)
+                {
+                    // var BranchId
+
+                    var parentCommitId = await _cliHelper.GetParentCommitIdAsync(commitDto.ParentCommitHash);
+
+                    var commit = new Commit
+                    {
+                        BranchId = 0,
+                        UserId = userId,
+                        CommitHash = commitDto.CommitHash,
+                        Message = commitDto.Message,
+                        ParentCommitId = parentCommitId,
+                        CommittedAt = commitDto.CommittedAt,
+                        Files = commitDto.Files.Select(fileDto => new Models.File
+                        {
+                            FilePath = fileDto.FilePath,
+                            FileHash = fileDto.FileHash,
+                            FileContents = new FileContent
+                            {
+                                Content = fileDto.FileContent
+                            }
+                        }).ToList()
+                    };
+
+                    // Add to database
+                    _janusDbContext.Commits.Add(commit);
+                }
+
+
+
+                await _janusDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+    }
+    */
+
+    public class RepoNameBranch
         {
             public string RepoName { get; set; }
             public string BranchName { get; set; }
@@ -301,89 +381,6 @@ namespace backend.Controllers.CLI
 
         }
 
-
-
-
-        // POST: api/CLI/Push
-        [HttpPost("Push")]
-        public async Task<IActionResult> Push([FromBody] List<CommitDto> commitDtos)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Use the execution strategy
-            var strategy = _janusDbContext.Database.CreateExecutionStrategy();
-
-            try
-            {
-                /*
-                // Execute all operations in the execution strategy
-                await strategy.ExecuteAsync(async () =>
-                {
-                    await using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
-
-                    try
-                    {
-                        // Check repo and branch
-                        // Send along repo and branch data from local
-                        
-
-
-
-
-
-
-
-                        foreach (var commitDto in commitDtos)
-                        {
-                            var parentCommitId = await _cliHelper.GetParentCommitIdAsync(commitDto.ParentCommitHash);
-
-                            var commit = new Commit
-                            {
-                                BranchId = 0, // TODO: Set BranchId appropriately
-                                UserId = userId,
-                                CommitHash = commitDto.CommitHash,
-                                Message = commitDto.Message,
-                                ParentCommitId = parentCommitId,
-                                CommittedAt = commitDto.CommittedAt,
-                                Files = commitDto.Files.Select(fileDto => new Models.File
-                                {
-                                    FilePath = fileDto.FilePath,
-                                    FileHash = fileDto.FileHash,
-                                    FileContents = new FileContent
-                                    {
-                                        Content = fileDto.FileContent
-                                    }
-                                }).ToList()
-                            };
-
-                            _janusDbContext.Commits.Add(commit);
-                        }
-
-                        await _janusDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                    }
-                    catch
-                    {
-                        await transaction.RollbackAsync();
-                        throw; // Rethrow the exception to propagate it back to the execution strategy
-                    }
-                });
-
-                */
-                return Ok(); // If everything succeeds, return OK
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message }); // Handle failure and return an appropriate response
-            }
-        }
 
     }
 }

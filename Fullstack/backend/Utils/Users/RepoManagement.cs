@@ -131,20 +131,20 @@ namespace backend.Utils.Users
                     {
                         RepoId = repo.RepoId,
                         UserId = ownerId,
-                        AccessLevel = AccessLevel.ADMIN
+                        AccessLevel = AccessLevel.OWNER
                     };
 
                     await _janusDbContext.RepoAccess.AddAsync(repoAccess);
                     await _janusDbContext.SaveChangesAsync();
 
 
-
+                    /*
                     // Create initial commit
                     var (initCommitHash, commit) = CreateInitData();
 
                     await _janusDbContext.Commits.AddAsync(commit);
                     await _janusDbContext.SaveChangesAsync();
-
+                    */
 
 
                     // Create main branch
@@ -152,7 +152,7 @@ namespace backend.Utils.Users
                     {
                         BranchName = "main",
                         RepoId = repo.RepoId,
-                        LatestCommitHash = initCommitHash,
+                        LatestCommitHash = null,
                     };
 
                     await _janusDbContext.Branches.AddAsync(branch);
@@ -183,6 +183,7 @@ namespace backend.Utils.Users
 
         }
 
+        /*
         private static (string, Commit) CreateInitData()
         {
             string initialCommitMessage = "Initial commit";
@@ -224,6 +225,7 @@ namespace backend.Utils.Users
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
             }
         }
+        */
 
     }
 }

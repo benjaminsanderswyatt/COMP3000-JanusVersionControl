@@ -19,6 +19,10 @@ namespace backend.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Case insensitve
+            modelBuilder.UseCollation("utf8mb4_unicode_ci");
+
+
             // Unique constraints
             modelBuilder.Entity<Repository>()
                 .HasIndex(r => new { r.OwnerId, r.RepoName })

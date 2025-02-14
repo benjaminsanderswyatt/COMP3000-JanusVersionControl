@@ -12,17 +12,13 @@ namespace backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.CreateTable(
                 name: "AccessTokenBlacklists",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Token = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Token = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
                     Expires = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     BlacklistedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -30,7 +26,7 @@ namespace backend.Migrations
                 {
                     table.PrimaryKey("PK_AccessTokenBlacklists", x => x.Id);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Commits",
@@ -38,41 +34,33 @@ namespace backend.Migrations
                 {
                     CommitId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    AuthorEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Message = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    AuthorEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    Message = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
                     CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Commits", x => x.CommitId);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Files",
                 columns: table => new
                 {
-                    FileHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FileHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
                     Size = table.Column<int>(type: "int", nullable: false),
-                    StoragePath = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    StoragePath = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Files", x => x.FileHash);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Users",
@@ -80,25 +68,20 @@ namespace backend.Migrations
                 {
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Username = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PasswordHash = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Username = table.Column<string>(type: "varchar(63)", maxLength: 63, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    PasswordHash = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false, collation: "utf8mb4_unicode_ci"),
                     Salt = table.Column<byte[]>(type: "longblob", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    RefreshToken = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    RefreshToken = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci"),
                     RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ProfilePicturePath = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    ProfilePicturePath = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "CommitParents",
@@ -123,23 +106,18 @@ namespace backend.Migrations
                         principalColumn: "CommitId",
                         onDelete: ReferentialAction.Cascade);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Trees",
                 columns: table => new
                 {
-                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    EntryName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    EntryName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
                     EntryType = table.Column<int>(type: "int", nullable: false),
-                    EntryHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ParentTreeHash = table.Column<string>(type: "varchar(40)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ParentEntryName = table.Column<string>(type: "varchar(255)", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    EntryHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    ParentTreeHash = table.Column<string>(type: "varchar(40)", nullable: true, collation: "utf8mb4_unicode_ci"),
+                    ParentEntryName = table.Column<string>(type: "varchar(255)", nullable: true, collation: "utf8mb4_unicode_ci")
                 },
                 constraints: table =>
                 {
@@ -156,7 +134,7 @@ namespace backend.Migrations
                         principalColumns: new[] { "TreeHash", "EntryName" },
                         onDelete: ReferentialAction.Cascade);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Repositories",
@@ -165,10 +143,8 @@ namespace backend.Migrations
                     RepoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     OwnerId = table.Column<int>(type: "int", nullable: false),
-                    RepoName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    RepoDescription = table.Column<string>(type: "varchar(511)", maxLength: 511, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    RepoName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    RepoDescription = table.Column<string>(type: "varchar(511)", maxLength: 511, nullable: false, collation: "utf8mb4_unicode_ci"),
                     IsPrivate = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -182,7 +158,7 @@ namespace backend.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "Branches",
@@ -190,11 +166,9 @@ namespace backend.Migrations
                 {
                     BranchId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
                     RepoId = table.Column<int>(type: "int", nullable: false),
-                    LatestCommitHash = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LatestCommitHash = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
@@ -207,7 +181,7 @@ namespace backend.Migrations
                         principalColumn: "RepoId",
                         onDelete: ReferentialAction.Cascade);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
                 name: "RepoAccess",
@@ -233,7 +207,7 @@ namespace backend.Migrations
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Branches_RepoId_BranchName",
