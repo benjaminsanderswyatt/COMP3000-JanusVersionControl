@@ -70,8 +70,9 @@ namespace CLITests
                 basePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             }
 
+            
             string credentialPath = Path.Combine(basePath, "Janus");
-
+            
             if (Directory.Exists(credentialPath))
             {
                 Directory.Delete(credentialPath, true);

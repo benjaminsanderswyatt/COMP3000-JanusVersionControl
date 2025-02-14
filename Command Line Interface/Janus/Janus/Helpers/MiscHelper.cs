@@ -8,47 +8,6 @@ namespace Janus.Helpers
 {
     public class MiscHelper
     {
-        public static async Task ExecuteAsync()
-        {
-            string apiUrl = "https://localhost:82/api/CLI/SayHello";
-
-            // The data you want to send
-            string testMessage = "Hello from the console app!";
-
-            Console.WriteLine("Sending...");
-
-            using (HttpClient client = new HttpClient())
-            {
-                // Serialize the string to JSON
-                StringContent content = new StringContent(
-                    $"\"{testMessage}\"",
-                    Encoding.UTF8,
-                    "application/json");
-
-                try
-                {
-                    // Send a POST request
-                    HttpResponseMessage response = await client.PostAsync(apiUrl, content);
-
-                    // Ensure the response was successful
-                    response.EnsureSuccessStatusCode();
-
-                    // Optionally read the response content
-                    string responseContent = await response.Content.ReadAsStringAsync();
-
-                    Console.WriteLine("Response received:");
-                    Console.WriteLine(responseContent);
-                }
-                catch (HttpRequestException ex)
-                {
-                    Console.WriteLine($"Request error: {ex.Message}");
-                }
-            }
-
-            Console.WriteLine("Sent.");
-        }
-
-
         public static bool ConfirmAction(ILogger logger, string message, bool force)
         {
             if (force)

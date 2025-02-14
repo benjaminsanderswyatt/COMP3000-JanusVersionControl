@@ -6,10 +6,9 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Net;
 using System.Text.Json;
+using static Janus.CommandHelpers.RemoteHelper;
 
 namespace Janus
 {
@@ -19,10 +18,10 @@ namespace Janus
         {
             var commands = new List<ICommand>
             {
-                new TestCommand(logger, paths),
                 new HelpCommand(logger, paths),
 
                 new LoginCommand(logger, paths),
+                new RemoteCommand(logger, paths),
 
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
@@ -75,19 +74,6 @@ namespace Janus
 
 
 
-            }
-        }
-
-
-        public class TestCommand : BaseCommand
-        {
-            public TestCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-            public override string Name => "test";
-            public override string Description => "Send a test request to backend";
-            public override async Task Execute(string[] args)
-            {
-                await MiscHelper.ExecuteAsync();
-                Logger.Log("Test End");
             }
         }
 
@@ -182,7 +168,50 @@ namespace Janus
             }
         }
 
-        
+        public class RemoteCommand : BaseCommand
+        {
+            public RemoteCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+
+            public override string Name => "remote";
+            public override string Description => "Manage your remote repositories";
+            public override async Task Execute(string[] args)
+            {
+                if (args.Length == 0)
+                {
+                    Logger.Log("Provide a command");
+                    return;
+                }
+
+                
+
+                switch (args[0].ToLower())
+                {
+                    case "add":
+                        await AddRemote(Logger, Paths.Remote, args);
+
+                        break;
+                    case "remove":
+                        await RemoveRemote(Logger, Paths.Remote, args);
+
+                        break;
+                    case "list":
+                        ListRemotes(Logger, Paths.Remote);
+                        break;
+                    default:
+                        Logger.Log("Usage:");
+                        Logger.Log("janus remotes add <name> <link>");
+                        Logger.Log("janus remotes remote <name>");
+                        Logger.Log("janus remotes list");
+                        
+                        break;
+                }
+
+            }
+        }
+
+
+
+
 
 
 
@@ -218,6 +247,10 @@ namespace Janus
                     Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
                     Directory.CreateDirectory(Paths.CommitDir); // .janus/commits folder
                     Directory.CreateDirectory(Paths.BranchesDir); // .janus/branches folder
+
+                    // Create remote file
+                    File.WriteAllText(Paths.Remote, "[]");
+
 
 
                     // Create index file
@@ -708,7 +741,7 @@ namespace Janus
                 }
 
                 string branchName = args[0];
-                if (!BranchHelper.IsValidBranchName(branchName))
+                if (!BranchHelper.IsValidRepoOrBranchName(branchName))
                 {
                     Logger.Log($"Invalid branch name: {branchName}");
                     return;

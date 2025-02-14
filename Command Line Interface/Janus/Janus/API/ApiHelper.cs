@@ -32,21 +32,34 @@ namespace Janus.API
                 //Make request
                 var responseEndpoint = await client.PostAsync(apiUrl, content);
 
-                if (responseEndpoint.IsSuccessStatusCode)
-                {
-                    string stringResponseData = await responseEndpoint.Content.ReadAsStringAsync();
+                string responseData = await responseEndpoint.Content.ReadAsStringAsync();
 
-                    return (true, stringResponseData);
-                }
-                else
-                {
-                    string reason = await responseEndpoint.Content.ReadAsStringAsync();
-
-                    return (false, reason);
-                }
-
+                return responseEndpoint.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
             }
         }
+
+
+        public static async Task<(bool, string)> SendGetAsync(string endpoint, string? pat = null)
+        {
+            string apiUrl = "https://localhost:82/api/cli/" + endpoint;
+
+            using (HttpClient client = new HttpClient())
+            {
+                // Add Auth Token to header if required
+                if (pat != null)
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
+                }
+
+                var response = await client.GetAsync(apiUrl);
+
+                string responseData = await response.Content.ReadAsStringAsync();
+
+                return response.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
+            }
+        }
+
+
 
        
     }
