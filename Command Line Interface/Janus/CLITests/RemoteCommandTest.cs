@@ -91,6 +91,45 @@ namespace CLITests
         }
 
         [Test]
+        [TestCase("origin")]
+        [TestCase("different")]
+        public async Task ShouldRemoveRemote(string name)
+        {
+            // Arrange: mock the remotes file
+            var initialRemotes = new List<RemoteHelper.RemoteRepos>
+            {
+                new RemoteHelper.RemoteRepos { Name = "origin", Link = "janus/user/reponame" },
+                new RemoteHelper.RemoteRepos { Name = "different", Link = "janus/name/name" }
+            };
+            File.WriteAllText(_paths.Remote, JsonSerializer.Serialize(initialRemotes, new JsonSerializerOptions { WriteIndented = true }));
+
+            // Act
+            string[] args = new string[] { "remove", name };
+            await _remoteCommand.Execute(args);
+
+            // Assert: the name was removed
+            string remoteJson = File.ReadAllText(_paths.Remote);
+            var remotes = JsonSerializer.Deserialize<List<RemoteHelper.RemoteRepos>>(remoteJson);
+
+            Assert.IsFalse(remotes.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
+
+            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains($"Remote '{name}' was successfully removed"))), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldLogNotFound_WhenNameDoesntExist()
+        {
+            // Act
+            string[] args = new string[] { "remove", "NoExist" };
+            await _remoteCommand.Execute(args);
+
+            // Arrange
+            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Remote 'NoExist' was not found"))), Times.Once);
+        }
+
+
+
+        [Test]
         public async Task ShouldListRemotes()
         {
             // Arrange: mock the remotes file
