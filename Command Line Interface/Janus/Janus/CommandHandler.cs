@@ -182,8 +182,6 @@ namespace Janus
                     return;
                 }
 
-                
-
                 switch (args[0].ToLower())
                 {
                     case "add":
@@ -199,15 +197,217 @@ namespace Janus
                         break;
                     default:
                         Logger.Log("Usage:");
-                        Logger.Log("janus remotes add <name> <link>");
-                        Logger.Log("janus remotes remote <name>");
-                        Logger.Log("janus remotes list");
+                        Logger.Log("    janus remotes add <name> <link>");
+                        Logger.Log("    janus remotes remote <name>");
+                        Logger.Log("    janus remotes list");
                         
                         break;
                 }
 
             }
         }
+
+
+
+
+
+
+        public class CloneCommand : BaseCommand
+        {
+            public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "clone";
+            public override string Description => "Clone a repository from the remote repository";
+            public override async Task Execute(string[] args)
+            {
+                if (args.Length == 0)
+                {
+                    Logger.Log("Repository is required");
+                    return;
+                }
+
+                // Load the store user credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. janus login");
+                    return;
+                }
+
+
+                string repoName = args[0];
+                string endpoint = $"Repo/Clone?repoName={repoName}";
+
+                try
+                {
+                    var (success, data) = await ApiHelper.SendGetAsync(endpoint, credentials.Token);
+
+                    if (!success)
+                    {
+                        Logger.Log("Error cloning repository: " + data);
+                    }
+
+                    // Create folder for repo
+                    string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
+                    Directory.CreateDirectory(repoPath);
+
+                    var repoData = new { Files = new List<FileData>() };
+
+                    // Loop through files in the repoData and write them to disk
+                    foreach (var file in repoData.Files)
+                    {
+                        string filePath = Path.Combine(repoPath, file.RelativePath);
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                        await File.WriteAllBytesAsync(filePath, file.Content);
+                    }
+
+                    Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");
+
+                } catch (Exception ex)
+                {
+                    Logger.Log($"An error occurred during cloning: {ex.Message}");
+                }
+
+
+            }
+
+        }
+
+        private class FileData
+        {
+            public string RelativePath { get; set; }
+            public byte[] Content { get; set; }
+        }
+
+
+        public class PushCommand : BaseCommand
+        {
+            public PushCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "push";
+            public override string Description => "Push the local repository changes to the backend";
+            public override async Task Execute(string[] args)
+            {
+                // Load the stored user credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. janus login");
+                    return;
+                }
+
+                // Check the user is in a valid dir (.janus exists)
+                if (Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Local repository not found");
+                    return;
+                }
+
+
+                // Get the repo name from folder
+                // This is the name of the folder Paths.WorkingDir is in
+                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
+                if (BranchHelper.IsValidRepoOrBranchName(repoName))
+                {
+                    Logger.Log($"Invalid repository name: {repoName}");
+                    return;
+                }
+                    
+
+                // Get the current branch
+                string branchName = MiscHelper.GetCurrentBranchName(Paths);
+
+
+
+
+                // Get the local latest commit hash
+
+                // Get the remote latest commit hash
+
+
+
+                // Find the differance (follow the commit history)
+                // If no remote branch exists -> create remote branch (then push all commits)
+                // If remote is ahead -> cancel (ask user to pull)
+                // If conflict -> merge is needed
+
+                // Once i know how far ahead local is 
+                // Get the new commits and push that data
+
+
+
+
+                var pushData = ""; // Temp
+
+                // Send push
+                var (success, response) = await ApiHelper.SendPostAsync($"Push/{repoName}/{branchName}", pushData, credentials.Token);
+
+                if (success)
+                {
+                    Logger.Log("Push successful");
+                }
+                else
+                {
+                    Logger.Log($"Push failed: {response}");
+                }
+
+            }
+        }
+
+        public class PullCommand : BaseCommand
+        {
+            public PullCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "pull";
+            public override string Description => "pull the remote repo";
+            public override async Task Execute(string[] args)
+            {
+                // Load credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. janus login");
+                    return;
+                }
+
+                // Check the user is in a valid dir (.janus exists)
+                if (Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Local repository not found");
+                    return;
+                }
+
+                // Get the repo name from folder
+                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
+                if (BranchHelper.IsValidRepoOrBranchName(repoName))
+                {
+                    Logger.Log($"Invalid repository name: {repoName}");
+                    return;
+                }
+
+                // Get the current branch
+                string branchName = MiscHelper.GetCurrentBranchName(Paths);
+
+                
+
+                // Get the local latest commit hash
+
+                // Get the remote latest commit hash
+
+
+
+                // Compare local and remote commits
+                // if local and remote are same -> do nothing
+                // if remote is ahead -> fetch and merge new commits into local
+                // if local is ahead -> 
+
+                // Get the new commits
+
+                // Apply commits in the order they were made
+
+            }
+        }
+
 
 
 
