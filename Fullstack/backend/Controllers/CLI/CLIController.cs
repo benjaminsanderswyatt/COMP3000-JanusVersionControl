@@ -61,9 +61,55 @@ namespace backend.Controllers.CLI
         [HttpGet("{owner}/{repoName}/{branch}/latestcommit")]
         public async Task<IActionResult> GetLatestCommit(string owner, string repoName, string branch)
         {
-            return Ok(new { LatestCommit = "" });
-        }
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
 
+            // Get user by username
+            var ownerUser = await _janusDbContext.Users
+                .FirstOrDefaultAsync(u => u.Username == owner);
+
+            if (ownerUser == null)
+            {
+                return NotFound(); // Generic not found hides existance of user
+            }
+
+
+            // Find the repo of the owner
+            var repo = await _janusDbContext.Repositories
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repo == null)
+            {
+                return NotFound(); // Generic not found hides existance of repo
+            }
+
+            // Ensure the user has access to this repo
+            var hasAccess = !repo.IsPrivate || // Public repo
+                await _janusDbContext.RepoAccess.AnyAsync(ra => ra.UserId == userId && ra.RepoId == repo.RepoId);
+
+            if (!hasAccess)
+            {
+                return NotFound(); // Generic not found hides existance of repo
+            }
+
+
+            // Get the latest commit hash for branch
+            var branchEntity = await _janusDbContext.Branches
+                .Where(b => b.RepoId == repo.RepoId && b.BranchName == branch)
+                .Select(b => new { b.LatestCommitHash })
+                .FirstOrDefaultAsync();
+
+            if (branchEntity == null)
+            {
+                // Branch doesnt exist so return empty (no commits for the branch)
+                return Ok(new { LatestCommit = "" });
+            }
+
+            return Ok(new { LatestCommit = branchEntity.LatestCommitHash });
+        }
 
 
         // POST: api/CLI/Push

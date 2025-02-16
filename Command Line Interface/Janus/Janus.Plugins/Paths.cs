@@ -15,6 +15,7 @@
         public string BranchesDir { get; }
 
         public string Remote { get; }
+        public string RemoteCommitDir { get; }
 
         public string Session { get; }
         public string Config { get; }
@@ -34,6 +35,7 @@
             BranchesDir = Path.Combine(JanusDir, "branches");
 
             Remote = Path.Combine(JanusDir, "remote");
+            RemoteCommitDir = Path.Combine(JanusDir, "remote");
 
             Session = Path.Combine(JanusDir, "session");
             Config = Path.Combine(JanusDir, "config");

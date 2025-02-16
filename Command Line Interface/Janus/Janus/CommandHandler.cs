@@ -354,6 +354,82 @@ namespace Janus
             }
         }
 
+        public class FetchCommand : BaseCommand
+        {
+            public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "fetch";
+            public override string Description => "fetch the latest commits from the remote repo";
+            public override async Task Execute(string[] args)
+            {
+                // Load credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. janus login");
+                    return;
+                }
+
+                // Check the user is in a valid dir (.janus exists)
+                if (Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Local repository not found");
+                    return;
+                }
+
+                // Get the repo name from folder
+                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
+                if (BranchHelper.IsValidRepoOrBranchName(repoName))
+                {
+                    Logger.Log($"Invalid repository name: {repoName}");
+                    return;
+                }
+
+                // Get the current branch
+                string branchName = MiscHelper.GetCurrentBranchName(Paths);
+                if (string.IsNullOrEmpty(branchName))
+                {
+                    Logger.Log("Failed to determine the current branch");
+                    return;
+                }
+
+                Logger.Log($"Fetching latest commits...");
+
+                // Fetch remote commits
+                var (success, remoteCommitsJson) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branchName}/commits", credentials.Token);
+                if (!success)
+                {
+                    Logger.Log("Failed to fetch remote commit history.");
+                    return;
+                }
+
+                List<CommitMetadata> remoteCommits = JsonSerializer.Deserialize<List<CommitMetadata>>(remoteCommitsJson);
+                if (remoteCommits == null || remoteCommits.Count == 0)
+                {
+                    Logger.Log("No commits found on the remote repository.");
+                    return;
+                }
+
+                // Store fetched commits locally
+                foreach (var commit in remoteCommits)
+                {
+                    string commitPath = Path.Combine(Paths.CommitDir, branchName, commit.Commit);
+                    if (!File.Exists(commitPath))
+                    {
+                        File.WriteAllText(commitPath, JsonSerializer.Serialize(commit));
+                        Logger.Log($"Fetched commit {commit.Commit}.");
+                    }
+                }
+
+                Logger.Log("Fetch operation completed successfully.");
+
+
+            }
+        }
+
+
+
+
         public class PullCommand : BaseCommand
         {
             public PullCommand(ILogger logger, Paths paths) : base(logger, paths) { }
