@@ -22,6 +22,7 @@ namespace Janus
 
                 new LoginCommand(logger, paths),
                 new RemoteCommand(logger, paths),
+                new CloneCommand(logger, paths),
                 new FetchCommand(logger, paths),
                 new PullCommand(logger, paths),
                 new PushCommand(logger, paths),
@@ -131,8 +132,7 @@ namespace Janus
                     var body = new { Email = email };
 
                     var (success, data) = await ApiHelper.SendPostAsync("AccessToken/Authenticate", body, pat);
-                    Console.WriteLine($"{success} {data}");
-
+                    
                     if (success)
                     {
                         var dataObject = JsonSerializer.Deserialize<PatSuccessRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -236,8 +236,11 @@ namespace Janus
                 }
 
 
-                string repoName = args[0];
-                string endpoint = $"Repo/Clone?repoName={repoName}";
+                string endpoint = args[0]; // janus/{owner}/{repoName}
+                string[] ownerRepoData = PathHelper.PathSplitter(endpoint);
+                string owner = ownerRepoData[0];
+                string repoName = ownerRepoData[1];
+                Console.WriteLine($"Owner: {owner}, Repo: {repoName}");
 
                 try
                 {
@@ -246,12 +249,19 @@ namespace Janus
                     if (!success)
                     {
                         Logger.Log("Error cloning repository: " + data);
+                        return;
                     }
 
+                    MiscHelper.DisplaySeperator(Logger);
+
+                    Console.WriteLine(data);
+
+
+                    
                     // Create folder for repo
                     string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
                     Directory.CreateDirectory(repoPath);
-
+                    /*
                     var repoData = new { Files = new List<FileData>() };
 
                     // Loop through files in the repoData and write them to disk
@@ -261,6 +271,7 @@ namespace Janus
                         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                         await File.WriteAllBytesAsync(filePath, file.Content);
                     }
+                    */
 
                     Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");
 
@@ -396,7 +407,10 @@ namespace Janus
 
                 Logger.Log($"Fetching latest commits...");
 
+
+
                 // Fetch remote commits
+                string owner = "temp";
                 var (success, remoteCommitsJson) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branchName}/commits", credentials.Token);
                 if (!success)
                 {

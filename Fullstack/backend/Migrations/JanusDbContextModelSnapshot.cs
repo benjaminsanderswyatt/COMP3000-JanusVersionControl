@@ -80,14 +80,14 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4840),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6205),
                             RepoId = 1
                         },
                         new
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4844),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6208),
                             RepoId = 1
                         });
                 });
@@ -148,7 +148,7 @@ namespace backend.Migrations
                             AuthorName = "janus",
                             BranchId = 1,
                             CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
-                            CommittedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4877),
+                            CommittedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6266),
                             Message = "Initial commit",
                             TreeHash = ""
                         },
@@ -159,7 +159,7 @@ namespace backend.Migrations
                             AuthorName = "User2",
                             BranchId = 2,
                             CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
-                            CommittedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4879),
+                            CommittedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6353),
                             Message = "Next commit",
                             TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0"
                         });
@@ -263,7 +263,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4713),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5890),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -272,7 +272,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4720),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5895),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -333,19 +333,19 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4515),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5425),
                             Email = "user@1.com",
-                            PasswordHash = "password",
-                            Salt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            PasswordHash = "EEeS/Gf/w1a5fh7vwhAFrCZxu43XdhpYtZDODCc0D7I=",
+                            Salt = new byte[] { 32, 161, 181, 196, 69, 114, 255, 1, 175, 188, 171, 178, 239, 165, 23, 169 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4523),
+                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5443),
                             Email = "user@2.com",
-                            PasswordHash = "password",
-                            Salt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            PasswordHash = "Nvddt0g+uW40LU131G7+FVs9/vdOibWWqEMlZPUcX3E=",
+                            Salt = new byte[] { 12, 58, 90, 133, 133, 244, 189, 229, 244, 142, 2, 119, 19, 233, 153, 138 },
                             Username = "User2"
                         });
                 });

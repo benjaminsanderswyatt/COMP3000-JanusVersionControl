@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -204,8 +205,6 @@ builder.Services.AddRateLimiter(options =>
         options.QueueLimit = 20;
     });
 });
-
-
 
 
 var app = builder.Build();

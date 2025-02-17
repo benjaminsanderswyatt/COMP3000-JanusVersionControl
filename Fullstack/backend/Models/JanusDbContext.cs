@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using backend.Auth;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
@@ -82,11 +83,17 @@ namespace backend.Models
 
             // ---------- Seed Data ----------
 
+            // Generate hashes correctly
+            var user1Salt = PasswordSecurity.GenerateSalt();
+            var user1HashedPassword = PasswordSecurity.ComputeHash("password", user1Salt);
+
+            var user2Salt = PasswordSecurity.GenerateSalt();
+            var user2HashedPassword = PasswordSecurity.ComputeHash("password", user2Salt);
 
             // Seed Users
             modelBuilder.Entity<User>().HasData(
-                new User { UserId = 1, Username = "User1", Email = "user@1.com", PasswordHash = "password", Salt = new byte[16] },
-                new User { UserId = 2, Username = "User2", Email = "user@2.com", PasswordHash = "password", Salt = new byte[16] }
+                new User { UserId = 1, Username = "User1", Email = "user@1.com", PasswordHash = user1HashedPassword, Salt = user1Salt },
+                new User { UserId = 2, Username = "User2", Email = "user@2.com", PasswordHash = user2HashedPassword, Salt = user2Salt }
             );
 
 

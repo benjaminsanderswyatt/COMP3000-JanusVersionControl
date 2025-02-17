@@ -8,14 +8,14 @@ namespace Janus.Helpers
     public class RepoHelper
     {
         
-        public static async List<string> CompareRemoteAndLocalRepos(Paths paths, string pat, string owner, string repoName, string branch)
+        public static async Task<List<string>> CompareRemoteAndLocalRepos(Paths paths, string pat, string owner, string repoName, string branch)
         {
             var (success, latestRemoteCommitHash) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branch}/latestcommit", pat);
 
             if (!success)
             {
                 Console.WriteLine("Failed to get latest remote commit.");
-                return; // Failed to get remote 
+                return new List<string>(); // Failed to get remote 
             }
 
             string latestLocalCommitHash = MiscHelper.GetCurrentHeadCommitHash(paths);
@@ -24,7 +24,7 @@ namespace Janus.Helpers
             {
                 // Error occured: repo starts with 1 initial commit
                 Console.WriteLine("Error: Could not determine the latest local commit.");
-                return;
+                return new List<string>();
             }
 
 
@@ -53,6 +53,8 @@ namespace Janus.Helpers
                 Console.WriteLine("Local repository is ahead. Commits need to be pushed.");
                 return commitsToPush;
             }
+
+            return new List<string>();
         }
 
 

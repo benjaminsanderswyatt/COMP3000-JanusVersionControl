@@ -23,7 +23,7 @@ namespace backend.Auth
         }
 
 
-        private static byte[] GenerateSalt()
+        public static byte[] GenerateSalt()
         {
             byte[] salt = new byte[16]; // 128 bit salt
 
@@ -35,7 +35,7 @@ namespace backend.Auth
             return salt;
         }
 
-        private static string ComputeHash(string password, byte[] salt)
+        public static string ComputeHash(string password, byte[] salt)
         {
             const int iterations = 600000; // Num PBKDF2 iterations
             const int hashLength = 32; // 256 bit hash

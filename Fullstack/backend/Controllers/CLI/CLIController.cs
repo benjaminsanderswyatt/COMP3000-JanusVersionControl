@@ -145,11 +145,13 @@ namespace backend.Controllers.CLI
             if (ownerUser == null)
                 return NotFound(new { Message = "Owner not found" });
 
+
             // Get the repo of the owner
             var repository = await _janusDbContext.Repositories
                 .Include(r => r.RepoAccesses)
                 .Include(r => r.Branches)
-                .FirstOrDefaultAsync(r => 
+                    .ThenInclude(b => b.Commits)  // Include commits inside branches
+                .FirstOrDefaultAsync(r =>
                     r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
 
             if (repository == null)
@@ -163,9 +165,9 @@ namespace backend.Controllers.CLI
 
 
 
-            // Get the clone data ----
 
 
+            // Get the clone data
             var branchesData = new List<object>();
 
             foreach (var branch in repository.Branches)
@@ -194,7 +196,6 @@ namespace backend.Controllers.CLI
                 IsPrivate = repository.IsPrivate,
                 Branches = branchesData
             };
-
 
 
             return Ok(new { Data = cloneData });
