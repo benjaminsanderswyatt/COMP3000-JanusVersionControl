@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
@@ -12,8 +13,7 @@ namespace backend.Models
         public string CommitHash { get; set; }
 
         [Required]
-        [MaxLength(255)]
-        public string BranchName { get; set; }
+        public int BranchId { get; set; }
 
         [Required]
         [StringLength(40)]
@@ -37,6 +37,9 @@ namespace backend.Models
 
         public ICollection<CommitParent> Parents { get; set; } = new List<CommitParent>();
         public ICollection<CommitParent> Children { get; set; } = new List<CommitParent>();
+
+        [ForeignKey("BranchId")]
+        public Branch Branch { get; set; }
 
     }
 

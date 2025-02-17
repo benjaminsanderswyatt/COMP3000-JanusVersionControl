@@ -162,14 +162,42 @@ namespace backend.Controllers.CLI
 
 
 
-            // ---- return the clone data ----
 
-            
-
+            // Get the clone data ----
 
 
+            var branchesData = new List<object>();
 
-            return Ok(new { Data = "" });
+            foreach (var branch in repository.Branches)
+            {
+                // Get all commits for the branch
+                var commits = branch.Commits
+                    .Select(c => new {
+                        c.CommitHash,
+                        c.AuthorName,
+                        c.Message,
+                        c.CommittedAt,
+                        c.TreeHash
+                    }).ToList();
+
+                branchesData.Add(new
+                {
+                    BranchName = branch.BranchName,
+                    Commits = commits
+                });
+            }
+
+            var cloneData = new
+            {
+                RepoName = repository.RepoName,
+                RepoDescription = repository.RepoDescription,
+                IsPrivate = repository.IsPrivate,
+                Branches = branchesData
+            };
+
+
+
+            return Ok(new { Data = cloneData });
         }
 
 

@@ -118,7 +118,7 @@ namespace backend.Models
                 {
                     CommitId = 1,
                     CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
-                    BranchName = "main",
+                    BranchId = 1,
                     TreeHash = "",
                     AuthorName = "janus",
                     AuthorEmail = "janus",
@@ -129,7 +129,7 @@ namespace backend.Models
                 {
                     CommitId = 2,
                     CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
-                    BranchName = "branch",
+                    BranchId = 2,
                     TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0",
                     AuthorName = "User2",
                     AuthorEmail = "user@2.com",

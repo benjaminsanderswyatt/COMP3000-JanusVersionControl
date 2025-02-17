@@ -31,26 +31,6 @@ namespace backend.Migrations
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
-                name: "Commits",
-                columns: table => new
-                {
-                    CommitId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    AuthorEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    Message = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
-                    CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Commits", x => x.CommitId);
-                })
-                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -68,31 +48,6 @@ namespace backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
-                })
-                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
-
-            migrationBuilder.CreateTable(
-                name: "CommitParents",
-                columns: table => new
-                {
-                    ChildId = table.Column<int>(type: "int", nullable: false),
-                    ParentId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CommitParents", x => new { x.ChildId, x.ParentId });
-                    table.ForeignKey(
-                        name: "FK_CommitParents_Commits_ChildId",
-                        column: x => x.ChildId,
-                        principalTable: "Commits",
-                        principalColumn: "CommitId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CommitParents_Commits_ParentId",
-                        column: x => x.ParentId,
-                        principalTable: "Commits",
-                        principalColumn: "CommitId",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
@@ -169,36 +124,73 @@ namespace backend.Migrations
                 })
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
-            migrationBuilder.InsertData(
-                table: "Commits",
-                columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchName", "CommitHash", "CommittedAt", "Message", "TreeHash" },
-                values: new object[,]
+            migrationBuilder.CreateTable(
+                name: "Commits",
+                columns: table => new
                 {
-                    { 1, "user@1.com", "User1", "main", "abcd1234efgh5678ijkl9012mnop3456qrst7890", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(805), "Initial commit", "treehash1" },
-                    { 2, "user@2.com", "User2", "branch", "mnop3456qrst7890abcd1234efgh5678ijkl9012", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(807), "Setup project structure", "treehash2" }
-                });
+                    CommitId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    AuthorEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    Message = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
+                    CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Commits", x => x.CommitId);
+                    table.ForeignKey(
+                        name: "FK_Commits_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
+
+            migrationBuilder.CreateTable(
+                name: "CommitParents",
+                columns: table => new
+                {
+                    ChildId = table.Column<int>(type: "int", nullable: false),
+                    ParentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommitParents", x => new { x.ChildId, x.ParentId });
+                    table.ForeignKey(
+                        name: "FK_CommitParents_Commits_ChildId",
+                        column: x => x.ChildId,
+                        principalTable: "Commits",
+                        principalColumn: "CommitId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommitParents_Commits_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Commits",
+                        principalColumn: "CommitId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(531), "user@1.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User1" },
-                    { 2, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(541), "user@2.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User2" }
+                    { 1, new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4515), "user@1.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User1" },
+                    { 2, new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4523), "user@2.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User2" }
                 });
-
-            migrationBuilder.InsertData(
-                table: "CommitParents",
-                columns: new[] { "ChildId", "ParentId" },
-                values: new object[] { 2, 1 });
 
             migrationBuilder.InsertData(
                 table: "Repositories",
                 columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(664), false, 1, "First seeded", "Repo1" },
-                    { 2, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(668), true, 2, "Sec seeded", "Repo2" }
+                    { 1, new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4713), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4720), true, 2, "Sec seeded", "Repo2" }
                 });
 
             migrationBuilder.InsertData(
@@ -206,8 +198,8 @@ namespace backend.Migrations
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "LatestCommitHash", "RepoId" },
                 values: new object[,]
                 {
-                    { 1, "main", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(774), null, 1 },
-                    { 2, "branch", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(778), null, 1 }
+                    { 1, "main", new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4840), null, 1 },
+                    { 2, "branch", new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4844), null, 1 }
                 });
 
             migrationBuilder.InsertData(
@@ -220,6 +212,20 @@ namespace backend.Migrations
                     { 2, 2, 3 }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Commits",
+                columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchId", "CommitHash", "CommittedAt", "Message", "TreeHash" },
+                values: new object[,]
+                {
+                    { 1, "janus", "janus", 1, "f7b1c205158daf2ee72d31cc1838455368c15cb3", new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4877), "Initial commit", "" },
+                    { 2, "user@2.com", "User2", 2, "915b84e9f8ce43018350092a25c4f65e6e290165", new DateTime(2025, 2, 17, 17, 17, 37, 7, DateTimeKind.Utc).AddTicks(4879), "Next commit", "c65dca236a008513a28342c778c7c34a0b9b50f0" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CommitParents",
+                columns: new[] { "ChildId", "ParentId" },
+                values: new object[] { 2, 1 });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Branches_RepoId_BranchName",
                 table: "Branches",
@@ -230,6 +236,11 @@ namespace backend.Migrations
                 name: "IX_CommitParents_ParentId",
                 table: "CommitParents",
                 column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Commits_BranchId",
+                table: "Commits",
+                column: "BranchId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Commits_CommitHash",
@@ -272,9 +283,6 @@ namespace backend.Migrations
                 name: "AccessTokenBlacklists");
 
             migrationBuilder.DropTable(
-                name: "Branches");
-
-            migrationBuilder.DropTable(
                 name: "CommitParents");
 
             migrationBuilder.DropTable(
@@ -282,6 +290,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Commits");
+
+            migrationBuilder.DropTable(
+                name: "Branches");
 
             migrationBuilder.DropTable(
                 name: "Repositories");

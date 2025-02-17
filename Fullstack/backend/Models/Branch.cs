@@ -23,6 +23,8 @@ namespace backend.Models
         [ForeignKey("RepoId")]
         public Repository Repository { get; set; }
 
+        public ICollection<Commit> Commits { get; set; } = new List<Commit>();
+
     }
 
 }
