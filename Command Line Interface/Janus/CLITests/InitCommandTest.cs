@@ -2,6 +2,7 @@ using Janus.DataTransferObjects;
 using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
@@ -29,6 +30,20 @@ namespace CLITests
             _paths = new Paths(_testDir);
 
             Directory.SetCurrentDirectory(_testDir);
+
+
+            // Login with test user
+            var credManager = new CredentialManager();
+            var testCredentials = new UserCredentials
+            {
+                Username = "testuser",
+                Email = "test@user.com",
+                Token = "testtoken"
+            };
+
+            credManager.SaveCredentials(testCredentials);
+
+
 
             // Create InitCommand instance
             _initCommand = new InitCommand(_loggerMock.Object, _paths);
