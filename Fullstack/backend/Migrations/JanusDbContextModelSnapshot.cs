@@ -62,13 +62,18 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("LatestCommitHash")
-                        .HasColumnType("longtext");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParentBranch")
+                        .HasColumnType("int");
 
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
 
                     b.HasKey("BranchId");
+
+                    b.HasIndex("ParentBranch");
 
                     b.HasIndex("RepoId", "BranchName")
                         .IsUnique();
@@ -80,14 +85,17 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6205),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8943),
+                            CreatedBy = 1,
                             RepoId = 1
                         },
                         new
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6208),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8947),
+                            CreatedBy = 1,
+                            ParentBranch = 1,
                             RepoId = 1
                         });
                 });
@@ -148,7 +156,7 @@ namespace backend.Migrations
                             AuthorName = "janus",
                             BranchId = 1,
                             CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
-                            CommittedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6266),
+                            CommittedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9004),
                             Message = "Initial commit",
                             TreeHash = ""
                         },
@@ -159,7 +167,7 @@ namespace backend.Migrations
                             AuthorName = "User2",
                             BranchId = 2,
                             CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
-                            CommittedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6353),
+                            CommittedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9006),
                             Message = "Next commit",
                             TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0"
                         });
@@ -263,7 +271,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5890),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8631),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -272,7 +280,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5895),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8635),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -333,30 +341,36 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5425),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7979),
                             Email = "user@1.com",
-                            PasswordHash = "EEeS/Gf/w1a5fh7vwhAFrCZxu43XdhpYtZDODCc0D7I=",
-                            Salt = new byte[] { 32, 161, 181, 196, 69, 114, 255, 1, 175, 188, 171, 178, 239, 165, 23, 169 },
+                            PasswordHash = "mEWh1NibjVpyw3wCpiRbSn6ECHhd/ilre+g5KgGo0yo=",
+                            Salt = new byte[] { 36, 235, 44, 217, 238, 128, 97, 108, 91, 206, 49, 83, 138, 106, 19, 217 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5443),
+                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7997),
                             Email = "user@2.com",
-                            PasswordHash = "Nvddt0g+uW40LU131G7+FVs9/vdOibWWqEMlZPUcX3E=",
-                            Salt = new byte[] { 12, 58, 90, 133, 133, 244, 189, 229, 244, 142, 2, 119, 19, 233, 153, 138 },
+                            PasswordHash = "Bllp1xqdsOG8umjdxAk1UhQYqiDPF6po/3s2sTQGeN4=",
+                            Salt = new byte[] { 50, 111, 0, 136, 139, 5, 123, 10, 34, 89, 80, 143, 5, 99, 163, 201 },
                             Username = "User2"
                         });
                 });
 
             modelBuilder.Entity("backend.Models.Branch", b =>
                 {
+                    b.HasOne("backend.Models.Branch", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentBranch");
+
                     b.HasOne("backend.Models.Repository", "Repository")
                         .WithMany("Branches")
                         .HasForeignKey("RepoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Parent");
 
                     b.Navigation("Repository");
                 });

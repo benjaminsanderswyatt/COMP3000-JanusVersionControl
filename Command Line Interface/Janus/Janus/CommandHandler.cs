@@ -6,8 +6,10 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
+using System.IO;
 using System.Net;
 using System.Text.Json;
+using static Janus.CommandHandler;
 using static Janus.CommandHelpers.RemoteHelper;
 
 namespace Janus
@@ -252,26 +254,35 @@ namespace Janus
                         return;
                     }
 
-                    MiscHelper.DisplaySeperator(Logger);
+                    Logger.Log(data);
 
-                    Console.WriteLine(data);
+                    var repoData = JsonSerializer.Deserialize<RepoData>(data);
 
 
-                    
                     // Create folder for repo
                     string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
                     Directory.CreateDirectory(repoPath);
-                    /*
-                    var repoData = new { Files = new List<FileData>() };
+                    Paths clonePaths = new Paths(repoPath);
 
-                    // Loop through files in the repoData and write them to disk
-                    foreach (var file in repoData.Files)
-                    {
-                        string filePath = Path.Combine(repoPath, file.RelativePath);
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-                        await File.WriteAllBytesAsync(filePath, file.Content);
-                    }
-                    */
+                    var _initCommand = new InitCommand(Logger, Paths);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                     Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");
 

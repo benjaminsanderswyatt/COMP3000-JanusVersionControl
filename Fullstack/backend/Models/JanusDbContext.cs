@@ -90,6 +90,8 @@ namespace backend.Models
             var user2Salt = PasswordSecurity.GenerateSalt();
             var user2HashedPassword = PasswordSecurity.ComputeHash("password", user2Salt);
 
+
+
             // Seed Users
             modelBuilder.Entity<User>().HasData(
                 new User { UserId = 1, Username = "User1", Email = "user@1.com", PasswordHash = user1HashedPassword, Salt = user1Salt },
@@ -114,8 +116,8 @@ namespace backend.Models
 
             // Seed Branches
             modelBuilder.Entity<Branch>().HasData(
-                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", CreatedAt = DateTime.UtcNow },
-                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", CreatedAt = DateTime.UtcNow }
+                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, CreatedBy = 1, CreatedAt = DateTime.UtcNow },
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, CreatedBy = 1, CreatedAt = DateTime.UtcNow }
             );
 
 
@@ -151,7 +153,9 @@ namespace backend.Models
                 new CommitParent { ChildId = 2, ParentId = 1 }
             );
 
-            
+
+
+
             base.OnModelCreating(modelBuilder);
 
         }

@@ -83,12 +83,18 @@ namespace backend.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     BranchName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
                     RepoId = table.Column<int>(type: "int", nullable: false),
-                    LatestCommitHash = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    ParentBranch = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Branches", x => x.BranchId);
+                    table.ForeignKey(
+                        name: "FK_Branches_Branches_ParentBranch",
+                        column: x => x.ParentBranch,
+                        principalTable: "Branches",
+                        principalColumn: "BranchId");
                     table.ForeignKey(
                         name: "FK_Branches_Repositories_RepoId",
                         column: x => x.RepoId,
@@ -180,8 +186,8 @@ namespace backend.Migrations
                 columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5425), "user@1.com", "EEeS/Gf/w1a5fh7vwhAFrCZxu43XdhpYtZDODCc0D7I=", null, null, null, new byte[] { 32, 161, 181, 196, 69, 114, 255, 1, 175, 188, 171, 178, 239, 165, 23, 169 }, "User1" },
-                    { 2, new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5443), "user@2.com", "Nvddt0g+uW40LU131G7+FVs9/vdOibWWqEMlZPUcX3E=", null, null, null, new byte[] { 12, 58, 90, 133, 133, 244, 189, 229, 244, 142, 2, 119, 19, 233, 153, 138 }, "User2" }
+                    { 1, new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7979), "user@1.com", "mEWh1NibjVpyw3wCpiRbSn6ECHhd/ilre+g5KgGo0yo=", null, null, null, new byte[] { 36, 235, 44, 217, 238, 128, 97, 108, 91, 206, 49, 83, 138, 106, 19, 217 }, "User1" },
+                    { 2, new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7997), "user@2.com", "Bllp1xqdsOG8umjdxAk1UhQYqiDPF6po/3s2sTQGeN4=", null, null, null, new byte[] { 50, 111, 0, 136, 139, 5, 123, 10, 34, 89, 80, 143, 5, 99, 163, 201 }, "User2" }
                 });
 
             migrationBuilder.InsertData(
@@ -189,18 +195,14 @@ namespace backend.Migrations
                 columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5890), false, 1, "First seeded", "Repo1" },
-                    { 2, new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(5895), true, 2, "Sec seeded", "Repo2" }
+                    { 1, new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8631), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8635), true, 2, "Sec seeded", "Repo2" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Branches",
-                columns: new[] { "BranchId", "BranchName", "CreatedAt", "LatestCommitHash", "RepoId" },
-                values: new object[,]
-                {
-                    { 1, "main", new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6205), null, 1 },
-                    { 2, "branch", new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6208), null, 1 }
-                });
+                columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "ParentBranch", "RepoId" },
+                values: new object[] { 1, "main", new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8943), 1, null, 1 });
 
             migrationBuilder.InsertData(
                 table: "RepoAccess",
@@ -213,18 +215,28 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Branches",
+                columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "ParentBranch", "RepoId" },
+                values: new object[] { 2, "branch", new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8947), 1, 1, 1 });
+
+            migrationBuilder.InsertData(
                 table: "Commits",
                 columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchId", "CommitHash", "CommittedAt", "Message", "TreeHash" },
                 values: new object[,]
                 {
-                    { 1, "janus", "janus", 1, "f7b1c205158daf2ee72d31cc1838455368c15cb3", new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6266), "Initial commit", "" },
-                    { 2, "user@2.com", "User2", 2, "915b84e9f8ce43018350092a25c4f65e6e290165", new DateTime(2025, 2, 17, 17, 53, 15, 250, DateTimeKind.Utc).AddTicks(6353), "Next commit", "c65dca236a008513a28342c778c7c34a0b9b50f0" }
+                    { 1, "janus", "janus", 1, "f7b1c205158daf2ee72d31cc1838455368c15cb3", new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9004), "Initial commit", "" },
+                    { 2, "user@2.com", "User2", 2, "915b84e9f8ce43018350092a25c4f65e6e290165", new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9006), "Next commit", "c65dca236a008513a28342c778c7c34a0b9b50f0" }
                 });
 
             migrationBuilder.InsertData(
                 table: "CommitParents",
                 columns: new[] { "ChildId", "ParentId" },
                 values: new object[] { 2, 1 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Branches_ParentBranch",
+                table: "Branches",
+                column: "ParentBranch");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Branches_RepoId_BranchName",

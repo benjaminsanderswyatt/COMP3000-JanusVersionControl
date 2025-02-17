@@ -15,7 +15,9 @@ namespace backend.Models
         [Required]
         public int RepoId { get; set; }
 
-        public string? LatestCommitHash { get; set; }
+        public int CreatedBy { get; set; }
+
+        public int? ParentBranch { get; set; } // root branch is null (has no parent)
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
@@ -24,6 +26,9 @@ namespace backend.Models
         public Repository Repository { get; set; }
 
         public ICollection<Commit> Commits { get; set; } = new List<Commit>();
+
+        [ForeignKey("ParentBranch")]
+        public Branch Parent { get; set; }
 
     }
 

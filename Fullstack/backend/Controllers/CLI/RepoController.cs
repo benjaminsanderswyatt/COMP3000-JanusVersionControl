@@ -1,11 +1,12 @@
-﻿using backend.DataTransferObjects;
+﻿using backend.Helpers;
 using backend.Models;
-using backend.Services;
-using backend.Utils.Users;
+using backend.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace backend.Controllers.CLI
 {
@@ -13,23 +14,22 @@ namespace backend.Controllers.CLI
     [ApiController]
     [EnableCors("CLIPolicy")]
     [Authorize(Policy = "CLIPolicy")]
+    [EnableRateLimiting("CLIRateLimit")]
     public class RepoController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
-        private RepoManagement _repoManagement;
-        private readonly RepoService _repoService;
+        private readonly CLIHelper _cliHelper;
 
-        public RepoController(JanusDbContext janusDbContext, RepoManagement repoManagement, RepoService repoService)
+        public RepoController(JanusDbContext janusDbContext, CLIHelper cliHelper)
         {
             _janusDbContext = janusDbContext;
-            _repoManagement = repoManagement;
-            _repoService = repoService;
+            _cliHelper = cliHelper;
         }
 
 
-        // Get all repos of user
-        [HttpGet("GetRepos")]
-        public async Task<IActionResult> GetUserRepos()
+        // POST: api/CLI/SayHello
+        [HttpPost("SayHello")]
+        public async Task<IActionResult> SayHello()
         {
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
@@ -39,46 +39,238 @@ namespace backend.Controllers.CLI
 
             try
             {
-                var repos = await _repoManagement.GetAllReposOfUserAsync(userId);
+                Console.WriteLine($"hello: {userId}");
 
-                return Ok(repos);
+                return Ok(new { message = $"hello {userId}" });
 
             }
             catch (Exception ex)
             {
-                return BadRequest("An error occurred while retrieving repositories");
+                return BadRequest(ex);
             }
+
         }
 
 
-        // Create a repo
-        [HttpPost("Create")]
-        public async Task<IActionResult> CreateRepo([FromBody] RepositoryDto newRepo)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
+
+
+        // POST: api/CLI/Init
+
+        // GET: api/CLI/{owner}/{repoName}/LatestCommit
+        [HttpGet("{owner}/{repoName}/{branch}/latestcommit")]
+        public async Task<IActionResult> GetLatestCommit(string owner, string repoName, string branch)
+        {
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return BadRequest(new { message = "Invalid user ID" });
+                return Unauthorized(new { Message = "Invalid user" });
             }
 
-            var result = await _repoService.CreateRepoAsync(userId, newRepo);
+            // Get user by username
+            var ownerUser = await _janusDbContext.Users
+                .FirstOrDefaultAsync(u => u.Username == owner);
 
-            if (!result.Success)
-                return BadRequest(result);
+            if (ownerUser == null)
+            {
+                return NotFound(); // Generic not found hides existance of user
+            }
 
-            return Ok(result);
-        }
 
+            // Find the repo of the owner
+            var repo = await _janusDbContext.Repositories
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
 
-        // Delete repo
-        [HttpDelete("{repoId}")]
-        public async Task<IActionResult> DeleteRepo(int repoId)
-        {
+            if (repo == null)
+            {
+                return NotFound(); // Generic not found hides existance of repo
+            }
+
+            // Ensure the user has access to this repo
+            var hasAccess = !repo.IsPrivate || // Public repo
+                await _janusDbContext.RepoAccess.AnyAsync(ra => ra.UserId == userId && ra.RepoId == repo.RepoId);
+
+            if (!hasAccess)
+            {
+                return NotFound(); // Generic not found hides existance of repo
+            }
+
+            /*
+            // Get the latest commit hash for branch
+            var branchEntity = await _janusDbContext.Branches
+                .Where(b => b.RepoId == repo.RepoId && b.BranchName == branch)
+                .Select(b => new { b.LatestCommitHash })
+                .FirstOrDefaultAsync();
+
+            if (branchEntity == null)
+            {
+                // Branch doesnt exist so return empty (no commits for the branch)
+                return Ok(new { LatestCommit = "" });
+            }
+
+            return Ok(new { LatestCommit = branchEntity.LatestCommitHash });
+            */
             return BadRequest();
         }
+
+
+        // POST: api/CLI/Push
+        /*
+        [HttpPost("Push")]
+        public async Task<IActionResult> Push([FromBody] PushDto pushDto)
+        {
+
+        }
+        */
+
+
+
+        // POST: api/CLI/Pull
+
+
+
+
+
+        // GET: api/CLI/janus/{owner}/{repoName}
+        [HttpGet("janus/{owner}/{repoName}")]
+        public async Task<IActionResult> CloneRepo(string owner, string repoName)
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
+
+
+            // Get the owner of the repo
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (ownerUser == null)
+                return NotFound(new { Message = "Owner not found" });
+
+
+            // Get the repo of the owner
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .Include(r => r.Branches)
+                    .ThenInclude(b => b.Commits)  // Include commits inside branches
+                .FirstOrDefaultAsync(r =>
+                    r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
+
+
+            // Private repos need access to the repo
+            if (repository.IsPrivate && !repository.RepoAccesses.Any(ra => ra.UserId == userId))
+                return NotFound(new { Message = "Repository not found" }); // Repository is hidden, mask unauthorised with not found error
+
+
+
+            // Get the clone data
+            // (Repo details, Branches, Commits, Trees, File Names/Hashes)
+            // Exclude file content
+
+            var treeBuilder = new TreeBuilder();
+
+            var branchesData = new List<object>();
+
+            foreach (var branch in repository.Branches)
+            {
+                // Get all commits for the branch
+                var commits = branch.Commits.Select(commit =>
+                {
+                    // Recreate the tree for the commit
+                    TreeNode tree = treeBuilder.RecreateTree(commit.TreeHash);
+                    var treeDto = ConvertTreeNodeToDto(tree);
+
+                    return new
+                    {
+                        commit.CommitHash,
+                        commit.AuthorName,
+                        commit.Message,
+                        commit.CommittedAt,
+                        commit.TreeHash,
+                        Tree = treeDto
+                    };
+                }).ToList();
+
+                branchesData.Add(new
+                {
+                    BranchName = branch.BranchName,
+                    ParentBranch = branch.ParentBranch,
+                    CreatedBy = branch.CreatedBy,
+                    Commits = commits
+                });
+            }
+
+            var cloneData = new
+            {
+                RepoName = repository.RepoName,
+                RepoDescription = repository.RepoDescription,
+                IsPrivate = repository.IsPrivate,
+                Branches = branchesData
+            };
+
+
+            return Ok(new { Data = cloneData });
+        }
+
+        private object ConvertTreeNodeToDto(TreeNode node)
+        {
+            if (node == null)
+                return null;
+
+            return new
+            {
+                node.Name,
+                node.Hash,
+                Children = node.Children?.Select(child => ConvertTreeNodeToDto(child))
+            };
+        }
+
+
+
+
+        // GET: api/CLI/files
+        [HttpGet("files")]
+        public async Task<IActionResult> GetBatchFileContent([FromBody] List<string> fileHashes)
+        {
+            Response.Headers["Content-Type"] = "application/octet-stream";
+            Response.Headers["Transfer-Encoding"] = "chunked";
+
+            string fileDir = Environment.GetEnvironmentVariable("FILE_STORAGE_PATH");
+
+            await using (var responseStream = Response.BodyWriter.AsStream())
+            {
+                foreach (var hash in fileHashes)
+                {
+                    string filePath = Path.Combine(fileDir, hash);
+
+                    if (!System.IO.File.Exists(filePath)) 
+                        continue;
+
+                    // Send file metadata
+                    string metadata = $"FILE:{hash}\n";
+                    byte[] metadataBytes = Encoding.UTF8.GetBytes(metadata);
+                    await responseStream.WriteAsync(metadataBytes, 0, metadataBytes.Length);
+
+                    // Stream file content
+                    await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    await fileStream.CopyToAsync(responseStream);
+
+                    // Separator between files
+                    byte[] separator = Encoding.UTF8.GetBytes("\n---\n");
+                    await responseStream.WriteAsync(separator, 0, separator.Length);
+                }
+            }
+
+            return new EmptyResult(); // Streamed has no return value
+        }
+
+
+
+
+
 
 
 
@@ -98,114 +290,216 @@ namespace backend.Controllers.CLI
 
 
         /*
-        // POST: api/Repo/Create
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] RepositoryDto repositoryDto)
+        // POST: api/CLI/Push
+        [HttpPost("Push")]
+        public async Task<IActionResult> Push([FromBody] List<CommitDto> commitDtos)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // BranchId TODO
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
+            int userId;
+            if (!Int32.TryParse(userIdClaim, out userId))
             {
-                return Unauthorized(new { error = "Invalid or missing user" });
+                return BadRequest(ModelState);
             }
 
-            var strategy = _janusDbContext.Database.CreateExecutionStrategy();
-
-            try
+            using (var transaction = await _janusDbContext.Database.BeginTransactionAsync())
             {
-                await strategy.ExecuteAsync(async () =>
+                try
                 {
-                    await using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
+                    //List<CommitDto> commitDtos = JsonConvert.DeserializeObject<List<CommitDto>>(commitJson);
 
-                    try
+                    foreach (var commitDto in commitDtos)
                     {
-                        // Create new repository
-                        var newRepo = new Repository
+                        // var BranchId
+
+                        var parentCommitId = await _cliHelper.GetParentCommitIdAsync(commitDto.ParentCommitHash);
+
+                        var commit = new Commit
                         {
-                            RepoName = repositoryDto.RepoName,
-                            OwnerId = userId,
-                            CreatedAt = repositoryDto.CreatedAt
+                            BranchId = 0,
+                            UserId = userId,
+                            CommitHash = commitDto.CommitHash,
+                            Message = commitDto.Message,
+                            ParentCommitId = parentCommitId,
+                            CommittedAt = commitDto.CommittedAt,
+                            Files = commitDto.Files.Select(fileDto => new Models.File
+                            {
+                                FilePath = fileDto.FilePath,
+                                FileHash = fileDto.FileHash,
+                                FileContents = new FileContent
+                                {
+                                    Content = fileDto.FileContent
+                                }
+                            }).ToList()
                         };
 
-                        _janusDbContext.Repositories.Add(newRepo);
-
-                        await _janusDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
+                        // Add to database
+                        _janusDbContext.Commits.Add(commit);
                     }
-                    catch
-                    {
-                        await transaction.RollbackAsync();
-                        throw;
-                    }
-                });
 
-                return Ok(new { message = "Repository created successfully." });
+
+
+                    await _janusDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new { error = ex.Message });
+                }
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+
+
+        }
+        */
+
+        public class RepoNameBranch
+        {
+            public string RepoName { get; set; }
+            public string BranchName { get; set; }
         }
 
 
-
-        // DELETE: api/Repo/Delete/{repoId}
-        [HttpDelete("Delete/{repoId}")]
-        public async Task<IActionResult> Delete(int repoId)
+        // POST: api/CLI/GetHeadCommitHash
+        [HttpPost("RemoteHeadCommit")]
+        public async Task<IActionResult> RemoteHeadCommit([FromBody] RepoNameBranch repoNameBranch)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return Unauthorized(new { error = "Invalid or missing user" });
+                return BadRequest(ModelState);
             }
-
-            // Find the repository by ID and ensure it belongs to the current user
-            var repo = await _janusDbContext.Repositories
-                .FirstOrDefaultAsync(r => r.RepoId == repoId && r.OwnerId == userId);
-
-            if (repo == null)
-            {
-                return NotFound(new { error = "Repository not found or you do not have permission to delete it." });
-            }
-
-
-            var strategy = _janusDbContext.Database.CreateExecutionStrategy();
 
             try
             {
-                await strategy.ExecuteAsync(async () =>
+                /*
+                string repoName = repoNameBranch.RepoName;
+                string branchName = repoNameBranch.BranchName;
+
+                // Find the repository for the user
+                var repository = await _janusDbContext.Users
+                    .Where(User => User.UserId == userId)
+                    .SelectMany(User => User.Repositories)
+                    .FirstOrDefaultAsync(Repository => Repository.RepoName == repoName);
+
+                if (repository == null)
                 {
-                    await using var transaction = await _janusDbContext.Database.BeginTransactionAsync();
-
-                    try
+                    // Create the repository if it doesn't exist
+                    repository = new Repository
                     {
-                        // Remove the repository (cascade)
-                        _janusDbContext.Repositories.Remove(repo);
+                        OwnerId = userId,
+                        RepoName = repoName
+                    };
+                    _janusDbContext.Repositories.Add(repository);
+                    await _janusDbContext.SaveChangesAsync();
+                    return Ok(new { message = "Created repo" });
+                }
 
-                        await _janusDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                    }
-                    catch (Exception ex)
+                // Find the branch for the repository
+                var branch = await _janusDbContext.Branches
+                    .Where(Branch => Branch.RepoId == repository.RepoId && Branch.BranchName == branchName)
+                    .FirstOrDefaultAsync();
+
+                if (branch == null)
+                {
+                    // Create the branch if it doesn't exist
+                    branch = new Branch
                     {
-                        await transaction.RollbackAsync();
-                        throw;
-                    }
-                });
+                        BranchName = branchName,
+                        RepoId = repository.RepoId,
+                        LatestCommitId = null // or set the default commit ID if available
+                    };
+                    _janusDbContext.Branches.Add(branch);
+                    await _janusDbContext.SaveChangesAsync();
 
-                return Ok(new { message = "Repository deleted successfully." });
+                    return Ok(new { message = $"Created branch '{branchName}' for repo '{repoName}'" });
+                }
+
+                // If branch already exists, retrieve the latest commit for that branch
+                var latestCommitId = branch.LatestCommitId;
+
+                if (latestCommitId == null)
+                {
+                    return BadRequest("Couldn't find remote repo's latest commit in the branch");
+                }
+
+                var commitHash = await _janusDbContext.Commits
+                    .Where(Commit => Commit.CommitId == latestCommitId)
+                    .Select(Commit => Commit.CommitHash)
+                    .FirstOrDefaultAsync();
+
+                if (commitHash == null)
+                {
+                    return BadRequest("Couldn't find remote repo's latest commit");
+                }
+
+                */
+
+                //return Ok(new { CommitHash = commitHash });
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
+
+
+
+
+
+
+
+
+            /*
+            try
+            {
+                string repoName = repoNameBranch.RepoName;
+                string branchName = repoNameBranch.BranchName;
+
+                var latestCommitId = await _janusDbContext.Users // Find the latest commit for the branch given user, repo name and branch name
+                    .Where(User => User.UserId == userId)
+                    .SelectMany(User => User.Repositories)
+                    .Where(Repository => Repository.RepoName == repoName)
+                    .SelectMany(Repository => Repository.Branches)
+                    .Where(Branch => Branch.BranchName == branchName)
+                    .Select(Branch => Branch.LatestCommitId)
+                    .FirstOrDefaultAsync();
+
+                if (latestCommitId == null)
+                {
+                    return BadRequest("Couldn't find remote repos latest commit in the branch");
+                }
+
+                var commitHash = await _janusDbContext.Commits
+                    .Where(Commit => Commit.CommitId == latestCommitId)
+                    .Select(Commit => Commit.CommitHash)
+                    .FirstOrDefaultAsync();
+
+                if (commitHash == null)
+                {
+                    return BadRequest("Couldn't find remote repos latest commit");
+                }
+
+                return Ok(new { CommitHash = commitHash });
+
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
-
-
+            */
 
         }
 
-        */
 
     }
 }

@@ -146,18 +146,20 @@ namespace backend.Utils.Users
                     await _janusDbContext.SaveChangesAsync();
                     */
 
-
+                    /*
+                     * Maybe dont create the main branch
                     // Create main branch
                     var branch = new Branch
                     {
                         BranchName = "main",
                         RepoId = repo.RepoId,
-                        LatestCommitHash = null,
+                        //LatestCommitHash = null,
                     };
+                    
 
                     await _janusDbContext.Branches.AddAsync(branch);
                     await _janusDbContext.SaveChangesAsync();
-
+                    */
 
 
 
