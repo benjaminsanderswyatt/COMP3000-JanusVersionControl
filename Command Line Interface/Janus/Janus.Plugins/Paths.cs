@@ -18,7 +18,7 @@
         public string RemoteCommitDir { get; }
 
         public string Session { get; }
-        public string Config { get; }
+        public string RepoConfig { get; }
 
         public Paths(string basePath)
         {
@@ -38,7 +38,7 @@
             RemoteCommitDir = Path.Combine(JanusDir, "remote");
 
             Session = Path.Combine(JanusDir, "session");
-            Config = Path.Combine(JanusDir, "config");
+            RepoConfig = Path.Combine(JanusDir, "repoConfig.json");
 
         }
     }

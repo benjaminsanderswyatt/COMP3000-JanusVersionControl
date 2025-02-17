@@ -584,6 +584,16 @@ namespace Janus
                     File.Create(Path.Combine(branchFolderPath, "index")).Close();
 
 
+                    // Create config file (for private & description)
+                    var repoConfig = new RepoConfig
+                    {
+                        IsPrivate = true,
+                        Description = ""
+                    };
+
+                    string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(Paths.RepoConfig, configJson);
+
 
 
                     Logger.Log("Initialized janus repository");
