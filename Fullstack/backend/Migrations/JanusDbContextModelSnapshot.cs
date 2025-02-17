@@ -74,6 +74,22 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("Branches");
+
+                    b.HasData(
+                        new
+                        {
+                            BranchId = 1,
+                            BranchName = "main",
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(774),
+                            RepoId = 1
+                        },
+                        new
+                        {
+                            BranchId = 2,
+                            BranchName = "branch",
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(778),
+                            RepoId = 1
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Commit", b =>
@@ -123,6 +139,30 @@ namespace backend.Migrations
                     b.HasIndex("CommittedAt");
 
                     b.ToTable("Commits");
+
+                    b.HasData(
+                        new
+                        {
+                            CommitId = 1,
+                            AuthorEmail = "user@1.com",
+                            AuthorName = "User1",
+                            BranchName = "main",
+                            CommitHash = "abcd1234efgh5678ijkl9012mnop3456qrst7890",
+                            CommittedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(805),
+                            Message = "Initial commit",
+                            TreeHash = "treehash1"
+                        },
+                        new
+                        {
+                            CommitId = 2,
+                            AuthorEmail = "user@2.com",
+                            AuthorName = "User2",
+                            BranchName = "branch",
+                            CommitHash = "mnop3456qrst7890abcd1234efgh5678ijkl9012",
+                            CommittedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(807),
+                            Message = "Setup project structure",
+                            TreeHash = "treehash2"
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.CommitParent", b =>
@@ -138,26 +178,13 @@ namespace backend.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("CommitParents");
-                });
 
-            modelBuilder.Entity("backend.Models.File", b =>
-                {
-                    b.Property<string>("FileHash")
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StoragePath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("FileHash");
-
-                    b.HasIndex("FileHash");
-
-                    b.ToTable("Files");
+                    b.HasData(
+                        new
+                        {
+                            ChildId = 2,
+                            ParentId = 1
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.RepoAccess", b =>
@@ -176,6 +203,26 @@ namespace backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RepoAccess");
+
+                    b.HasData(
+                        new
+                        {
+                            RepoId = 1,
+                            UserId = 1,
+                            AccessLevel = 3
+                        },
+                        new
+                        {
+                            RepoId = 1,
+                            UserId = 2,
+                            AccessLevel = 1
+                        },
+                        new
+                        {
+                            RepoId = 2,
+                            UserId = 2,
+                            AccessLevel = 3
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Repository", b =>
@@ -211,39 +258,26 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("Repositories");
-                });
 
-            modelBuilder.Entity("backend.Models.Tree", b =>
-                {
-                    b.Property<string>("TreeHash")
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.Property<string>("EntryName")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("EntryHash")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("varchar(40)");
-
-                    b.Property<int>("EntryType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ParentEntryName")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ParentTreeHash")
-                        .HasColumnType("varchar(40)");
-
-                    b.HasKey("TreeHash", "EntryName");
-
-                    b.HasIndex("EntryHash");
-
-                    b.HasIndex("ParentTreeHash", "ParentEntryName");
-
-                    b.ToTable("Trees");
+                    b.HasData(
+                        new
+                        {
+                            RepoId = 1,
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(664),
+                            IsPrivate = false,
+                            OwnerId = 1,
+                            RepoDescription = "First seeded",
+                            RepoName = "Repo1"
+                        },
+                        new
+                        {
+                            RepoId = 2,
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(668),
+                            IsPrivate = true,
+                            OwnerId = 2,
+                            RepoDescription = "Sec seeded",
+                            RepoName = "Repo2"
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.User", b =>
@@ -294,6 +328,26 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(531),
+                            Email = "user@1.com",
+                            PasswordHash = "password",
+                            Salt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            Username = "User1"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            CreatedAt = new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(541),
+                            Email = "user@2.com",
+                            PasswordHash = "password",
+                            Salt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                            Username = "User2"
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Branch", b =>
@@ -356,22 +410,6 @@ namespace backend.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("backend.Models.Tree", b =>
-                {
-                    b.HasOne("backend.Models.File", "File")
-                        .WithMany()
-                        .HasForeignKey("EntryHash");
-
-                    b.HasOne("backend.Models.Tree", "ParentTree")
-                        .WithMany("SubTrees")
-                        .HasForeignKey("ParentTreeHash", "ParentEntryName")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("File");
-
-                    b.Navigation("ParentTree");
-                });
-
             modelBuilder.Entity("backend.Models.Commit", b =>
                 {
                     b.Navigation("Children");
@@ -384,11 +422,6 @@ namespace backend.Migrations
                     b.Navigation("Branches");
 
                     b.Navigation("RepoAccesses");
-                });
-
-            modelBuilder.Entity("backend.Models.Tree", b =>
-                {
-                    b.Navigation("SubTrees");
                 });
 
             modelBuilder.Entity("backend.Models.User", b =>

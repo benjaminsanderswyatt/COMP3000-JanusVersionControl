@@ -142,7 +142,7 @@ namespace backend.Controllers.CLI
 
             // Get the owner of the repo
             var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
-            if (owner == null)
+            if (ownerUser == null)
                 return NotFound(new { Message = "Owner not found" });
 
             // Get the repo of the owner
@@ -162,27 +162,9 @@ namespace backend.Controllers.CLI
 
 
 
-            // ---- return the SHALLOW clone data ----
+            // ---- return the clone data ----
 
-            string branchName = "main";
-            // Get the branch
-            var branch = repository.Branches.FirstOrDefault(b => b.BranchName == branchName);
-            if (branch == null)
-                return BadRequest(new { Message = $"{branchName} branch not found" });
-
-
-            // Get the latest commit hash of branch
-            var commit = await _janusDbContext.Commits.FirstOrDefaultAsync(c => c.CommitHash == branch.LatestCommitHash);
-            if (commit == null)
-                return BadRequest(new { Message = "Latest commit not found" });
-
-            // Build the tree from the commits treehash
-            // Parent tree hash is null for the root
-            var rootTree = await _janusDbContext.Trees
-                .FirstOrDefaultAsync(t => t.TreeHash == commit.TreeHash && t.ParentTreeHash == null);
-            if (rootTree == null)
-                return BadRequest(new { Message = "Root tree not found" });
-
+            
 
 
 

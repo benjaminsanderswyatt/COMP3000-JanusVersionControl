@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace backend.Migrations
 {
     /// <inheritdoc />
@@ -49,20 +51,6 @@ namespace backend.Migrations
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
-                name: "Files",
-                columns: table => new
-                {
-                    FileHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    Size = table.Column<int>(type: "int", nullable: false),
-                    StoragePath = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Files", x => x.FileHash);
-                })
-                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -104,34 +92,6 @@ namespace backend.Migrations
                         column: x => x.ParentId,
                         principalTable: "Commits",
                         principalColumn: "CommitId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
-
-            migrationBuilder.CreateTable(
-                name: "Trees",
-                columns: table => new
-                {
-                    TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    EntryName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    EntryType = table.Column<int>(type: "int", nullable: false),
-                    EntryHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    ParentTreeHash = table.Column<string>(type: "varchar(40)", nullable: true, collation: "utf8mb4_unicode_ci"),
-                    ParentEntryName = table.Column<string>(type: "varchar(255)", nullable: true, collation: "utf8mb4_unicode_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Trees", x => new { x.TreeHash, x.EntryName });
-                    table.ForeignKey(
-                        name: "FK_Trees_Files_EntryHash",
-                        column: x => x.EntryHash,
-                        principalTable: "Files",
-                        principalColumn: "FileHash");
-                    table.ForeignKey(
-                        name: "FK_Trees_Trees_ParentTreeHash_ParentEntryName",
-                        columns: x => new { x.ParentTreeHash, x.ParentEntryName },
-                        principalTable: "Trees",
-                        principalColumns: new[] { "TreeHash", "EntryName" },
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
@@ -209,6 +169,57 @@ namespace backend.Migrations
                 })
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
+            migrationBuilder.InsertData(
+                table: "Commits",
+                columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchName", "CommitHash", "CommittedAt", "Message", "TreeHash" },
+                values: new object[,]
+                {
+                    { 1, "user@1.com", "User1", "main", "abcd1234efgh5678ijkl9012mnop3456qrst7890", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(805), "Initial commit", "treehash1" },
+                    { 2, "user@2.com", "User2", "branch", "mnop3456qrst7890abcd1234efgh5678ijkl9012", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(807), "Setup project structure", "treehash2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(531), "user@1.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User1" },
+                    { 2, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(541), "user@2.com", "password", null, null, null, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, "User2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CommitParents",
+                columns: new[] { "ChildId", "ParentId" },
+                values: new object[] { 2, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Repositories",
+                columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(664), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(668), true, 2, "Sec seeded", "Repo2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Branches",
+                columns: new[] { "BranchId", "BranchName", "CreatedAt", "LatestCommitHash", "RepoId" },
+                values: new object[,]
+                {
+                    { 1, "main", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(774), null, 1 },
+                    { 2, "branch", new DateTime(2025, 2, 17, 16, 44, 58, 997, DateTimeKind.Utc).AddTicks(778), null, 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RepoAccess",
+                columns: new[] { "RepoId", "UserId", "AccessLevel" },
+                values: new object[,]
+                {
+                    { 1, 1, 3 },
+                    { 1, 2, 1 },
+                    { 2, 2, 3 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Branches_RepoId_BranchName",
                 table: "Branches",
@@ -231,11 +242,6 @@ namespace backend.Migrations
                 column: "CommittedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_FileHash",
-                table: "Files",
-                column: "FileHash");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RepoAccess_UserId",
                 table: "RepoAccess",
                 column: "UserId");
@@ -245,16 +251,6 @@ namespace backend.Migrations
                 table: "Repositories",
                 columns: new[] { "OwnerId", "RepoName" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Trees_EntryHash",
-                table: "Trees",
-                column: "EntryHash");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Trees_ParentTreeHash_ParentEntryName",
-                table: "Trees",
-                columns: new[] { "ParentTreeHash", "ParentEntryName" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
@@ -285,16 +281,10 @@ namespace backend.Migrations
                 name: "RepoAccess");
 
             migrationBuilder.DropTable(
-                name: "Trees");
-
-            migrationBuilder.DropTable(
                 name: "Commits");
 
             migrationBuilder.DropTable(
                 name: "Repositories");
-
-            migrationBuilder.DropTable(
-                name: "Files");
 
             migrationBuilder.DropTable(
                 name: "Users");

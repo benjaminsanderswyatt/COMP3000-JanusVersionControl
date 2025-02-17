@@ -30,6 +30,8 @@ services:
   volumes:
    - ./backend/certs:/https
    - ./data/images:/app/data/images
+   - ./data/files:/app/data/files
+   - ./data/trees:/app/data/trees
   user: root
   depends_on:
    - db
@@ -44,6 +46,8 @@ services:
       - JWT__SecretKey_Web=MySecureKeyWithAtLeastThirtyTwoCharacters
       - JWT__SecretKey_CLI=MySecureKeyWithAtLeastThirtyTwoCharacters
       - BlacklistCleanup=30
+      - FILE_STORAGE_PATH=/app/data/files
+      - TREE_STORAGE_PATH=/app/data/trees
   networks:
       - intranet
 

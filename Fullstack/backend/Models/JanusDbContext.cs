@@ -13,8 +13,6 @@ namespace backend.Models
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Commit> Commits { get; set; }
         public DbSet<CommitParent> CommitParents { get; set; }
-        public DbSet<Tree> Trees { get; set; }
-        public DbSet<File> Files { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -76,12 +74,77 @@ namespace backend.Models
             modelBuilder.Entity<Commit>()
                 .HasIndex(c => c.CommittedAt);
 
-            modelBuilder.Entity<File>()
-                .HasIndex(f => f.FileHash);
 
 
-            Tree.ConfigureEntity(modelBuilder);
 
+
+
+
+            // ---------- Seed Data ----------
+
+
+            // Seed Users
+            modelBuilder.Entity<User>().HasData(
+                new User { UserId = 1, Username = "User1", Email = "user@1.com", PasswordHash = "password", Salt = new byte[16] },
+                new User { UserId = 2, Username = "User2", Email = "user@2.com", PasswordHash = "password", Salt = new byte[16] }
+            );
+
+
+            // Seed Repos
+            modelBuilder.Entity<Repository>().HasData(
+                new Repository { RepoId = 1, OwnerId = 1, RepoName = "Repo1", RepoDescription = "First seeded", IsPrivate = false },
+                new Repository { RepoId = 2, OwnerId = 2, RepoName = "Repo2", RepoDescription = "Sec seeded", IsPrivate = true }
+            );
+
+
+            // Seed Repo Access
+            modelBuilder.Entity<RepoAccess>().HasData(
+                new RepoAccess { RepoId = 1, UserId = 1, AccessLevel = AccessLevel.OWNER },
+                new RepoAccess { RepoId = 1, UserId = 2, AccessLevel = AccessLevel.WRITE },
+                new RepoAccess { RepoId = 2, UserId = 2, AccessLevel = AccessLevel.OWNER }
+            );
+
+
+            // Seed Branches
+            modelBuilder.Entity<Branch>().HasData(
+                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", CreatedAt = DateTime.UtcNow },
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", CreatedAt = DateTime.UtcNow }
+            );
+
+
+            // Seed Commits
+            modelBuilder.Entity<Commit>().HasData(
+                new Commit
+                {
+                    CommitId = 1,
+                    CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
+                    BranchName = "main",
+                    TreeHash = "",
+                    AuthorName = "janus",
+                    AuthorEmail = "janus",
+                    Message = "Initial commit",
+                    CommittedAt = DateTime.UtcNow
+                },
+                new Commit
+                {
+                    CommitId = 2,
+                    CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
+                    BranchName = "branch",
+                    TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0",
+                    AuthorName = "User2",
+                    AuthorEmail = "user@2.com",
+                    Message = "Next commit",
+                    CommittedAt = DateTime.UtcNow
+                }
+            );
+
+
+            // Seed Commit Parents (Commit 2 is a child of Commit 1)
+            modelBuilder.Entity<CommitParent>().HasData(
+                new CommitParent { ChildId = 2, ParentId = 1 }
+            );
+
+            
             base.OnModelCreating(modelBuilder);
 
         }
