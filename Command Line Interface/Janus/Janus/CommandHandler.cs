@@ -22,6 +22,9 @@ namespace Janus
 
                 new LoginCommand(logger, paths),
                 new RemoteCommand(logger, paths),
+                new FetchCommand(logger, paths),
+                new PullCommand(logger, paths),
+                new PushCommand(logger, paths),
 
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
@@ -32,13 +35,11 @@ namespace Janus
                 //new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
                 //new SwitchCommitCommand(logger, paths),
+                //new MergeCommand(logger, paths),
                 
                 new StatusCommand(logger, paths),
 
                 new DiffCommand(logger, paths),
-                
-                //new PushCommand(),
-                
                 
                 // Add new built in commands here
             };
@@ -230,7 +231,7 @@ namespace Janus
                 var credentials = credManager.LoadCredentials();
                 if (credentials == null)
                 {
-                    Logger.Log("Please login first. janus login");
+                    Logger.Log("Please login first. Usage: janus login");
                     return;
                 }
 
@@ -506,6 +507,16 @@ namespace Janus
             {
                 try
                 {
+                    // Check the store user credentials
+                    var credManager = new CredentialManager();
+                    var credentials = credManager.LoadCredentials();
+                    if (credentials == null)
+                    {
+                        Logger.Log("Please login first. Usage: janus login");
+                        return;
+                    }
+
+
                     // Initialise .janus folder
                     if (Directory.Exists(Paths.JanusDir))
                     {
