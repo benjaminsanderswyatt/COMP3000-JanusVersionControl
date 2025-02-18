@@ -1,24 +1,25 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
+import styles from "../styles/Components/ThemeToggle.module.css";
 
 // Componant to toggle between light and dark theme
-const ThemeToggle = ({ style }) => {
+const ThemeToggle = ({ innerClassName }) => {
   const { theme, toggleTheme } = useTheme();
 
   
   return (
     <button 
     onClick={toggleTheme}
-    style={{ ...style, ...styles.button }}
+    className={styles.button}
     >
       Toggle theme
 
-      <div style={styles.imageHolder}>
+      <div className={styles.imageHolder}>
         {theme === "light" ? 
-          <img src="/Icons/moon.svg" alt="Moon icon" style={styles.image}></img>
+          <img src="/Icons/moon.svg" alt="Moon icon" className={styles.image}></img>
         : 
-          <img src="/Icons/sun.svg" alt="Sun icon" style={styles.image}></img>
+          <img src="/Icons/sun.svg" alt="Sun icon" className={styles.image}></img>
         }
       </div>
       
@@ -27,6 +28,7 @@ const ThemeToggle = ({ style }) => {
   );
 };
 
+/*
 const styles = {
   button: {
     display: "flex",
@@ -47,5 +49,6 @@ const styles = {
     height: "100%",
   }
 }
+*/
 
 export default ThemeToggle;

@@ -9,7 +9,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
 
-
+import styles from "../styles/Pages/Account.module.css";
 
 const Account = () => {
     const [tokenData , setTokenData] = useState(null);
@@ -67,19 +67,19 @@ const Account = () => {
 
 
     return (
-        <div style={styles.container}>
+        <div className={styles.container}>
 
-            <header style={styles.header}>
-                <ThemeToggle style={styles.buttonHeader} />
+            <header className={styles.header}>
+                <ThemeToggle />
             </header>
 
             <ProfilePictureCard/>
 
 
-            <div style={styles.buttonHolder}>
-                <button style={styles.logoutButton} onClick={handleLogout}>Logout</button>
+            <div className={styles.buttonHolder}>
+                <button className={styles.logoutButton} onClick={handleLogout}>Logout</button>
 
-                <button style={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
+                <button className={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
 
             </div>
                 
@@ -88,9 +88,9 @@ const Account = () => {
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {tokenData  && (
-                <div style={styles.PATHolder}>
+                <div className={styles.PATHolder}>
                 <h2>Token Generated:</h2>
-                <pre style={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
+                <pre className={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
                 </div>
             )}
 
@@ -99,7 +99,7 @@ const Account = () => {
         </div>
     );
 };
-
+/*
 const styles = {
     container: {
         background: "var(--card)",
@@ -175,6 +175,6 @@ const styles = {
     },
 
 };
-
+*/
 
 export default Account;
