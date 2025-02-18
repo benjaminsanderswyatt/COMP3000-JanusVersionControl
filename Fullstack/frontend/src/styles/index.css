@@ -26,14 +26,15 @@ code {
   --darkcard: #ebebeb;
   
 
-  --button: #F5F5F5;
-
   --primary: #6971A9;
   --secondary: #C2B1CB;
   --lightsecondary: #E8E0EC;
   
   --accent: #b7bbd2;
 
+
+  --button: #F5F5F5;
+  --buttonhover: #e0e0e0;
 
   --lightgreenbutton: #A8E6A2;
   --greenbutton: #4CAF50;
@@ -57,6 +58,7 @@ code {
   --darkcard: #3D3D3D;
 
   --button: #3c3c3c;
+  --buttonhover: #4c4c4c;
 
   --primary: #565d95;
   --secondary: #867491;

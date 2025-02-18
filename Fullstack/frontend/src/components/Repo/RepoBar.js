@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import SearchBox from '../../components/SearchBox';
 
+import Button from '../Button';
+
 const RepoBar = () => {
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ const RepoBar = () => {
       </div>
 
       <div style={styles.buttonHolder}>
-        <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
+        <Button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</Button>
 
         
 

@@ -3,6 +3,8 @@ import ProfilePic from '../../components/images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
 
+import Button from '../Button';
+
 const ProfilePictureCard = () => {
   const { authUserId, sessionExpired, updateProfilePicRefresh } = useAuth();
   const [selectedFile, setSelectedFile] = useState(null);
@@ -80,20 +82,20 @@ const ProfilePictureCard = () => {
             <h3>Preview</h3>
             <img src={previewUrl} alt="Preview" style={styles.previewImage} />
             <div style={styles.underPicContainer}>
-              <button 
+              <Button 
                 style={styles.saveButton} 
                 onClick={handleSubmitUpload} 
                 disabled={!selectedFile}
               >
                 Save
-              </button>
-              <button 
+              </Button>
+              <Button 
                 style={styles.cancelButton} 
                 onClick={handleCancelUpload} 
                 disabled={!selectedFile}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </>

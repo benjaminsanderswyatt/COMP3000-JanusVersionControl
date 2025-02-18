@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 import LoginForm from '../components/Login/LoginForm';
 
+import Button from '../components/Button';
+
 
 const Login = () => {
   const { login } = useAuth();
@@ -58,9 +60,9 @@ const Login = () => {
 
       </div>
 
-      <button onClick={() => navigate("/register")} style={styles.toggleButton}>
+      <Button onClick={() => navigate("/register")} style={styles.toggleButton}>
         Don't have an account? Register here
-      </button>
+      </Button>
     </div>
   );
 };

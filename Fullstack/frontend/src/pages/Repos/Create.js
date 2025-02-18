@@ -7,6 +7,8 @@ import Checkbox from '../../components/Checkbox';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
+import Button from '../../components/Button';
+
 
 const Create = () => {
   const navigate = useNavigate();
@@ -100,9 +102,9 @@ const Create = () => {
           label="Private Repository"
         />
 
-        <button type="submit" style={styles.button} disabled={loading}>
+        <Button type="submit" style={styles.button} disabled={loading}>
           {loading ? "Creating..." : "Create Repository"}
-        </button>
+        </Button>
 
       </form>
       

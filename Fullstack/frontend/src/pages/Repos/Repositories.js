@@ -3,7 +3,7 @@ import Repository from '../../components/Repo/Repository';
 import { useNavigate, useLocation } from 'react-router';
 import RepoBar from '../../components/Repo/RepoBar';
 
-
+import Button from '../../components/Button';
 
 import SearchBox from '../../components/SearchBox';
 
@@ -33,7 +33,7 @@ const Repositories = () => {
     <div style={styles.container}>
 
       <header style={styles.header}>
-        <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
+        <Button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</Button>
 
         <SearchBox searchingWhat="repositories" onSearch={() => handleSearch()} />
 

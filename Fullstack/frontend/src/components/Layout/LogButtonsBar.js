@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 
+import Button from '../Button';
 
 const LoggedOutHeader = () => {
   const navigate = useNavigate();
@@ -8,18 +9,18 @@ const LoggedOutHeader = () => {
 
   return (
     <div style={styles.holder}>
-      <button
+      <Button
         style={styles.buttonLogin}
         onClick={() => navigate("/login")}
       >
         Login
-      </button>
-      <button
+      </Button>
+      <Button
         style={styles.buttonRegister}
         onClick={() => navigate('/register')}
       >
         Register
-      </button>
+      </Button>
     </div>
   );
 

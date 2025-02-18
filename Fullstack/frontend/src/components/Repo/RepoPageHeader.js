@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router';
 
+import Button from '../Button';
 
 const RepoPageHeader = () => {
     const navigate = useNavigate();
@@ -30,29 +31,29 @@ const RepoPageHeader = () => {
     return (
         <nav style={styles.navbar}>
 
-            <button
+            <Button
                 style={{ ...styles.button, ...(isActive(`/repositories/${name}`) ? styles.selected : {}) }}
                 onClick={() => GotoFiles()}>
                 File
-            </button>
+            </Button>
 
-            <button 
+            <Button 
                 style={{ ...styles.button, ...(isActive(`/repositories/${name}/commits`) ? styles.selected : {}) }}
                 onClick={() => GotoCommits()}>
                 Commits
-            </button>
+            </Button>
 
-            <button 
+            <Button 
                 style={{ ...styles.button, ...(isActive(`/repositories/${name}/contributors`) ? styles.selected : {}) }}
                 onClick={() => GotoContributors()}>
                 Contributors
-            </button>
+            </Button>
 
-            <button 
+            <Button 
                 style={{ ...styles.button, ...(isActive(`/repositories/${name}/settings`) ? styles.selected : {}) }}
                 onClick={() => GotoSettings()}>
                 Settings
-            </button>
+            </Button>
         </nav>
     );
 };

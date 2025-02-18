@@ -231,8 +231,8 @@ namespace backend.Controllers.CLI
 
 
 
-        // GET: api/CLI/files
-        [HttpGet("files")]
+        // GET: api/CLI/batchfiles
+        [HttpGet("batchfiles")]
         public async Task<IActionResult> GetBatchFileContent([FromBody] List<string> fileHashes)
         {
             Response.Headers["Content-Type"] = "application/octet-stream";

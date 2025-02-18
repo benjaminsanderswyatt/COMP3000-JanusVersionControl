@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router';
 import ProfilePic from '../images/ProfilePic';
 import { useAuth } from '../../contexts/AuthContext';
 
+import Button from '../../components/Button';
 
 const LoggedInHeader = ({ authUser }) => {
   const navigate = useNavigate();
@@ -17,30 +18,36 @@ const LoggedInHeader = ({ authUser }) => {
 
       {/* Navbar section */}
       <nav style={styles.navbar}>
-        <button
+        <Button
           style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/repositories") ? styles.selected : {}) }}
+          noHover={location.pathname.startsWith("/repositories")}
           onClick={() => navigate("/repositories")}
         >
           My Repositories
-        </button>
-        <button
+        </Button>
+        <Button
           style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/collaborating") ? styles.selected : {}) }}
+          noHover={location.pathname.startsWith("/collaborating")}
           onClick={() => navigate("/collaborating")}
         >
           Collaborating
-        </button>
-        <button
+        </Button>
+        <Button
           style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/commandline") ? styles.selected : {}) }}
+          noHover={location.pathname.startsWith("/commandline")}
           onClick={() => navigate("/commandline")}
         >
           Command Line
-        </button>
+        </Button>
       </nav>
 
 
       {/* Username section */}
-      <button style={{ ...styles.username, ...(location.pathname.startsWith("/account") ? styles.selected : {}) }}
-       onClick={() => navigate("/account")}>{authUser}</button>
+      <Button 
+        style={{ ...styles.username, ...(location.pathname.startsWith("/account") ? styles.selected : {}) }}
+        noHover={location.pathname.startsWith("/account")}
+        onClick={() => navigate("/account")}>{authUser}
+      </Button>
 
       {/* Settings section */}
       <div style={styles.settings}>
