@@ -11,6 +11,7 @@
     border-bottom: var(--border) solid 1px;
 
     max-width: 100%;
+    z-index: 1000; /* appear ontop everything */
 }
 
 .logo {

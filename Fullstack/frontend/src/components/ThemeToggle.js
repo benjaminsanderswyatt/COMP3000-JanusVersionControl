@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import styles from "../styles/Components/ThemeToggle.module.css";
 
 // Componant to toggle between light and dark theme
-const ThemeToggle = ({ innerClassName }) => {
+const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
 
   
@@ -27,28 +27,5 @@ const ThemeToggle = ({ innerClassName }) => {
     </button>
   );
 };
-
-/*
-const styles = {
-  button: {
-    display: "flex",
-    alignItems: "center",
-    paddingRight: "30px",
-    gap: "5px",
-    position: "relative",
-  },
-  imageHolder: {
-    position: "absolute",
-    right: "5px",
-    width: "20px",
-    display: "flex",
-    alignItems: "center",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  }
-}
-*/
 
 export default ThemeToggle;
