@@ -20,21 +20,18 @@ const LoggedInHeader = ({ authUser }) => {
       <nav className={styles.navbar}>
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") ? styles.selected : ""}`}
-          noHover={location.pathname.startsWith("/repositories")}
           onClick={() => navigate("/repositories")}
         >
           My Repositories
         </button>
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/collaborating") ? styles.selected : ""}`}
-          noHover={location.pathname.startsWith("/collaborating")}
           onClick={() => navigate("/collaborating")}
         >
           Collaborating
         </button>
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/commandline") ? styles.selected : ""}`}
-          noHover={location.pathname.startsWith("/commandline")}
           onClick={() => navigate("/commandline")}
         >
           Command Line
@@ -42,16 +39,10 @@ const LoggedInHeader = ({ authUser }) => {
       </nav>
 
 
-      {/* Username section */}
-      <button 
-        className={`${styles.username} ${location.pathname.startsWith("/account") ? styles.selected : ""}`}
-        noHover={location.pathname.startsWith("/account")}
-        onClick={() => navigate("/account")}>{authUser}
-      </button>
+      
 
       {/* Settings section */}
       <div className={styles.settings}>
-
 
         <ProfilePic
           userId={authUserId}
@@ -59,13 +50,14 @@ const LoggedInHeader = ({ authUser }) => {
           handleClick={() => navigate("/account")}
         />
 
-        {/*
-        <img src="/Icons/settings.svg"
-          alt="Settings"
-          style={styles.iconSettings}
-          onClick={() => navigate("/settings")}
-        />
-        */}
+        {/* Username */}
+        <button 
+          className={`${styles.username} ${location.pathname.startsWith("/account") ? styles.selected : ""}`}
+          onClick={() => navigate("/account")}>{authUser}
+        </button>
+
+        
+
       </div>
       
 

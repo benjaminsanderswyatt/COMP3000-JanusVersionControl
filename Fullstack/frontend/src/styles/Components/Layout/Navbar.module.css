@@ -1,7 +1,12 @@
+.iconAccount:hover + .username:not(.selected) {
+    background-color: var(--nav-hover);
+}
+
 .settings {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-direction: row-reverse; /* reverse so hover + works */
 }
 
 .iconAccount {
@@ -10,11 +15,6 @@
     cursor: pointer;
 }
 
-.iconSettings {
-    width: 45px;
-    height: 45px;
-    cursor: pointer;
-}
 
 .container {
     display: flex;
@@ -32,7 +32,17 @@
     cursor: pointer;
     padding: 8px 12px;
     border-radius: 8px;
+    transition: background-color 0.1s ease-in-out;
 }
+
+.username:hover {
+    background-color: var(--nav-hover);
+}
+
+.username.selected {
+    background-color: var(--nav);
+}
+
 
 .navbar {
     display: flex;
@@ -54,8 +64,13 @@
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 0.9rem;
+    transition: background-color 0.1s ease-in-out;
 }
 
-.selected {
-    background: var(--border);
+.navbarItem:hover {
+    background-color: var(--nav-hover);
+}
+
+.navbarItem.selected {
+    background-color: var(--nav);
 }

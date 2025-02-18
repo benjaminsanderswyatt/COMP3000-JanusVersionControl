@@ -38,7 +38,10 @@ code {
   --lightsecondary-hover: #D7D0DB;
 
   --button: #F5F5F5;
-  --buttonhover: #e0e0e0;
+  --button-hover: #e0e0e0;
+
+  --nav: #D6D6D6;
+  --nav-hover: #EDEDED;
 
   --light-green: #A8E6A2;
   --light-green-hover: #9AD194;
@@ -67,6 +70,9 @@ code {
 
   --button: #3c3c3c;
   --buttonhover: #4c4c4c;
+
+  --nav: #595959;
+  --nav-hover: #444444;
 
   --primary: #565d95;
   --secondary: #867491;
