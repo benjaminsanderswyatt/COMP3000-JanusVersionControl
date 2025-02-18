@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Repository from '../../components/Repo/Repository';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 import RepoBar from '../../components/Repo/RepoBar';
 
 import SearchBox from '../../components/SearchBox';
@@ -54,7 +54,6 @@ const styles = {
   container: {
     background: "var(--card)",
     width: "90%",
-    justifyItems: "center",
     display: "flex",
     flexDirection: "column",
     gap: "18px",

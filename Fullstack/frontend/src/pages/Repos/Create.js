@@ -116,7 +116,6 @@ const styles = {
   container: {
     background: "var(--card)",
     width: "90%",
-    justifyItems: "center",
     display: "flex",
     flexDirection: "column",
     gap: "18px",
