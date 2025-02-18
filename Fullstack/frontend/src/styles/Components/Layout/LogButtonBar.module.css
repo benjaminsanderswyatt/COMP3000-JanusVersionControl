@@ -1,0 +1,36 @@
+.holder {
+    display: flex;
+    margin-left: auto;
+    gap: 12px;
+    height: 32px;
+}
+
+.buttonLogin {
+    background-color: var(--secondary);
+    border-radius: 8px;
+    border: none;
+    width: 83px;
+    color: black;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.buttonLogin:hover {
+    background-color: var(--secondary-hover);
+}
+
+.buttonRegister {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 8px;
+    border: none;
+    width: 83px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.buttonRegister:hover {
+    background-color: var(--primary-hover);
+}

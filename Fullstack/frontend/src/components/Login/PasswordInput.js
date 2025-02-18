@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import Button from '../Button';
 
 const PasswordInput = ({ label, name, value, onChange, required = false, placeholder = "" }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,14 +20,14 @@ const PasswordInput = ({ label, name, value, onChange, required = false, placeho
           placeholder={placeholder}
           required={required}
         />
-        <Button
+        <button
           type="button"
           onClick={toggleVisibility}
           style={styles.toggleButton}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? 'Hide' : 'Show'}
-        </Button>
+        </button>
       </div>
     </div>
   );

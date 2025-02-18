@@ -1,0 +1,12 @@
+.container {
+    background-color: var(--background);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    flex: 1 1 auto;
+}

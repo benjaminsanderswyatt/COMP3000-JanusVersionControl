@@ -3,8 +3,6 @@ import Repository from '../../components/Repo/Repository';
 import { useNavigate, useLocation } from 'react-router';
 import RepoBar from '../../components/Repo/RepoBar';
 
-import Button from '../../components/Button';
-
 import SearchBox from '../../components/SearchBox';
 
 import { useAuth  } from '../../contexts/AuthContext';
@@ -33,7 +31,7 @@ const Repositories = () => {
     <div style={styles.container}>
 
       <header style={styles.header}>
-        <Button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</Button>
+        <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
         <SearchBox searchingWhat="repositories" onSearch={() => handleSearch()} />
 

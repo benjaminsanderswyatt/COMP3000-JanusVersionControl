@@ -32,16 +32,24 @@ code {
   
   --accent: #b7bbd2;
 
+  
+  --primary-hover: #5B6291;
+  --secondary-hover: #B2A3BA;
+  --lightsecondary-hover: #D7D0DB;
 
   --button: #F5F5F5;
   --buttonhover: #e0e0e0;
 
-  --lightgreenbutton: #A8E6A2;
-  --greenbutton: #4CAF50;
+  --light-green: #A8E6A2;
+  --light-green-hover: #9AD194;
+
+  --green: #4CAF50;
   --darkgreenbutton: #388E3C;
   
-  --lightredbutton: #F8BFBF;
-  --redbutton: #F44336;
+  --light-red: #F8BFBF;
+  --light-red-hover: #E2B1B1;
+
+  --red: #F44336;
   --darkredbutton: #D32F2F;
 }
 
@@ -67,12 +75,21 @@ code {
   --accent: #474f7b;
 
 
-  --darkgreenbutton: #81C784;
-  --greenbutton: #3D8B40;
-  --lightgreenbutton: #2E6B32;
-  
-  --darkredbutton: #E57373;
-  --redbutton: #D43729;
-  --lightredbutton: #A52A24;
+  --primary-hover: #49507F;
+  --secondary-hover: #73657C;
+  --lightsecondary-hover: #C0B7C9;
+
+
+  --light-green: #2E6B32;
+  --light-green-hover: #96CC90;
+
+  --green: #3D8B40;
+
+  --light-red: #A52A24;
+  --light-red-hover: #932420;
+
+
+  --red: #D43729;
+
   
 }

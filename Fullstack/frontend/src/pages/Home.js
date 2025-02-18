@@ -1,14 +1,14 @@
 import AnimatedBackground from "../components/Home/AnimatedBackground";
 
 // Styles
-import "../styles/Pages/Home/Home.css";
+import styles from "../styles/Pages/Home/Home.module.css";
 
 const Home = () => {
   return (
-    <div className="main">
+    <div className={styles.main}>
       <AnimatedBackground />
-      <div className="content">
-        <h1 className="text">Janus Version Control</h1>
+      <div className={styles.content}>
+        <h1 className={styles.text}>Janus Version Control</h1>
       </div>
     </div>
   );

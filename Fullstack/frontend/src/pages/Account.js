@@ -9,7 +9,6 @@ import ThemeToggle from '../components/ThemeToggle';
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
 
-import Button from '../components/Button';
 
 
 const Account = () => {
@@ -78,14 +77,14 @@ const Account = () => {
 
 
             <div style={styles.buttonHolder}>
-                <Button style={styles.logoutButton} onClick={handleLogout}>Logout</Button>
+                <button style={styles.logoutButton} onClick={handleLogout}>Logout</button>
 
-                <Button style={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</Button>
+                <button style={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
 
             </div>
                 
 
-            <Button onClick={handleGenAccessToken}>Generate PAT</Button>
+            <button onClick={handleGenAccessToken}>Generate PAT</button>
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {tokenData  && (

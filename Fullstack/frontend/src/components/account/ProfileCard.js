@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import ProfilePic from '../../components/images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
 
-import Button from '../Button';
+import styles from "../../styles/Components/account/ProfileCard.module.css"
+
 
 const ProfilePictureCard = () => {
   const { authUserId, sessionExpired, updateProfilePicRefresh } = useAuth();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  // Referance to the input to change profile pic
+  const fileInputRef = useRef(null);
+  const ActivateInput = () => {
+    fileInputRef.current.click();
+  };
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -53,22 +61,23 @@ const ProfilePictureCard = () => {
   };
 
   return (
-    <div style={styles.profilePicCard}>
-      <div style={styles.picContainer}>
+    <div className={styles.profilePicCard}>
+      <div className={styles.picContainer}>
         <h3>Profile Picture</h3>
-        <ProfilePic userId={authUserId} style={styles.profileImage} />
-        <div style={styles.underPicContainer}>
+        <ProfilePic handleClick={() => ActivateInput()} userId={authUserId} innerClassName={styles.profileImage}/>
+        <div className={styles.underPicContainer}>
           <input 
+            ref={fileInputRef}
             type="file" 
             accept="image/png" 
             id="file-upload"
-            style={styles.hiddenFileInput} 
+            className={styles.hiddenFileInput} 
             onChange={handleFileChange} 
           />
-          <label htmlFor="file-upload" style={styles.fileInputButton}>
+          <label htmlFor="file-upload" className={`${styles.baseButton} ${styles.fileInputButton}`} >
             Change image
           </label>
-          <span style={styles.fileName}>
+          <span className={styles.fileName}>
             {selectedFile ? selectedFile.name : ""}
           </span>
         </div>
@@ -77,25 +86,25 @@ const ProfilePictureCard = () => {
       {/* Display the preview if available */}
       {previewUrl && (
         <>
-          <hr style={styles.verticalDivider} />
-          <div style={styles.picContainer}>
+          <hr className={styles.verticalDivider} />
+          <div className={styles.picContainer}>
             <h3>Preview</h3>
-            <img src={previewUrl} alt="Preview" style={styles.previewImage} />
-            <div style={styles.underPicContainer}>
-              <Button 
-                style={styles.saveButton} 
+            <img src={previewUrl} alt="Preview" className={styles.previewImage} />
+            <div className={styles.underPicContainer}>
+              <button 
+                className={`${styles.baseButton} ${styles.saveButton}`} 
                 onClick={handleSubmitUpload} 
                 disabled={!selectedFile}
               >
                 Save
-              </Button>
-              <Button 
-                style={styles.cancelButton} 
+              </button>
+              <button 
+                className={`${styles.baseButton} ${styles.cancelButton}`} 
                 onClick={handleCancelUpload} 
                 disabled={!selectedFile}
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </div>
         </>
@@ -104,96 +113,5 @@ const ProfilePictureCard = () => {
   );
 };
 
-const styles = {
-    profilePicCard: {
-        display: "flex",
-        width: "95%",
-        background: "var(--tintcard)",
-        border: 'var(--border) thin solid',
-        borderRadius: "8px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        padding: "20px",
-        maxWidth: "1000px",
-        justifyContent: "space-evenly",
-        gap: "18px",
-    },
-    picContainer: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "18px",
-        alignItems: "center",
-    },
-    profileImage: {
-        width: "150px",
-        height: "150px",
-    },
-    previewImage: {
-        width: '150px',
-        height: '150px',
-        objectFit: 'cover',
-        borderRadius: '50%',
-        border: '2px solid var(--primary)',
-    },
-
-
-    underPicContainer: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "6px",
-        padding: "4px",
-        borderRadius: "6px",
-        overflow: "hidden",
-    },
-    hiddenFileInput: {
-        display: "none",
-    },
-    fileInputButton: {
-        background: "var(--lightsecondary)",
-        color: "var(--text)",
-        fontSize: "1rem",
-        borderRadius: "6px",
-        padding: "4px 6px",
-        cursor: "pointer",
-        display: "inline-block",
-        border: "1px solid var(--accent)",
-        whiteSpace: "nowrap",
-        width: "150px",
-        textAlign: "center",
-    },
-    fileName: {
-        color: "var(--text)",
-        fontSize: "1rem",
-    },
-
-
-    saveButton: {
-        background: "var(--lightgreenbutton)",
-        color: "var(--text)",
-        fontSize: "1rem",
-        borderRadius: "6px",
-        padding: "4px 6px",
-        width: "150px",
-        cursor: "pointer",
-        display: "inline-block",
-        border: "1px solid var(--accent)",
-    },
-    cancelButton: {
-        background: "var(--lightredbutton)",
-        color: "var(--text)",
-        fontSize: "1rem",
-        borderRadius: "6px",
-        padding: "4px 6px",
-        width: "150px",
-        cursor: "pointer",
-        display: "inline-block",
-        border: "1px solid var(--accent)",
-    },
-    verticalDivider: {
-        border: "none",
-        borderLeft: "2px solid var(--primary)",
-        margin: "0px"
-    },
-}
 
 export default ProfilePictureCard;

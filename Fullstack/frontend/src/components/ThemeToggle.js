@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-import Button from './Button';
 
 // Componant to toggle between light and dark theme
 const ThemeToggle = ({ style }) => {
@@ -9,7 +8,7 @@ const ThemeToggle = ({ style }) => {
 
   
   return (
-    <Button 
+    <button 
     onClick={toggleTheme}
     style={{ ...style, ...styles.button }}
     >
@@ -24,7 +23,7 @@ const ThemeToggle = ({ style }) => {
       </div>
       
       
-    </Button>
+    </button>
   );
 };
 

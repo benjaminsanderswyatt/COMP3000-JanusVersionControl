@@ -2,39 +2,24 @@ import { Outlet } from 'react-router';
 
 import Header from '../components/Layout/Header';
 
+// Styles
+import styles from "../styles/Pages/Layout.module.css";
 
 const Layout = () => {
 
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
       <Header />
       
       
 
-      <div style={styles.content}>
+      <div className={styles.content}>
         <Outlet />
       </div>
       
     </div>
   );
 };
-
-const styles = {
-  container: {
-    backgroundColor: 'var(--background)',
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column"
-  },
-  content: {
-    display: "flex",
-    justifyContent: "center",
-    flex: '1 1 auto',
-  }
-
-
-
-}
 
 export default Layout;

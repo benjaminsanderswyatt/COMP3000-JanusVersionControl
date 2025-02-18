@@ -3,7 +3,6 @@ import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 import Checkbox from '../Checkbox';
 
-import Button from '../Button';
 
 const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms }) => (
   <form onSubmit={onSubmit}>
@@ -61,7 +60,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
     </div>
 
    
-    <Button type="submit" style={styles.button} disabled={!agreedToTerms}>Register</Button>
+    <button type="submit" style={styles.button} disabled={!agreedToTerms}>Register</button>
     
   </form>
 );

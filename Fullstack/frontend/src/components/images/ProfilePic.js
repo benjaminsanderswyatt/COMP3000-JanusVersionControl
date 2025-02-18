@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
-const ProfilePic = ({ userId, style, handleClick }) => {
+import styles from "../../styles/Components/Images/ProfilePic.module.css";
+
+const ProfilePic = ({ userId, innerClassName, handleClick }) => {
     const { profilePicRefresh } = useAuth();
     const [imageSrc, setImageSrc] = useState(getImageUrl(userId, profilePicRefresh));
   
@@ -22,32 +24,15 @@ const ProfilePic = ({ userId, style, handleClick }) => {
       };
 
     return (
-      <div style={{ ...styles.main, ...style }} onClick={() => handleClick()}>
+      <div className={`${styles.main} ${innerClassName}`} onClick={() => handleClick()}>
         <img
           src={imageSrc}
-          alt="Profile picture"
+          alt="Profile"
           onError={handleError} // Set to default if doesnt exist
-          style={styles.image}
+          className={styles.image}
         />
       </div>
     );
 };
-
-const styles = {
-    main: {
-        borderRadius: "50%",
-        overflow: "hidden",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        border: "2px solid var(--primary)",
-    },
-    image: {
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-    },
-};
-
   
 export default ProfilePic;

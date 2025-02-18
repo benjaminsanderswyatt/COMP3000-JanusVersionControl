@@ -3,16 +3,18 @@ import { useAuth } from '../../contexts/AuthContext';
 import Navbar from './Navbar';
 import LogButtonsBar from './LogButtonsBar';
 
+import styles from "../../styles/Components/Layout/Header.module.css";
+
 
 const Header = () => {
   const navigate = useNavigate();
   const { authUser, isLoggedIn } = useAuth();
 
   return (
-    <header style={styles.header}>
+    <header className={styles.header}>
       <img src="/logo.svg"
        alt="Logo"
-       style={styles.logo}
+       className={styles.logo}
        onClick={() => navigate("/")}
       />
 
@@ -21,26 +23,5 @@ const Header = () => {
   );
 };
 
-const styles = {
-  header: {
-    display: "flex",
-    backgroundColor: "var(--card)",
-    padding: "0px 20px",
-    height: "70px",
-    margin: "0",
-    gap: "2px",
-    listStyle: "none",
-    justifyContent: "left",
-    alignItems: "center",
-    borderBottom: 'var(--border) solid 1px',
-
-    maxWidth: "100%",
-  },
-  logo: {
-    width: 'auto',
-    height: '45px',
-    cursor: 'pointer',
-  },
-};
 
 export default Header;

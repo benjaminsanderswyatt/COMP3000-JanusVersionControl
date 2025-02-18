@@ -2,7 +2,6 @@ import React from 'react';
 import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 
-import Button from '../Button';
 
 const LoginForm = ({ formData, onChange, onSubmit }) => (
   <form onSubmit={onSubmit}>
@@ -26,7 +25,7 @@ const LoginForm = ({ formData, onChange, onSubmit }) => (
       required 
     />
     
-    <Button type="submit" style={styles.button}>Login</Button>
+    <button type="submit" style={styles.button}>Login</button>
 
   </form>
 );

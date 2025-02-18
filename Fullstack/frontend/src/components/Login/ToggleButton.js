@@ -1,13 +1,12 @@
 import React from 'react';
 
-import Button from '../Button';
 
 const ToggleButton = ({ isRegistering, onClick }) => (
-  <Button style={styles.toggleButton} onClick={onClick}>
+  <button style={styles.toggleButton} onClick={onClick}>
     {isRegistering
       ? "Already have an account? Login"
       : "Don't have an account? Register"}
-  </Button>
+  </button>
 );
 
 const styles = {

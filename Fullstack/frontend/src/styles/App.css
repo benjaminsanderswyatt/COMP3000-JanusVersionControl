@@ -14,3 +14,13 @@ a {
 a:hover {
   color: var(--accent);
 }
+
+
+/* Message error & success colors */
+.success {
+  color: var(--green);
+}
+
+.error {
+  color: var(--red);
+}

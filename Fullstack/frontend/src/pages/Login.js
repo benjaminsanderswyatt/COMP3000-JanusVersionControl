@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 import LoginForm from '../components/Login/LoginForm';
 
-import Button from '../components/Button';
+import styles from "../styles/Pages/Login.module.css";
 
 
 const Login = () => {
@@ -39,15 +39,13 @@ const Login = () => {
   };
 
 
-  // Message colour, green for success, red for failure
-  const messageStyle = messageType === 'success' ? { color: 'green' } : { color: 'red' };
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
 
-      <h1 style={styles.heading}>Login</h1>
+      <h1 className={styles.heading}>Login</h1>
 
-      <div style={styles.main}>
+      <div className={styles.main}>
         
         <LoginForm
           formData={formData}
@@ -56,54 +54,16 @@ const Login = () => {
         />
         
 
-        {message && <p style={{ ...styles.message, ...messageStyle }}>{message}</p>}
+        {message && <p className={`${styles.message} ${messageType}`}>{message}</p>}
 
       </div>
 
-      <Button onClick={() => navigate("/register")} style={styles.toggleButton}>
+      <button onClick={() => navigate("/register")} className={styles.toggleButton}>
         Don't have an account? Register here
-      </Button>
+      </button>
     </div>
   );
 };
 
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: '100%',
-    flexDirection: "column",
-  },
-  main: {
-    backgroundColor: 'var(--card)',
-    width: '100%',
-    maxWidth: "400px",
-    padding: "20px",
-    border: 'var(--border) thin solid',
-    borderRadius: "8px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    margin: "20px 0px",
-  },
-  heading: {
-    color: 'var(--text)',
-    fontSize: "2.5rem",
-    margin: "10px 0px",
-    textShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  message: {
-    fontWeight: 'bold',
-  },
-  toggleButton: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--primary)',
-    textDecoration: 'underline',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    marginBottom: '20px',
-  }
-}
 
 export default Login;

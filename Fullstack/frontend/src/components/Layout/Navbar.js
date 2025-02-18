@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router';
 import ProfilePic from '../images/ProfilePic';
 import { useAuth } from '../../contexts/AuthContext';
 
-import Button from '../../components/Button';
+import styles from "../../styles/Components/Layout/Navbar.module.css";
 
 const LoggedInHeader = ({ authUser }) => {
   const navigate = useNavigate();
@@ -11,53 +11,54 @@ const LoggedInHeader = ({ authUser }) => {
   const { authUserId } = useAuth();
   
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
 
 
 
 
       {/* Navbar section */}
-      <nav style={styles.navbar}>
-        <Button
-          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/repositories") ? styles.selected : {}) }}
+      <nav className={styles.navbar}>
+        <button
+          className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") ? styles.selected : ""}`}
           noHover={location.pathname.startsWith("/repositories")}
           onClick={() => navigate("/repositories")}
         >
           My Repositories
-        </Button>
-        <Button
-          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/collaborating") ? styles.selected : {}) }}
+        </button>
+        <button
+          className={`${styles.navbarItem} ${location.pathname.startsWith("/collaborating") ? styles.selected : ""}`}
           noHover={location.pathname.startsWith("/collaborating")}
           onClick={() => navigate("/collaborating")}
         >
           Collaborating
-        </Button>
-        <Button
-          style={{ ...styles.navbarItem, ...(location.pathname.startsWith("/commandline") ? styles.selected : {}) }}
+        </button>
+        <button
+          className={`${styles.navbarItem} ${location.pathname.startsWith("/commandline") ? styles.selected : ""}`}
           noHover={location.pathname.startsWith("/commandline")}
           onClick={() => navigate("/commandline")}
         >
           Command Line
-        </Button>
+        </button>
       </nav>
 
 
       {/* Username section */}
-      <Button 
-        style={{ ...styles.username, ...(location.pathname.startsWith("/account") ? styles.selected : {}) }}
+      <button 
+        className={`${styles.username} ${location.pathname.startsWith("/account") ? styles.selected : ""}`}
         noHover={location.pathname.startsWith("/account")}
         onClick={() => navigate("/account")}>{authUser}
-      </Button>
+      </button>
 
       {/* Settings section */}
-      <div style={styles.settings}>
+      <div className={styles.settings}>
 
 
         <ProfilePic
           userId={authUserId}
-          style={styles.iconAccount}
+          innerClassName={styles.iconAccount}
           handleClick={() => navigate("/account")}
         />
+
         {/*
         <img src="/Icons/settings.svg"
           alt="Settings"
@@ -75,64 +76,5 @@ const LoggedInHeader = ({ authUser }) => {
     </div>
   );
 };
-
-const styles = {
-  settings: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  },
-  iconAccount: {
-    width: "45px",
-    height: "45px",
-    cursor: 'pointer',
-  },
-  iconSettings: {
-    width: '45px',
-    height: '45px',
-    cursor: 'pointer',
-  },
-  container: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  username: {
-    margin: '0px 10px',
-    fontSize: '1.1rem',
-    color: 'var(--text)',
-    background: 'none',
-    border: 'none',
-    cursor: "pointer",
-    padding: "8px 12px",
-    borderRadius: "8px",
-  },
-  navbar: {
-    display: "flex",
-    padding: "0px 20px",
-    height: "100%",
-    width: '100%',
-    margin: "0",
-    gap: "10px",
-    listStyle: "none",
-    justifyContent: "left",
-    alignItems: "center",
-  },
-  navbarItem: {
-    cursor: "pointer",
-    border: "none",
-    background: "none",
-    color: "var(--text)",
-    padding: "8px 12px",
-    borderRadius: "8px",
-    fontSize: "0.9rem",
-  },
-  selected: {
-    background: "var(--border)",
-  },
-};
-
-
 
 export default LoggedInHeader;

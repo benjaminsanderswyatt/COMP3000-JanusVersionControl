@@ -1,0 +1,61 @@
+.settings {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.iconAccount {
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+}
+
+.iconSettings {
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.username {
+    margin: 0px 10px;
+    font-size: 1.1rem;
+    color: var(--text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.navbar {
+    display: flex;
+    padding: 0px 20px;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    gap: 10px;
+    list-style: none;
+    justify-content: left;
+    align-items: center;
+}
+
+.navbarItem {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.selected {
+    background: var(--border);
+}
