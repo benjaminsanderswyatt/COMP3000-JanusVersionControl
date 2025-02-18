@@ -42,7 +42,10 @@ const LoggedInHeader = ({ authUser }) => {
     <div className={styles.container} ref={menuRef}>
 
       {/* Hamburger Menu Button (Visible on Small Screens) */}
-      <button className={`${styles.menuButton} ${menuOpen ? styles.selected : ""}`} onClick={() => setMenuOpen(!menuOpen)}>
+      <button 
+        className={`${styles.menuButton} ${menuOpen ? styles.selected : ""}`} 
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
         <img 
           src="/Icons/burger.svg"
           alt={menuOpen ? "Close menu" : "Menu"} 

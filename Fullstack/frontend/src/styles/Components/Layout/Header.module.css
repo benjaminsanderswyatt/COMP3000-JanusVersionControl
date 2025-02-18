@@ -12,6 +12,7 @@
 
     max-width: 100%;
     z-index: 1000; /* appear ontop everything */
+    position: relative;
 }
 
 .logo {
