@@ -386,11 +386,12 @@ namespace Janus
 
         }
 
-        private class FileData
-        {
-            public string RelativePath { get; set; }
-            public byte[] Content { get; set; }
-        }
+
+
+
+
+
+
 
 
         public class PushCommand : BaseCommand

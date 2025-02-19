@@ -22,17 +22,7 @@ namespace backend.Models
             modelBuilder.UseCollation("utf8mb4_unicode_ci");
 
 
-            // Unique constraints
-            modelBuilder.Entity<Repository>()
-                .HasIndex(r => new { r.OwnerId, r.RepoName })
-                .IsUnique();
-
-            modelBuilder.Entity<Branch>()
-                .HasIndex(b => new { b.RepoId, b.BranchName })
-                .IsUnique();
-
-
-
+            // Unique constraints & Indexes
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
@@ -41,6 +31,45 @@ namespace backend.Models
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
+
+
+            modelBuilder.Entity<RepoAccess>()
+                .HasIndex(ra => ra.UserId);
+
+
+
+            modelBuilder.Entity<Repository>()
+                .HasIndex(r => new { r.OwnerId, r.RepoName })
+                .IsUnique();
+
+
+
+            modelBuilder.Entity<Branch>()
+                .HasIndex(b => new { b.RepoId, b.BranchName })
+                .IsUnique();
+
+            modelBuilder.Entity<Branch>()
+                .HasIndex(b => b.RepoId);
+
+
+
+            modelBuilder.Entity<Commit>()
+                .HasIndex(c => c.CommitHash);
+
+            modelBuilder.Entity<Commit>()
+                .HasIndex(c => c.CommittedAt);
+
+            modelBuilder.Entity<Commit>()
+                .HasIndex(c => c.BranchId);
+
+
+
+            modelBuilder.Entity<CommitParent>()
+                .HasIndex(cp => cp.ChildId);
+            
+
+
+            
 
 
 
@@ -68,12 +97,9 @@ namespace backend.Models
 
 
 
-            // Indexes
-            modelBuilder.Entity<Commit>()
-                .HasIndex(c => c.CommitHash);
+            
 
-            modelBuilder.Entity<Commit>()
-                .HasIndex(c => c.CommittedAt);
+
 
 
 

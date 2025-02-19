@@ -130,7 +130,7 @@ namespace backend.Controllers.CLI
 
 
 
-
+        
         // GET: api/CLI/janus/{owner}/{repoName}
         [HttpGet("janus/{owner}/{repoName}")]
         public async Task<IActionResult> CloneRepo(string owner, string repoName)
@@ -153,8 +153,11 @@ namespace backend.Controllers.CLI
                 .Include(r => r.RepoAccesses)
                 .Include(r => r.Branches)
                     .ThenInclude(b => b.Commits)  // Include commits inside branches
-                .FirstOrDefaultAsync(r =>
-                    r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+                        .ThenInclude(c => c.Parents)    // Include commit parents
+                            .ThenInclude(cp => cp.Parent)   // Include parent commit
+                .AsSplitQuery()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
 
             if (repository == null)
                 return NotFound(new { Message = "Repository not found" });
@@ -185,6 +188,8 @@ namespace backend.Controllers.CLI
                 // Get all commits for the branch
                 var commits = branch.Commits.Select(commit =>
                 {
+                    var parentCommitHash = commit.Parents.FirstOrDefault()?.Parent?.CommitHash;
+
                     // Recreate the tree for the commit
                     TreeNode tree = treeBuilder.RecreateTree(commit.TreeHash);
                     var treeDto = ConvertTreeNodeToDto(tree);
@@ -192,6 +197,7 @@ namespace backend.Controllers.CLI
                     return new
                     {
                         commit.CommitHash,
+                        ParentCommitHash = parentCommitHash,
                         commit.AuthorName,
                         commit.AuthorEmail,
                         commit.Message,
@@ -221,7 +227,7 @@ namespace backend.Controllers.CLI
 
             return Ok(cloneData);
         }
-
+        
         private object ConvertTreeNodeToDto(TreeNode node)
         {
             if (node == null)
