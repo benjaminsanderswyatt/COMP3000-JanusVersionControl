@@ -139,7 +139,7 @@ namespace CLITests
             Assert.IsTrue(File.Exists(branchPath), "Branch head file should exist.");
 
             string branchFolderPath = Path.Combine(_paths.BranchesDir, branchName);
-            string metadataPath = Path.Combine(branchFolderPath, branchName);
+            string metadataPath = Path.Combine(branchFolderPath, "info");
 
             Assert.IsTrue(File.Exists(metadataPath), "Branch metadata file should exist.");
 

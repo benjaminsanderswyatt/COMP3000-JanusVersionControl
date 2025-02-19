@@ -64,7 +64,7 @@ namespace Janus.Helpers.CommandHelpers
                 var branch = new Branch
                 {
                     Name = "main",
-                    InitialCommit = initCommitHash,
+                    SplitFromCommit = null,
                     CreatedBy = null,
                     ParentBranch = null,
                     Created = DateTimeOffset.Now

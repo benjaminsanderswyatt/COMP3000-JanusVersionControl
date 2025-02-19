@@ -1108,7 +1108,7 @@ namespace Janus
                 var branch = new Branch
                 {
                     Name = branchName,
-                    InitialCommit = branchHeadCommit,
+                    SplitFromCommit = branchHeadCommit,
                     CreatedBy = MiscHelper.GetUsername(),
                     ParentBranch = MiscHelper.GetCurrentBranchName(Paths),
                     Created = DateTimeOffset.Now
@@ -1119,7 +1119,7 @@ namespace Janus
 
                 string branchFolderPath = Path.Combine(Paths.BranchesDir, branchName);
                 Directory.CreateDirectory(branchFolderPath);
-                File.WriteAllText(Path.Combine(branchFolderPath, branchName), branchJson);
+                File.WriteAllText(Path.Combine(branchFolderPath, "info"), branchJson);
 
                 File.Copy(Paths.Index, Path.Combine(branchFolderPath, "index"));
 

@@ -128,8 +128,7 @@ namespace CLITests
             Assert.That(mainBranch.Name, Is.EqualTo("main"));
             Assert.That(mainBranch.ParentBranch, Is.Null);
 
-            var (initCommitHash, commitMetadata) = MiscHelper.CreateInitData();
-            Assert.That(mainBranch.InitialCommit, Is.EqualTo(initCommitHash));
+            Assert.That(mainBranch.SplitFromCommit, Is.Null);
             Assert.That(mainBranch.CreatedBy, Is.Null);
 
         }
