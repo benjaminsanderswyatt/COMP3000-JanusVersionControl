@@ -1,68 +1,29 @@
-﻿using Janus.Plugins;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace Janus.CommandHelpers
+namespace Janus.Helpers.CommandHelpers
 {
 
-    public class BranchHelper
+    public class DeleteBranchHelper
     {
-        public static bool IsValidRepoOrBranchName(string name)
+
+
+        public static bool IsValidBranchName(string branchName)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(branchName))
                 return false;
 
 
             // ivalid characters: ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
             var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
-            if (Regex.IsMatch(name, invalidCharsPattern))
+            if (Regex.IsMatch(branchName, invalidCharsPattern))
                 return false;
 
             return true;
         }
 
-        // Get the head commit hash from the branch
-        public static string GetBranchHead(Paths paths, string branchName)
-        {
-            string headPath = Path.Combine(paths.HeadsDir, branchName);
-
-            if (!File.Exists(headPath))
-            {
-                throw new Exception("Error: Couldn't find branch head");
-            }
-
-            string targetCommitHash = File.ReadAllText(headPath);
-
-            return targetCommitHash;
-        }
-
-
-        public static void SetCurrentHEAD(Paths paths, string branchName)
-        {
-            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         /*
-
-
         public static void DeleteBranchCommitAndFiles(ILogger logger, Paths paths, string branchName)
         {
             string tempDeletionDir = Path.Combine(paths.JanusDir, ".temp_deletion");
@@ -224,8 +185,8 @@ namespace Janus.CommandHelpers
             return allCommits;
         }
 
-
-
         */
+
+
     }
 }

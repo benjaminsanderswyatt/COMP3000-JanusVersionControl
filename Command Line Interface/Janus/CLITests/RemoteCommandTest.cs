@@ -1,4 +1,4 @@
-using Janus.CommandHelpers;
+using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;

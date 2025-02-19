@@ -1,7 +1,7 @@
 ﻿using Janus.API;
-using Janus.CommandHelpers;
 using Janus.DataTransferObjects;
 using Janus.Helpers;
+using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -10,7 +10,7 @@ using System.IO;
 using System.Net;
 using System.Text.Json;
 using static Janus.CommandHandler;
-using static Janus.CommandHelpers.RemoteHelper;
+using static Janus.Helpers.CommandHelpers.RemoteHelper;
 
 namespace Janus
 {
@@ -256,19 +256,37 @@ namespace Janus
 
                     Logger.Log(data);
 
-                    var repoData = JsonSerializer.Deserialize<RepoData>(data);
-
+                    var cloneData = JsonSerializer.Deserialize<CloneDto>(data);
+                    if (cloneData == null)
+                    {
+                        Logger.Log("Error parsing repository data.");
+                        return;
+                    }
 
                     // Create folder for repo
-                    string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
+                    string repoPath = Path.Combine(Directory.GetCurrentDirectory(), cloneData.RepoName);
+                    
+                    // Init repo
                     Directory.CreateDirectory(repoPath);
                     Paths clonePaths = new Paths(repoPath);
 
-                    var _initCommand = new InitCommand(Logger, Paths);
+                    InitHelper.InitRepo(clonePaths);
 
 
 
+                    // TODO Handle description and isprivate
 
+                    // Get file hashes from commits
+                    var fileHashes = new HashSet<string>();
+
+                    foreach (var branch in cloneData.Branches)
+                    {
+                        foreach (var commit in branch.Commits)
+                        {
+                            // Save commit
+
+                        }
+                    }
 
 
 
@@ -530,96 +548,26 @@ namespace Janus
             public override string Description => "Initializes the janus repository.";
             public override async Task Execute(string[] args)
             {
+                // Check the store user credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. Usage: janus login");
+                    return;
+                }
+
+                // Initialise .janus folder
+                if (Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Repository already initialized");
+                    return;
+                }
+
+
                 try
                 {
-                    // Check the store user credentials
-                    var credManager = new CredentialManager();
-                    var credentials = credManager.LoadCredentials();
-                    if (credentials == null)
-                    {
-                        Logger.Log("Please login first. Usage: janus login");
-                        return;
-                    }
-
-
-                    // Initialise .janus folder
-                    if (Directory.Exists(Paths.JanusDir))
-                    {
-                        Logger.Log("Repository already initialized");
-                        return;
-                    }
-
-                    Directory.CreateDirectory(Paths.JanusDir);
-                    File.SetAttributes(Paths.JanusDir, File.GetAttributes(Paths.JanusDir) | FileAttributes.Hidden); // Makes the janus folder hidden
-
-
-                    Directory.CreateDirectory(Paths.ObjectDir); // .janus/objects folder
-                    Directory.CreateDirectory(Paths.TreeDir); // .janus/trees folder
-                    Directory.CreateDirectory(Paths.HeadsDir); // .janus/heads
-                    Directory.CreateDirectory(Paths.PluginsDir); // .janus/plugins folder
-                    Directory.CreateDirectory(Paths.CommitDir); // .janus/commits folder
-                    Directory.CreateDirectory(Paths.BranchesDir); // .janus/branches folder
-
-                    // Create remote file
-                    File.WriteAllText(Paths.Remote, "[]");
-
-
-
-                    // Create index file
-                    File.Create(Paths.Index).Close();
-
-                    // Create HEAD file pointing at main branch
-                    File.WriteAllText(Paths.HEAD, "ref: heads/main");
-
-
-
-                    // Create initial commit
-                    var (initCommitHash, commitMetadata) = MiscHelper.CreateInitData();
-
-                    // Save the commit object in the commit directory
-                    string commitFilePath = Path.Combine(Paths.CommitDir, initCommitHash);
-                    File.WriteAllText(commitFilePath, commitMetadata);
-
-                    // Create main branch in heads/ pointing to initial commit
-                    File.WriteAllText(Path.Combine(Paths.HeadsDir, "main"), initCommitHash);
-
-                    // Create detached Head file
-                    File.WriteAllText(Paths.DETACHED_HEAD, initCommitHash);
-
-
-
-
-                    // Create branches file for main
-                    var branch = new Branch
-                    {
-                        Name = "main",
-                        InitialCommit = initCommitHash,
-                        CreatedBy = null,
-                        ParentBranch = null,
-                        Created = DateTimeOffset.Now
-                    };
-
-                    string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
-
-                    // Create branch folder and store the branch info and index
-                    string branchFolderPath = Path.Combine(Paths.BranchesDir, "main");
-                    Directory.CreateDirectory(branchFolderPath);
-                    File.WriteAllText(Path.Combine(branchFolderPath, "info"), branchJson);
-
-                    File.Create(Path.Combine(branchFolderPath, "index")).Close();
-
-
-                    // Create config file (for private & description)
-                    var repoConfig = new RepoConfig
-                    {
-                        IsPrivate = true,
-                        Description = ""
-                    };
-
-                    string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(Paths.RepoConfig, configJson);
-
-
+                    InitHelper.InitRepo(Paths);
 
                     Logger.Log("Initialized janus repository");
                 }
@@ -840,17 +788,14 @@ namespace Janus
                     var username = MiscHelper.GetUsername();
                     var email = MiscHelper.GetEmail();
 
+                    
                     string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTimeOffset.Now, commitMessage, rootTreeHash);
-                    string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, commitMessage, parentCommit, username, email);
-
-
-                    // Save commit object
-                    string commitFilePath = Path.Combine(Paths.CommitDir, commitHash);
-                    File.WriteAllText(commitFilePath, commitMetadata);
+                    
+                    CommitHelper.SaveCommit(Paths, commitHash, parentCommit, branch, username, email, DateTime.Now, commitMessage, rootTreeHash);
 
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
-
+                    
 
 
                     // Save cleaned up index

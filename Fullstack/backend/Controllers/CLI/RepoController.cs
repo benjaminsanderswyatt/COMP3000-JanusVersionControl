@@ -170,12 +170,18 @@ namespace backend.Controllers.CLI
             // (Repo details, Branches, Commits, Trees, File Names/Hashes)
             // Exclude file content
 
-            var treeBuilder = new TreeBuilder();
+            var treeBuilder = new TreeBuilder(repository.RepoId);
 
             var branchesData = new List<object>();
 
             foreach (var branch in repository.Branches)
             {
+                var createdByUser = await _janusDbContext.Users
+                    .Where(u => u.UserId == branch.CreatedBy)
+                    .Select(u => u.Username)
+                    .FirstOrDefaultAsync();
+
+
                 // Get all commits for the branch
                 var commits = branch.Commits.Select(commit =>
                 {
@@ -198,7 +204,7 @@ namespace backend.Controllers.CLI
                 {
                     BranchName = branch.BranchName,
                     ParentBranch = branch.ParentBranch,
-                    CreatedBy = branch.CreatedBy,
+                    CreatedBy = createdByUser,
                     Commits = commits
                 });
             }
@@ -212,7 +218,7 @@ namespace backend.Controllers.CLI
             };
 
 
-            return Ok(new { Data = cloneData });
+            return Ok(cloneData);
         }
 
         private object ConvertTreeNodeToDto(TreeNode node)
@@ -231,14 +237,45 @@ namespace backend.Controllers.CLI
 
 
 
-        // GET: api/CLI/batchfiles
-        [HttpGet("batchfiles")]
-        public async Task<IActionResult> GetBatchFileContent([FromBody] List<string> fileHashes)
+        // POST: api/CLI/batchfiles/{owner}/{repoName}
+        [HttpPost("batchfiles/{owner}/{repoName}")]
+        public async Task<IActionResult> GetBatchFileContent(string owner, string repoName, [FromBody] List<string> fileHashes)
         {
-            Response.Headers["Content-Type"] = "application/octet-stream";
-            Response.Headers["Transfer-Encoding"] = "chunked";
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
 
-            string fileDir = Environment.GetEnvironmentVariable("FILE_STORAGE_PATH");
+
+            // Get the owner of the repo
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (ownerUser == null)
+                return NotFound(new { Message = "Owner not found" });
+
+
+            // Get the repo of the owner
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .FirstOrDefaultAsync(r =>
+                    r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
+
+
+            // Private repos need access to the repo
+            if (repository.IsPrivate && !repository.RepoAccesses.Any(ra => ra.UserId == userId))
+                return NotFound(new { Message = "Repository not found" }); // Repository is hidden, mask unauthorised with not found error
+
+
+
+
+            Response.Headers["Content-Type"] = "application/octet-stream";
+
+            string fileDir = Path.Combine(Environment.GetEnvironmentVariable("FILE_STORAGE_PATH"), repository.RepoId.ToString());
+
+            var missingFiles = new List<string>(); // Keep track of missing files
 
             await using (var responseStream = Response.BodyWriter.AsStream())
             {
@@ -246,22 +283,40 @@ namespace backend.Controllers.CLI
                 {
                     string filePath = Path.Combine(fileDir, hash);
 
-                    if (!System.IO.File.Exists(filePath)) 
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        missingFiles.Add(filePath);
                         continue;
+                    }
+
 
                     // Send file metadata
                     string metadata = $"FILE:{hash}\n";
                     byte[] metadataBytes = Encoding.UTF8.GetBytes(metadata);
                     await responseStream.WriteAsync(metadataBytes, 0, metadataBytes.Length);
+                    await responseStream.FlushAsync();
+
 
                     // Stream file content
                     await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                     await fileStream.CopyToAsync(responseStream);
+                    await responseStream.FlushAsync();
 
                     // Separator between files
                     byte[] separator = Encoding.UTF8.GetBytes("\n---\n");
                     await responseStream.WriteAsync(separator, 0, separator.Length);
+                    await responseStream.FlushAsync();
                 }
+            }
+
+            await HttpContext.Response.CompleteAsync();
+
+
+            // If file fails to send
+            if (missingFiles.Count > 0)
+            {
+                // Partial response
+                return StatusCode(206, new { Message = "Some files were not found", MissingFiles = missingFiles });
             }
 
             return new EmptyResult(); // Streamed has no return value

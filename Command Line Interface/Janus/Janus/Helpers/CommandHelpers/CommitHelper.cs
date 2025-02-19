@@ -1,10 +1,20 @@
 ﻿using Janus.Plugins;
 
-namespace Janus.CommandHelpers
+namespace Janus.Helpers.CommandHelpers
 {
 
     public class CommitHelper
     {
+        public static void SaveCommit(Paths paths, string commitHash, string parentCommit, string branch, string username, string email, DateTime datetime, string message, string rootTreeHash)
+        {
+            string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, message, parentCommit, username, email);
+
+            // Save commit object
+            string commitFilePath = Path.Combine(paths.CommitDir, commitHash);
+            File.WriteAllText(commitFilePath, commitMetadata);
+        }
+
+
 
         public static bool ValidateCommitMessage(ILogger Logger, string[] args, out string commitMessage)
         {
@@ -24,15 +34,6 @@ namespace Janus.CommandHelpers
 
             return true;
         }
-
-
-
-
-
-
-
-
-
 
 
     }

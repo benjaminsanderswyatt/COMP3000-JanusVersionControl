@@ -24,9 +24,9 @@ namespace backend.Utils
         private TreeNode root;
         private string _treeDir;
 
-        public TreeBuilder()
+        public TreeBuilder(int repoId)
         {
-            _treeDir = Environment.GetEnvironmentVariable("TREE_STORAGE_PATH");
+            _treeDir = Path.Combine(Environment.GetEnvironmentVariable("TREE_STORAGE_PATH"), repoId.ToString());
 
             root = new TreeNode("root"); // Root of the tree
         }

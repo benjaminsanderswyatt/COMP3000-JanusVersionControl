@@ -1,4 +1,4 @@
-﻿namespace Janus.CommandHelpers
+﻿namespace Janus.Helpers.CommandHelpers
 {
     public class AddHelper
     {

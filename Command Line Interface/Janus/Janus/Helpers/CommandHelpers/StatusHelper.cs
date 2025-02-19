@@ -1,7 +1,7 @@
 ﻿using Janus.Plugins;
 using Janus.Utils;
 
-namespace Janus.CommandHelpers
+namespace Janus.Helpers.CommandHelpers
 {
     public class StatusHelper
     {

@@ -1,6 +1,6 @@
-using Janus.CommandHelpers;
 using Janus.DataTransferObjects;
 using Janus.Helpers;
+using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Moq;

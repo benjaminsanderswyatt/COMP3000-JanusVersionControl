@@ -2,7 +2,7 @@
 using System;
 using System.Text.Json;
 
-namespace Janus.CommandHelpers
+namespace Janus.Helpers.CommandHelpers
 {
     public class RemoteHelper
     {
