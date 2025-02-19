@@ -142,8 +142,8 @@ namespace backend.Models
 
             // Seed Branches
             modelBuilder.Entity<Branch>().HasData(
-                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, CreatedBy = 1, CreatedAt = DateTime.UtcNow },
-                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, CreatedBy = 1, CreatedAt = DateTime.UtcNow }
+                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, LatestCommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef", CreatedBy = 1, CreatedAt = DateTime.UtcNow },
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, LatestCommitHash = "a86144601800e35b72f4427206042b4ec0da4288", CreatedBy = 1, CreatedAt = DateTime.UtcNow }
             );
 
 
@@ -183,7 +183,6 @@ namespace backend.Models
 
 
             base.OnModelCreating(modelBuilder);
-
         }
     }
 

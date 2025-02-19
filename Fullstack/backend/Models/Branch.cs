@@ -15,6 +15,12 @@ namespace backend.Models
         [Required]
         public int RepoId { get; set; }
 
+        [MaxLength(40)]
+        public string? InitialCommitHash { get; set; } = null;
+
+        [MaxLength(40)]
+        public string? LatestCommitHash { get; set; } = null;
+
         public int CreatedBy { get; set; }
 
         public int? ParentBranch { get; set; } // root branch is null (has no parent)

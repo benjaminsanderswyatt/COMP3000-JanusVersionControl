@@ -211,6 +211,7 @@ namespace backend.Controllers.CLI
                 {
                     BranchName = branch.BranchName,
                     ParentBranch = branch.ParentBranch,
+                    LatestCommitHash = branch.LatestCommitHash,
                     CreatedBy = createdByUser,
                     Commits = commits
                 });

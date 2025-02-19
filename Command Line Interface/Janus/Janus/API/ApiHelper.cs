@@ -77,8 +77,7 @@ namespace Janus.API
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Failed to fetch files: {await response.Content.ReadAsStringAsync()}");
-                    return false;
+                    throw new Exception("Failed to fetch files");
                 }
 
                 // Stream the response

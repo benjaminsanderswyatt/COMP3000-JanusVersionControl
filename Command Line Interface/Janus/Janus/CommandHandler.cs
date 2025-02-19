@@ -108,7 +108,7 @@ namespace Janus
                 {
                     // Prompt for credentials
 
-                    Console.WriteLine("Email: ");
+                    Logger.Log("Email: ");
                     var email = Console.ReadLine().ToLower();
 
                     if (string.IsNullOrEmpty(email))
@@ -117,7 +117,7 @@ namespace Janus
                         return;
                     }
 
-                    Console.WriteLine("Personal access token (PAT): ");
+                    Logger.Log("Personal access token (PAT): ");
                     var pat = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(pat))
@@ -297,16 +297,15 @@ namespace Janus
                     foreach (var branch in cloneData.Branches)
                     {
                         Logger.Log($"Building '{branch.BranchName}' branch...");
+                        string latestCommitHash = branch.LatestCommitHash;
 
                         foreach (var commit in branch.Commits)
                         {
-                            // TODO Handle head commits
-
 
                             // Save commit
                             CommitHelper.SaveCommit(clonePaths, 
                                 commit.CommitHash, 
-                                "Parent Commit", 
+                                commit.ParentCommitHash,
                                 branch.BranchName, 
                                 commit.AuthorName, 
                                 commit.AuthorEmail, 
@@ -345,6 +344,9 @@ namespace Janus
                             }
                         }
                     }
+
+                    
+
 
                     // Download the file objects
                     Logger.Log($"Downloading file data...");
