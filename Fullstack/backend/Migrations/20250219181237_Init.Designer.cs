@@ -12,7 +12,7 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(JanusDbContext))]
-    [Migration("20250217211848_Init")]
+    [Migration("20250219181237_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8943),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9601),
                             CreatedBy = 1,
                             RepoId = 1
                         },
@@ -96,7 +96,7 @@ namespace backend.Migrations
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8947),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9607),
                             CreatedBy = 1,
                             ParentBranch = 1,
                             RepoId = 1
@@ -158,8 +158,8 @@ namespace backend.Migrations
                             AuthorEmail = "janus",
                             AuthorName = "janus",
                             BranchId = 1,
-                            CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
-                            CommittedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9004),
+                            CommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef",
+                            CommittedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9692),
                             Message = "Initial commit",
                             TreeHash = ""
                         },
@@ -169,10 +169,10 @@ namespace backend.Migrations
                             AuthorEmail = "user@2.com",
                             AuthorName = "User2",
                             BranchId = 2,
-                            CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
-                            CommittedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(9006),
+                            CommitHash = "a86144601800e35b72f4427206042b4ec0da4288",
+                            CommittedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9696),
                             Message = "Next commit",
-                            TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0"
+                            TreeHash = "b2ee222a7d29faa635c1e98886bed90b8510c969"
                         });
                 });
 
@@ -274,7 +274,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8631),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9313),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -283,7 +283,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(8635),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(9331),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -344,19 +344,19 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7979),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(8748),
                             Email = "user@1.com",
-                            PasswordHash = "mEWh1NibjVpyw3wCpiRbSn6ECHhd/ilre+g5KgGo0yo=",
-                            Salt = new byte[] { 36, 235, 44, 217, 238, 128, 97, 108, 91, 206, 49, 83, 138, 106, 19, 217 },
+                            PasswordHash = "ziqPNk5yN6UFmRaRu2wSvS8Y/Bvx/Z49YQ/pfLo4sJ4=",
+                            Salt = new byte[] { 60, 130, 188, 240, 48, 15, 107, 66, 117, 44, 152, 68, 63, 81, 224, 31 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTime(2025, 2, 17, 21, 18, 47, 725, DateTimeKind.Utc).AddTicks(7997),
+                            CreatedAt = new DateTime(2025, 2, 19, 18, 12, 36, 84, DateTimeKind.Utc).AddTicks(8802),
                             Email = "user@2.com",
-                            PasswordHash = "Bllp1xqdsOG8umjdxAk1UhQYqiDPF6po/3s2sTQGeN4=",
-                            Salt = new byte[] { 50, 111, 0, 136, 139, 5, 123, 10, 34, 89, 80, 143, 5, 99, 163, 201 },
+                            PasswordHash = "L9OIxYzmaZ2HFOA5nuvOBlfiEcoC565/A3UBb/kquzs=",
+                            Salt = new byte[] { 61, 147, 243, 47, 78, 212, 178, 16, 230, 1, 116, 83, 213, 135, 34, 207 },
                             Username = "User2"
                         });
                 });

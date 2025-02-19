@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -61,9 +62,9 @@ namespace Janus.API
 
 
 
-        public static async Task<bool> DownloadBatchFilesAsync(List<string> fileHashes, string destinationFolder, string pat)
+        public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName ,List<string> fileHashes, string destinationFolder, string pat)
         {
-            string apiUrl = "https://localhost:82/api/cli/repo/batchfiles";
+            string apiUrl = $"https://localhost:82/api/cli/repo/batchfiles/{owner}/{repoName}";
 
             using (HttpClient client = new HttpClient())
             {
@@ -82,45 +83,80 @@ namespace Janus.API
 
                 // Stream the response
                 using (var responseStream = await response.Content.ReadAsStreamAsync())
-                using (var reader = new StreamReader(responseStream))
                 {
-                    string? currentFileName = null;
-                    FileStream? fileStream = null;
+                    // Get bytes of seperators
+                    byte[] separator = Encoding.UTF8.GetBytes("\n---\n");
+                    byte[] newline = { (byte)'\n' };
 
-                    while (!reader.EndOfStream)
+                    while (true)
                     {
-                        string line = await reader.ReadLineAsync();
+                        // Read metadata line
+                        List<byte> metadataBytes = new List<byte>();
+                        byte[] buffer = new byte[1];
+                        bool newlineFound = false;
 
-                        if (line.StartsWith("FILE:")) // Start of a new file
+                        while (await responseStream.ReadAsync(buffer, 0, 1) > 0)
                         {
-                            if (fileStream != null) 
-                                await fileStream.DisposeAsync();
+                            if (buffer[0] == newline[0]) // Reaches end of line
+                            {
+                                newlineFound = true;
+                                break;
+                            }
+                            metadataBytes.Add(buffer[0]);
+                        }
 
-                            currentFileName = line.Split(':')[1];
-                            string filePath = Path.Combine(destinationFolder, currentFileName);
-                            fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                        }
-                        else if (line == "---") // Separator between files
+                        // Check if end of stream
+                        if (!newlineFound && metadataBytes.Count == 0) 
+                            break; 
+
+                        // Get metadata of file
+                        string metadataLine = Encoding.UTF8.GetString(metadataBytes.ToArray());
+                        string[] metadataParts = metadataLine.Split('|');
+                        
+                        if (metadataParts.Length != 3)
+                            throw new Exception("Invalid metadata");
+
+                        string fileType = metadataParts[0];
+                        string fileHash = metadataParts[1];
+                        long fileLength = long.Parse(metadataParts[2]);
+
+                        // Read file content
+                        string filePath = Path.Combine(destinationFolder, fileHash);
+
+                        await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                         {
-                            if (fileStream != null) 
-                                await fileStream.DisposeAsync();
-                            fileStream = null;
+                            byte[] contentBuffer = new byte[2048]; // 2048 is buffer size (balance memory, disk I/O, with file size in mind)
+                            long bytesRemaining = fileLength;
+
+                            // Write the bytes
+                            while (bytesRemaining > 0)
+                            {
+                                int bytesToRead = (int)Math.Min(contentBuffer.Length, bytesRemaining);
+                                int bytesRead = await responseStream.ReadAsync(contentBuffer, 0, bytesToRead);
+
+                                if (bytesRead == 0)
+                                    throw new Exception("Unexpected end of stream");
+
+                                await fileStream.WriteAsync(contentBuffer, 0, bytesRead);
+                                bytesRemaining -= bytesRead;
+                            }
+
                         }
-                        else if (fileStream != null) // Write content to the file
-                        {
-                            byte[] bytes = Encoding.UTF8.GetBytes(line + "\n");
-                            await fileStream.WriteAsync(bytes, 0, bytes.Length);
-                        }
+
+                        // Read seperator
+                        byte[] actualSeparator = new byte[separator.Length];
+                        int bytesReadSeparator = await responseStream.ReadAsync(actualSeparator, 0, separator.Length);
+
+                        // Check seperator is valid
+                        if (bytesReadSeparator != separator.Length || !actualSeparator.SequenceEqual(separator))
+                            throw new Exception("Invalid separator");
+
                     }
-
-                    if (fileStream != null) 
-                        await fileStream.DisposeAsync();
                 }
             }
 
             return true;
         }
-
 
 
 

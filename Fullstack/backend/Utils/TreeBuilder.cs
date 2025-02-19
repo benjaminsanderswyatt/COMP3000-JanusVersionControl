@@ -95,7 +95,7 @@ namespace backend.Utils
 
             var lines = new List<string>();
 
-            foreach (var child in node.Children)
+            foreach (var child in node.Children.OrderBy(c => c.Name))
             {
                 if (child.Hash != null)
                 {
@@ -111,7 +111,7 @@ namespace backend.Utils
             }
 
             // Create the content for this directory
-            string content = string.Join(Environment.NewLine, lines);
+            string content = string.Join("\n", lines);
             string hash = HashHelper.ComputeHash(content);
 
             // Save the directory file (dont overide if already exists)

@@ -10,7 +10,7 @@ namespace Janus.Helpers.CommandHelpers
     public class InitHelper
     {
 
-        public static async void InitRepo(Paths paths)
+        public static async void InitRepo(Paths paths, bool doInitCommit = true)
         {
             try
             {
@@ -36,14 +36,20 @@ namespace Janus.Helpers.CommandHelpers
                 // Create HEAD file pointing at main branch
                 File.WriteAllText(paths.HEAD, "ref: heads/main");
 
+                var initCommitHash = "";
 
+                if (doInitCommit)
+                {
+                    // Create initial commit
+                    var (returnedCommitHash, commitMetadata) = MiscHelper.CreateInitData();
 
-                // Create initial commit
-                var (initCommitHash, commitMetadata) = MiscHelper.CreateInitData();
+                    initCommitHash = returnedCommitHash;
 
-                // Save the commit object in the commit directory
-                string commitFilePath = Path.Combine(paths.CommitDir, initCommitHash);
-                File.WriteAllText(commitFilePath, commitMetadata);
+                    // Save the commit object in the commit directory
+                    string commitFilePath = Path.Combine(paths.CommitDir, initCommitHash);
+                    File.WriteAllText(commitFilePath, commitMetadata);
+                }
+                
 
                 // Create main branch in heads/ pointing to initial commit
                 File.WriteAllText(Path.Combine(paths.HeadsDir, "main"), initCommitHash);

@@ -6,10 +6,7 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
-using System.IO;
-using System.Net;
 using System.Text.Json;
-using static Janus.CommandHandler;
 using static Janus.Helpers.CommandHelpers.RemoteHelper;
 
 namespace Janus
@@ -112,7 +109,7 @@ namespace Janus
                     // Prompt for credentials
 
                     Console.WriteLine("Email: ");
-                    var email = Console.ReadLine();
+                    var email = Console.ReadLine().ToLower();
 
                     if (string.IsNullOrEmpty(email))
                     {
@@ -240,12 +237,23 @@ namespace Janus
 
                 string endpoint = args[0]; // janus/{owner}/{repoName}
                 string[] ownerRepoData = PathHelper.PathSplitter(endpoint);
-                string owner = ownerRepoData[0];
-                string repoName = ownerRepoData[1];
-                Console.WriteLine($"Owner: {owner}, Repo: {repoName}");
+                string owner = ownerRepoData[1];
+                string repoName = ownerRepoData[2];
+
+                string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
+                
+                if (Directory.Exists(repoPath))
+                {
+                    Logger.Log($"Failed clone: Directory named '{repoName}' already exists");
+                    return;
+                }
+
+                // Create folder for repo
+                Directory.CreateDirectory(repoPath);
 
                 try
                 {
+                    Logger.Log($"Getting repository structure...");
                     var (success, data) = await ApiHelper.SendGetAsync(endpoint, credentials.Token);
 
                     if (!success)
@@ -254,33 +262,42 @@ namespace Janus
                         return;
                     }
 
-                    Logger.Log(data);
+                    
 
-                    var cloneData = JsonSerializer.Deserialize<CloneDto>(data);
+                    var cloneData = JsonSerializer.Deserialize<CloneDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (cloneData == null)
                     {
                         Logger.Log("Error parsing repository data.");
                         return;
                     }
 
-                    // Create folder for repo
-                    string repoPath = Path.Combine(Directory.GetCurrentDirectory(), cloneData.RepoName);
+
+                    Logger.Log($"Initialising local repository...");
+
+
                     
+
                     // Init repo
-                    Directory.CreateDirectory(repoPath);
                     Paths clonePaths = new Paths(repoPath);
+                    InitHelper.InitRepo(clonePaths, false);
 
-                    InitHelper.InitRepo(clonePaths);
-
-
+                    // TODO Handle setting up latest commit
 
                     // TODO Handle description and isprivate
+
+
+
+
+                    // Store the main tree to be built
+                    var mainTree = new TreeBuilder(clonePaths);
 
                     // Get file hashes from commits
                     var fileHashes = new HashSet<string>();
 
                     foreach (var branch in cloneData.Branches)
                     {
+                        Logger.Log($"Building '{branch.BranchName}' branch...");
+
                         foreach (var commit in branch.Commits)
                         {
                             // TODO Handle head commits
@@ -298,45 +315,61 @@ namespace Janus
                                 commit.TreeHash
                             );
 
+                            
 
                             // Save tree
                             if (commit.Tree != null && !string.IsNullOrEmpty(commit.TreeHash))
                             {
-                                var treeBuilder = new TreeBuilder(Paths);
+                                var treeBuilder = new TreeBuilder(clonePaths);
 
                                 treeBuilder.LoadTree(commit.Tree);
 
                                 string treeHash = treeBuilder.SaveTree();
+
+                                if (treeHash != commit.TreeHash)
+                                {
+                                    Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}"); // TODO treehash should be the same
+                                    return;
+                                }
+
+                                if (branch.BranchName == "main")
+                                {
+                                    // Save tree to be rebuilt
+                                    mainTree = treeBuilder;
+                                }
+
+
+                                // Get file hashes from tree
+                                treeBuilder.GetFileHashes(fileHashes);
+
                             }
+                        }
+                    }
 
+                    // Download the file objects
+                    Logger.Log($"Downloading file data...");
 
+                    if (fileHashes.Any())
+                    {
+                        bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                            owner,
+                            repoName,
+                            fileHashes.ToList(),
+                            clonePaths.ObjectDir,
+                            credentials.Token
+                        );
+                        
+                        
+                        if (!downloadSuccess)
+                        {
+                            Logger.Log("Error downloading file objects");
+                            return;
                         }
                     }
 
 
-                    /*
-
-                    // Clean up index removing deleted files
-                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
-                                          .ToDictionary(kv => kv.Key, kv => kv.Value);
-
-                    var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(updatedIndex);
-
-
-                    // Check if there are any changes to commit
-                    if (!StatusHelper.HasAnythingBeenStagedForCommit(Logger, Paths, stagedTree))
-                    {
-                        Logger.Log("No changes to commit.");
-                        return;
-                    }
-
-
-                    var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
-
-
-
-                    */
-
+                    // Recreate main branch
+                    // TODO
 
 
 

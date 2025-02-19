@@ -215,6 +215,28 @@ namespace Janus.Utils
         }
 
 
+        // Gets the file hashes from the tree
+        public void GetFileHashes(HashSet<string> hashes)
+        {
+            GetFileHashesRecursive(root, hashes);
+        }
+
+        private static void GetFileHashesRecursive(TreeNode node, HashSet<string> hashes)
+        {
+            if (node == null)
+                return;
+
+            if (!string.IsNullOrEmpty(node.Hash))
+            {
+                // Is file
+                hashes.Add(node.Hash);
+            }
+
+            foreach (var child in node.Children)
+            {
+                GetFileHashesRecursive(child, hashes);
+            }
+        }
 
 
     }
@@ -387,6 +409,7 @@ namespace Janus.Utils
 
 
 
+        
 
 
 

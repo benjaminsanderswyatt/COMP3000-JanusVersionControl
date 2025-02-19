@@ -126,7 +126,7 @@ namespace backend.Models
                 new Commit
                 {
                     CommitId = 1,
-                    CommitHash = "f7b1c205158daf2ee72d31cc1838455368c15cb3",
+                    CommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef",
                     BranchId = 1,
                     TreeHash = "",
                     AuthorName = "janus",
@@ -137,9 +137,9 @@ namespace backend.Models
                 new Commit
                 {
                     CommitId = 2,
-                    CommitHash = "915b84e9f8ce43018350092a25c4f65e6e290165",
+                    CommitHash = "a86144601800e35b72f4427206042b4ec0da4288",
                     BranchId = 2,
-                    TreeHash = "c65dca236a008513a28342c778c7c34a0b9b50f0",
+                    TreeHash = "b2ee222a7d29faa635c1e98886bed90b8510c969",
                     AuthorName = "User2",
                     AuthorEmail = "user@2.com",
                     Message = "Next commit",

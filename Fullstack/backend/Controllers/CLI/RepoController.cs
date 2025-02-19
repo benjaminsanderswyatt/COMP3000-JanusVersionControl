@@ -237,7 +237,7 @@ namespace backend.Controllers.CLI
 
 
 
-
+        
         // POST: api/CLI/batchfiles/{owner}/{repoName}
         [HttpPost("batchfiles/{owner}/{repoName}")]
         public async Task<IActionResult> GetBatchFileContent(string owner, string repoName, [FromBody] List<string> fileHashes)
@@ -290,13 +290,15 @@ namespace backend.Controllers.CLI
                         continue;
                     }
 
+                    // Determine if the file is text or binary
+                    bool isTextFile = IsTextFile(filePath);
 
-                    // Send file metadata
-                    string metadata = $"FILE:{hash}\n";
+
+                    // Send file metadata type (T or B), hash, and length (T = text, B = byte)
+                    string metadata = $"{(isTextFile ? "T" : "B")}|{hash}|{new FileInfo(filePath).Length}\n"; // Type | hash | length in bytes
                     byte[] metadataBytes = Encoding.UTF8.GetBytes(metadata);
                     await responseStream.WriteAsync(metadataBytes, 0, metadataBytes.Length);
                     await responseStream.FlushAsync();
-
 
                     // Stream file content
                     await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -322,6 +324,28 @@ namespace backend.Controllers.CLI
 
             return new EmptyResult(); // Streamed has no return value
         }
+
+        private static bool IsTextFile(string filePath)
+        {
+            // Read the first 1024 bytes to check for non text characters
+            byte[] buffer = new byte[1024];
+            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                int bytesRead = fileStream.Read(buffer, 0, buffer.Length);
+                for (int i = 0; i < bytesRead; i++)
+                {
+                    if (buffer[i] == 0 || buffer[i] > 127) // Non text character found
+                        return false;
+                }
+            }
+            return true;
+        }
+
+
+
+
+
+
 
 
 
