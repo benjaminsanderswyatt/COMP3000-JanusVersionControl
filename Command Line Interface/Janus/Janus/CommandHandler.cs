@@ -283,20 +283,59 @@ namespace Janus
                     {
                         foreach (var commit in branch.Commits)
                         {
+                            // TODO Handle head commits
+
+
                             // Save commit
+                            CommitHelper.SaveCommit(clonePaths, 
+                                commit.CommitHash, 
+                                "Parent Commit", 
+                                branch.BranchName, 
+                                commit.AuthorName, 
+                                commit.AuthorEmail, 
+                                commit.CommittedAt, 
+                                commit.Message, 
+                                commit.TreeHash
+                            );
+
+
+                            // Save tree
+                            if (commit.Tree != null && !string.IsNullOrEmpty(commit.TreeHash))
+                            {
+                                var treeBuilder = new TreeBuilder(Paths);
+
+                                treeBuilder.LoadTree(commit.Tree);
+
+                                string treeHash = treeBuilder.SaveTree();
+                            }
+
 
                         }
                     }
 
 
+                    /*
+
+                    // Clean up index removing deleted files
+                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
+                                          .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                    var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(updatedIndex);
+
+
+                    // Check if there are any changes to commit
+                    if (!StatusHelper.HasAnythingBeenStagedForCommit(Logger, Paths, stagedTree))
+                    {
+                        Logger.Log("No changes to commit.");
+                        return;
+                    }
+
+
+                    var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
 
 
 
-
-
-
-
-
+                    */
 
 
 

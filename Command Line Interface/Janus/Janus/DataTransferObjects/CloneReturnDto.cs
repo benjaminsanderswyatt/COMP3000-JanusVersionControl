@@ -22,9 +22,11 @@
     {
         public string CommitHash { get; set; }
         public string AuthorName { get; set; }
+        public string AuthorEmail { get; set; }
         public string Message { get; set; }
         public DateTime CommittedAt { get; set; }
         public string TreeHash { get; set; }
+        public TreeDto? Tree { get; set; }
     }
 
 

@@ -193,6 +193,7 @@ namespace backend.Controllers.CLI
                     {
                         commit.CommitHash,
                         commit.AuthorName,
+                        commit.AuthorEmail,
                         commit.Message,
                         commit.CommittedAt,
                         commit.TreeHash,

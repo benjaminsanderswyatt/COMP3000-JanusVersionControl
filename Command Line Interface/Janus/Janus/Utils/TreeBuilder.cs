@@ -1,4 +1,5 @@
-﻿using Janus.Helpers;
+﻿using Janus.DataTransferObjects;
+using Janus.Helpers;
 using Janus.Helpers.CommandHelpers;
 using Janus.Plugins;
 using System.Text;
@@ -95,7 +96,7 @@ namespace Janus.Utils
 
             var lines = new List<string>();
 
-            foreach (var child in node.Children)
+            foreach (var child in node.Children.OrderBy(c => c.Name))
             {
                 if (child.Hash != null)
                 {
@@ -111,7 +112,7 @@ namespace Janus.Utils
             }
 
             // Create the content for this directory
-            string content = string.Join(Environment.NewLine, lines);
+            string content = string.Join("\n", lines);
             string hash = HashHelper.ComputeHash(content);
 
             // Save the directory file (dont overide if already exists)
@@ -189,6 +190,32 @@ namespace Janus.Utils
                 //return null;
             }
         }
+
+        public void LoadTree(TreeDto treeDto)
+        {
+            root = ConvertTreeDtoToTreeNode(treeDto);
+        }
+
+        public static TreeNode ConvertTreeDtoToTreeNode(TreeDto treeDto)
+        {
+            if (treeDto == null)
+                return null;
+
+            var node = new TreeNode(treeDto.Name, treeDto.Hash);
+
+            if (treeDto.Children != null)
+            {
+                foreach (var childDto in treeDto.Children)
+                {
+                    node.Children.Add(ConvertTreeDtoToTreeNode(childDto));
+                }
+            }
+
+            return node;
+        }
+
+
+
 
     }
 
