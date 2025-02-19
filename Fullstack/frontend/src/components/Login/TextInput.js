@@ -1,10 +1,12 @@
 import React from 'react';
 
+import styles from "../../styles/Components/Login/TextInput.module.css";
+
 const TextInput = ({ label, name, type = "text", value, onChange, required = false, placeholder = "" }) => (
-  <div style={styles.container}>
-    <label style={styles.label} htmlFor={name}>{label}</label>
+  <div className={styles.container}>
+    <label className={styles.label} htmlFor={name}>{label}</label>
     <input
-      style={styles.input}
+      className={styles.input}
       type={type}
       id={name}
       name={name}
@@ -15,26 +17,6 @@ const TextInput = ({ label, name, type = "text", value, onChange, required = fal
     />
   </div>
 );
-
-const styles = {
-  container: {
-    marginBottom: '20px',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '5px',
-    fontWeight: 'bold',
-    color: 'var(--lighttext)',
-  },
-  input: {
-    width: '100%',
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    fontSize: '16px',
-    boxSizing: "border-box",
-  },
-};
 
 
 export default TextInput;

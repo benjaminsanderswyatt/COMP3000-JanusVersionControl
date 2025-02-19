@@ -2,6 +2,7 @@ import React from 'react';
 import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 
+import styles from "../../styles/Components/Login/UserForm.module.css";
 
 const LoginForm = ({ formData, onChange, onSubmit }) => (
   <form onSubmit={onSubmit}>
@@ -25,24 +26,10 @@ const LoginForm = ({ formData, onChange, onSubmit }) => (
       required 
     />
     
-    <button type="submit" style={styles.button}>Login</button>
+    <button type="submit" className={styles.button}>Login</button>
 
   </form>
 );
 
-const styles = {
-  button: {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: 'var(--primary)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    margin: '20px 0px',
-    fontSize: '1rem',
-  },
-};
 
 export default LoginForm;

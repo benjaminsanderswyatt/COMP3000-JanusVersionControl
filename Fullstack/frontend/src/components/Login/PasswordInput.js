@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import styles from "../../styles/Components/Login/TextInput.module.css";
 
 const PasswordInput = ({ label, name, value, onChange, required = false, placeholder = "" }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -7,11 +8,11 @@ const PasswordInput = ({ label, name, value, onChange, required = false, placeho
   const toggleVisibility = () => setShowPassword((prev) => !prev);
 
   return (
-    <div style={styles.container}>
-      <label style={styles.label} htmlFor={name}>{label}</label>
-      <div style={styles.inputGroup}>
+    <div className={styles.container}>
+      <label className={styles.label} htmlFor={name}>{label}</label>
+      <div className={styles.inputGroup}>
         <input
-          style={styles.input}
+          className={styles.inputPassword}
           type={showPassword ? 'text' : 'password'}
           id={name}
           name={name}
@@ -23,7 +24,7 @@ const PasswordInput = ({ label, name, value, onChange, required = false, placeho
         <button
           type="button"
           onClick={toggleVisibility}
-          style={styles.toggleButton}
+          className={styles.showButton}
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? 'Hide' : 'Show'}
@@ -31,40 +32,6 @@ const PasswordInput = ({ label, name, value, onChange, required = false, placeho
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    marginBottom: '20px',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '5px',
-    fontWeight: 'bold',
-    color: 'var(--lighttext)',
-  },
-  inputGroup: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  input: {
-    flex: '1',
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    fontSize: '16px',
-    boxSizing: "border-box",
-    margin: '0px 4px 0px 0px',
-  },
-  toggleButton: {
-    height: '40px',
-    width: '50px',
-    background: 'var(--border)',
-    border: 'thin solid var(--border)',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    color: 'var(--text)',
-  },
 };
 
 

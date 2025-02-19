@@ -3,6 +3,7 @@ import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 import Checkbox from '../Checkbox';
 
+import styles from "../../styles/Components/Login/UserForm.module.css";
 
 const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms }) => (
   <form onSubmit={onSubmit}>
@@ -60,24 +61,10 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
     </div>
 
    
-    <button type="submit" style={styles.button} disabled={!agreedToTerms}>Register</button>
+    <button type="submit" className={styles.button} disabled={!agreedToTerms}>Register</button>
     
   </form>
 );
 
-const styles = {
-  button: {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: 'var(--primary)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    margin: '20px 0px',
-    fontSize: '1rem',
-  },
-};
 
 export default RegisterForm;

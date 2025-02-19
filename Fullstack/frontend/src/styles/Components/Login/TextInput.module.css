@@ -1,0 +1,51 @@
+.container {
+    margin-bottom: 20px;
+}
+
+.label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--lighttext);
+}
+
+.input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+
+.inputGroup {
+    display: flex;
+    align-items: center;
+}
+
+.inputPassword {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    margin: 0px 4px 0px 0px;
+}
+
+.showButton {
+    height: 40px;
+    width: 50px;
+    background: var(--button);
+    border: thin solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+
+    transition: background-color 0.1s ease-in-out;
+}
+
+.showButton:hover {
+    background-color: var(--button-hover);
+}
