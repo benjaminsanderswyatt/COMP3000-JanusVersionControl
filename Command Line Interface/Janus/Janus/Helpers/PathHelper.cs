@@ -35,6 +35,11 @@ namespace Janus.Helpers
 
             string credentialPath = Path.Combine(basePath, "Janus");
 
+            if (File.Exists(credentialPath))
+            {
+                throw new IOException($"A file exists at '{credentialPath}', but a directory is expected.");
+            }
+
             if (!Directory.Exists(credentialPath))
             {
                 Directory.CreateDirectory(credentialPath);
