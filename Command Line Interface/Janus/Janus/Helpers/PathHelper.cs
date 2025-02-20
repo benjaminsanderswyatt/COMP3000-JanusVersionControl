@@ -37,7 +37,7 @@ namespace Janus.Helpers
 
             if (File.Exists(credentialPath))
             {
-                throw new IOException($"A file exists at '{credentialPath}', but a directory is expected.");
+                File.Delete(credentialPath);
             }
 
             if (!Directory.Exists(credentialPath))
