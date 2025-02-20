@@ -1,19 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Reflection.PortableExecutable;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Janus.API
 {
     public static class ApiHelper
     {
-        
+
         public static async Task<(bool, string)> SendPostAsync(string endpoint, object bodyObject, string? pat = null)
         {
             string apiUrl = "https://localhost:82/api/" + endpoint;
@@ -62,14 +55,14 @@ namespace Janus.API
 
 
 
-        public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName ,List<string> fileHashes, string destinationFolder, string pat)
+        public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
             string apiUrl = $"https://localhost:82/api/cli/repo/batchfiles/{owner}/{repoName}";
 
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
-                
+
 
                 // Send request with list of file hashes
                 var requestBody = new StringContent(JsonSerializer.Serialize(fileHashes), Encoding.UTF8, "application/json");
@@ -105,13 +98,13 @@ namespace Janus.API
                         }
 
                         // Check if end of stream
-                        if (!newlineFound && metadataBytes.Count == 0) 
-                            break; 
+                        if (!newlineFound && metadataBytes.Count == 0)
+                            break;
 
                         // Get metadata of file
                         string metadataLine = Encoding.UTF8.GetString(metadataBytes.ToArray());
                         string[] metadataParts = metadataLine.Split('|');
-                        
+
                         if (metadataParts.Length != 3)
                             throw new Exception("Invalid metadata");
 
@@ -165,4 +158,4 @@ namespace Janus.API
 
     }
 }
-        
+

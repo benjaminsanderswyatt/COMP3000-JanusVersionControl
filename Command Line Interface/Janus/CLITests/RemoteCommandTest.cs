@@ -4,7 +4,6 @@ using Janus.Plugins;
 using Janus.Utils;
 using Moq;
 using System.Text.Json;
-using System.Xml.Linq;
 using static Janus.CommandHandler;
 
 namespace CLITests

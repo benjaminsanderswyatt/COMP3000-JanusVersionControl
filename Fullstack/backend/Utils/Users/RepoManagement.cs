@@ -1,8 +1,5 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace backend.Utils.Users
 {

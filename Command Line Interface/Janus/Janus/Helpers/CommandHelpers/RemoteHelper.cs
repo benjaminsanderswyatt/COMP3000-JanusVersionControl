@@ -1,5 +1,4 @@
 ﻿using Janus.Plugins;
-using System;
 using System.Text.Json;
 
 namespace Janus.Helpers.CommandHelpers

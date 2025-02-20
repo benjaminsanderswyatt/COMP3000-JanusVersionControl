@@ -7,7 +7,7 @@ namespace Janus.Helpers
 {
     public class RepoHelper
     {
-        
+
         public static async Task<List<string>> CompareRemoteAndLocalRepos(Paths paths, string pat, string owner, string repoName, string branch)
         {
             var (success, latestRemoteCommitHash) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branch}/latestcommit", pat);
@@ -33,7 +33,7 @@ namespace Janus.Helpers
                 // Remote repo branch doesnt exist or main hasnt yet been pushed to
                 // Local is ahead by whole branch
                 Console.WriteLine("Remote branch does not exist. The local branch is ahead by all its commits.");
-                
+
                 // ----------- TODO: Should keep in mind the parent branch and where its commits have been pushed ---
                 return FindCommitsToPush(paths, latestLocalCommitHash, null);
             }
@@ -58,7 +58,7 @@ namespace Janus.Helpers
         }
 
 
-        
+
 
 
 

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Security.Claims;
 
 namespace backend.Controllers.Frontend
 {
@@ -43,7 +42,7 @@ namespace backend.Controllers.Frontend
 
 
             var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!int.TryParse(userIdClaim, out int userId)) 
+            if (!int.TryParse(userIdClaim, out int userId))
             {
                 return BadRequest(new { message = "Invalid user ID" });
             }

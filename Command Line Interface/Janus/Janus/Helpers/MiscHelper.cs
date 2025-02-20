@@ -1,7 +1,5 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
-using System.Security;
-using System.Text;
 using System.Text.Json;
 
 namespace Janus.Helpers
@@ -43,29 +41,30 @@ namespace Janus.Helpers
 
         public static string GetUsername()
         {
-            // Get the username from configs
-            // TODO
+            // Get the username
+            UserCredentials credManager = new UserCredentials();
+            string username = credManager.Username;
 
             // No config set use systems username
-            if (string.IsNullOrWhiteSpace(Environment.UserName))
+            if (string.IsNullOrWhiteSpace(username))
             {
-                return "unknown";
+                return Environment.UserName;
             }
 
-            return Environment.UserName;
+            return username;
         }
 
         public static string GetEmail()
         {
-            // Get the email from configs
-            // TODO
+            // Get the email from credentials
+            UserCredentials credManager = new UserCredentials();
+            string email = credManager.Email;
 
-
-            return "";
+            return email;
         }
 
 
-        
+
 
 
 
@@ -84,6 +83,20 @@ namespace Janus.Helpers
             string commitMetadata = GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, parentHash, authorName, authorEmail);
 
             return (initCommitHash, commitMetadata);
+        }
+
+
+        public static void CreateRepoConfig(string repoConfigPath, bool isPrivate = true, string description = "")
+        {
+            // Create config file (for private & description)
+            var repoConfig = new RepoConfig
+            {
+                IsPrivate = isPrivate,
+                Description = description
+            };
+
+            string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(repoConfigPath, configJson);
         }
 
 

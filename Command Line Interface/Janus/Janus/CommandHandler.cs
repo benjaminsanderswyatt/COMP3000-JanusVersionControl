@@ -131,7 +131,7 @@ namespace Janus
                     var body = new { Email = email };
 
                     var (success, data) = await ApiHelper.SendPostAsync("AccessToken/Authenticate", body, pat);
-                    
+
                     if (success)
                     {
                         var dataObject = JsonSerializer.Deserialize<PatSuccessRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -156,7 +156,7 @@ namespace Janus
                         Logger.Log($"Authentication failed: {dataObject.Message}");
                     }
 
-                } 
+                }
                 catch (HttpRequestException ex)
                 {
                     Logger.Log($"Network error: {ex.Message}");
@@ -200,7 +200,7 @@ namespace Janus
                         Logger.Log("    janus remotes add <name> <link>");
                         Logger.Log("    janus remotes remote <name>");
                         Logger.Log("    janus remotes list");
-                        
+
                         break;
                 }
 
@@ -241,7 +241,7 @@ namespace Janus
                 string repoName = ownerRepoData[2];
 
                 string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
-                
+
                 if (Directory.Exists(repoPath))
                 {
                     Logger.Log($"Failed clone: Directory named '{repoName}' already exists");
@@ -262,7 +262,7 @@ namespace Janus
                         return;
                     }
 
-                    
+
 
                     var cloneData = JsonSerializer.Deserialize<CloneDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     if (cloneData == null)
@@ -275,16 +275,18 @@ namespace Janus
                     Logger.Log($"Initialising local repository...");
 
 
-                    
+
 
                     // Init repo
                     Paths clonePaths = new Paths(repoPath);
                     InitHelper.InitRepo(clonePaths, false);
 
-                    // TODO Handle setting up latest commit
+                    // TODO Handle setting up branches latest commit
 
-                    // TODO Handle description and isprivate
 
+                    Logger.Log($"Setting repository configs...");
+                    // Create repo config file
+                    MiscHelper.CreateRepoConfig(clonePaths.RepoConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
 
 
@@ -303,18 +305,18 @@ namespace Janus
                         {
 
                             // Save commit
-                            CommitHelper.SaveCommit(clonePaths, 
-                                commit.CommitHash, 
+                            CommitHelper.SaveCommit(clonePaths,
+                                commit.CommitHash,
                                 commit.ParentCommitHash,
-                                branch.BranchName, 
-                                commit.AuthorName, 
-                                commit.AuthorEmail, 
-                                commit.CommittedAt, 
-                                commit.Message, 
+                                branch.BranchName,
+                                commit.AuthorName,
+                                commit.AuthorEmail,
+                                commit.CommittedAt,
+                                commit.Message,
                                 commit.TreeHash
                             );
 
-                            
+
 
                             // Save tree
                             if (commit.Tree != null && !string.IsNullOrEmpty(commit.TreeHash))
@@ -345,7 +347,7 @@ namespace Janus
                         }
                     }
 
-                    
+
 
 
                     // Download the file objects
@@ -360,8 +362,8 @@ namespace Janus
                             clonePaths.ObjectDir,
                             credentials.Token
                         );
-                        
-                        
+
+
                         if (!downloadSuccess)
                         {
                             Logger.Log("Error downloading file objects");
@@ -378,7 +380,8 @@ namespace Janus
 
                     Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");
 
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Logger.Log($"An error occurred during cloning: {ex.Message}");
                 }
@@ -428,7 +431,7 @@ namespace Janus
                     Logger.Log($"Invalid repository name: {repoName}");
                     return;
                 }
-                    
+
 
                 // Get the current branch
                 string branchName = MiscHelper.GetCurrentBranchName(Paths);
@@ -583,7 +586,7 @@ namespace Janus
                 // Get the current branch
                 string branchName = MiscHelper.GetCurrentBranchName(Paths);
 
-                
+
 
                 // Get the local latest commit hash
 
@@ -863,14 +866,14 @@ namespace Janus
                     var username = MiscHelper.GetUsername();
                     var email = MiscHelper.GetEmail();
 
-                    
+
                     string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
-                    
+
                     CommitHelper.SaveCommit(Paths, commitHash, parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
-                    
+
 
 
                     // Save cleaned up index
@@ -1123,7 +1126,7 @@ namespace Janus
                 // Put the latest commit into the new branch head
                 File.WriteAllText(branchPath, branchHeadCommit);
 
-                
+
 
                 File.Copy(Paths.Index, Path.Combine(branchFolderPath, "index"));
 

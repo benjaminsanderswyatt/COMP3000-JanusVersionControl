@@ -1,13 +1,9 @@
-﻿using backend.DataTransferObjects;
-using backend.Models;
-using backend.Services;
+﻿using backend.Models;
 using backend.Utils.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
 
 namespace backend.Controllers.Frontend
 {
@@ -48,7 +44,7 @@ namespace backend.Controllers.Frontend
                 return BadRequest(new { message = "Invalid file" });
             }
 
-  
+
             string fileExtension = Path.GetExtension(image.FileName);
             string fileName = $"{userId}{fileExtension}";
             string filePath = Path.Combine(_imagePath, fileName);

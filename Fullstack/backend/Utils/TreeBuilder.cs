@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 
 namespace backend.Utils
 {
@@ -83,7 +81,7 @@ namespace backend.Utils
             }
         }
 
-        
+
         public string SaveTree()
         {
             return SaveTreeRecursively(root);
@@ -124,7 +122,7 @@ namespace backend.Utils
 
             return hash;
         }
-        
+
 
         public TreeNode RecreateTree(string treeHash)
         {

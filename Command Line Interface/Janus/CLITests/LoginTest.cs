@@ -2,7 +2,6 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
-using System.Runtime.InteropServices;
 using static Janus.CommandHandler;
 
 namespace CLITests

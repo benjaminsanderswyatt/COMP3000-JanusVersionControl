@@ -14,6 +14,7 @@
     {
         public string BranchName { get; set; }
         public int? ParentBranch { get; set; }
+        public string SplitFromCommitHash { get; set; }
         public string LatestCommitHash { get; set; }
         public string CreatedBy { get; set; }
         public List<CommitDto> Commits { get; set; }
@@ -35,7 +36,7 @@
     public class TreeDto
     {
         public string Name { get; set; } // File or folder name
-        public string? Hash {  get; set; } // null if folder
+        public string? Hash { get; set; } // null if folder
         public List<TreeDto> Children { get; set; }
     }
 

@@ -1,11 +1,9 @@
 ﻿using backend.DataTransferObjects;
-using backend.DataTransferObjects.CLI;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace backend.Controllers.CLI
 {

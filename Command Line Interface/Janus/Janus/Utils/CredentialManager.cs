@@ -1,7 +1,5 @@
 ﻿using Janus.Helpers;
 using Janus.Models;
-using Janus.Plugins;
-using System;
 using System.Text.Json;
 
 namespace Janus.Utils
@@ -13,7 +11,7 @@ namespace Janus.Utils
         public CredentialManager()
         {
             string credentialDir = PathHelper.GetCredentialPath();
-            
+
             if (!Directory.Exists(credentialDir))
             {
                 Directory.CreateDirectory(credentialDir);

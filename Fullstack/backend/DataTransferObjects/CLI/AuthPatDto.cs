@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace backend.DataTransferObjects.CLI
+﻿namespace backend.DataTransferObjects.CLI
 {
     public class AuthPatDto
     {

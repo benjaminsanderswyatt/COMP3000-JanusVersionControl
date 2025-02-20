@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -105,7 +104,7 @@ namespace backend.Controllers
 
 
 
-        
+
 
 
         // POST: api/AccessToken/Authenticate
@@ -130,7 +129,7 @@ namespace backend.Controllers
 
             if (user == null)
                 return Unauthorized(new { Message = "Invalid credentials" });
-            
+
 
             if (user.Email != auth.Email)
                 return Unauthorized(new { Message = "Invalid credentials" });

@@ -1,7 +1,4 @@
-﻿using backend.Auth;
-using backend.DataTransferObjects;
-using backend.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using backend.Models;
 
 namespace backend.Utils.Users
 {

@@ -16,7 +16,7 @@ namespace backend.Models
         public int RepoId { get; set; }
 
         [MaxLength(40)]
-        public string? InitialCommitHash { get; set; } = null;
+        public string? SplitFromCommitHash { get; set; } = null;
 
         [MaxLength(40)]
         public string? LatestCommitHash { get; set; } = null;

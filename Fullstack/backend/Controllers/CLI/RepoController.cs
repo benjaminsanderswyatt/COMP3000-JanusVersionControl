@@ -130,7 +130,7 @@ namespace backend.Controllers.CLI
 
 
 
-        
+
         // GET: api/CLI/janus/{owner}/{repoName}
         [HttpGet("janus/{owner}/{repoName}")]
         public async Task<IActionResult> CloneRepo(string owner, string repoName)
@@ -211,6 +211,7 @@ namespace backend.Controllers.CLI
                 {
                     BranchName = branch.BranchName,
                     ParentBranch = branch.ParentBranch,
+                    SplitFromCommitHash = branch.SplitFromCommitHash,
                     LatestCommitHash = branch.LatestCommitHash,
                     CreatedBy = createdByUser,
                     Commits = commits
@@ -228,7 +229,7 @@ namespace backend.Controllers.CLI
 
             return Ok(cloneData);
         }
-        
+
         private object ConvertTreeNodeToDto(TreeNode node)
         {
             if (node == null)
@@ -244,7 +245,7 @@ namespace backend.Controllers.CLI
 
 
 
-        
+
         // POST: api/CLI/batchfiles/{owner}/{repoName}
         [HttpPost("batchfiles/{owner}/{repoName}")]
         public async Task<IActionResult> GetBatchFileContent(string owner, string repoName, [FromBody] List<string> fileHashes)

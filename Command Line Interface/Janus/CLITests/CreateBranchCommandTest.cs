@@ -1,4 +1,3 @@
-using Janus.DataTransferObjects;
 using Janus.Helpers;
 using Janus.Helpers.CommandHelpers;
 using Janus.Models;

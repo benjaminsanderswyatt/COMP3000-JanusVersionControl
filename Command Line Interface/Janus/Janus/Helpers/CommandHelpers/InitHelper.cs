@@ -1,8 +1,5 @@
-﻿using Janus.API;
-using Janus.Helpers;
-using Janus.Models;
+﻿using Janus.Models;
 using Janus.Plugins;
-using Janus.Utils;
 using System.Text.Json;
 
 namespace Janus.Helpers.CommandHelpers
@@ -48,7 +45,7 @@ namespace Janus.Helpers.CommandHelpers
                     string commitFilePath = Path.Combine(paths.CommitDir, initCommitHash);
                     File.WriteAllText(commitFilePath, commitMetadata);
                 }
-                
+
 
                 // Create branches file for main
                 var branch = new Branch
@@ -76,16 +73,8 @@ namespace Janus.Helpers.CommandHelpers
                 // Create detached Head file
                 File.WriteAllText(paths.DETACHED_HEAD, initCommitHash);
 
-
                 // Create config file (for private & description)
-                var repoConfig = new RepoConfig
-                {
-                    IsPrivate = true,
-                    Description = ""
-                };
-
-                string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(paths.RepoConfig, configJson);
+                MiscHelper.CreateRepoConfig(paths.RepoConfig);
 
             }
             catch (Exception ex)
