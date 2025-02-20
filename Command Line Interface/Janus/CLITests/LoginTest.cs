@@ -1,3 +1,4 @@
+using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
@@ -29,6 +30,17 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
+            // Login with test user
+            var credManager = new CredentialManager();
+            var testCredentials = new UserCredentials
+            {
+                Username = "testuser",
+                Email = "test@user.com",
+                Token = "testtoken"
+            };
+
+            credManager.SaveCredentials(testCredentials);
+
             // Initialise the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
@@ -51,33 +63,8 @@ namespace CLITests
             }
 
             // Remove the credintials file
-            string basePath;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // Windows: use %APPDATA%
-                basePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                // MacOS: use /Library/Application Support
-                string home = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                basePath = Path.Combine(home, "Library", "Application Support");
-            }
-            else
-            {
-                // Misc case
-                basePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            }
-
-            
-            string credentialPath = Path.Combine(basePath, "Janus");
-            
-            if (Directory.Exists(credentialPath))
-            {
-                Directory.Delete(credentialPath, true);
-            }
-
+            var credManager = new CredentialManager();
+            credManager.ClearCredentials();
         }
 
 

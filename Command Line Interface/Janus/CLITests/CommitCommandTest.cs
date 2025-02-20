@@ -63,6 +63,9 @@ namespace CLITests
             {
                 Directory.Delete(_testDir, true);
             }
+
+            var credManager = new CredentialManager();
+            credManager.ClearCredentials();
         }
 
 

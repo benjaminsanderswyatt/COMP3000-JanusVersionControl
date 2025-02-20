@@ -3,6 +3,7 @@ using Janus.Helpers;
 using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
@@ -56,6 +57,17 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
+            // Login with test user
+            var credManager = new CredentialManager();
+            var testCredentials = new UserCredentials
+            {
+                Username = "testuser",
+                Email = "test@user.com",
+                Token = "testtoken"
+            };
+
+            credManager.SaveCredentials(testCredentials);
+
             // Initialize the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
@@ -78,6 +90,10 @@ namespace CLITests
             {
                 Directory.Delete(_testDir, true);
             }
+
+            // Clean up credentials
+            var credManager = new CredentialManager();
+            credManager.ClearCredentials();
         }
 
 
