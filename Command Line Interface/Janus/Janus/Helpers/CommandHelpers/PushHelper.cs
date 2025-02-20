@@ -9,7 +9,7 @@
             public string CommitHash { get; set; }
             public string Message { get; set; }
             public string ParentCommitHash { get; set; }
-            public DateTimeOffset CommittedAt { get; set; }
+            public DateTime CommittedAt { get; set; }
             public List<FileDto> Files { get; set; }
         }
 

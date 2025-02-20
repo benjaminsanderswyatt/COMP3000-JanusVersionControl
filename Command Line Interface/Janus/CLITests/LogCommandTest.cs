@@ -49,7 +49,7 @@ namespace CLITests
             for (int num = 1; num < howMany + 1; num++)
             {
                 // Generate commit metadata   $"treeHash{num}", $"commitMessage{num}{seperator}"
-                string commitHash = HashHelper.ComputeCommitHash($"parentHash{num}", $"branchName{num}", $"authorName{seperator}", $"authorEmail{num}", DateTimeOffset.Now, $"commitMessage{num}{seperator}", $"treeHash{num}");
+                string commitHash = HashHelper.ComputeCommitHash($"parentHash{num}", $"branchName{num}", $"authorName{seperator}", $"authorEmail{num}", DateTime.UtcNow, $"commitMessage{num}{seperator}", $"treeHash{num}");
 
                 string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, $"commitHash{num}", $"treeHash{num}", $"commitMessage{num}", parentCommitHash, authorName, authorEmail);
 
@@ -213,7 +213,7 @@ namespace CLITests
 
             // Wait to create some time between commits
             Thread.Sleep(1000);
-            DateTime later = DateTime.Now;
+            DateTime later = DateTime.UtcNow;
             Thread.Sleep(1000);
 
             CreateManyCommits(2, "2nd", "testAuthor", "testAuthorEmail", finalCommitHash, 1);
@@ -237,7 +237,7 @@ namespace CLITests
 
             // Wait to create some time between commits
             Thread.Sleep(1000);
-            DateTime later = DateTime.Now;
+            DateTime later = DateTime.UtcNow;
             Thread.Sleep(1000);
 
             CreateManyCommits(2, "main", "testAuthor", "testAuthorEmail", finalCommitHash, 1);

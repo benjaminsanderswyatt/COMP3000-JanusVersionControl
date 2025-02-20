@@ -304,9 +304,9 @@ namespace CLITests
             Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
 
 
-            // Check the refs/heads/main file contents
-            string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
-            Assert.That(mainRefContents, Is.EqualTo(newCommitData.Commit), "refs/heads/main file should be the newest commit hash.");
+            // Check the branch/main/head file contents
+            string mainRefContents = File.ReadAllText(Path.Combine(_paths.BranchesDir, "main", "head"));
+            Assert.That(mainRefContents, Is.EqualTo(newCommitData.Commit), "branches/main/head file should be the newest commit hash.");
 
         }
 
@@ -483,9 +483,9 @@ namespace CLITests
             Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file.txt|")));
 
 
-            // Check the refs/heads/main file contents
-            string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
-            Assert.That(mainRefContents, Is.EqualTo(newCommitData.Commit), "refs/heads/main file should be the newest commit hash.");
+            // Check the branches/main/head file contents
+            string mainRefContents = File.ReadAllText(Path.Combine(_paths.BranchesDir, "main", "head"));
+            Assert.That(mainRefContents, Is.EqualTo(newCommitData.Commit), "branches/main/head file should be the newest commit hash.");
 
         }
 

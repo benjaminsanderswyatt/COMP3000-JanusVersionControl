@@ -23,7 +23,7 @@ namespace Janus.Helpers.CommandHelpers
         // Get the head commit hash from the branch
         public static string GetBranchHead(Paths paths, string branchName)
         {
-            string headPath = Path.Combine(paths.HeadsDir, branchName);
+            string headPath = Path.Combine(paths.BranchesDir, branchName, "head");
 
             if (!File.Exists(headPath))
             {
@@ -38,7 +38,7 @@ namespace Janus.Helpers.CommandHelpers
 
         public static void SetCurrentHEAD(Paths paths, string branchName)
         {
-            File.WriteAllText(paths.HEAD, $"ref: heads/{branchName}");
+            File.WriteAllText(paths.HEAD, $"ref: {paths.BranchesDir}/{branchName}/head");
         }
 
 

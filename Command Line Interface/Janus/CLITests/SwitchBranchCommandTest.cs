@@ -145,7 +145,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
-            Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
+            Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: {_paths.BranchesDir}/{branchName}/head"));
 
             string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
             Assert.That(File.ReadAllText(_paths.Index), Is.EqualTo(branchIndex));
@@ -178,7 +178,7 @@ namespace CLITests
 
             // Assert: 
             _loggerMock.Verify(logger => logger.Log($"Successfully switched to branch '{branchName}'."), Times.Once);
-            Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: heads/{branchName}"));
+            Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: {_paths.BranchesDir}/{branchName}/head"));
 
             string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
             Assert.That(File.ReadAllText(_paths.Index), Is.EqualTo(branchIndex));

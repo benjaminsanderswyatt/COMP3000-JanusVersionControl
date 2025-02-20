@@ -79,7 +79,7 @@ namespace Janus.Helpers
             string? authorName = "janus";
             string? authorEmail = "janus";
 
-            string initCommitHash = HashHelper.ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTimeOffset.Now, initialCommitMessage, emptyTreeHash);
+            string initCommitHash = HashHelper.ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTime.UtcNow, initialCommitMessage, emptyTreeHash);
 
             string commitMetadata = GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, parentHash, authorName, authorEmail);
 
@@ -135,8 +135,11 @@ namespace Janus.Helpers
             // Get path to the current branch
             string path = GetCurrentBranchRelPath(paths);
 
+            //...branches/branchName/head
+            string branchDir = Path.GetDirectoryName(path);
+
             // Get the current branch name
-            return Path.GetFileName(path);
+            return Path.GetFileName(branchDir);
         }
 
 
@@ -185,7 +188,7 @@ namespace Janus.Helpers
                 Branch = branch,
                 AuthorName = authorName,
                 AuthorEmail = authorEmail,
-                Date = DateTimeOffset.Now,
+                Date = DateTime.UtcNow,
                 Message = commitMessage,
                 Tree = treeHash
             };

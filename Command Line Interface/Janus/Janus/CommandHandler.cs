@@ -864,9 +864,9 @@ namespace Janus
                     var email = MiscHelper.GetEmail();
 
                     
-                    string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTimeOffset.Now, commitMessage, rootTreeHash);
+                    string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
                     
-                    CommitHelper.SaveCommit(Paths, commitHash, parentCommit, branch, username, email, DateTime.Now, commitMessage, rootTreeHash);
+                    CommitHelper.SaveCommit(Paths, commitHash, parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
@@ -949,8 +949,8 @@ namespace Janus
                             // Filter by author
                             (string.IsNullOrEmpty(filters.Author) || metadata.AuthorName.Equals(filters.Author, StringComparison.OrdinalIgnoreCase)) &&
                             // Filter by date range
-                            (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTimeOffset.Parse(filters.Since)) &&
-                            (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTimeOffset.Parse(filters.Until))
+                            (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTime.Parse(filters.Since)) &&
+                            (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTime.Parse(filters.Until))
 
                         )
                         .OrderBy(metadata => metadata.Date)
@@ -1090,7 +1090,7 @@ namespace Janus
                 }
 
 
-                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
+                string branchPath = Path.Combine(Paths.BranchesDir, branchName, "head");
 
                 if (File.Exists(branchPath))
                 {
@@ -1099,10 +1099,8 @@ namespace Janus
                 }
 
 
-                // Put the latest commit of the current branch into the new branch file
+                // Get latest commit of the current branch
                 string branchHeadCommit = MiscHelper.GetCurrentHeadCommitHash(Paths);
-
-                File.WriteAllText(branchPath, branchHeadCommit);
 
                 // Create branches file for main
                 var branch = new Branch
@@ -1111,7 +1109,7 @@ namespace Janus
                     SplitFromCommit = branchHeadCommit,
                     CreatedBy = MiscHelper.GetUsername(),
                     ParentBranch = MiscHelper.GetCurrentBranchName(Paths),
-                    Created = DateTimeOffset.Now
+                    Created = DateTime.UtcNow
                 };
 
                 string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
@@ -1120,6 +1118,12 @@ namespace Janus
                 string branchFolderPath = Path.Combine(Paths.BranchesDir, branchName);
                 Directory.CreateDirectory(branchFolderPath);
                 File.WriteAllText(Path.Combine(branchFolderPath, "info"), branchJson);
+
+
+                // Put the latest commit into the new branch head
+                File.WriteAllText(branchPath, branchHeadCommit);
+
+                
 
                 File.Copy(Paths.Index, Path.Combine(branchFolderPath, "index"));
 
@@ -1222,7 +1226,7 @@ namespace Janus
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 // Get all branches in heads directory
-                string[] allBranchesPaths = Directory.GetFiles(Paths.HeadsDir);
+                string[] allBranchesPaths = Directory.GetDirectories(Paths.BranchesDir);
 
                 var currentBranch = MiscHelper.GetCurrentBranchName(Paths);
 
@@ -1270,7 +1274,7 @@ namespace Janus
 
 
                 string branchName = args[0];
-                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
+                string branchPath = Path.Combine(Paths.BranchesDir, branchName, "head");
 
                 if (!File.Exists(branchPath))
                 {

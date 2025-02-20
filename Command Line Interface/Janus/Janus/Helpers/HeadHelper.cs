@@ -13,7 +13,7 @@ namespace Janus
                 branchName = MiscHelper.GetCurrentBranchName(paths);
             }
 
-            string branchHeadPath = Path.Combine(paths.HeadsDir, branchName);
+            string branchHeadPath = Path.Combine(paths.BranchesDir, branchName, "head");
 
             File.WriteAllText(branchHeadPath, commitHash);
         }

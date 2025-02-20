@@ -80,14 +80,14 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log("Initialized janus repository"), Times.Once);
             Assert.True(Directory.Exists(_paths.JanusDir));
             Assert.True(Directory.Exists(_paths.ObjectDir));
-            Assert.True(Directory.Exists(_paths.HeadsDir));
+            Assert.True(Directory.Exists(_paths.BranchesDir));
             Assert.True(Directory.Exists(_paths.PluginsDir));
             Assert.True(File.Exists(_paths.Index));
             Assert.True(File.Exists(_paths.HEAD));
 
             // Check the HEAD file contents
             string headContents = File.ReadAllText(_paths.HEAD);
-            Assert.That(headContents, Is.EqualTo("ref: heads/main"), "HEAD file should point to heads/main initially.");
+            Assert.That(headContents, Is.EqualTo($"ref: {_paths.BranchesDir}/main/head"), "HEAD file should point to heads/main initially.");
 
             // Get the commit object and verify its contents
             string[] commitPathsInFolder = Directory.GetFiles(_paths.CommitDir)
@@ -106,9 +106,9 @@ namespace CLITests
             Assert.That(initialCommitData.Tree, Is.EqualTo(""), "Initial commit has no tree.");
 
 
-            // Check the heads/main file contents
-            string mainRefContents = File.ReadAllText(Path.Combine(_paths.HeadsDir, "main"));
-            Assert.That(mainRefContents, Is.EqualTo(initialCommitData.Commit), "heads/main file should be the initial commit hash.");
+            // Check the branches/main/head file contents
+            string mainRefContents = File.ReadAllText(Path.Combine(_paths.BranchesDir, "main", "head"));
+            Assert.That(mainRefContents, Is.EqualTo(initialCommitData.Commit), "branches/main/head file should be the initial commit hash.");
 
 
 

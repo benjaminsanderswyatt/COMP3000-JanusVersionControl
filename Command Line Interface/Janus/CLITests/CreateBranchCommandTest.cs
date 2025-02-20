@@ -135,7 +135,7 @@ namespace CLITests
             _createBranchCommand.Execute(new string[] { branchName });
 
             // Assert
-            string branchPath = Path.Combine(_paths.HeadsDir, branchName);
+            string branchPath = Path.Combine(_paths.BranchesDir, branchName, "head");
             Assert.IsTrue(File.Exists(branchPath), "Branch head file should exist.");
 
             string branchFolderPath = Path.Combine(_paths.BranchesDir, branchName);

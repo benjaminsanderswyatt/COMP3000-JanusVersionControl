@@ -20,7 +20,6 @@ namespace Janus.Helpers.CommandHelpers
 
                 Directory.CreateDirectory(paths.ObjectDir); // .janus/objects folder
                 Directory.CreateDirectory(paths.TreeDir); // .janus/trees folder
-                Directory.CreateDirectory(paths.HeadsDir); // .janus/heads
                 Directory.CreateDirectory(paths.PluginsDir); // .janus/plugins folder
                 Directory.CreateDirectory(paths.CommitDir); // .janus/commits folder
                 Directory.CreateDirectory(paths.BranchesDir); // .janus/branches folder
@@ -34,7 +33,7 @@ namespace Janus.Helpers.CommandHelpers
                 File.Create(paths.Index).Close();
 
                 // Create HEAD file pointing at main branch
-                File.WriteAllText(paths.HEAD, "ref: heads/main");
+                File.WriteAllText(paths.HEAD, $"ref: {paths.BranchesDir}/main/head");
 
                 var initCommitHash = "";
 
@@ -51,15 +50,6 @@ namespace Janus.Helpers.CommandHelpers
                 }
                 
 
-                // Create main branch in heads/ pointing to initial commit
-                File.WriteAllText(Path.Combine(paths.HeadsDir, "main"), initCommitHash);
-
-                // Create detached Head file
-                File.WriteAllText(paths.DETACHED_HEAD, initCommitHash);
-
-
-
-
                 // Create branches file for main
                 var branch = new Branch
                 {
@@ -67,7 +57,7 @@ namespace Janus.Helpers.CommandHelpers
                     SplitFromCommit = null,
                     CreatedBy = null,
                     ParentBranch = null,
-                    Created = DateTimeOffset.Now
+                    Created = DateTime.UtcNow
                 };
 
                 string branchJson = JsonSerializer.Serialize(branch, new JsonSerializerOptions { WriteIndented = true });
@@ -78,6 +68,13 @@ namespace Janus.Helpers.CommandHelpers
                 File.WriteAllText(Path.Combine(branchFolderPath, "info"), branchJson);
 
                 File.Create(Path.Combine(branchFolderPath, "index")).Close();
+
+
+                // Create main branch in heads/ pointing to initial commit
+                File.WriteAllText(Path.Combine(branchFolderPath, "head"), initCommitHash);
+
+                // Create detached Head file
+                File.WriteAllText(paths.DETACHED_HEAD, initCommitHash);
 
 
                 // Create config file (for private & description)

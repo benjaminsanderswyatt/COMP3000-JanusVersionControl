@@ -27,10 +27,10 @@ namespace Janus.Helpers
             }
         }
 
-        public static string ComputeCommitHash(string parentHash, string branchName, string authorName, string authorEmail, DateTimeOffset date, string commitMessage, string treeHash)
+        public static string ComputeCommitHash(string parentHash, string branchName, string authorName, string authorEmail, DateTime date, string commitMessage, string treeHash)
         {
             // combine all inputs into one
-            string combinedInput = $"{parentHash}{branchName}{authorName}{authorEmail}{date.ToUnixTimeSeconds()}{commitMessage}{treeHash}";
+            string combinedInput = $"{parentHash}{branchName}{authorName}{authorEmail}{date}{commitMessage}{treeHash}";
 
             return ComputeHash(combinedInput);
         }
