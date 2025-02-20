@@ -240,6 +240,13 @@ namespace Janus
                 string owner = ownerRepoData[1];
                 string repoName = ownerRepoData[2];
 
+                // Set the branch which the working dir shows
+                string chosenBranch = "";
+                if (args.Length > 1)
+                {
+                    chosenBranch = args[1];
+                }
+
                 string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
 
                 if (Directory.Exists(repoPath))
@@ -288,10 +295,16 @@ namespace Janus
                     // Create repo config file
                     MiscHelper.CreateRepoConfig(clonePaths.RepoConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
+                    // Check the chosen branch exists
+                    if (!cloneData.Branches.Any(b => b.BranchName == chosenBranch))
+                    {
+                        // Default main and inform user
+                        chosenBranch = "main";
+                        Logger.Log($"Your chosen branch doesnt exist. Defaulting to main...");
+                    }
 
-
-                    // Store the main tree to be built
-                    var mainTree = new TreeBuilder(clonePaths);
+                    // Store the chosen branch tree to be built
+                    var chosenTree = new TreeBuilder(clonePaths);
 
                     // Get file hashes from commits
                     var fileHashes = new HashSet<string>();
@@ -333,10 +346,11 @@ namespace Janus
                                     return;
                                 }
 
-                                if (branch.BranchName == "main")
+
+                                if (branch.BranchName == chosenBranch)
                                 {
                                     // Save tree to be rebuilt
-                                    mainTree = treeBuilder;
+                                    chosenTree = treeBuilder;
                                 }
 
 
@@ -372,8 +386,58 @@ namespace Janus
                     }
 
 
-                    // Recreate main branch
+                    // Recreate chosen branch branch
+                    Logger.Log($"Setting up '{chosenBranch}' branch...");
+
+
+                    // Build the index
+                    var indexDict = chosenTree.BuildIndexDictionary();
+
+
                     // TODO
+                    /*
+                     */
+                    // Ensure main branch dir exists
+                    string chosenBranchDir = Path.Combine(clonePaths.BranchesDir, chosenBranch);
+                    Directory.CreateDirectory(chosenBranchDir);
+                    /*
+                     */
+
+                    // Save the index into the main branch
+                    // TODO create and save the index for all branches
+                    string chosenBranchIndexPath = Path.Combine (chosenBranchDir, "index");
+                    IndexHelper.SaveIndex(clonePaths.Index, indexDict);
+                    IndexHelper.SaveIndex(chosenBranchIndexPath, indexDict);
+
+
+                    // Set HEAD to main branch
+                    BranchHelper.SetCurrentHEAD(clonePaths, chosenBranch);
+
+
+
+                    // Recreate working dir
+                    Logger.Log("Recreating working directory files...");
+                    // TODO Compare working tree with staged tree and do switch helper logic
+
+                    var comparisonResults = Tree.CompareTrees(null, chosenTree.root);
+                    foreach (var filePath in comparisonResults.AddedOrUntracked)
+                    {
+                        string hash = Tree.GetHashFromTree(chosenTree.root, filePath);
+
+                        string objectFilePath = Path.Combine(clonePaths.ObjectDir, hash);
+                        string destPath = Path.Combine(repoPath, filePath);
+
+                        try
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                            File.Copy(objectFilePath, destPath, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log($"Error copying {filePath}: {ex.Message}");
+                        }
+
+                    }
 
 
 

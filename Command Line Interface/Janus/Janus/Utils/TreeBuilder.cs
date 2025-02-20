@@ -24,7 +24,7 @@ namespace Janus.Utils
     public class TreeBuilder
     {
         private readonly Paths _paths;
-        private TreeNode root;
+        public TreeNode root;
 
         public TreeBuilder(Paths paths)
         {
@@ -239,6 +239,41 @@ namespace Janus.Utils
         }
 
 
+
+
+        public Dictionary<string, string> BuildIndexDictionary()
+        {
+            var index = new Dictionary<string, string>();
+            BuildIndexDictionaryRecursive(root, "", index);
+            return index;
+        }
+
+        private void BuildIndexDictionaryRecursive(TreeNode node, string currentPath, Dictionary<string, string> index)
+        {
+            foreach (var child in node.Children)
+            {
+                string path = Path.Combine(currentPath, child.Name);
+
+                if (child.Hash != null)
+                {
+                    index[path] = child.Hash;
+                }
+                else
+                {
+                    BuildIndexDictionaryRecursive(child, path, index);
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
     }
 
 
@@ -408,7 +443,19 @@ namespace Janus.Utils
         }
 
 
+        public static string GetHashFromTree(TreeNode tree, string relativePath)
+        {
+            string[] pathParts = PathHelper.PathSplitter(relativePath);
+            TreeNode currentNode = tree;
 
+            foreach (var part in pathParts)
+            {
+                currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
+                if (currentNode == null) break;
+            }
+
+            return currentNode?.Hash;
+        }
 
 
 

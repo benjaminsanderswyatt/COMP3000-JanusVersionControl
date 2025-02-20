@@ -27,7 +27,7 @@ namespace Janus.Helpers.CommandHelpers
             {
                 string relativePath = filePath;
 
-                string targetHash = GetHashFromTree(targetTree, relativePath);
+                string targetHash = Tree.GetHashFromTree(targetTree, relativePath);
                 string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
 
 
@@ -77,31 +77,6 @@ namespace Janus.Helpers.CommandHelpers
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-        public static string GetHashFromTree(TreeNode tree, string relativePath)
-        {
-            string[] pathParts = PathHelper.PathSplitter(relativePath);
-            TreeNode currentNode = tree;
-
-            foreach (var part in pathParts)
-            {
-                currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
-                if (currentNode == null) break;
-            }
-
-            return currentNode?.Hash;
-        }
 
     }
 
