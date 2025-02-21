@@ -1,97 +1,39 @@
 import React from 'react';
 
+import styles from "../../styles/Components/Repo/Repository.module.css";
+
 const Repository = ({ enterRepo }) => {
 
 
 
   return (
-    <div onClick={() => enterRepo()} style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.repoName}>Repository Name</h2>
-        <div style={styles.visability}>Visibility</div>
+    <div onClick={() => enterRepo()} className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.repoName}>Repository Name</h2>
+        <div className={styles.visability}>Visibility</div>
         
 
-        <div style={styles.avatars}>
-          <span style={styles.avatar}></span>
-          <span style={styles.avatar}></span>
-          <span style={styles.avatar}></span>
+        <div className={styles.avatars}>
+          <span className={styles.avatar}></span>
+          <span className={styles.avatar}></span>
+          <span className={styles.avatar}></span>
         </div>
       </div>
       
 
-      <hr style={styles.divider}/>
+      <hr className={styles.divider}/>
 
-      <p style={styles.description}>
+      <p className={styles.description}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Leo magna metus
         sagittis accumsan quam ridiculus nisl sed. Egestas urna ornare primis
         venenatis; malesuada maecenas sed.
       </p>
 
       
-      <span style={styles.lastUpdated}>Last Updated...</span>
+      <span className={styles.lastUpdated}>Last Updated...</span>
       
     </div>
   );
 };
-
-const styles = {
-  container: {
-    display: "block",
-    width: "95%",
-    background: "var(--tintcard)",
-    border: 'var(--border) thin solid',
-    borderRadius: "8px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    padding: "20px",
-    maxWidth: "1000px",
-    cursor: "pointer",
-  },
-  header: {
-    display: "flex",
-    color: "var(--text)",
-    flexWrap: "wrap",
-    gap: "10px",
-    overflow: "hidden",
-  },
-  repoName: {
-    fontSize: "1.2rem",
-    fontWeight: "bold",
-    color: "var(--text)",
-  },
-  visability: {
-    background: "var(--lightsecondary)",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    color: "var(--text)",
-  },
-  avatars: {
-    display: "flex",
-    marginLeft: "auto",
-  },
-  avatar: {
-    width: "24px",
-    height: "24px",
-    background: "var(--primary)",
-    borderRadius: "50%",
-    marginLeft: "4px",
-  },
-  divider: {
-    border: "none",
-    borderTop: "2px solid var(--primary)",
-    margin: "10px 0px"
-  },
-  description: {
-    fontSize: "0.9rem",
-    color: "var(--text)",
-  },
-  lastUpdated: {
-    fontStyle: "italic",
-    fontSize: "0.8rem",
-    color: "var(--primary)",
-    float: "right",
-  },
-};
-
 
 export default Repository;

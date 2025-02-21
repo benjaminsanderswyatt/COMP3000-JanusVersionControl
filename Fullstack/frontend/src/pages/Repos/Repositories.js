@@ -7,6 +7,8 @@ import SearchBox from '../../components/SearchBox';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
+import styles from "../../styles/Pages/Repos/Repositories.module.css";
+
 
 const Repositories = () => {
   const navigate = useNavigate();
@@ -28,10 +30,10 @@ const Repositories = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
 
-      <header style={styles.header}>
-        <button style={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
+      <header className={styles.header}>
+        <button className={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
         <SearchBox searchingWhat="repositories" onSearch={() => handleSearch()} />
 
@@ -49,47 +51,6 @@ const Repositories = () => {
     </div>
   );
 };
-
-const styles = {
-  container: {
-    background: "var(--card)",
-    width: "90%",
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    alignItems: "center",
-    borderRadius: "8px",
-    marginTop: "20px",
-    justifyItems: "center",
-    paddingBottom: "18px",
-    height: "fit-content",
-  },
-  header: {
-    display: "flex",
-    width: "100%",
-    background: "var(--accent)",
-    alignItems: "center",
-    borderBottom: "var(--border) solid 1px",
-    padding: "4px 10px",
-    gap: "10px",
-    justifyContent: "center",
-    minHeight: "46px",
-    borderRadius: "8px 8px 0px 0px",
-  },
-  button: {
-    boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
-    backgroundColor: "var(--button)",
-    color: "var(--lighttext)",
-    fontSize: "1rem",
-    border: "var(--primary) thin solid",
-    height: "100%",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-  
-}
 
 
 export default Repositories;
