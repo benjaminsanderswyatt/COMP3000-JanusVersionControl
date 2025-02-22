@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import styles from "../../styles/Components/Images/ProfilePic.module.css";
 
-const ProfilePic = ({ userId, innerClassName, handleClick }) => {
+const ProfilePic = ({ userId, label, alt, innerClassName, handleClick }) => {
     const { profilePicRefresh } = useAuth();
     const [imageSrc, setImageSrc] = useState(getImageUrl(userId, profilePicRefresh));
   
@@ -24,10 +24,10 @@ const ProfilePic = ({ userId, innerClassName, handleClick }) => {
       };
 
     return (
-      <div className={`${styles.main} ${innerClassName}`} onClick={() => handleClick()}>
+      <div title={label} className={`${styles.main} ${innerClassName}`} onClick={() => handleClick()}>
         <img
           src={imageSrc}
-          alt="Profile"
+          alt={alt}
           onError={handleError} // Set to default if doesnt exist
           className={styles.image}
         />

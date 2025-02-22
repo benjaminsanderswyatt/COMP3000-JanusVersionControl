@@ -84,6 +84,7 @@ const LoggedInHeader = ({ authUser }) => {
 
         <ProfilePic
           userId={authUserId}
+          alt="Profile"
           innerClassName={styles.iconAccount}
           handleClick={() => handleNavigation("/account")}
         />

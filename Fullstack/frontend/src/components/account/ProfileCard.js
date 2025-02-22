@@ -64,7 +64,7 @@ const ProfilePictureCard = () => {
     <div className={styles.profilePicCard}>
       <div className={styles.picContainer}>
         <h3>Profile Picture</h3>
-        <ProfilePic handleClick={() => ActivateInput()} userId={authUserId} innerClassName={styles.profileImage}/>
+        <ProfilePic handleClick={() => ActivateInput()} userId={authUserId} alt="Profile" innerClassName={styles.profileImage}/>
         <div className={styles.underPicContainer}>
           <input 
             ref={fileInputRef}
