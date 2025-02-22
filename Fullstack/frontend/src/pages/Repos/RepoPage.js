@@ -43,6 +43,7 @@ const repoData = {
       {
         name: "folder2",
         hash: null,
+        lastModified: "2025-02-19T15:45:00Z",
         children: [
           {
             name: "subfile2.txt",
@@ -119,7 +120,7 @@ const RepoPage = () => {
     <Page header={headerSection}>
 
       <Card>
-        <FileExplorer files={files}></FileExplorer>
+        <FileExplorer root={repoData.tree}></FileExplorer>
       </Card>
 
 
