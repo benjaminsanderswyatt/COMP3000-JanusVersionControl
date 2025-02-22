@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Repository from '../../components/Repo/Repository';
 import { useNavigate } from 'react-router';
 import RepoBar from '../../components/Repo/RepoBar';
@@ -65,15 +65,49 @@ const repoData = [
   }
 ];
 
+// Debouncing for search
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 
 
 const Repositories = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const filteredRepos = useMemo(() => {
+    
+    return repoData.filter(repo => {
+      const query = debouncedSearchQuery.toLowerCase();
+
+      return (
+        repo.name.toLowerCase().includes(query) ||
+        repo.description.toLowerCase().includes(query) ||
+        repo.avatars.some(avatar => avatar.userName.toLowerCase().includes(query))
+      );
+    });
+  }, [debouncedSearchQuery]);
 
 
   const handleSearch = (query) => {
-    console.log('Searching repositories for:', query);
     // Search
+    setSearchQuery(query);
   };
 
 
@@ -92,17 +126,17 @@ const Repositories = () => {
       <header className={styles.header}>
         <button className={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
-        <SearchBox searchingWhat="repositories" onSearch={() => handleSearch()} />
+        <SearchBox searchingWhat="repositories" onSearch={handleSearch} />
 
       </header>
 
 
       {/* Display repositories */}
-      {repoData.length === 0 ? (
+      {filteredRepos.length === 0 ? (
         <p className={styles.noRepositories}>No repositories...</p>
       ) : (
       
-        repoData.map((repo) => (
+        filteredRepos.map((repo) => (
           <Repository
             enterRepo={() => handleEnterRepo(repo.name)}
             repoName={repo.name}
