@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { formatOnlyDate } from "../../helpers/DateHelper";
 
 import styles from "../../styles/Components/Repo/FileExplorer.module.css";
@@ -6,7 +6,7 @@ import styles from "../../styles/Components/Repo/FileExplorer.module.css";
 const FileExplorer = ({ root }) => {
   const [currentPath, setCurrentPath] = useState([]);
 
-  const getCurrentDirectory = () => {
+  const currentDir = useMemo(() => {
     let current = root;
 
     for (const folderName of currentPath) {
@@ -21,38 +21,40 @@ const FileExplorer = ({ root }) => {
     }
 
     return current;
-  };
-
-  const currentDir = getCurrentDirectory();
-  const breadcrumbParts = [root.name, ...currentPath];
+  }, [root, currentPath]);
 
 
-  // Sort children (folders first where hash=null, then files)
-  const sortedChildren = [...currentDir.children].sort((a, b) => {
-    const aIsFolder = a.hash === null;
-    const bIsFolder = b.hash === null;
-    
-    if (aIsFolder && !bIsFolder) return -1;
-    if (!aIsFolder && bIsFolder) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  const sortedChildren = useMemo(() => {
+    return [...currentDir.children].sort((a, b) => {
+      const aIsFolder = a.hash === null;
+      const bIsFolder = b.hash === null;
+      
+      if (aIsFolder && !bIsFolder) return -1;
+      if (!aIsFolder && bIsFolder) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [currentDir.children]);
 
 
-  const handleFolderClick = (folderName) => {
-    setCurrentPath([...currentPath, folderName]);
-  };
 
-  const handleBreadcrumbClick = (index) => {
-    setCurrentPath(currentPath.slice(0, index));
-  };
+  const handleFolderClick = useCallback((folderName) => {
+    setCurrentPath(prev => [...prev, folderName]);
+  }, []);
 
-  const handleBack = () => {
-    setCurrentPath(currentPath.slice(0, -1));
-  };
+  const handleBreadcrumbClick = useCallback((index) => {
+    setCurrentPath(prev => prev.slice(0, index + 1));
+  }, []);
 
-  const handleHome = () => {
+  const handleBack = useCallback(() => {
+    setCurrentPath(prev => prev.slice(0, -1));
+  }, []);
+
+  const handleHome = useCallback(() => {
     setCurrentPath([]);
-  };
+  }, []);
+
+  //const breadcrumbParts = useMemo(() => [root.name, ...currentPath], [root.name, currentPath]);
+
 
   return (
     <>
@@ -78,26 +80,26 @@ const FileExplorer = ({ root }) => {
           <img src="/Icons/home.svg" alt="Home" />
         </button>
         
-          
+
         {/* Breadcrumbs */}
         <div className={styles.breadcrumb}>
-          
+
           {currentPath.map((part, index) => (
             <React.Fragment key={index}>
-              <span className={styles.breadcrumbSeparator}>/</span>
+              {index > 0 && <span className={styles.breadcrumbSeparator}>/</span>}
+              
               <span
-                onClick={() => handleBreadcrumbClick(index + 1)}
+                onClick={() => handleBreadcrumbClick(index)}
                 className={styles.breadcrumbPart}
+                style={{ cursor: index < currentPath.length - 1 ? 'pointer' : 'default' }}
               >
                 {part}
               </span>
+
             </React.Fragment>
           ))}
         </div>
-
-
       </div>
-
 
       <table className={styles.table}>
 
@@ -111,11 +113,8 @@ const FileExplorer = ({ root }) => {
         </thead>
 
         <tbody>
-
           {sortedChildren.map((item, index) => {
-
             const isFolder = item.hash === null;
-
             const size = isFolder ? '-' : `${item.size} KB`;
 
             return (
@@ -125,13 +124,14 @@ const FileExplorer = ({ root }) => {
                 onClick={() => isFolder && handleFolderClick(item.name)}
                 style={{ cursor: isFolder ? 'pointer' : 'default' }}
               >
+
                 <td>
                   <img
                     src={`/Icons/${isFolder ? 'folder' : 'file'}.svg`}
                     alt={isFolder ? 'folder' : 'file'}
                   />
                 </td>
-
+                
                 <td>{item.name}</td>
                 <td>{size}</td>
                 <td>{formatOnlyDate(item.lastModified)}</td>
@@ -146,4 +146,4 @@ const FileExplorer = ({ root }) => {
   );
 };
 
-export default FileExplorer;
+export default memo(FileExplorer);

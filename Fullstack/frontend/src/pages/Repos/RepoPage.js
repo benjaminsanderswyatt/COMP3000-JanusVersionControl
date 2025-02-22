@@ -80,6 +80,21 @@ const repoData = {
             size: 0.1,
             lastModified: "2025-02-19T15:45:00Z",
             children: []
+          },
+          {
+            name: "Sub folder",
+            hash: null,
+            size: null,
+            lastModified: "2025-02-19T15:45:00Z",
+            children: [
+              {
+                name: "SubFile.png",
+                hash: "5pe361783ffc2f72ca7d142c7i844347423dc525",
+                size: 0.2,
+                lastModified: "2025-02-19T15:45:00Z",
+                children: []
+              }
+            ]
           }
         ]
       }
