@@ -12,28 +12,3 @@
     height: fit-content;
 }
 
-.header {
-    display: flex;
-    width: 100%;
-    background: var(--accent);
-    align-items: center;
-    border-bottom: var(--border) solid 1px;
-    padding: 4px 10px;
-    gap: 10px;
-    justify-content: center;
-    min-height: 46px;
-    border-radius: 8px 8px 0px 0px;
-}
-
-.button {
-    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
-    background-color: var(--button);
-    color: var(--lighttext);
-    font-size: 1rem;
-    border: var(--primary) thin solid;
-    height: 100%;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    white-space: nowrap;
-}

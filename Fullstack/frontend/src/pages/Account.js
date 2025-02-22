@@ -9,6 +9,8 @@ import ThemeToggle from '../components/ThemeToggle';
 import { GenAccessToken } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
 
+import Page from "../components/Page";
+
 import styles from "../styles/Pages/Account.module.css";
 
 const Account = () => {
@@ -65,13 +67,14 @@ const Account = () => {
         }
     }
 
+    const headerSection = (pageStyles) => { return(
+        <header className={pageStyles.header}>
+            <ThemeToggle />
+        </header>
+    )};
 
     return (
-        <div className={styles.container}>
-
-            <header className={styles.header}>
-                <ThemeToggle />
-            </header>
+        <Page header={headerSection}>
 
             <ProfilePictureCard/>
 
@@ -96,7 +99,7 @@ const Account = () => {
 
 
             
-        </div>
+        </Page>
     );
 };
 

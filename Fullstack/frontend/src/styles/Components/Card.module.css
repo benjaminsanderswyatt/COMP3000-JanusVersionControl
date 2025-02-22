@@ -1,0 +1,9 @@
+.card {
+    display: block;
+    width: 100%;
+    background: var(--tintcard);
+    border: var(--border) thin solid;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 12px 20px 16px 20px;
+}
