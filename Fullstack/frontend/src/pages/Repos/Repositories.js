@@ -11,7 +11,6 @@ import styles from "../../styles/Pages/Repos/Repositories.module.css";
 
 
 
-
 // Example repo data
 const repoData = [
   {
@@ -99,16 +98,20 @@ const Repositories = () => {
 
 
       {/* Display repositories */}
-      {repoData.map((repo) => (
-        <Repository
-          enterRepo={() => handleEnterRepo(repo.name)}
-          repoName={repo.name}
-          description={repo.description}
-          visability={repo.visibility}
-          lastUpdated={repo.lastUpdated}
-          avatars={repo.avatars}
-        />
-      ))}
+      {repoData.length === 0 ? (
+        <p className={styles.noRepositories}>No repositories...</p>
+      ) : (
+      
+        repoData.map((repo) => (
+          <Repository
+            enterRepo={() => handleEnterRepo(repo.name)}
+            repoName={repo.name}
+            description={repo.description}
+            visability={repo.visibility}
+            lastUpdated={repo.lastUpdated}
+            avatars={repo.avatars}
+          />
+      )))}
 
 
 
