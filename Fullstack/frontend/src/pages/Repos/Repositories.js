@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Repository from '../../components/Repo/Repository';
 import { useNavigate } from 'react-router';
-import RepoBar from '../../components/Repo/RepoBar';
-
+import Page from "../../components/Page";
 import SearchBox from '../../components/SearchBox';
 
 import { useAuth  } from '../../contexts/AuthContext';
@@ -112,7 +111,11 @@ const Repositories = () => {
 
 
   const handleEnterRepo = (name) => {
-    navigate(`/repository/${name}`);
+    navigate(`/repository/${name}/main`);
+  }
+
+  const handleEnterRepoContrib = (name) => {
+    navigate(`/repository/${name}/contributors`);
   }
 
 
@@ -120,16 +123,18 @@ const Repositories = () => {
     navigate("/repository/create");
   };
 
-  return (
-    <div className={styles.container}>
 
-      <header className={styles.header}>
-        <button className={styles.button} onClick={() => CreateNewRepo()}>New Repository</button>
+  const headerSection = (styling) => { return(
+    <header className={styling.header}>
+        <button className={styling.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
         <SearchBox searchingWhat="repositories" onSearch={handleSearch} />
 
-      </header>
+    </header>
+  )};
 
+  return (
+    <Page header={headerSection}>
 
       {/* Display repositories */}
       {filteredRepos.length === 0 ? (
@@ -138,7 +143,9 @@ const Repositories = () => {
       
         filteredRepos.map((repo) => (
           <Repository
+            key={repo.id}
             enterRepo={() => handleEnterRepo(repo.name)}
+            enterRepoContrib={() => handleEnterRepoContrib(repo.name)}
             repoName={repo.name}
             description={repo.description}
             visability={repo.visibility}
@@ -147,10 +154,7 @@ const Repositories = () => {
           />
       )))}
 
-
-
-      
-    </div>
+    </Page>
   );
 };
 

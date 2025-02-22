@@ -1,101 +1,137 @@
 import React from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 
+import Page from "../../components/Page";
+import Card from "../../components/Card";
 import Commit from "../../components/Repo/Commit"
 import RepoPageHeader from "../../components/Repo/RepoPageHeader";
+import FileExplorer from "../../components/Repo/FileExplorer";
+
+const repoData = {
+  id: 1,
+  visibility: false,
+  latestCommit: { 
+    id: 1, 
+    userName: "User 1",
+    message: "Commit message",
+    commitHash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+    date: "2025-02-19T15:45:00Z",
+  },
+  readme: {
+    content: "Readme content"
+  },
+  tree: {
+    name: "root",
+    hash: null,
+    size: null,
+    lastModified: "2025-02-19T15:45:00Z",
+    children: [
+      {
+        name: "file1.txt",
+        hash: "60b27f004e454aca81b0480209cce5081ec52390",
+        size: 1.5,
+        lastModified: "2025-02-19T15:45:00Z",
+        children: []
+      },
+      {
+        name: "file2.txt",
+        hash: "cb99b709a1978bd205ab9dfd4c5aaa1fc91c7523",
+        size: 1.1,
+        lastModified: "2025-02-19T15:45:00Z",
+        children: []
+      },
+      {
+        name: "folder2",
+        hash: null,
+        children: [
+          {
+            name: "subfile2.txt",
+            hash: "10857312f8e7b367c7205972009d243501562a40",
+            size: 2.0,
+            lastModified: "2025-02-19T15:45:00Z",
+            children: []
+          }
+        ]
+      },
+      {
+        name: "New folder",
+        hash: null,
+        size: null,
+        lastModified: "2025-02-19T15:45:00Z",
+        children: [
+          {
+            name: "PBig.pptx",
+            hash: "dcf15b8669eab90d495d7c469a79050dc4b684ed",
+            size: 5.2,
+            lastModified: "2025-02-19T15:45:00Z",
+            children: []
+          },
+          {
+            name: "TxtSmall.txt",
+            hash: "e7fb9f85c9f7ba9ba239751333cbbeb53da7926c",
+            size: 99,
+            lastModified: "2025-02-19T15:45:00Z",
+            children: []
+          },
+          {
+            name: "WordBig.docx",
+            hash: "a8e361783ffc2f72ca7d142cf9a44347423dc525",
+            size: 0.1,
+            lastModified: "2025-02-19T15:45:00Z",
+            children: []
+          }
+        ]
+      }
+    ]
+  }
+};
+
+// Test files for file explorer
+const files = [
+  { name: "Folder 1", type: "folder", size: "-", date: "2025-02-19T15:45:00Z" },
+  { name: "Folder 2", type: "folder", size: "-", date: "2025-02-19T15:45:00Z" },
+  { name: "File Name", type: "file", size: "1.3 kb", date: "2025-02-19T15:45:00Z" },
+];
+
+
+
 
 const RepoPage = () => {
   const navigate = useNavigate();
   const { name } = useParams(); // Get the name from the URL
 
+
+
+
+  const headerSection = (pageStyles) => { return(
+    <header className={pageStyles.header}>
+        <div className={pageStyles.leftHeader}>
+          <h2>{name}</h2>
+          <div className={pageStyles.visability}>Visibility</div>
+        </div>
+
+        <RepoPageHeader/>
+
+    </header>
+  )};
   
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <div style={styles.leftHeader}>
-          <h2>{name}</h2>
-          <div style={styles.visability}>Visibility</div>
-        </div>
-        <RepoPageHeader/>
-        
-      </header>
+    <Page header={headerSection}>
 
-      <div style={styles.repoHolder}>
-        
-        <Commit/>
+      <Card>
+        <FileExplorer files={files}></FileExplorer>
+      </Card>
 
 
 
+      <Commit/>
 
-      </div>
+
       
-    </div>
+    </Page>
   );
 
   
 };
-
-const styles = {
-  header: {
-    display: "flex",
-    width: "90%",
-    background: "var(--accent)",
-    alignItems: "center",
-    borderBottom: "var(--border) solid 1px",
-    padding: "4px 10px",
-    gap: "10px",
-    marginTop: "20px",
-    borderRadius: "8px 8px 0px 0px",
-    minHeight: "46px",
-    flexWrap: "wrap",
-  },
-  leftHeader: {
-    display: "flex",
-    justifyContent: "left",
-    gap: "8px",
-    alignItems: "center",
-  },
-  visability: {
-    background: "var(--lightsecondary)",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    color: "var(--text)",
-    height: "fit-content",
-  },
-  button: {
-    boxShadow: "0 1px 0 0 rgba(0, 0, 0, 0.1)",
-    backgroundColor: "var(--button)",
-    color: "var(--lighttext)",
-    fontSize: "1rem",
-    border: "var(--primary) thin solid",
-    height: "100%",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-  container: {
-    width: "100%",
-    justifyItems: "center",
-  },
-  repoHolder: {
-    background: "var(--card)",
-    width: "90%",
-    padding: "18px",
-    justifyItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    alignItems: "center",
-    borderRadius: "0px 0px 8px 8px",
-  },
-  PATHolder: {
-    width: "100%",
-  },
-  GenPAT: {
-    overflow: "auto",
-  },
-}
 
 export default RepoPage;

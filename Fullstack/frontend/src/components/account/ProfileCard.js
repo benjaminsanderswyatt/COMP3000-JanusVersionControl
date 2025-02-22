@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import ProfilePic from '../../components/images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
+import Card from "../Card";
 
 import styles from "../../styles/Components/account/ProfileCard.module.css"
 
@@ -61,7 +62,7 @@ const ProfilePictureCard = () => {
   };
 
   return (
-    <div className={styles.profilePicCard}>
+    <Card cardStyling={styles.profilePicCard}>
       <div className={styles.picContainer}>
         <h3>Profile Picture</h3>
         <ProfilePic handleClick={() => ActivateInput()} userId={authUserId} alt="Profile" innerClassName={styles.profileImage}/>
@@ -109,7 +110,7 @@ const ProfilePictureCard = () => {
           </div>
         </>
       )}
-    </div>
+    </Card>
   );
 };
 

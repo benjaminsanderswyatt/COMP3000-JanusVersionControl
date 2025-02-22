@@ -1,12 +1,5 @@
 .profilePicCard {
     display: flex;
-    width: 95%;
-    background: var(--tintcard);
-    border: var(--border) thin solid;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 1000px;
     justify-content: space-evenly;
     gap: 18px;
 }

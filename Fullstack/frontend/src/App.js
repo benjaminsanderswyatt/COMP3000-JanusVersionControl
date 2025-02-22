@@ -80,7 +80,7 @@ const App = () => {
                   <Route index element={<RepoCreate />}/>
                 </Route>
 
-                <Route path="repository/:name" element={<ProtectedRoute />}>
+                <Route path="repository/:name/:branch" element={<ProtectedRoute />}>
                   <Route index element={<RepoPage />}/>
                 </Route>
 

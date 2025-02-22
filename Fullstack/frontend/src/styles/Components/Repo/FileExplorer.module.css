@@ -1,0 +1,44 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.theadRow  {
+  border-bottom: 2px solid var(--primary);
+}
+
+.th {
+  padding: 8px 20px;
+  text-align: left;
+}
+
+th:nth-child(3),
+th:nth-child(4) {
+  text-align: right;
+}
+
+.tbodyRow  {
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 8px 16px;
+}
+
+td:first-child {
+  width: 22px;
+  text-align: center;
+  padding: 8px;
+}
+
+td:first-child img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+
+td:nth-child(3),
+td:nth-child(4) {
+  text-align: right;
+}

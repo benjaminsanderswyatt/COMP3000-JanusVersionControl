@@ -4,10 +4,12 @@ import { formatDate } from "../../helpers/DateHelper";
 
 import styles from "../../styles/Components/Repo/Repository.module.css";
 
+import Card from "../Card";
 
 
 
-const Repository = ({ enterRepo, id, 
+
+const Repository = ({ enterRepo, enterRepoContrib, id, 
   repoName="Repository Name",
   description="Repository description...",
   visability=false,
@@ -23,36 +25,34 @@ const Repository = ({ enterRepo, id,
   const extraAvatars = avatars.slice(maxDisplayedAvatars);
   const extraUsernames = extraAvatars.map(avatar => avatar.userName).join(', ');
 
-  const handleNavigation = async () => {
-
-  }
 
   return (
-    <div onClick={() => enterRepo()} className={styles.container}>
+    <Card>
       <div className={styles.header}>
-        <h2 className={styles.repoName}>{repoName}</h2>
+        <h2 className={styles.repoName} onClick={() => enterRepo()}>{repoName}</h2>
         
         <div className={styles.visability}>{visability ? "Public" : "Private"}</div>
         
-
-        <div className={styles.avatars}>
-          
-          {displayedAvatars.map((avatar) => (
-            <ProfilePic
-              userId={avatar.id}
-              label={avatar.userName}
-              innerClassName={styles.avatar}
-              handleClick={() => handleNavigation(avatar.id)}
-            />
-          ))}
-        </div>
-
-        {extraCount > 0 && (
-          <div className={styles.avatarExtra} title={extraUsernames}>
-            +{extraCount}
+        <div onClick={() => enterRepoContrib()} className={styles.colaborators}>
+          <div className={styles.avatars}>
+            
+            {displayedAvatars.map((avatar) => (
+              <ProfilePic
+                key={avatar.id}
+                userId={avatar.id}
+                label={avatar.userName}
+                innerClassName={styles.avatar}
+                handleClick={() => {}}
+              />
+            ))}
           </div>
-        )}
 
+          {extraCount > 0 && (
+            <div className={styles.avatarExtra} title={extraUsernames}>
+              +{extraCount}
+            </div>
+          )}
+        </div>
       </div>
       
 
@@ -68,7 +68,7 @@ const Repository = ({ enterRepo, id,
         <span className={styles.lastUpdatedDate}>{formatDate(lastUpdated)}</span>
       </div>
 
-    </div>
+    </Card>
   );
 };
 
