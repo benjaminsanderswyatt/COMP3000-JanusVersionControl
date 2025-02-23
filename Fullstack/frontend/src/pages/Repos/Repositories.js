@@ -14,48 +14,48 @@ import styles from "../../styles/Pages/Repos/Repositories.module.css";
 const repoData = [
   {
     id: 1,
-    name: "Project 1",
+    name: "Project_1",
     description: "Project description 1",
     visibility: false,
     lastUpdated: "2025-02-19T15:45:00Z",
     avatars: [
-      { id: 1, userName: "User 1" },
-      { id: 2, userName: "User 2" },
-      { id: 3, userName: "User 3" },
-      { id: 4, userName: "User 4" },
-      { id: 5, userName: "User 5" },
-      { id: 6, userName: "User 6" },
-      { id: 7, userName: "User 7" },
-      { id: 8, userName: "User 8" },
-      { id: 9, userName: "User 9" },
-      { id: 10, userName: "User 10" },
-      { id: 11, userName: "User 11" },
+      { id: 1, userName: "User1" },
+      { id: 2, userName: "User2" },
+      { id: 3, userName: "User3" },
+      { id: 4, userName: "User4" },
+      { id: 5, userName: "User5" },
+      { id: 6, userName: "User6" },
+      { id: 7, userName: "User7" },
+      { id: 8, userName: "User8" },
+      { id: 9, userName: "User9" },
+      { id: 10, userName: "User10" },
+      { id: 11, userName: "User11" },
     ],
   },
   {
     id: 2,
-    name: "Project 2",
+    name: "Project_2",
     description: "Project description 2",
     visibility: true,
     lastUpdated: "2024-02-18T09:30:00Z",
     avatars: [
-      { id: 4, userName: "User 4" }
+      { id: 4, userName: "User4" }
     ],
   },
   {
     id: 3,
-    name: "Project 3",
+    name: "Project_3",
     description: "Project description 3",
     visibility: false,
     lastUpdated: "2025-03-18T09:30:00Z",
     avatars: [
-      { id: 5, userName: "User 5" },
-      { id: 6, userName: "User 6" }
+      { id: 5, userName: "User5" },
+      { id: 6, userName: "User6" }
     ],
   },
   {
     id: 4,
-    name: "Project 4",
+    name: "Project_4",
     description: "Project description 4",
     visibility: true,
     lastUpdated: "2025-11-18T09:30:00Z",
@@ -85,6 +85,7 @@ function useDebounce(value, delay) {
 
 
 const Repositories = () => {
+  const { authUser } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -111,11 +112,11 @@ const Repositories = () => {
 
 
   const handleEnterRepo = (name) => {
-    navigate(`/repository/${name}/main`);
+    navigate(`/repository/${authUser}/${name}/main`);
   }
 
   const handleEnterRepoContrib = (name) => {
-    navigate(`/repository/${name}/contributors`);
+    navigate(`/repository/${authUser}/${name}/contributors`);
   }
 
 

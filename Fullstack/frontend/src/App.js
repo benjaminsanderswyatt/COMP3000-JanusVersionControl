@@ -72,7 +72,7 @@ const App = () => {
 
 
               {/*Protected Routes*/}
-              <Route path="repositories" element={<ProtectedRoute />}>
+              <Route path="repositories/:username" element={<ProtectedRoute />}>
                 <Route index element={<Repositories />}/>
               </Route>
 
@@ -80,11 +80,11 @@ const App = () => {
                   <Route index element={<RepoCreate />}/>
                 </Route>
 
-                <Route path="repository/:name/:branch" element={<ProtectedRoute />}>
+                <Route path="repository/:username/:name/:branch" element={<ProtectedRoute />}>
                   <Route index element={<RepoPage />}/>
                 </Route>
 
-                <Route path="repository/:name/commits" element={<ProtectedRoute />}>
+                <Route path="repository/:username/:name/commits" element={<ProtectedRoute />}>
                   <Route index element={<RepoCommits />}/>
                 </Route>
 

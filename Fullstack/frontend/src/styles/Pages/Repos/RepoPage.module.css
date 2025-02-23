@@ -16,7 +16,53 @@
     align-self: center;
 }
 
+
+.repoDetails {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.branchHolder {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.branchSelect {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--card);
+    cursor: pointer;
+}
+
+.clone {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.copyButton {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--lightsecondary);
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.copyButton:hover {
+    background-color: var(--secondary);
+}
+
+
+
 .readme {
     border-bottom: 2px solid var(--primary);
     margin-bottom: 10px;
 }
+

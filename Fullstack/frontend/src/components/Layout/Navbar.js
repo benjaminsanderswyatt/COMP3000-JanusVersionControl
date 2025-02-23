@@ -58,13 +58,13 @@ const LoggedInHeader = ({ authUser }) => {
       <nav className={`${styles.navbar} ${menuOpen ? styles.showMenu : styles.hideMenu}`}>
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") ? styles.selected : ""}`}
-          onClick={() => handleNavigation("/repositories")}
+          onClick={() => handleNavigation(`/repositories/${authUser}`)}
         >
           My Repositories
         </button>
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/collaborating") ? styles.selected : ""}`}
-          onClick={() => handleNavigation("/collaborating")}
+          onClick={() => handleNavigation(`/collaborating/${authUser}`)}
         >
           Collaborating
         </button>

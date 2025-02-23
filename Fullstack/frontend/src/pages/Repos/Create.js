@@ -13,7 +13,7 @@ const Create = () => {
   const navigate = useNavigate();
   const [message, setError] = useState('');
   const [loading , setLoading] = useState(false);
-  const { sessionExpired } = useAuth();
+  const { sessionExpired, authUser } = useAuth();
 
   const [formData, setFormData] = useState({
       name: "",
@@ -52,7 +52,7 @@ const Create = () => {
 
       if (response.success) {
         // Goto the new repo page
-        navigate(`/repository/${formData.name}`);
+        navigate(`/repository/${authUser}/${formData.name}`);
       } else {
         setError(response.message);
       }
