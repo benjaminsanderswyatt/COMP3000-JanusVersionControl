@@ -18,6 +18,9 @@ import RepoCreate from './pages/Repos/Create';
 import RepoPage from './pages/Repos/RepoPage';
 import RepoCommits from './pages/Repos/Commits';
 
+import Collaborating from './pages/Colab/Collaborating';
+
+
 import Account from './pages/Account';
 
 import TermsOfUse from './pages/legal/TermsOfUse'
@@ -59,7 +62,6 @@ const App = () => {
               {/*Default route*/}
               <Route index element={<Home />} />
 
-
               {/*User Pages*/}
               <Route path="login">
                 <Route index element={<Login />}/>
@@ -72,7 +74,8 @@ const App = () => {
 
 
               {/*Protected Routes*/}
-              <Route path="repositories/:username" element={<ProtectedRoute />}>
+
+              <Route path="repositories/:owner" element={<ProtectedRoute />}>
                 <Route index element={<Repositories />}/>
               </Route>
 
@@ -80,19 +83,25 @@ const App = () => {
                   <Route index element={<RepoCreate />}/>
                 </Route>
 
-                <Route path="repository/:username/:name/:branch" element={<ProtectedRoute />}>
+                <Route path="repository/:owner/:name/:branch" element={<ProtectedRoute />}>
                   <Route index element={<RepoPage />}/>
                 </Route>
 
-                <Route path="repository/:username/:name/commits" element={<ProtectedRoute />}>
+                <Route path="repository/:owner/:name/commits" element={<ProtectedRoute />}>
                   <Route index element={<RepoCommits />}/>
                 </Route>
 
 
+              <Route path="collaborating/:owner" element={<ProtectedRoute />}>
+                <Route index element={<Collaborating />}/>
+              </Route>
+              
 
               <Route path="account" element={<ProtectedRoute />}>
                 <Route index element={<Account />}/>
               </Route>
+
+
 
 
 
@@ -104,6 +113,7 @@ const App = () => {
 
               {/*Catch all invalid routes (404)*/}
               <Route path="*" element={<NoPage />} />
+              
             </Route>
           </Routes>
         </BrowserRouter>
