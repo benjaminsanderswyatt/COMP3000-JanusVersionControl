@@ -1,12 +1,12 @@
 import React from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 
+import { useAuth } from "../../contexts/AuthContext";
 import Page from "../../components/Page";
 import Card from "../../components/Card";
 import Commit from "../../components/Repo/Commit"
 import RepoPageHeader from "../../components/Repo/RepoPageHeader";
 import FileExplorer from "../../components/Repo/FileExplorer";
-import CommitHistory from "../../components/Repo/CommitHistory";
 
 import styles from "../../styles/Pages/Repos/RepoPage.module.css";
 
@@ -14,6 +14,11 @@ const repoData = {
   id: 1,
   description: "Repository description",
   visibility: false,
+  branches: [ "main", "first", "second"],
+};
+
+
+const branchData = {
   latestCommit: { 
     userId: 1, 
     userName: "User 1",
@@ -104,21 +109,39 @@ const repoData = {
       }
     ]
   }
-};
+}
 
-// Test files for file explorer
-const files = [
-  { name: "Folder 1", type: "folder", size: "-", date: "2025-02-19T15:45:00Z" },
-  { name: "Folder 2", type: "folder", size: "-", date: "2025-02-19T15:45:00Z" },
-  { name: "File Name", type: "file", size: "1.3 kb", date: "2025-02-19T15:45:00Z" },
-];
 
 
 
 
 const RepoPage = () => {
+  const { authUser } = useAuth();
   const navigate = useNavigate();
-  const { name } = useParams(); // Get the name from the URL
+  const { name, branch } = useParams(); // Get the name from the URL
+
+
+
+  const handleBranchChange = (e) => {
+    // Navigate to the new branch using relative path
+    navigate(`/repository/${authUser}/${name}/${e.target.value}`);
+  };
+
+  const handleCopyToClipboard = () => {
+    const cloneUrl = `janus/${authUser}/${name}`;
+
+    navigator.clipboard
+      .writeText(cloneUrl)
+      .then(() => {
+        
+        alert("Clone copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+
+        alert("Failed to copy clone");
+      });
+  };
 
 
 
@@ -137,17 +160,48 @@ const RepoPage = () => {
           <h1>{name}</h1>
           <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
         </div>
-        
+
         <p>{repoData.description}</p>
       </Card>
 
       <Card>
-        <Commit commit={repoData.latestCommit}></Commit>
+        {/* Dropdown list for picking branch */}
+        <div className={styles.repoDetails}>
+          <div className={styles.branchHolder}>
+            <label htmlFor="branch-select">Branch:</label>
+            <select
+              id="branch-select"
+              value={branch}
+              onChange={handleBranchChange}
+              className={styles.branchSelect}
+            >
+              {repoData.branches.map((branchOption) => (
+                <option key={branchOption} value={branchOption}>
+                  {branchOption}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.clone}>
+            <div>Clone:</div>
+            <div>janus/{authUser}/{name}</div>
+            {/* Copy to clipboard */}
+            <button onClick={handleCopyToClipboard} className={styles.copyButton}>
+              Copy
+            </button>
+
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <Commit commit={branchData.latestCommit}></Commit>
       </Card>
 
 
       <Card>
-        <FileExplorer root={repoData.tree}></FileExplorer>
+        <FileExplorer root={branchData.tree}></FileExplorer>
       </Card>
 
 
@@ -155,7 +209,7 @@ const RepoPage = () => {
 
       <Card>
         <h2 className={styles.readme}>Read Me</h2>
-        <p>{repoData.readme.content}</p>
+        <p>{branchData.readme.content}</p>
       </Card>
       
     </Page>
