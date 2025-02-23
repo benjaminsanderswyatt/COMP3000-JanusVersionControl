@@ -8,7 +8,7 @@ import Commit from "../../../components/Repo/Commit"
 import RepoPageHeader from "../../../components/Repo/RepoPageHeader";
 import FileExplorer from "../../../components/Repo/FileExplorer";
 import LoadingSpinner from "../../../components/LoadingSpinner";
-
+import Dropdown from "../../../components/Dropdown";
 
 import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
 
@@ -137,9 +137,9 @@ const RepoPage = () => {
 
 
 
-  const handleBranchChange = (e) => {
+  const handleBranchChange = (newBranch) => {
     // Navigate to the new branch
-    navigate(`/repository/${owner}/${name}/${e.target.value}`);
+    navigate(`/repository/${owner}/${name}/${newBranch}`);
   };
 
   const handleCopyToClipboard = () => {
@@ -178,21 +178,12 @@ const RepoPage = () => {
       <Card>
         {/* Dropdown list for picking branch */}
         <div className={styles.repoDetails}>
-          <div className={styles.branchHolder}>
-            <label htmlFor="branch-select">Branch:</label>
-            <select
-              id="branch-select"
-              value={branch}
-              onChange={handleBranchChange}
-              className={styles.branchSelect}
-            >
-              {repoData.branches.map((branchOption) => (
-                <option key={branchOption} value={branchOption}>
-                  {branchOption}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Dropdown
+            label="Branch"
+            dataArray={repoData.branches}
+            onSelect={handleBranchChange}
+            selectedValue={branch}
+          />
 
           <div className={styles.clone}>
             <div>janus/{owner}/{name}</div>

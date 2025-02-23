@@ -4,9 +4,11 @@ import { useParams, useNavigate, useOutletContext } from 'react-router';
 import RepoPageHeader from '../../../components/Repo/RepoPageHeader';
 import Page from '../../../components/Page';
 import Card from "../../../components/Cards/Card";
-
-import styles from "../../../styles/Pages/Repos/SubPages/Commits.module.css";
 import LoadingSpinner from '../../../components/LoadingSpinner';
+import Dropdown from "../../../components/Dropdown";
+
+import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+
 
 
 const branchData = {
@@ -46,47 +48,33 @@ const Commits = () => {
 
 
 
-  const handleBranchChange = (e) => {
+  const handleBranchChange = (newBranch) => {
     // Navigate to the new branch
-    navigate(`/repository/${owner}/${name}/${e.target.value}/commits`);
+    navigate(`/repository/${owner}/${name}/${newBranch}/commits`);
   };
 
 
   
   return (
     <Page header={headerSection}>
-      <h1>Commits</h1>
-      <p>branch</p>
-      <p>all commits</p>
 
       <Card>
         <div className={styles.header}>
           <h1>{name}</h1>
-          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
         </div>
 
-        <p>{repoData.description}</p>
+        {/* Dropdown list for picking branch */}
+        <Dropdown
+          label="Branch"
+          dataArray={repoData.branches}
+          onSelect={handleBranchChange}
+          selectedValue={branch}
+        />
+      
       </Card>
 
       <Card>
-        {/* Dropdown list for picking branch */}
-        <div className={styles.repoDetails}>
-          <div className={styles.branchHolder}>
-            <label htmlFor="branch-select">Branch:</label>
-            <select
-              id="branch-select"
-              value={branch}
-              onChange={handleBranchChange}
-              className={styles.branchSelect}
-            >
-              {repoData.branches.map((branchOption) => (
-                <option key={branchOption} value={branchOption}>
-                  {branchOption}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        
       </Card>
     </Page>
   );
