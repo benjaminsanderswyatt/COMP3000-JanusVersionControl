@@ -19,8 +19,13 @@
     border-radius: 8px;
     cursor: pointer;
     white-space: nowrap;
+    transition: background-color 0.1s ease-in-out;
 }
 
-.selected {
-    background: var(--border);
+.button:hover {
+    background-color: var(--nav-hover);
+}
+
+.button.selected {
+    background-color: var(--nav);
 }

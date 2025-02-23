@@ -127,8 +127,7 @@ const Repositories = () => {
 
   const headerSection = (styling) => { return(
     <header className={styling.header}>
-        <button className={styling.button} onClick={() => CreateNewRepo()}>New Repository</button>
-
+      
         <SearchBox searchingWhat="repositories" onSearch={handleSearch} />
 
     </header>

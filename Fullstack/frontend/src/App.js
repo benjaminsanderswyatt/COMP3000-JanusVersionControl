@@ -19,10 +19,10 @@ import Discover from './pages/Discover';
 import Repositories from './pages/Repos/Repositories';
 import RepoCreate from './pages/Repos/Create';
 
-import RepoPage from './pages/Repos/RepoPage';
-import RepoCommits from './pages/Repos/Commits';
-import RepoContributers from './pages/Repos/Contributers';
-import RepoSettings from './pages/Repos/Settings';
+import RepoPage from './pages/Repos/SubPages/RepoPage';
+import Commits from './pages/Repos/SubPages/Commits';
+import Contributers from './pages/Repos/SubPages/Contributors';
+import Settings from './pages/Repos/SubPages/Settings';
 
 import Collaborating from './pages/Colab/Collaborating';
 
@@ -105,15 +105,15 @@ const App = () => {
                 </Route>
 
                 <Route path="repository/:owner/:name/commits" element={<ProtectedRoute />}>
-                  <Route index element={<RepoCommits />}/>
+                  <Route index element={<Commits />}/>
                 </Route>
 
                 <Route path="repository/:owner/:name/contributors" element={<ProtectedRoute />}>
-                  <Route index element={<RepoContributers />}/>
+                  <Route index element={<Contributers />}/>
                 </Route>
 
                 <Route path="repository/:owner/:name/settings" element={<ProtectedRoute />}>
-                  <Route index element={<RepoSettings />}/>
+                  <Route index element={<Settings />}/>
                 </Route>
 
 

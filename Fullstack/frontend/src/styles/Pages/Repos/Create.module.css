@@ -1,0 +1,33 @@
+.createHolder {
+    background: var(--card);
+    width: 90%;
+    padding: 18px;
+    justify-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    border-radius: 0px 0px 8px 8px;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    font-size: 14px;
+}
+
+.button {
+    padding: 10px 15px;
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

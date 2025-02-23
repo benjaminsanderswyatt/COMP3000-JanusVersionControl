@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { InitRepo } from '../../api/fetch/fetchCreateRepo';
+import Page from "../../components/Page";
 
 import TextInput from '../../components/Login/TextInput';
 import Checkbox from '../../components/Checkbox';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
-
+import styles from "../../styles/Pages/Repos/Create.module.css";
 
 const Create = () => {
   const navigate = useNavigate();
@@ -65,12 +66,17 @@ const Create = () => {
   };
 
 
+  const headerSection = (pageStyles) => { return(
+    <header className={pageStyles.header}>
+    </header>
+  )};
+  
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
+    <Page header={headerSection}>
+      <header className={styles.header}>
       </header>
 
-      {message && <p style={styles.error}>{message}</p>}
+      {message && <p className={styles.error}>{message}</p>}
 
       <form onSubmit={onSubmit}>
 
@@ -101,17 +107,18 @@ const Create = () => {
           label="Private Repository"
         />
 
-        <button type="submit" style={styles.button} disabled={loading}>
+        <button type="submit" className={styles.button} disabled={loading}>
           {loading ? "Creating..." : "Create Repository"}
         </button>
 
       </form>
       
 
-    </div>
+    </Page>
   );
 };
 
+/*
 const styles = {
   container: {
     background: "var(--card)",
@@ -169,7 +176,7 @@ const styles = {
     cursor: "pointer",
   },
 }
-
+*/
 
 export default Create;
   

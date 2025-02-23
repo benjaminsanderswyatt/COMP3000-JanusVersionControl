@@ -1,14 +1,14 @@
 import React from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
 
-import { useAuth } from "../../contexts/AuthContext";
-import Page from "../../components/Page";
-import Card from "../../components/Card";
-import Commit from "../../components/Repo/Commit"
-import RepoPageHeader from "../../components/Repo/RepoPageHeader";
-import FileExplorer from "../../components/Repo/FileExplorer";
+import { useAuth } from "../../../contexts/AuthContext";
+import Page from "../../../components/Page";
+import Card from "../../../components/Card";
+import Commit from "../../../components/Repo/Commit"
+import RepoPageHeader from "../../../components/Repo/RepoPageHeader";
+import FileExplorer from "../../../components/Repo/FileExplorer";
 
-import styles from "../../styles/Pages/Repos/RepoPage.module.css";
+import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
 
 const repoData = {
   id: 1,
@@ -118,17 +118,17 @@ const branchData = {
 const RepoPage = () => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
-  const { owner, branch } = useParams(); // Get the name from the URL
+  const { owner, name, branch } = useParams(); // Get the name from the URL
 
 
 
   const handleBranchChange = (e) => {
     // Navigate to the new branch using relative path
-    navigate(`/repository/${authUser}/${owner}/${e.target.value}`);
+    navigate(`/repository/${owner}/${name}/${e.target.value}`);
   };
 
   const handleCopyToClipboard = () => {
-    const cloneUrl = `janus/${authUser}/${owner}`;
+    const cloneUrl = `janus/${owner}/${name}`;
 
     navigator.clipboard
       .writeText(cloneUrl)
@@ -157,7 +157,7 @@ const RepoPage = () => {
 
       <Card>
         <div className={styles.header}>
-          <h1>{owner}</h1>
+          <h1>{name}</h1>
           <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
         </div>
 
@@ -184,8 +184,7 @@ const RepoPage = () => {
           </div>
 
           <div className={styles.clone}>
-            <div>Clone:</div>
-            <div>janus/{authUser}/{owner}</div>
+            <div>janus/{owner}/{name}</div>
             {/* Copy to clipboard */}
             <button onClick={handleCopyToClipboard} className={styles.copyButton}>
               Copy
