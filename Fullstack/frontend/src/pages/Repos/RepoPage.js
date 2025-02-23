@@ -6,15 +6,19 @@ import Card from "../../components/Card";
 import Commit from "../../components/Repo/Commit"
 import RepoPageHeader from "../../components/Repo/RepoPageHeader";
 import FileExplorer from "../../components/Repo/FileExplorer";
+import CommitHistory from "../../components/Repo/CommitHistory";
+
+import styles from "../../styles/Pages/Repos/RepoPage.module.css";
 
 const repoData = {
   id: 1,
+  description: "Repository description",
   visibility: false,
   latestCommit: { 
-    id: 1, 
+    userId: 1, 
     userName: "User 1",
-    message: "Commit message",
-    commitHash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+    message: "A much longer commit message",
+    hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
     date: "2025-02-19T15:45:00Z",
   },
   readme: {
@@ -121,13 +125,7 @@ const RepoPage = () => {
 
   const headerSection = (pageStyles) => { return(
     <header className={pageStyles.header}>
-        <div className={pageStyles.leftHeader}>
-          <h2>{name}</h2>
-          <div className={pageStyles.visability}>Visibility</div>
-        </div>
-
         <RepoPageHeader/>
-
     </header>
   )};
   
@@ -135,14 +133,30 @@ const RepoPage = () => {
     <Page header={headerSection}>
 
       <Card>
+        <div className={styles.header}>
+          <h1>{name}</h1>
+          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
+        </div>
+        
+        <p>{repoData.description}</p>
+      </Card>
+
+      <Card>
+        <Commit commit={repoData.latestCommit}></Commit>
+      </Card>
+
+
+      <Card>
         <FileExplorer root={repoData.tree}></FileExplorer>
       </Card>
 
 
+      
 
-      <Commit/>
-
-
+      <Card>
+        <h2 className={styles.readme}>Read Me</h2>
+        <p>{repoData.readme.content}</p>
+      </Card>
       
     </Page>
   );

@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
-import { formatOnlyDate } from "../../helpers/DateHelper";
+import { formatDate, formatOnlyDate } from "../../helpers/DateHelper";
 
 import styles from "../../styles/Components/Repo/FileExplorer.module.css";
+import tableStyles from "../../styles/Components/Table.module.css"
 
 const FileExplorer = ({ root }) => {
   const [currentPath, setCurrentPath] = useState([]);
@@ -53,8 +54,6 @@ const FileExplorer = ({ root }) => {
     setCurrentPath([]);
   }, []);
 
-  //const breadcrumbParts = useMemo(() => [root.name, ...currentPath], [root.name, currentPath]);
-
 
   return (
     <>
@@ -101,14 +100,14 @@ const FileExplorer = ({ root }) => {
         </div>
       </div>
 
-      <table className={styles.table}>
+      <table className={tableStyles.table}>
 
         <thead>
-          <tr className={styles.theadRow}>
-            <th className={styles.th}></th>
-            <th className={styles.th}>Name</th>
-            <th className={styles.th}>Size</th>
-            <th className={styles.th}>Date Modified</th>
+          <tr className={tableStyles.theadRow}>
+            <th className={tableStyles.th}></th>
+            <th className={tableStyles.th}>Name</th>
+            <th className={tableStyles.th}>Size</th>
+            <th className={tableStyles.th}>Date Modified</th>
           </tr>
         </thead>
 
@@ -120,21 +119,22 @@ const FileExplorer = ({ root }) => {
             return (
               <tr
                 key={index}
-                className={styles.tbodyRow}
+                className={tableStyles.tbodyRow}
                 onClick={() => isFolder && handleFolderClick(item.name)}
                 style={{ cursor: isFolder ? 'pointer' : 'default' }}
               >
 
-                <td>
+                <td className={tableStyles.firstTd}>
                   <img
+                    className={tableStyles.fileFolderImg}
                     src={`/Icons/${isFolder ? 'folder' : 'file'}.svg`}
                     alt={isFolder ? 'folder' : 'file'}
                   />
                 </td>
                 
-                <td>{item.name}</td>
-                <td>{size}</td>
-                <td>{formatOnlyDate(item.lastModified)}</td>
+                <td className={tableStyles.td}>{item.name}</td>
+                <td className={tableStyles.td}>{size}</td>
+                <td className={tableStyles.td}>{formatDate(item.lastModified)}</td>
               </tr>
             );
           })}

@@ -1,0 +1,62 @@
+/* Table for consistant file explorer & commits */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.theadRow  {
+    border-bottom: 2px solid var(--primary);
+}
+  
+  
+  
+  
+.th:first-child {
+    width: 42px;
+}
+
+.th {
+    padding: 8px;
+    text-align: left;
+}
+
+th:nth-child(3),
+th:nth-child(4) {
+    text-align: right;
+}
+
+
+
+
+.tbodyRow  {
+    border-bottom: 1px solid var(--border);
+}
+
+
+
+
+.td {
+    padding: 0px 8px;
+}
+
+
+.firstTd {
+    width: 22px;
+    text-align: center;
+    padding: 8px;
+}
+
+.fileFolderImg {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+
+td:nth-child(3),
+td:nth-child(4) {
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

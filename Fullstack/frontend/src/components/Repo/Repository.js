@@ -12,7 +12,7 @@ import Card from "../Card";
 const Repository = ({ enterRepo, enterRepoContrib, id, 
   repoName="Repository Name",
   description="Repository description...",
-  visability=false,
+  visibility=false,
   lastUpdated="1970-01-01T00:00:00Z",
   avatars=[]
   }) => {
@@ -31,7 +31,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
       <div className={styles.header}>
         <h2 className={styles.repoName} onClick={() => enterRepo()}>{repoName}</h2>
         
-        <div className={styles.visability}>{visability ? "Public" : "Private"}</div>
+        <div className={styles.visibility}>{visibility ? "Public" : "Private"}</div>
         
         <div onClick={() => enterRepoContrib()} className={styles.colaborators}>
           <div className={styles.avatars}>
@@ -40,7 +40,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
               <ProfilePic
                 key={avatar.id}
                 userId={avatar.id}
-                label={avatar.userName}
+                label={`${avatar.userName}'s profile}`}
                 innerClassName={styles.avatar}
                 handleClick={() => {}}
               />

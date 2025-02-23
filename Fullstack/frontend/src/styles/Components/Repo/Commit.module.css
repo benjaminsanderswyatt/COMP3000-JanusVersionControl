@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+}
+
+
+.profilePic {
+  width: 38px;
+  height: 38px;
+}

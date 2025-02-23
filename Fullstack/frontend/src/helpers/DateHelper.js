@@ -12,7 +12,7 @@ export const formatDate = (dateString) => {
     }).format(date);
 
   } catch (error) {
-    console.error("Error formatting date:", error);
+    console.error("Error formatting date: ", error);
 
     return "";
   }
@@ -31,7 +31,45 @@ export const formatOnlyDate = (dateString) => {
     }).format(date);
 
   } catch (error) {
-    console.error("Error formatting date:", error);
+    console.error("Error formatting date: ", error);
+
+    return "";
+  }
+};
+
+
+export const formatRelativeTime = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date string");
+    }
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60,
+      second: 1,
+    };
+
+    for (const [unit, seconds] of Object.entries(intervals)) {
+      const interval = Math.floor(diffInSeconds / seconds);
+      if (interval >= 1) {
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+        return rtf.format(-interval, unit);
+      }
+    }
+
+    return "Just now";
+    
+  } catch (error) {
+    console.error("Error formatting relative time: ", error);
 
     return "";
   }
