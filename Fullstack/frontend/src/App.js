@@ -14,6 +14,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import CommandLine from './pages/CommandLine';
+import Discover from './pages/Discover';
+
 import Repositories from './pages/Repos/Repositories';
 import RepoCreate from './pages/Repos/Create';
 import RepoPage from './pages/Repos/RepoPage';
@@ -78,6 +80,12 @@ const App = () => {
               <Route path="discover">
                 <Route index element={<Discover />}/>
               </Route>
+
+              <Route path="commandline">
+                <Route index element={<CommandLine />}/>
+              </Route>
+
+
 
               {/*Protected Routes*/}
 
