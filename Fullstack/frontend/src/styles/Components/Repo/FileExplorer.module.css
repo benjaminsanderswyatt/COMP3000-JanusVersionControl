@@ -44,10 +44,19 @@
 .breadcrumbPart {
   cursor: pointer;
   color: var(--text);
+  font-style: italic;
+}
+
+.breadcrumbPart:last-child {
+  font-style: normal;
 }
 
 .breadcrumbPart:hover {
   text-decoration: underline;
+}
+
+.breadcrumbPart:last-child:hover {
+  text-decoration: none;
 }
 
 .breadcrumbSeparator {
