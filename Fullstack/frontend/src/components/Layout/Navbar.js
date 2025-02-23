@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import ProfilePic from '../images/ProfilePic';
-import { useAuth } from '../../contexts/AuthContext';
-
 
 import styles from "../../styles/Components/Layout/Navbar.module.css";
+import stylesLog from "../../styles/Components/Layout/LogButtonBar.module.css";
 
-const LoggedInHeader = ({ authUser }) => {
+const Navbar = ({ authUser, isLoggedIn }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { authUserId } = useAuth();
-  
-  const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Function to close menu when clicking outside
   useEffect(() => {
@@ -31,12 +28,17 @@ const LoggedInHeader = ({ authUser }) => {
     };
   }, [menuOpen]);
 
+  
 
-  // Function to navigate and close menu
+
+
   const handleNavigation = (path) => {
     navigate(path);
     setMenuOpen(false);
   };
+
+  
+
 
   return (
     <div className={styles.container} ref={menuRef}>
@@ -56,56 +58,87 @@ const LoggedInHeader = ({ authUser }) => {
 
       {/* Navbar section */}
       <nav className={`${styles.navbar} ${menuOpen ? styles.showMenu : styles.hideMenu}`}>
+        
+        {/* Display when logged in */}
+        {isLoggedIn ? (
+          <>
+            <button
+              className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") || location.pathname.startsWith(`/repository/${authUser}`) ? styles.selected : ""}`}
+              onClick={() => handleNavigation(`/repositories/${authUser}`)}
+            >
+              My Repositories
+            </button>
+
+            <button
+              className={`${styles.navbarItem} ${location.pathname.startsWith("/collaborating") ? styles.selected : ""}`}
+              onClick={() => handleNavigation(`/collaborating/${authUser}`)}
+            >
+              Collaborating
+            </button>
+
+          </>
+        ) : null}
+
+        {/* Always display */}
         <button
-          className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") ? styles.selected : ""}`}
-          onClick={() => handleNavigation(`/repositories/${authUser}`)}
+          className={`${styles.navbarItem} ${location.pathname.startsWith("/discover") ? styles.selected : ""}`}
+          onClick={() => handleNavigation("/discover")}
         >
-          My Repositories
+          Discover
         </button>
-        <button
-          className={`${styles.navbarItem} ${location.pathname.startsWith("/collaborating") ? styles.selected : ""}`}
-          onClick={() => handleNavigation(`/collaborating/${authUser}`)}
-        >
-          Collaborating
-        </button>
+
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/commandline") ? styles.selected : ""}`}
           onClick={() => handleNavigation("/commandline")}
         >
           Command Line
         </button>
+
       </nav>
 
 
-      
-
       {/* Settings section */}
-      <div className={styles.settings}>
+      {isLoggedIn ? (
+        <div className={styles.settings}>
 
-        <ProfilePic
-          userId={authUserId}
-          alt="Profile"
-          innerClassName={styles.iconAccount}
-          handleClick={() => handleNavigation("/account")}
-        />
+          <ProfilePic
+            userId={authUser}
+            alt="Profile"
+            innerClassName={styles.iconAccount}
+            handleClick={() => handleNavigation("/account")}
+          />
 
-        {/* Username */}
-        <button 
-          className={`${styles.username} ${location.pathname.startsWith("/account") ? styles.selected : ""}`}
-          onClick={() => handleNavigation("/account")}>{authUser}
-        </button>
+          <button 
+            className={`${styles.username} ${location.pathname.startsWith("/account") ? styles.selected : ""}`}
+            onClick={() => handleNavigation("/account")}
+          >
+            {authUser}
+          </button>
 
-        
+        </div>
 
-      </div>
-      
+      ) : (
 
+        <div className={stylesLog.holder}>
+          <button
+            className={stylesLog.buttonLogin}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
 
-      
-      
+          <button
+            className={stylesLog.buttonRegister}
+            onClick={() => navigate('/register')}
+          >
+            Register
+          </button>
+        </div>
+
+      )}
 
     </div>
   );
 };
 
-export default LoggedInHeader;
+export default Navbar;

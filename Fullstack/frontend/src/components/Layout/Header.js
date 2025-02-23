@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from './Navbar';
-import LogButtonsBar from './LogButtonsBar';
 
 import styles from "../../styles/Components/Layout/Header.module.css";
 
@@ -18,10 +17,10 @@ const Header = () => {
        onClick={() => navigate("/")}
       />
 
-      {isLoggedIn ? <Navbar authUser={authUser} /> : <LogButtonsBar />}
+      <Navbar authUser={authUser} isLoggedIn={isLoggedIn} />
+      
     </header>
   );
 };
-
 
 export default Header;
