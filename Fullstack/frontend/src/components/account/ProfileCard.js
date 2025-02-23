@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import ProfilePic from '../../components/images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
-import Card from "../Card";
+import Card from "../Cards/Card";
 
 import styles from "../../styles/Components/account/ProfileCard.module.css"
 

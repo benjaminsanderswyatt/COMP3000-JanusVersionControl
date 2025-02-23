@@ -1,21 +1,17 @@
 import React from "react";
-import { useParams, useNavigate, useLocation } from "react-router";
+import { useParams, useNavigate, useLocation, useOutletContext } from "react-router";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import Page from "../../../components/Page";
-import Card from "../../../components/Card";
+import Card from "../../../components/Cards/Card";
 import Commit from "../../../components/Repo/Commit"
 import RepoPageHeader from "../../../components/Repo/RepoPageHeader";
 import FileExplorer from "../../../components/Repo/FileExplorer";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+
 
 import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
 
-const repoData = {
-  id: 1,
-  description: "Repository description",
-  visibility: false,
-  branches: [ "main", "first", "second"],
-};
 
 
 const branchData = {
@@ -118,12 +114,31 @@ const branchData = {
 const RepoPage = () => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
-  const { owner, name, branch } = useParams(); // Get the name from the URL
+  const { owner, name, branch } = useParams();
+
+  
+  const headerSection = (pageStyles) => { return(
+    <header className={pageStyles.header}>
+        <RepoPageHeader/>
+    </header>
+  )};
+
+  // Loading
+  const repoData = useOutletContext();
+  if (!repoData) {
+    return (
+      <Page header={headerSection}>
+        <Card>
+          <LoadingSpinner/>
+        </Card>
+      </Page>
+    );
+  }
 
 
 
   const handleBranchChange = (e) => {
-    // Navigate to the new branch using relative path
+    // Navigate to the new branch
     navigate(`/repository/${owner}/${name}/${e.target.value}`);
   };
 
@@ -146,11 +161,7 @@ const RepoPage = () => {
 
 
 
-  const headerSection = (pageStyles) => { return(
-    <header className={pageStyles.header}>
-        <RepoPageHeader/>
-    </header>
-  )};
+  
   
   return (
     <Page header={headerSection}>

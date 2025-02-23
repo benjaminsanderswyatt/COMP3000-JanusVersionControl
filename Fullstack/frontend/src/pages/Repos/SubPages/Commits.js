@@ -1,36 +1,93 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useOutletContext } from 'react-router';
 
 import RepoPageHeader from '../../../components/Repo/RepoPageHeader';
 import Page from '../../../components/Page';
+import Card from "../../../components/Cards/Card";
 
 import styles from "../../../styles/Pages/Repos/SubPages/Commits.module.css";
+import LoadingSpinner from '../../../components/LoadingSpinner';
+
+
+const branchData = {
+  commits: [
+    {
+      userId: 1, 
+      userName: "User 1",
+      message: "A much longer commit message",
+      hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+      date: "2025-02-19T15:45:00Z",
+    },
+  ]
+}
 
 
 const Commits = () => {
-  const { name } = useParams(); // Get the name from the URL
-
-  /*
-  const commits = [
-    { user: 'temp', message: 'Initial Commit', hash: '#4a35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-30T12:34:56Z' },
-    { user: 'temp', message: 'Fix bug in login', hash: '#5b35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-30T14:20:10Z' },
-    { user: 'temp', message: 'Add new feature', hash: '#6c35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-29T09:15:30Z' },
-    { user: 'temp', message: 'Refactor code', hash: '#7d35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-29T18:45:22Z' },
-    { user: 'temp', message: 'Update README', hash: '#8e35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-28T10:10:10Z' },
-  ];
-  */
-
-
+  const navigate = useNavigate();
+  const { owner, name, branch } = useParams();
 
   const headerSection = (pageStyles) => { return(
     <header className={pageStyles.header}>
         <RepoPageHeader/>
     </header>
   )};
+
+  // Loading
+  const repoData = useOutletContext();
+  if (!repoData) {
+    return (
+      <Page header={headerSection}>
+        <Card>
+          <LoadingSpinner/>
+        </Card>
+      </Page>
+    );
+  }
+
+
+
+  const handleBranchChange = (e) => {
+    // Navigate to the new branch
+    navigate(`/repository/${owner}/${name}/${e.target.value}/commits`);
+  };
+
+
   
   return (
     <Page header={headerSection}>
       <h1>Commits</h1>
+      <p>branch</p>
+      <p>all commits</p>
+
+      <Card>
+        <div className={styles.header}>
+          <h1>{name}</h1>
+          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
+        </div>
+
+        <p>{repoData.description}</p>
+      </Card>
+
+      <Card>
+        {/* Dropdown list for picking branch */}
+        <div className={styles.repoDetails}>
+          <div className={styles.branchHolder}>
+            <label htmlFor="branch-select">Branch:</label>
+            <select
+              id="branch-select"
+              value={branch}
+              onChange={handleBranchChange}
+              className={styles.branchSelect}
+            >
+              {repoData.branches.map((branchOption) => (
+                <option key={branchOption} value={branchOption}>
+                  {branchOption}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Card>
     </Page>
   );
 };

@@ -16,7 +16,7 @@ const RepoPageHeader = () => {
     }
 
     const GotoCommits = () => {
-        navigate(`/repository/${owner}/${name}/commits`);
+        navigate(`/repository/${owner}/${name}/${branch || 'main'}/commits`);
     }
 
     const GotoContributors = () => {

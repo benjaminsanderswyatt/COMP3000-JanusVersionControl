@@ -19,9 +19,11 @@ import Discover from './pages/Discover';
 import Repositories from './pages/Repos/Repositories';
 import RepoCreate from './pages/Repos/Create';
 
+
+import RepoLayout from './pages/Repos/SubPages/RepoLayout';
 import RepoPage from './pages/Repos/SubPages/RepoPage';
 import Commits from './pages/Repos/SubPages/Commits';
-import Contributers from './pages/Repos/SubPages/Contributors';
+import Contributors from './pages/Repos/SubPages/Contributors';
 import Settings from './pages/Repos/SubPages/Settings';
 
 import Collaborating from './pages/Colab/Collaborating';
@@ -34,7 +36,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import './styles/App.css';
-import Loader from './components/Loading';
+import LoadingSpinner from './components/LoadingSpinner';
 
 
 
@@ -43,7 +45,7 @@ const ProtectedRoute = () => {
   const { isLoggedIn, loading } = useAuth();
 
   if (loading) { // Wait for the token to be validated
-    return <Loader/>;
+    return <div><LoadingSpinner/></div>;
   }
 
   // If token exists, render the requested component
@@ -69,75 +71,46 @@ const App = () => {
               <Route index element={<Home />} />
 
               {/*User Pages*/}
-              <Route path="login">
-                <Route index element={<Login />}/>
-              </Route>
+              <Route path="login" element={<Login />}/>
 
-              <Route path="register">
-                <Route index element={<Register />}/>
-              </Route>
+              <Route path="register"element={<Register />}/>
 
 
 
-              {/*Always available */}
-              <Route path="discover">
-                <Route index element={<Discover />}/>
-              </Route>
+              {/* Public Routes */}
+              <Route path="discover" element={<Discover />}/>
 
-              <Route path="commandline">
-                <Route index element={<CommandLine />}/>
-              </Route>
+              <Route path="commandline" element={<CommandLine />}/>
 
 
 
               {/*Protected Routes*/}
+              <Route element={<ProtectedRoute />}>
 
-              <Route path="repositories/:owner" element={<ProtectedRoute />}>
-                <Route index element={<Repositories />}/>
+                <Route path="repositories/:owner" element={<Repositories />} />
+                <Route path="repository/create" element={<RepoCreate />} />
+
+                {/* Subpages wrapped in RepoLayout */}
+                <Route path="repository/:owner/:name" element={<RepoLayout />}>
+                  <Route index path=":branch" element={<RepoPage />} />
+                  <Route path=":branch/commits" element={<Commits />} />
+                  <Route path="contributors" element={<Contributors />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+
+
+
+                <Route path="collaborating/:owner" element={<Collaborating />} />
+                <Route path="account" element={<Account />} />
+
               </Route>
-
-                <Route path="repository/create" element={<ProtectedRoute />}>
-                  <Route index element={<RepoCreate />}/>
-                </Route>
-
-                <Route path="repository/:owner/:name/:branch" element={<ProtectedRoute />}>
-                  <Route index element={<RepoPage />}/>
-                </Route>
-
-                <Route path="repository/:owner/:name/commits" element={<ProtectedRoute />}>
-                  <Route index element={<Commits />}/>
-                </Route>
-
-                <Route path="repository/:owner/:name/contributors" element={<ProtectedRoute />}>
-                  <Route index element={<Contributers />}/>
-                </Route>
-
-                <Route path="repository/:owner/:name/settings" element={<ProtectedRoute />}>
-                  <Route index element={<Settings />}/>
-                </Route>
-
-
-
-              <Route path="collaborating/:owner" element={<ProtectedRoute />}>
-                <Route index element={<Collaborating />}/>
-              </Route>
-              
-
-              <Route path="account" element={<ProtectedRoute />}>
-                <Route index element={<Account />}/>
-              </Route>
-
-
-
-
-
 
 
               {/* Legal Pages */}
               <Route path="legal/termsofuse" element={<TermsOfUse />} />
               <Route path="legal/privacypolicy" element={<PrivacyPolicy />} />
 
-              {/*Catch all invalid routes (404)*/}
+              {/* Catch all invalid routes (404) */}
               <Route path="*" element={<NoPage />} />
               
             </Route>

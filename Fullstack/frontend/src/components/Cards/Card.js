@@ -1,6 +1,6 @@
 import React from "react";
 
-import styles from "../styles/Components/Card.module.css";
+import styles from '../../styles/Components/Cards/Card.module.css';
 
 const Card = ({ children, cardStyling }) => {
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Card from "../../components/Card";
+import Card from "../../components/Cards/Card";
 import Commit from "../../components/Repo/Commit";
 import { formatOnlyDate } from "../../helpers/DateHelper";
 

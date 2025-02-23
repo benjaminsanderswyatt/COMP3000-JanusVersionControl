@@ -4,7 +4,7 @@ import { formatDate } from "../../helpers/DateHelper";
 
 import styles from "../../styles/Components/Repo/Repository.module.css";
 
-import Card from "../Card";
+import Card from "../Cards/Card";
 
 
 
