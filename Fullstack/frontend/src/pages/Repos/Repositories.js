@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Repository from '../../components/Repo/Repository';
 import { useNavigate } from 'react-router';
 import Page from "../../components/Page";
-import SearchBox from '../../components/SearchBox';
+import SearchBox from '../../components/search/SearchBox';
+import { useDebounce } from '../../helpers/Debounce';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
@@ -64,23 +65,7 @@ const repoData = [
   }
 ];
 
-// Debouncing for search
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
 
-  useEffect(() => {
-
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 
 
@@ -98,8 +83,7 @@ const Repositories = () => {
 
       return (
         repo.name.toLowerCase().includes(query) ||
-        repo.description.toLowerCase().includes(query) ||
-        repo.avatars.some(avatar => avatar.userName.toLowerCase().includes(query))
+        repo.description.toLowerCase().includes(query)
       );
     });
   }, [debouncedSearchQuery]);

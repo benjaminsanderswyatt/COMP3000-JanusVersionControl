@@ -76,3 +76,10 @@
     font-style: normal;
     margin-left: 5px;
 }
+
+
+.ownerHolder {
+    display: flex;
+    align-items: center;
+    padding: 0px 0px 0px 6px;
+}

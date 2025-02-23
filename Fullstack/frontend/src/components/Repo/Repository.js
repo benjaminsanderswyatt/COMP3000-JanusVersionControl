@@ -10,6 +10,7 @@ import Card from "../Card";
 
 
 const Repository = ({ enterRepo, enterRepoContrib, id, 
+  owner,
   repoName="Repository Name",
   description="Repository description...",
   visibility=false,
@@ -34,13 +35,14 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
         <div className={styles.visibility}>{visibility ? "Public" : "Private"}</div>
         
         <div onClick={() => enterRepoContrib()} className={styles.colaborators}>
+          
           <div className={styles.avatars}>
             
             {displayedAvatars.map((avatar) => (
               <ProfilePic
                 key={avatar.id}
                 userId={avatar.id}
-                label={`${avatar.userName}'s profile}`}
+                label={avatar.userName}
                 innerClassName={styles.avatar}
                 handleClick={() => {}}
               />
@@ -52,6 +54,24 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
               +{extraCount}
             </div>
           )}
+
+
+          {owner && (
+            <div 
+              className={styles.ownerHolder} 
+              title={`Owner: ${owner.userName}`}
+              style={{ borderLeft: avatars.length > 0 ? "1px solid var(--primary)" : "none" }}
+            >
+              <ProfilePic
+                key={owner.id}
+                userId={owner.id}
+                innerClassName={styles.avatar}
+                handleClick={() => {}}
+              />
+            </div>
+          )}
+
+
         </div>
       </div>
       

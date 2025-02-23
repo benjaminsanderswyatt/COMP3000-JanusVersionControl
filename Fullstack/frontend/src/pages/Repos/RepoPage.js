@@ -118,17 +118,17 @@ const branchData = {
 const RepoPage = () => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
-  const { name, branch } = useParams(); // Get the name from the URL
+  const { owner, branch } = useParams(); // Get the name from the URL
 
 
 
   const handleBranchChange = (e) => {
     // Navigate to the new branch using relative path
-    navigate(`/repository/${authUser}/${name}/${e.target.value}`);
+    navigate(`/repository/${authUser}/${owner}/${e.target.value}`);
   };
 
   const handleCopyToClipboard = () => {
-    const cloneUrl = `janus/${authUser}/${name}`;
+    const cloneUrl = `janus/${authUser}/${owner}`;
 
     navigator.clipboard
       .writeText(cloneUrl)
@@ -157,7 +157,7 @@ const RepoPage = () => {
 
       <Card>
         <div className={styles.header}>
-          <h1>{name}</h1>
+          <h1>{owner}</h1>
           <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
         </div>
 
@@ -185,7 +185,7 @@ const RepoPage = () => {
 
           <div className={styles.clone}>
             <div>Clone:</div>
-            <div>janus/{authUser}/{name}</div>
+            <div>janus/{authUser}/{owner}</div>
             {/* Copy to clipboard */}
             <button onClick={handleCopyToClipboard} className={styles.copyButton}>
               Copy
