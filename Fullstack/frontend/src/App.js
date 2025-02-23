@@ -13,6 +13,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+import CommandLine from './pages/CommandLine';
 import Repositories from './pages/Repos/Repositories';
 import RepoCreate from './pages/Repos/Create';
 import RepoPage from './pages/Repos/RepoPage';
@@ -72,6 +73,11 @@ const App = () => {
               </Route>
 
 
+
+              {/*Always available */}
+              <Route path="discover">
+                <Route index element={<Discover />}/>
+              </Route>
 
               {/*Protected Routes*/}
 
