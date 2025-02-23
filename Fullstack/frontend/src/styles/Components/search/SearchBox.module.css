@@ -27,3 +27,22 @@
     height: min-content;
     border: var(--primary) thin solid;
 }
+
+.button {
+    background: none;
+    color: var(--primary);
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.seperator {
+    position: relative;
+    height: 100%;
+    border-left: var(--primary) thin solid;
+}
+
+.seperator:after {
+    content: '.';
+    visibility: hidden;
+}

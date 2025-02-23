@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-import styles from "../styles/Components/SearchBox.module.css";
+import styles from "../../styles/Components/search/SearchBox.module.css";
 
-const SearchBox = ({ searchingWhat, onSearch }) => {
+
+// Search on enter key
+const SearchBoxEnter = ({ searchingWhat, onSearch }) => {
   const [query, setQuery] = useState('');
 
-  /*
-  Search on enter key
+  
   
   const handleInputChange = (event) => {
     setQuery(event.target.value);
@@ -16,6 +17,9 @@ const SearchBox = ({ searchingWhat, onSearch }) => {
     if (event){
       event.preventDefault();
     }
+
+    if (query === "")
+      return;
 
     // Search
     onSearch(query);
@@ -40,38 +44,15 @@ const SearchBox = ({ searchingWhat, onSearch }) => {
           placeholder={searchingWhat ? `Search ${searchingWhat}...` : 'Search...'}
           className={styles.input}
         />
+        <div className={styles.seperator}></div>
+        <button className={styles.button} onClick={handleSearch}>Search</button>
       </form>
+      
     </div>
   );
   
-  */
-
-  const handleInputChange = (event) => {
-    const newQuery = event.target.value;
-    setQuery(newQuery);
-    // Search on every change
-    onSearch(newQuery);
-  };
-
-
-
-
-  return (
-    <div className={styles.container}>
-      <form className={styles.searchBox}>
-        <input
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          placeholder={searchingWhat ? `Search ${searchingWhat}...` : 'Search...'}
-          className={styles.input}
-        />
-      </form>
-    </div>
-  );
-
+  
 };
 
 
-export default SearchBox;
-
+export default SearchBoxEnter;
