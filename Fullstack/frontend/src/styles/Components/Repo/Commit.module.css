@@ -1,15 +1,16 @@
 .container {
   display: flex;
-  
 }
 
+
 .avatar {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 
 
 .profilePic {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
+  border: var(--primary) 1px solid;
 }

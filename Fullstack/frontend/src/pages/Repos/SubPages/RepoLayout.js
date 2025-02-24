@@ -4,6 +4,10 @@ import { Outlet, useParams } from "react-router";
 
 const mockRepoData = {
     id: 1,
+    owner: { 
+        id: 2, 
+        userName: "User2" 
+    },
     description: "Repository description",
     visibility: false,
     branches: [ "main", "first", "second"],

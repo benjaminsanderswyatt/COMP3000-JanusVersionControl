@@ -22,7 +22,7 @@ const Dropdown = ({ label ,dataArray , onSelect, selectedValue }) => {
         className={styles.select}
       >
         {dataArray.map((item) => (
-          <option key={item} value={item}>
+          <option className={styles.option} key={item} value={item}>
             {item}
           </option>
         ))}

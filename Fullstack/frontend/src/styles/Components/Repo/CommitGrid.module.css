@@ -1,0 +1,13 @@
+.gridContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.date {
+    border-bottom: var(--primary) 2px solid;
+    padding: 8px 0px;
+    margin-bottom: 2px;
+}

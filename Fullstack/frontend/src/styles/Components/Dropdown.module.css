@@ -12,3 +12,7 @@
     background-color: var(--card);
     cursor: pointer;
 }
+
+.select:focus {
+    border-color: var(--primary);
+}

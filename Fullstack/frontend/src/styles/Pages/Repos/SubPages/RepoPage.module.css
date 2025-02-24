@@ -6,6 +6,10 @@
     gap: 10px;
 }
 
+.header.spaced {
+    justify-content: space-between;
+}
+
 .visibility {
     background: var(--lightsecondary);
     padding: 4px 8px;

@@ -1,15 +1,31 @@
 import React from 'react';
 
 import ProfilePic from "../images/ProfilePic";
-import { formatRelativeTime } from '../../helpers/DateHelper';
+import { DateType, formatRelativeTime, formatDate, formatOnlyDate, formatOnlyTime } from '../../helpers/DateHelper';
 
 import styles from "../../styles/Components/Repo/Commit.module.css";
 import tableStyles from "../../styles/Components/Table.module.css";
 
 
-const Commit = ({ commit, navToContrib }) => {
+const Commit = ({ commit, navToContrib, hasRows=false, dateType=DateType.RELATIVE }) => {
 
   if (!commit) return null;
+
+
+  // How the date should be formatted
+  const formatDateBasedOnType = (dateString) => {
+    switch (dateType) {
+      case DateType.DATE_ONLY:
+        return formatOnlyDate(dateString);
+      case DateType.TIME_ONLY:
+        return formatOnlyTime(dateString);
+      case DateType.FULL:
+        return formatDate(dateString);
+      case DateType.RELATIVE:
+      default:
+        return formatRelativeTime(dateString);
+    }
+  };
 
 
   return (
@@ -18,7 +34,7 @@ const Commit = ({ commit, navToContrib }) => {
       <table className={tableStyles.table}>
 
         <tbody>
-          <tr>
+          <tr style={{minWidth: "43px"}} className={`${hasRows ? tableStyles.tbodyRow : ""}`}>
 
             <td className={styles.avatar}>
               <div className={styles.avatar}>
@@ -36,7 +52,7 @@ const Commit = ({ commit, navToContrib }) => {
 
 
             <td className={tableStyles.td}>{commit.hash}</td>
-            <td className={tableStyles.td}>{formatRelativeTime(commit.date)}</td>
+            <td className={tableStyles.td}>{formatDateBasedOnType(commit.date)}</td>
           </tr>
             
         </tbody>

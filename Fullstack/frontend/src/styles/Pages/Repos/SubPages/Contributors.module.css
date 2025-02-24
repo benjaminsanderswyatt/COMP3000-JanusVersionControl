@@ -1,0 +1,13 @@
+.ownerHolder {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.owner {
+    height: 34px;
+    width: 34px;
+    border: var(--primary) 1px solid;
+}

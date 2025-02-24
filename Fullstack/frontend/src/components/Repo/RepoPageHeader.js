@@ -31,14 +31,6 @@ const RepoPageHeader = () => {
     // Check which tab is active
     const isActive = (path) => {
 
-        // Handle the Files tab (acounting for branch names)
-        if (path === 'files') {
-            return location.pathname.startsWith(`/repository/${owner}/${name}`) &&
-                !location.pathname.includes('/commits') &&
-                !location.pathname.includes('/contributors') &&
-                !location.pathname.includes('/settings');
-        }
-        
         return location.pathname === path;
     };
     
@@ -46,13 +38,13 @@ const RepoPageHeader = () => {
         <nav class={styles.navbar}>
 
             <button
-                className={`${styles.button} ${isActive(`files`) ? styles.selected: {}}`}
+                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/${branch}`) ? styles.selected: {}}`}
                 onClick={() => GotoFiles()}>
                 File
             </button>
 
             <button 
-                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/commits`) ? styles.selected: {}}`}
+                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/${branch}/commits`) ? styles.selected: {}}`}
                 onClick={() => GotoCommits()}>
                 Commits
             </button>

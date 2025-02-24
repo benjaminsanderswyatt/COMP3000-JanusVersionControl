@@ -3,9 +3,11 @@ import { useParams, useNavigate, useLocation, useOutletContext } from 'react-rou
 
 import RepoPageHeader from '../../../components/Repo/RepoPageHeader';
 import Page from '../../../components/Page';
-
-import styles from "../../../styles/Pages/Repos/SubPages/Settings.module.css";
 import LoadingSpinner from '../../../components/LoadingSpinner';
+import Card from "../../../components/Cards/Card";
+
+import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+
 
 
 const Settings = () => {
@@ -26,6 +28,14 @@ const Settings = () => {
   
   return (
     <Page header={headerSection}>
+
+      <Card>
+        <div className={styles.header}>
+          <h1>{name}</h1>
+          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
+        </div>
+      </Card>
+
       <h1>Settings</h1>
       <p>Change description</p>
       <p>Change visibility</p>

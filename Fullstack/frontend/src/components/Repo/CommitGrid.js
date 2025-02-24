@@ -1,24 +1,28 @@
 import React from 'react';
 import Commit from './Commit';
+import Card from "../Cards/Card";
 
-const CommitGrid = ({ groupedCommits = [] }) => {
+import styles from "../../styles/Components/Repo/CommitGrid.module.css";
+
+const CommitGrid = ({ groupedCommits = [] , dateType}) => {
   return (
-    <div style={styles.gridContainer}>
+    <div className={styles.gridContainer}>
       {groupedCommits.map((group, index) => (
-        <Commit key={index} group={group} />
+
+        <Card key={index}>
+          <h3 className={styles.date}>{group.date}</h3>
+
+          {group.commits.map((commit, idx) => (
+
+            <Commit key={idx} commit={commit} dateType={dateType} hasRows={true}/>
+          ))}
+          
+        </Card>
+
       ))}
     </div>
   );
 };
 
-const styles = {
-  gridContainer: {
-    display: 'grid',
-    gridTemplateColumns: '1fr', // Single column by default
-    gap: '10px', // Space between rows
-    maxWidth: '1000px',
-    margin: '0 auto',
-  },
-};
 
 export default CommitGrid;

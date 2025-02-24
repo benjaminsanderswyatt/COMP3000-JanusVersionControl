@@ -6,19 +6,71 @@ import Page from '../../../components/Page';
 import Card from "../../../components/Cards/Card";
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import Dropdown from "../../../components/Dropdown";
+import CommitGrid from '../../../components/Repo/CommitGrid';
 
 import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+import { DateType, formatOnlyDate } from '../../../helpers/DateHelper';
 
 
-
+// POST the earliest commit hash (or null) and get the previous few commits (for pagination)
 const branchData = {
   commits: [
     {
-      userId: 1, 
-      userName: "User 1",
-      message: "A much longer commit message",
-      hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
-      date: "2025-02-19T15:45:00Z",
+      date: "18 May 2025",
+      commits: [
+        {
+          userId: 1,
+          userName: "User 1",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-05-19T11:46:00Z",
+        },
+      ],
+    },
+    {
+      date: "13 Apr 2025",
+      commits: [
+        {
+          userId: 2,
+          userName: "User 2",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-04-19T10:45:00Z",
+        },
+        {
+          userId: 1,
+          userName: "User 3",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-04-19T09:45:00Z",
+        },
+      ],
+    },
+    {
+      date: "10 Feb 2025",
+      commits: [
+        {
+          userId: 3,
+          userName: "User 3",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-02-19T08:45:00Z",
+        },
+        {
+          userId: 1,
+          userName: "User 1",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-02-19T07:45:00Z",
+        },
+        {
+          userId: 1,
+          userName: "User 1",
+          message: "A much longer commit message",
+          hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
+          date: "2025-02-19T06:00:00Z",
+        },
+      ],
     },
   ]
 }
@@ -53,29 +105,29 @@ const Commits = () => {
     navigate(`/repository/${owner}/${name}/${newBranch}/commits`);
   };
 
-
+  
   
   return (
     <Page header={headerSection}>
 
       <Card>
-        <div className={styles.header}>
+        <div className={`${styles.header} ${styles.spaced}`}>
           <h1>{name}</h1>
+
+          {/* Dropdown list for picking branch */}
+          <Dropdown
+            label="Branch"
+            dataArray={repoData.branches}
+            onSelect={handleBranchChange}
+            selectedValue={branch}
+          />
         </div>
+      </Card>
 
-        {/* Dropdown list for picking branch */}
-        <Dropdown
-          label="Branch"
-          dataArray={repoData.branches}
-          onSelect={handleBranchChange}
-          selectedValue={branch}
-        />
       
-      </Card>
+      <CommitGrid groupedCommits={branchData.commits} dateType={DateType.TIME_ONLY} />
+      
 
-      <Card>
-        
-      </Card>
     </Page>
   );
 };

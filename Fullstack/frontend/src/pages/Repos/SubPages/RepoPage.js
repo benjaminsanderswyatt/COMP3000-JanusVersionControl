@@ -11,6 +11,7 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import Dropdown from "../../../components/Dropdown";
 
 import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+import { DateType } from "../../../helpers/DateHelper";
 
 
 
@@ -197,7 +198,7 @@ const RepoPage = () => {
       </Card>
 
       <Card>
-        <Commit commit={branchData.latestCommit}></Commit>
+        <Commit commit={branchData.latestCommit} dateType={DateType.RELATIVE}/>
       </Card>
 
 
