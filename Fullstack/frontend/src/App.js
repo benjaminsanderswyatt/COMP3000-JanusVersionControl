@@ -92,7 +92,8 @@ const App = () => {
 
                 {/* Subpages wrapped in RepoLayout */}
                 <Route path="repository/:owner/:name" element={<RepoLayout />}>
-                  <Route index path=":branch" element={<RepoPage />} />
+                  <Route index element={<Navigate to="main" replace />}/> {/* Redirect to main branch */}
+                  <Route path=":branch" element={<RepoPage />} />
                   <Route path=":branch/commits" element={<Commits />} />
                   <Route path="contributors" element={<Contributors />} />
                   <Route path="settings" element={<Settings />} />
