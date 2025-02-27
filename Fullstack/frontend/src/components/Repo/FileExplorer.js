@@ -66,7 +66,7 @@ const FileExplorer = ({ root }) => {
           disabled={currentPath.length === 0}
           title="Go back"
         >
-          <img src="/Icons/back.svg" alt="Back" />
+          <img src="/icons/back.svg" alt="Back" />
         </button>
 
         {/* Home button */}
@@ -76,7 +76,7 @@ const FileExplorer = ({ root }) => {
           disabled={currentPath.length === 0}
           title="Go home"
         >
-          <img src="/Icons/home.svg" alt="Home" />
+          <img src="/icons/home.svg" alt="Home" />
         </button>
         
 
@@ -127,7 +127,7 @@ const FileExplorer = ({ root }) => {
                 <td className={tableStyles.firstTd}>
                   <img
                     className={tableStyles.fileFolderImg}
-                    src={`/Icons/${isFolder ? 'folder' : 'file'}.svg`}
+                    src={`/icons/${isFolder ? 'folder' : 'file'}.svg`}
                     alt={isFolder ? 'folder' : 'file'}
                   />
                 </td>

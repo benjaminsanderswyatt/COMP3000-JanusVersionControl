@@ -20,7 +20,7 @@ const ProfilePic = ({ userId, label, alt, innerClassName, handleClick }) => {
 
 
     const handleError = () => {
-        setImageSrc("/Icons/account.svg"); // Default image
+        setImageSrc("/icons/account.svg"); // Default image
       };
 
     return (

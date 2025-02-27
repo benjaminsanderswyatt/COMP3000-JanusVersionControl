@@ -17,9 +17,9 @@ const ThemeToggle = () => {
 
       <div className={styles.imageHolder}>
         {theme === "light" ? 
-          <img src="/Icons/moon.svg" alt="Moon icon" className={styles.image}></img>
+          <img src="/icons/moon.svg" alt="Moon icon" className={styles.image}></img>
         : 
-          <img src="/Icons/sun.svg" alt="Sun icon" className={styles.image}></img>
+          <img src="/icons/sun.svg" alt="Sun icon" className={styles.image}></img>
         }
       </div>
       

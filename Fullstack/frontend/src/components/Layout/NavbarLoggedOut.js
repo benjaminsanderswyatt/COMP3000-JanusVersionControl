@@ -64,7 +64,7 @@ const NavbarLoggedOut = () => {
         onClick={() => setMenuOpen(!menuOpen)}
       >
         <img 
-          src="/Icons/burger.svg"
+          src="/icons/burger.svg"
           alt={menuOpen ? "Close menu" : "Menu"} 
           className={styles.burger} 
         />
