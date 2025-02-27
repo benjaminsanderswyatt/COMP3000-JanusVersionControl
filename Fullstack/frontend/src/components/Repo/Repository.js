@@ -2,9 +2,9 @@ import React from 'react';
 import ProfilePic from '../images/ProfilePic';
 import { formatDate } from "../../helpers/DateHelper";
 
-import styles from "../../styles/Components/Repo/Repository.module.css";
+import styles from "../../styles/components/repo/Repository.module.css";
 
-import Card from "../Cards/Card";
+import Card from "../cards/Card";
 
 
 

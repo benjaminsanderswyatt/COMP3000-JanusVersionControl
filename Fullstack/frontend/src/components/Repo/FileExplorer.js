@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
-import { formatDate, formatOnlyDate } from "../../helpers/DateHelper";
+import { formatDate } from "../../helpers/DateHelper";
 
-import styles from "../../styles/Components/Repo/FileExplorer.module.css";
-import tableStyles from "../../styles/Components/Table.module.css"
+import styles from "../../styles/components/repo/FileExplorer.module.css";
+import tableStyles from "../../styles/components/Table.module.css"
 
 const FileExplorer = ({ root }) => {
   const [currentPath, setCurrentPath] = useState([]);

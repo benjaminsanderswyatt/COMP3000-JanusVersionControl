@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router';
 
-import RepoPageHeader from '../../../components/Repo/RepoPageHeader';
+import RepoPageHeader from '../../../components/repo/RepoPageHeader';
 import Page from '../../../components/Page';
-import Card from "../../../components/Cards/Card";
+import Card from "../../../components/cards/Card";
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import Dropdown from "../../../components/Dropdown";
-import CommitGrid from '../../../components/Repo/CommitGrid';
+import CommitGrid from '../../../components/repo/CommitGrid';
 
-import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
-import { DateType, formatOnlyDate } from '../../../helpers/DateHelper';
+import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
+import { DateType } from '../../../helpers/DateHelper';
 
 
 // POST the earliest commit hash (or null) and get the previous few commits (for pagination)

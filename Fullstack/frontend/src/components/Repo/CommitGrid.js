@@ -1,8 +1,8 @@
 import React from 'react';
 import Commit from './Commit';
-import Card from "../Cards/Card";
+import Card from "../cards/Card";
 
-import styles from "../../styles/Components/Repo/CommitGrid.module.css";
+import styles from "../../styles/components/repo/CommitGrid.module.css";
 
 const CommitGrid = ({ groupedCommits = [] , dateType}) => {
   return (

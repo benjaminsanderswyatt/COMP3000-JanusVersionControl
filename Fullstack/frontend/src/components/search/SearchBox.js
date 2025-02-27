@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import styles from "../../styles/Components/search/SearchBox.module.css";
+import styles from "../../styles/components/search/SearchBox.module.css";
 
 
 const SearchBox = ({ searchingWhat, onSearch }) => {

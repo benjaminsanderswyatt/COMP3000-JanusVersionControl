@@ -1,7 +1,7 @@
-import AnimatedBackground from "../components/Home/AnimatedBackground";
+import AnimatedBackground from "../components/home/AnimatedBackground";
 
 // Styles
-import styles from "../styles/Pages/Home/Home.module.css";
+import styles from "../styles/pages/home/Home.module.css";
 
 const Home = () => {
   return (

@@ -11,7 +11,7 @@ import ProfilePictureCard from '../components/account/ProfileCard';
 
 import Page from "../components/Page";
 
-import styles from "../styles/Pages/Account.module.css";
+import styles from "../styles/pages/Account.module.css";
 
 const Account = () => {
     const [tokenData , setTokenData] = useState(null);

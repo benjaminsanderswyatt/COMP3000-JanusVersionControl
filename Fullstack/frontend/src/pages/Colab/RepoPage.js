@@ -4,11 +4,11 @@ import { useParams, useNavigate, useLocation } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
 import Page from "../../components/Page";
 import Card from "../../components/Card";
-import Commit from "../../components/Repo/Commit"
-import RepoPageHeader from "../../components/Repo/RepoPageHeader";
-import FileExplorer from "../../components/Repo/FileExplorer";
+import Commit from "../../components/repo/Commit"
+import RepoPageHeader from "../../components/repo/RepoPageHeader";
+import FileExplorer from "../../components/repo/FileExplorer";
 
-import styles from "../../styles/Pages/Repos/RepoPage.module.css";
+import styles from "../../styles/pages/repos/RepoPage.module.css";
 
 const repoData = {
   id: 1,

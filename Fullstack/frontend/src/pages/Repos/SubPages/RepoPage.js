@@ -1,16 +1,16 @@
 import React from "react";
-import { useParams, useNavigate, useLocation, useOutletContext } from "react-router";
+import { useParams, useNavigate, useOutletContext } from "react-router";
 
-import { useAuth } from "../../../contexts/AuthContext";
+// import { useAuth } from "../../../contexts/AuthContext";
 import Page from "../../../components/Page";
-import Card from "../../../components/Cards/Card";
-import Commit from "../../../components/Repo/Commit"
-import RepoPageHeader from "../../../components/Repo/RepoPageHeader";
-import FileExplorer from "../../../components/Repo/FileExplorer";
+import Card from "../../../components/cards/Card";
+import Commit from "../../../components/repo/Commit"
+import RepoPageHeader from "../../../components/repo/RepoPageHeader";
+import FileExplorer from "../../../components/repo/FileExplorer";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import Dropdown from "../../../components/Dropdown";
 
-import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import { DateType } from "../../../helpers/DateHelper";
 
 
@@ -113,7 +113,7 @@ const branchData = {
 
 
 const RepoPage = () => {
-  const { authUser } = useAuth();
+  // const { authUser } = useAuth();
   const navigate = useNavigate();
   const { owner, name, branch } = useParams();
 

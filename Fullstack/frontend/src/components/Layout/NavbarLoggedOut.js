@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from 'react-router';
 import SearchBox from '../search/SearchBoxEnter';
 import { useDebounce } from '../../helpers/Debounce';
 
-import styles from "../../styles/Components/Layout/Navbar.module.css";
-import stylesLog from "../../styles/Components/Layout/LogButtonBar.module.css";
+import styles from "../../styles/components/layout/Navbar.module.css";
+import stylesLog from "../../styles/components/layout/LogButtonBar.module.css";
 
 
 const NavbarLoggedOut = () => {

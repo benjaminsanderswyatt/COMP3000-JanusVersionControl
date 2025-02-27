@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router';
+import React from 'react';
+import { useParams, useOutletContext } from 'react-router';
 
-import RepoPageHeader from '../../../components/Repo/RepoPageHeader';
+import RepoPageHeader from '../../../components/repo/RepoPageHeader';
 import Page from '../../../components/Page';
 import LoadingSpinner from '../../../components/LoadingSpinner';
-import Card from "../../../components/Cards/Card";
+import Card from "../../../components/cards/Card";
 
-import styles from "../../../styles/Pages/Repos/SubPages/RepoPage.module.css";
+import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 
 
 

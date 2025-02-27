@@ -3,9 +3,9 @@ import { useNavigate } from "react-router";
 
 import Page from "../components/Page";
 import SearchBoxEnter from "../components/search/SearchBoxEnter";
-import Repository from '../components/Repo/Repository';
+import Repository from '../components/repo/Repository';
 
-import styles from "../styles/Pages/Discover.module.css";
+import styles from "../styles/pages/Discover.module.css";
 
 const Discover = () => {
     const navigate = useNavigate();
@@ -56,6 +56,7 @@ const Discover = () => {
             return;
         }
 
+        setSearchQuery(query);
         setIsLoading(true);
         setError(null);
 

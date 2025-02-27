@@ -16,17 +16,17 @@ import Register from './pages/Register';
 import CommandLine from './pages/CommandLine';
 import Discover from './pages/Discover';
 
-import Repositories from './pages/Repos/Repositories';
-import RepoCreate from './pages/Repos/Create';
+import Repositories from './pages/repos/Repositories';
+import RepoCreate from './pages/repos/Create';
 
 
-import RepoLayout from './pages/Repos/SubPages/RepoLayout';
-import RepoPage from './pages/Repos/SubPages/RepoPage';
-import Commits from './pages/Repos/SubPages/Commits';
-import Contributors from './pages/Repos/SubPages/Contributors';
-import Settings from './pages/Repos/SubPages/Settings';
+import RepoLayout from './pages/repos/subpages/RepoLayout';
+import RepoPage from './pages/repos/subpages/RepoPage';
+import Commits from './pages/repos/subpages/Commits';
+import Contributors from './pages/repos/subpages/Contributors';
+import Settings from './pages/repos/subpages/Settings';
 
-import Collaborating from './pages/Colab/Collaborating';
+import Collaborating from './pages/colab/Collaborating';
 
 
 import Account from './pages/Account';

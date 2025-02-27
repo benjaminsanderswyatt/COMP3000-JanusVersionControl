@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from './Navbar';
 
-import styles from "../../styles/Components/Layout/Header.module.css";
+import styles from "../../styles/components/layout/Header.module.css";
 
 
 const Header = () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import styles from "../../styles/Components/Login/TextInput.module.css";
+import styles from "../../styles/components/login/TextInput.module.css";
 
 const PasswordInput = ({ label, name, value, onChange, required = false, placeholder = "" }) => {
   const [showPassword, setShowPassword] = useState(false);

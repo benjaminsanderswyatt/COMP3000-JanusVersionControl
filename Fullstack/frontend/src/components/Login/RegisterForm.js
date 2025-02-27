@@ -3,7 +3,7 @@ import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 import Checkbox from '../Checkbox';
 
-import styles from "../../styles/Components/Login/UserForm.module.css";
+import styles from "../../styles/components/login/UserForm.module.css";
 
 const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms }) => (
   <form onSubmit={onSubmit}>

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import React from 'react';
+// import { useParams } from 'react-router';
 
 
 const Commits = () => {
-  const { name } = useParams(); // Get the name from the URL
+  // const { name } = useParams(); // Get the name from the URL
 
   const commits = [
     { user: 'temp', message: 'Initial Commit', hash: '#4a35387be739933f7c9e6486959ec1affb2c1648', date: '2023-10-30T12:34:56Z' },

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 
-import styles from "../../styles/Components/Layout/LogButtonBar.module.css";
+import styles from "../../styles/components/layout/LogButtonBar.module.css";
 
 const LoggedOutHeader = () => {
   const navigate = useNavigate();

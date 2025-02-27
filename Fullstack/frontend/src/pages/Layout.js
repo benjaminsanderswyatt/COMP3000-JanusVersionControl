@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router';
 
-import Header from '../components/Layout/Header';
+import Header from '../components/layout/Header';
 
 // Styles
-import styles from "../styles/Pages/Layout.module.css";
+import styles from "../styles/pages/Layout.module.css";
 
 const Layout = () => {
 

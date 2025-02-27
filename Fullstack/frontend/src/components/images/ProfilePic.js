@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
-import styles from "../../styles/Components/Images/ProfilePic.module.css";
+import styles from "../../styles/components/images/ProfilePic.module.css";
 
 const ProfilePic = ({ userId, label, alt, innerClassName, handleClick }) => {
     const { profilePicRefresh } = useAuth();

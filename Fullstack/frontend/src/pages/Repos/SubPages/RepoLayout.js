@@ -17,7 +17,6 @@ const mockRepoData = {
 const RepoLayout = () => {
     const { owner, name } = useParams();
     const [repoData, setRepoData] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -25,7 +24,6 @@ const RepoLayout = () => {
         setTimeout(() => {
             
           setRepoData(mockRepoData);
-          setLoading(false);
         }, 1000);
 
     }, [owner, name]);

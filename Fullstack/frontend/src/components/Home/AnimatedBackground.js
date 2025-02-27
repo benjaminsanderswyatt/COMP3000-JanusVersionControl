@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/Pages/Home/AnimatedBackground.css";
+import "../../styles/pages/home/AnimatedBackground.css";
 
 const AnimatedBackground = () => {
     // Max size 180

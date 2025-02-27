@@ -1,6 +1,6 @@
 import React from "react";
 
-import styles from "../styles/Components/Page.module.css";
+import styles from "../styles/components/Page.module.css";
 
 const Page = ({ header, children }) => {
 

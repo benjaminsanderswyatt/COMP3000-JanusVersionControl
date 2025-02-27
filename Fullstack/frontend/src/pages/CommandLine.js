@@ -2,7 +2,7 @@ import React from 'react';
 
 import Page from "../components/Page";
 
-import styles from "../styles/Pages/CommandLine.module.css";
+// import styles from "../styles/pages/CommandLine.module.css";
 
 const CommandLine = () => {
 

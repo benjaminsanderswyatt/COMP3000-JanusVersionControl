@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from "../../styles/Components/Login/TextInput.module.css";
+import styles from "../../styles/components/login/TextInput.module.css";
 
 const TextInput = ({ label, name, type = "text", value, onChange, required = false, placeholder = "" }) => (
   <div className={styles.container}>

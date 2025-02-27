@@ -3,8 +3,8 @@ import React from 'react';
 import ProfilePic from "../images/ProfilePic";
 import { DateType, formatRelativeTime, formatDate, formatOnlyDate, formatOnlyTime } from '../../helpers/DateHelper';
 
-import styles from "../../styles/Components/Repo/Commit.module.css";
-import tableStyles from "../../styles/Components/Table.module.css";
+import styles from "../../styles/components/repo/Commit.module.css";
+import tableStyles from "../../styles/components/Table.module.css";
 
 
 const Commit = ({ commit, navToContrib, hasRows=false, dateType=DateType.RELATIVE }) => {

@@ -2,9 +2,9 @@ import React, { useRef, useState } from 'react';
 import ProfilePic from '../images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
-import Card from "../Cards/Card";
+import Card from "../cards/Card";
 
-import styles from "../../styles/Components/account/ProfileCard.module.css"
+import styles from "../../styles/components/account/ProfileCard.module.css"
 
 
 const ProfilePictureCard = () => {

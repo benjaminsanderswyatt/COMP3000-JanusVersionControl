@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router';
 import { InitRepo } from '../../api/fetch/fetchCreateRepo';
 import Page from "../../components/Page";
 
-import TextInput from '../../components/Login/TextInput';
+import TextInput from '../../components/login/TextInput';
 import Checkbox from '../../components/Checkbox';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
-import styles from "../../styles/Pages/Repos/Create.module.css";
+import styles from "../../styles/pages/repos/Create.module.css";
 
 const Create = () => {
   const navigate = useNavigate();

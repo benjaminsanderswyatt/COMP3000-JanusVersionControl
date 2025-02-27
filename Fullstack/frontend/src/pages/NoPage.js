@@ -1,4 +1,4 @@
-import styles from "../styles/Pages/NoPage.module.css";
+import styles from "../styles/pages/NoPage.module.css";
 
 const NoPage = () => {
   return (

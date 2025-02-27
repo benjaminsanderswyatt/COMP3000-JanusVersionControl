@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
-import LoginForm from '../components/Login/LoginForm';
+import LoginForm from '../components/login/LoginForm';
 
-import styles from "../styles/Pages/Login.module.css";
+import styles from "../styles/pages/Login.module.css";
 
 
 const Login = () => {

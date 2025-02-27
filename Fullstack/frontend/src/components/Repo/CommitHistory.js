@@ -1,10 +1,10 @@
 import React from 'react';
 
-import Card from "../../components/Cards/Card";
-import Commit from "../../components/Repo/Commit";
+import Card from "../../components/cards/Card";
+import Commit from "../../components/repo/Commit";
 import { formatOnlyDate } from "../../helpers/DateHelper";
 
-import styles from "../../styles/Components/Repo/Commit.module.css";
+import styles from "../../styles/components/repo/Commit.module.css";
 
 
 const CommitHistory = ({ commits }) => {

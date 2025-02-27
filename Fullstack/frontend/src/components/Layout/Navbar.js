@@ -1,9 +1,9 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import ProfilePic from '../images/ProfilePic';
 
-import styles from "../../styles/Components/Layout/Navbar.module.css";
-import stylesLog from "../../styles/Components/Layout/LogButtonBar.module.css";
+import styles from "../../styles/components/layout/Navbar.module.css";
+import stylesLog from "../../styles/components/layout/LogButtonBar.module.css";
 
 const Navbar = ({ authUser, isLoggedIn }) => {
   const navigate = useNavigate();

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
-import RegisterForm from '../components/Login/RegisterForm';
+import RegisterForm from '../components/login/RegisterForm';
 
 
-import styles from "../styles/Pages/Register.module.css";
+import styles from "../styles/pages/Register.module.css";
 
 const Register = () => {
   const { register } = useAuth();

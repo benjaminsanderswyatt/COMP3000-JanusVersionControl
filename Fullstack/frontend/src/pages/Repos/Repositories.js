@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import Repository from '../../components/Repo/Repository';
+import Repository from '../../components/repo/Repository';
 import { useNavigate } from 'react-router';
 import Page from "../../components/Page";
 import SearchBox from '../../components/search/SearchBox';
@@ -7,7 +7,7 @@ import { useDebounce } from '../../helpers/Debounce';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
-import styles from "../../styles/Pages/Repos/Repositories.module.css";
+import styles from "../../styles/pages/repos/Repositories.module.css";
 
 
 

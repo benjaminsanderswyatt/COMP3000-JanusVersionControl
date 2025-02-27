@@ -2,7 +2,7 @@ import React from 'react';
 import TextInput from './TextInput';
 import PasswordInput from './PasswordInput';
 
-import styles from "../../styles/Components/Login/UserForm.module.css";
+import styles from "../../styles/components/login/UserForm.module.css";
 
 const LoginForm = ({ formData, onChange, onSubmit }) => (
   <form onSubmit={onSubmit}>

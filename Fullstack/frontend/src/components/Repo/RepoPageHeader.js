@@ -1,12 +1,9 @@
 import React from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router';
 
-import { useAuth } from '../../contexts/AuthContext';
-
-import styles from "../../styles/Components/Repo/RepoPageHeader.module.css";
+import styles from "../../styles/components/repo/RepoPageHeader.module.css";
 
 const RepoPageHeader = () => {
-    const { authUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { owner, name, branch } = useParams();
