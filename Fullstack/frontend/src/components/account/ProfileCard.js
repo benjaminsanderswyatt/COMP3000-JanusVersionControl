@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import ProfilePic from '../../components/images/ProfilePic';
+import ProfilePic from '../images/ProfilePic';
 import { uploadProfilePicture } from '../../api/fetch/fetchAccount';
 import { useAuth } from '../../contexts/AuthContext';
 import Card from "../Cards/Card";

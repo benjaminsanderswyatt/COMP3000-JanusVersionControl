@@ -342,7 +342,7 @@ namespace Janus
 
                                 if (treeHash != commit.TreeHash)
                                 {
-                                    Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}"); // TODO treehash should be the same
+                                    Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}");
                                     return;
                                 }
 
@@ -417,7 +417,6 @@ namespace Janus
 
                     // Recreate working dir
                     Logger.Log("Recreating working directory files...");
-                    // TODO Compare working tree with staged tree and do switch helper logic
 
                     var comparisonResults = Tree.CompareTrees(null, chosenTree.root);
                     foreach (var filePath in comparisonResults.AddedOrUntracked)
