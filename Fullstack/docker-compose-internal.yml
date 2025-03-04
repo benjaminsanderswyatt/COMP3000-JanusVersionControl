@@ -1,0 +1,82 @@
+﻿version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend
+    image: janus-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/certs:/https
+      - ./data/images:/app/public/images
+    networks:
+      intranet:
+        aliases:
+          - janus-frontend.internal
+    environment:
+      - HTTPS=true
+      - SSL_CRT_FILE=https/frontend-certificate.crt
+      - SSL_KEY_FILE=https/frontend-private-nopass.key
+
+  backend:
+    container_name: backend
+    image: janus-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "192.168.0.53:9000:9000"
+    volumes:
+      - ./backend/certs:/https
+      - ./data/images:/app/data/images
+      - ./data/files:/app/data/files
+      - ./data/trees:/app/data/trees
+    networks:
+      intranet:
+        aliases:
+          - janus-backend.internal
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
+      - ALLOWED_CORS_ORIGINS=https://janus-frontend.internal
+      - ASPNETCORE_URLS=https://janus-backend.internal:9000
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/backend-certificate.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=sZF8H6h+08iW3ZJ4n/9w4nv+tH2kPanzVFSjc5yK6J0=
+      - JWT__Issuer=janus-backend.internal
+      - JWT__Audience=janus-internal
+      - JWT__SecretKey_Web=MySecureKeyWithAtLeastThirtyTwoCharacters
+      - JWT__SecretKey_CLI=MySecureKeyWithAtLeastThirtyTwoCharacters
+      - BlacklistCleanup=30
+      - FILE_STORAGE_PATH=/app/data/files
+      - TREE_STORAGE_PATH=/app/data/trees
+
+  db:
+    container_name: db
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    expose:
+      - '3306'
+    volumes:
+      - ./data/db:/var/lib/mysql
+    networks:
+      intranet:
+        aliases:
+          - janus-db.internal
+
+networks:
+  intranet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1

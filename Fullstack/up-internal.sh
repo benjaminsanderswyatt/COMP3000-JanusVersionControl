@@ -5,4 +5,4 @@ mkdir -p ./data/images
 mkdir -p ./data/files
 mkdir -p ./data/trees
 
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose-internal.yml up -d
