@@ -260,7 +260,6 @@ namespace Janus
 
                 try
                 {
-                    Logger.Log($"Getting repository structure...");
                     var (success, data) = await ApiHelper.SendGetAsync(endpoint, credentials.Token);
 
                     if (!success)

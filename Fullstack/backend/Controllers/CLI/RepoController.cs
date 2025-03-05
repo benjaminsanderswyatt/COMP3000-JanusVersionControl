@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 
 namespace backend.Controllers.CLI
 {
@@ -246,6 +248,35 @@ namespace backend.Controllers.CLI
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // POST: api/CLI/batchfiles/{owner}/{repoName}
         [HttpPost("batchfiles/{owner}/{repoName}")]
         public async Task<IActionResult> GetBatchFileContent(string owner, string repoName, [FromBody] List<string> fileHashes)
@@ -278,59 +309,49 @@ namespace backend.Controllers.CLI
                 return NotFound(new { Message = "Repository not found" }); // Repository is hidden, mask unauthorised with not found error
 
 
-
-
-            Response.Headers["Content-Type"] = "application/octet-stream";
-
             string fileDir = Path.Combine(Environment.GetEnvironmentVariable("FILE_STORAGE_PATH"), repository.RepoId.ToString());
 
-            var missingFiles = new List<string>(); // Keep track of missing files
+            // Generate unique boundary without dashes
+            string boundary = "boundary_" + Guid.NewGuid().ToString("N");
 
-            await using (var responseStream = Response.BodyWriter.AsStream())
+            // Create a multipart content with a unique boundary for files
+            var multipartContent = new MultipartContent("mixed", boundary);
+
+            var missingFiles = new List<string>();
+
+            foreach (var hash in fileHashes)
             {
-                foreach (var hash in fileHashes)
+                string filePath = Path.Combine(fileDir, hash);
+                if (!System.IO.File.Exists(filePath))
                 {
-                    string filePath = Path.Combine(fileDir, hash);
-
-                    if (!System.IO.File.Exists(filePath))
-                    {
-                        missingFiles.Add(filePath);
-                        continue;
-                    }
-
-                    // Determine if the file is text or binary
-                    bool isTextFile = IsTextFile(filePath);
-
-
-                    // Send file metadata type (T or B), hash, and length (T = text, B = byte)
-                    string metadata = $"{(isTextFile ? "T" : "B")}|{hash}|{new FileInfo(filePath).Length}\n"; // Type | hash | length in bytes
-                    byte[] metadataBytes = Encoding.UTF8.GetBytes(metadata);
-                    await responseStream.WriteAsync(metadataBytes, 0, metadataBytes.Length);
-                    await responseStream.FlushAsync();
-
-                    // Stream file content
-                    await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                    await fileStream.CopyToAsync(responseStream);
-                    await responseStream.FlushAsync();
-
-                    // Separator between files
-                    byte[] separator = Encoding.UTF8.GetBytes("\n---\n");
-                    await responseStream.WriteAsync(separator, 0, separator.Length);
-                    await responseStream.FlushAsync();
+                    missingFiles.Add(filePath);
+                    continue;
                 }
+
+                // Determine if the file is text or binary
+                bool isTextFile = IsTextFile(filePath);
+                string contentType = isTextFile ? "text/plain" : "application/octet-stream";
+
+                // Create stream content for the file
+                var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                var streamContent = new StreamContent(fileStream);
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+                // Add file hash to the header
+                streamContent.Headers.Add("X-File-Hash", hash);
+
+                multipartContent.Add(streamContent);
             }
 
-            await HttpContext.Response.CompleteAsync();
-
-
-            // If file fails to send
-            if (missingFiles.Count > 0)
+            if (missingFiles.Any())
             {
-                // Partial response
-                return StatusCode(206, new { Message = "Some files were not found", MissingFiles = missingFiles });
+                // Adds the missing files to the response headers
+                Response.Headers.Add("X-Missing-Files", JsonSerializer.Serialize(missingFiles));
             }
 
-            return new EmptyResult(); // Streamed has no return value
+            
+            // return a multipart content async stream
+            return new FileStreamResult(await multipartContent.ReadAsStreamAsync(), $"multipart/mixed; boundary={boundary}");
         }
 
         private static bool IsTextFile(string filePath)
@@ -348,6 +369,22 @@ namespace backend.Controllers.CLI
             }
             return true;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

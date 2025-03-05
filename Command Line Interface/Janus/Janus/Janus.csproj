@@ -10,6 +10,8 @@
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.2" />
     <PackageReference Include="Glob" Version="1.1.9" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.13" />
+    <PackageReference Include="Microsoft.Net.Http.Headers" Version="8.0.13" />
   </ItemGroup>
 
   <ItemGroup>

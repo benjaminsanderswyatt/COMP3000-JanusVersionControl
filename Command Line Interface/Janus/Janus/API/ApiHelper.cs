@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -57,12 +59,11 @@ namespace Janus.API
 
         public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
-            string apiUrl = $"https://localhost:82/api/cli/repo/batchfiles/{owner}/{repoName}";
+            string apiUrl = $"https://localhost:82/api/cli/repo/batchfilestest/{owner}/{repoName}";
 
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
-
 
                 // Send request with list of file hashes
                 var requestBody = new StringContent(JsonSerializer.Serialize(fileHashes), Encoding.UTF8, "application/json");
@@ -73,83 +74,56 @@ namespace Janus.API
                     throw new Exception("Failed to fetch files");
                 }
 
-                // Stream the response
-                using (var responseStream = await response.Content.ReadAsStreamAsync())
+                // Retrieve missing files from header (if any)
+                if (response.Headers.Contains("X-Missing-Files"))
                 {
-                    // Get bytes of seperators
-                    byte[] separator = Encoding.UTF8.GetBytes("\n---\n");
-                    byte[] newline = { (byte)'\n' };
+                    var missingFilesJson = response.Headers.GetValues("X-Missing-Files").FirstOrDefault();
+                    Console.WriteLine("Missing files: " + missingFilesJson);
+                }
 
-                    while (true)
+                // Get boundary from the header
+                var contentType = response.Content.Headers.ContentType;
+                var boundaryParameter = contentType.Parameters.First(p => p.Name.Equals("boundary", StringComparison.OrdinalIgnoreCase));
+                var boundary = HeaderUtilities.RemoveQuotes(boundaryParameter.Value).Value;
+
+                // Read the response stream.
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    var reader = new MultipartReader(boundary, stream);
+                    MultipartSection section;
+
+                    while ((section = await reader.ReadNextSectionAsync()) != null)
                     {
-                        // Read metadata line
-                        List<byte> metadataBytes = new List<byte>();
-                        byte[] buffer = new byte[1];
-                        bool newlineFound = false;
+                        // Get the custom header for file hash (set as X-File-Hash)
+                        string fileHash = null;
 
-                        while (await responseStream.ReadAsync(buffer, 0, 1) > 0)
+                        if (section.Headers.TryGetValue("X-File-Hash", out var hashValues))
                         {
-                            if (buffer[0] == newline[0]) // Reaches end of line
-                            {
-                                newlineFound = true;
-                                break;
-                            }
-                            metadataBytes.Add(buffer[0]);
+                            fileHash = hashValues.First();
+                        }
+                        else
+                        {
+                            Console.WriteLine("No file hash header found in one of the parts.");
+                            continue;
                         }
 
-                        // Check if end of stream
-                        if (!newlineFound && metadataBytes.Count == 0)
-                            break;
+                        // Find the content type of the file
+                        var partContentType = section.ContentType;
 
-                        // Get metadata of file
-                        string metadataLine = Encoding.UTF8.GetString(metadataBytes.ToArray());
-                        string[] metadataParts = metadataLine.Split('|');
-
-                        if (metadataParts.Length != 3)
-                            throw new Exception("Invalid metadata");
-
-                        string fileType = metadataParts[0];
-                        string fileHash = metadataParts[1];
-                        long fileLength = long.Parse(metadataParts[2]);
-
-                        // Read file content
                         string filePath = Path.Combine(destinationFolder, fileHash);
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-                        await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                        // Save the file content
+                        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                         {
-                            byte[] contentBuffer = new byte[2048]; // 2048 is buffer size (balance memory, disk I/O, with file size in mind)
-                            long bytesRemaining = fileLength;
-
-                            // Write the bytes
-                            while (bytesRemaining > 0)
-                            {
-                                int bytesToRead = (int)Math.Min(contentBuffer.Length, bytesRemaining);
-                                int bytesRead = await responseStream.ReadAsync(contentBuffer, 0, bytesToRead);
-
-                                if (bytesRead == 0)
-                                    throw new Exception("Unexpected end of stream");
-
-                                await fileStream.WriteAsync(contentBuffer, 0, bytesRead);
-                                bytesRemaining -= bytesRead;
-                            }
-
+                            await section.Body.CopyToAsync(fileStream);
                         }
-
-                        // Read seperator
-                        byte[] actualSeparator = new byte[separator.Length];
-                        int bytesReadSeparator = await responseStream.ReadAsync(actualSeparator, 0, separator.Length);
-
-                        // Check seperator is valid
-                        if (bytesReadSeparator != separator.Length || !actualSeparator.SequenceEqual(separator))
-                            throw new Exception("Invalid separator");
-
                     }
                 }
             }
 
             return true;
         }
-
 
 
 
