@@ -5,9 +5,13 @@ using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
+using Microsoft.AspNetCore.StaticFiles;
+using System;
 using System.Data;
+using System.Net;
 using System.Text.Json;
 using static Janus.Helpers.CommandHelpers.RemoteHelper;
+using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus
 {
@@ -104,67 +108,41 @@ namespace Janus
             public override string Description => "Save your user credentials";
             public override async Task Execute(string[] args)
             {
-                try
+                // Prompt for credentials
+
+                Logger.Log("Username: ");
+                var username = Console.ReadLine();
+                if (string.IsNullOrEmpty(username))
                 {
-                    // Prompt for credentials
-
-                    Logger.Log("Email: ");
-                    var email = Console.ReadLine().ToLower();
-
-                    if (string.IsNullOrEmpty(email))
-                    {
-                        Logger.Log("Email is required");
-                        return;
-                    }
-
-                    Logger.Log("Personal access token (PAT): ");
-                    var pat = Console.ReadLine();
-
-                    if (string.IsNullOrEmpty(pat))
-                    {
-                        Logger.Log("The personal access token is required");
-                        return;
-                    }
-
-
-                    // Auth on backend
-                    var body = new { Email = email };
-
-                    var (success, data) = await ApiHelper.SendPostAsync("AccessToken/Authenticate", body, pat);
-
-                    if (success)
-                    {
-                        var dataObject = JsonSerializer.Deserialize<PatSuccessRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                        var credentials = new UserCredentials
-                        {
-                            Username = dataObject.Username,
-                            Email = email,
-                            Token = pat
-                        };
-
-                        // Save credentials
-                        var credManager = new CredentialManager();
-                        credManager.SaveCredentials(credentials);
-
-                        Logger.Log($"Successfully logged in as '{credentials.Username}' ({credentials.Email})");
-                    }
-                    else
-                    {
-                        var dataObject = JsonSerializer.Deserialize<PatFailRO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                        Logger.Log($"Authentication failed: {dataObject.Message}");
-                    }
-
+                    Logger.Log("Username is required");
+                    return;
                 }
-                catch (HttpRequestException ex)
+
+                Logger.Log("Email: ");
+                var email = Console.ReadLine().ToLower();
+
+                if (string.IsNullOrEmpty(email))
                 {
-                    Logger.Log($"Network error: {ex.Message}");
+                    Logger.Log("Email is required");
+                    return;
                 }
-                catch (Exception ex)
+
+                Logger.Log("Personal access token (Not required): ");
+                var pat = Console.ReadLine();
+
+                var credentials = new UserCredentials
                 {
-                    Logger.Log($"Login error: {ex.Message}");
-                }
+                    Username = username,
+                    Email = email,
+                    Token = pat
+                };
+
+
+                // Save credentials
+                var credManager = new CredentialManager();
+                credManager.SaveCredentials(credentials);
+
+                Logger.Log($"Saved login credantials as '{username}' ({email})");
             }
         }
 
@@ -819,16 +797,19 @@ namespace Janus
                     }
                 }
 
-
                 // Stage each file
                 foreach (string relativeFilePath in filesToAdd)
                 {
                     // Compute file hash
                     var (fileHash, content) = HashHelper.ComputeHashAndGetContent(Paths.WorkingDir, relativeFilePath);
 
+                    var fullPath = Path.Combine(Paths.WorkingDir, relativeFilePath);
+
+                    FileMetadata metadata = GetFileMetadata(fullPath, fileHash);
+
 
                     // If the file isnt already staged or the file has been modified stage it
-                    if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath] != fileHash)
+                    if (!stagedFiles.ContainsKey(relativeFilePath) || stagedFiles[relativeFilePath].Hash != fileHash)
                     {
                         // Write file content to objects directory
                         string objectFilePath = Path.Combine(Paths.ObjectDir, fileHash);
@@ -837,7 +818,7 @@ namespace Janus
                             File.WriteAllBytes(objectFilePath, content);
                         }
 
-                        stagedFiles[relativeFilePath] = fileHash;
+                        stagedFiles[relativeFilePath] = metadata;
                         Logger.Log($"Added '{relativeFilePath}' to the staging area.");
                     }
                     else
@@ -851,7 +832,12 @@ namespace Janus
                 // Mark deleted files "Deleted"
                 foreach (string relativeFilePath in deletedFiles)
                 {
-                    stagedFiles[relativeFilePath] = "Deleted";
+                    stagedFiles[relativeFilePath] = new FileMetadata { 
+                        Hash = "Deleted",
+                        MimeType = null,
+                        Size = 0
+                    };
+
                     Logger.Log($"Marked '{relativeFilePath}' as deleted.");
                 }
 
@@ -905,7 +891,7 @@ namespace Janus
                     var stagedTreeBuilder = new TreeBuilder(Paths);
 
                     // Clean up index removing deleted files
-                    var updatedIndex = stagedFiles.Where(kv => kv.Value != "Deleted")
+                    var updatedIndex = stagedFiles.Where(kv => kv.Value.Hash != "Deleted")
                                           .ToDictionary(kv => kv.Key, kv => kv.Value);
 
                     var stagedTree = stagedTreeBuilder.BuildTreeFromDiction(updatedIndex);

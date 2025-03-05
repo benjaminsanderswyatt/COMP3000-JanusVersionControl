@@ -142,8 +142,8 @@ namespace backend.Models
 
             // Seed Branches
             modelBuilder.Entity<Branch>().HasData(
-                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef", CreatedBy = 1, CreatedAt = DateTime.UtcNow },
-                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef", LatestCommitHash = "a86144601800e35b72f4427206042b4ec0da4288", CreatedBy = 1, CreatedAt = DateTime.UtcNow }
+                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", CreatedBy = 1, CreatedAt = DateTime.UtcNow },
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTime.UtcNow }
             );
 
 
@@ -152,7 +152,7 @@ namespace backend.Models
                 new Commit
                 {
                     CommitId = 1,
-                    CommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef",
+                    CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                     BranchId = 1,
                     TreeHash = "",
                     AuthorName = "janus",
@@ -163,9 +163,9 @@ namespace backend.Models
                 new Commit
                 {
                     CommitId = 2,
-                    CommitHash = "a86144601800e35b72f4427206042b4ec0da4288",
+                    CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                     BranchId = 2,
-                    TreeHash = "b2ee222a7d29faa635c1e98886bed90b8510c969",
+                    TreeHash = "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128",
                     AuthorName = "User2",
                     AuthorEmail = "user@2.com",
                     Message = "Next commit",

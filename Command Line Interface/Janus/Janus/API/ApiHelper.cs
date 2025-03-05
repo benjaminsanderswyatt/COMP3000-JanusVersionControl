@@ -59,7 +59,7 @@ namespace Janus.API
 
         public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
-            string apiUrl = $"https://localhost:82/api/cli/repo/batchfilestest/{owner}/{repoName}";
+            string apiUrl = $"https://localhost:82/api/cli/repo/batchfiles/{owner}/{repoName}";
 
             using (HttpClient client = new HttpClient())
             {

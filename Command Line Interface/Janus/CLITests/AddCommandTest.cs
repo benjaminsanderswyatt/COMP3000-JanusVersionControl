@@ -124,7 +124,7 @@ namespace CLITests
             // Assert: Verify that the file is staged correctly
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
-            Assert.That(stagedFiles["file.txt"], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file.txt")));
+            Assert.That(stagedFiles["file.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file.txt")));
 
         }
 
@@ -150,8 +150,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
 
-            Assert.That(stagedFiles["file1.txt"], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file1.txt")));
-            Assert.That(stagedFiles["file2.txt"], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file2.txt")));
+            Assert.That(stagedFiles["file1.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file1.txt")));
+            Assert.That(stagedFiles["file2.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file2.txt")));
 
         }
 
@@ -173,7 +173,7 @@ namespace CLITests
             // Assert: Check if the file is marked as deleted in the staging area
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
             Assert.IsTrue(stagedFiles.ContainsKey("file.txt"));
-            Assert.That(stagedFiles["file.txt"], Is.EqualTo("Deleted"));
+            Assert.That(stagedFiles["file.txt"].Hash, Is.EqualTo("Deleted"));
         }
 
 
@@ -293,8 +293,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
             Assert.That(stagedFiles.ContainsKey("testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)), Is.True);
 
-            Assert.That(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar))));
-            Assert.That(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar))));
+            Assert.That(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar))));
+            Assert.That(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar))));
         }
 
         [Test]
@@ -317,8 +317,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file1.txt"), Is.True);
             Assert.That(stagedFiles.ContainsKey("file2.txt"), Is.True);
 
-            Assert.That(stagedFiles["file1.txt"], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file1.txt")));
-            Assert.That(stagedFiles["file2.txt"], Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file2.txt")));
+            Assert.That(stagedFiles["file1.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file1.txt")));
+            Assert.That(stagedFiles["file2.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file2.txt")));
         }
 
 
@@ -342,8 +342,8 @@ namespace CLITests
 
             // Assert: Verify that both files are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
-            Assert.That("Deleted", Is.EqualTo(stagedFiles["file1.txt"]));
-            Assert.That("Deleted", Is.EqualTo(stagedFiles["file2.txt"]));
+            Assert.That("Deleted", Is.EqualTo(stagedFiles["file1.txt"].Hash));
+            Assert.That("Deleted", Is.EqualTo(stagedFiles["file2.txt"].Hash));
         }
 
 
@@ -370,8 +370,8 @@ namespace CLITests
 
             // Assert: Verify that both files in the directory are marked as deleted
             var stagedFiles = IndexHelper.LoadIndex(_paths.Index);
-            Assert.That(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)], Is.EqualTo("Deleted"));
-            Assert.That(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)], Is.EqualTo("Deleted"));
+            Assert.That(stagedFiles["testDir/file1.txt".Replace('/', Path.DirectorySeparatorChar)].Hash, Is.EqualTo("Deleted"));
+            Assert.That(stagedFiles["testDir/file2.txt".Replace('/', Path.DirectorySeparatorChar)].Hash, Is.EqualTo("Deleted"));
         }
 
     }

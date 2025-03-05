@@ -1,11 +1,13 @@
 ﻿using GlobExpressions;
 using Janus.Plugins;
+using Janus.Utils;
+using Microsoft.AspNetCore.StaticFiles;
+using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus.Helpers
 {
     public static class GetFilesHelper
     {
-
         public static IEnumerable<string> GetAllFilesInDir(Paths paths, string directory)
         {
             // Load ignore patterns
@@ -25,17 +27,21 @@ namespace Janus.Helpers
             return patterns.Any(pattern => pattern.IsMatch(path));
         }
 
-        public static Dictionary<string, string> GetWorkingDirFileHash(Paths paths)
+        public static Dictionary<string, FileMetadata> GetWorkingDirFileHash(Paths paths)
         {
             var workingDirFiles = GetAllFilesInDir(paths, paths.WorkingDir);
+            var filePathMeta = new Dictionary<string, FileMetadata>();
 
-            var filePathHash = new Dictionary<string, string>();
-            foreach (var filepath in workingDirFiles)
+            foreach (var relPath in workingDirFiles)
             {
-                filePathHash[filepath] = HashHelper.ComputeHashGivenRelFilepath(paths.WorkingDir, filepath);
+                var fullPath = Path.Combine(paths.WorkingDir, relPath);
+                
+                FileMetadata metadata = GetFileMetadata(fullPath, HashHelper.ComputeHashGivenRelFilepath(paths.WorkingDir, relPath));
+
+                filePathMeta[relPath] = metadata;
             }
 
-            return filePathHash;
+            return filePathMeta;
         }
 
 

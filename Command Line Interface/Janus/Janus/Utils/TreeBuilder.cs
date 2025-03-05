@@ -2,7 +2,9 @@
 using Janus.Helpers;
 using Janus.Helpers.CommandHelpers;
 using Janus.Plugins;
+using System.Drawing;
 using System.Text;
+using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus.Utils
 {
@@ -10,12 +12,16 @@ namespace Janus.Utils
     {
         public string Name { get; set; } // Name of the file or directory
         public string? Hash { get; set; } // Hash of the file (null for directory)
+        public string? MimeType { get; set; } // Mime type of the file
+        public long Size { get; set; } // Size of the file
         public List<TreeNode> Children { get; set; } // List of child nodes
 
-        public TreeNode(string name, string hash = null)
+        public TreeNode(string name, string hash = null, string mimeType = "inode/directory", long size = 0)
         {
             Name = name;
             Hash = hash;
+            MimeType = mimeType;
+            Size = size;
             Children = new List<TreeNode>();
         }
 
@@ -34,40 +40,68 @@ namespace Janus.Utils
 
 
         // Build the tree from a dictionary of filepath hash
-        public TreeNode BuildTreeFromDiction(Dictionary<string, string> index)
+        public TreeNode BuildTreeFromDiction(Dictionary<string, FileMetadata> index)
         {
+
             foreach (var kvp in index)
             {
                 string filePath = kvp.Key;
-                string fileHash = kvp.Value;
+                FileMetadata meta = kvp.Value;
+
 
                 string[] pathParts = PathHelper.PathSplitter(filePath);
-                AddToTree(pathParts, fileHash, 0, root);
+                long addedSize = AddToTree(
+                    pathParts,
+                    meta.Hash,
+                    meta.MimeType,
+                    meta.Size,
+                    0,
+                    root
+                );
+
+                root.Size += addedSize; // Handle root size
             }
+
 
             return root;
         }
 
 
-        private void AddToTree(string[] pathParts, string hash, int index, TreeNode current)
+        private long AddToTree(string[] pathParts, string hash, string mimeType, long size, int index, TreeNode current)
         {
             string part = pathParts[index]; // Get the current part of the path
+            bool isFile = index == pathParts.Length - 1; // Last part of the path is the file
+
 
             // Find and or create the child node with the current part
             var child = current.Children.Find(c => c.Name == part);
             if (child == null)
             {
-                bool isFile = index == pathParts.Length - 1; // Last part of the path is the file
-                child = new TreeNode(part, isFile ? hash : null);
+
+                child = new TreeNode(
+                    part,
+                    isFile ? hash : null,
+                    isFile ? mimeType : "inode/directory",
+                    0 // Handle size later
+                );
                 current.Children.Add(child);
             }
 
-            // Recurse if not at the end of the path
-            if (index < pathParts.Length - 1)
+            long addedSize;
+            if (isFile)
             {
-                AddToTree(pathParts, hash, index + 1, child);
+                child.Size = size;
+                addedSize = size;
+            }
+            else
+            {
+                // Recursively add the file
+                addedSize = AddToTree(pathParts, hash, mimeType, size, index + 1, child);
+                child.Size += addedSize;
             }
 
+
+            return addedSize;
         }
 
 
@@ -76,7 +110,10 @@ namespace Janus.Utils
             node ??= root; // Start from the root if no node is provided
 
             string indent = new string(' ', level * 2);
-            Console.WriteLine($"{indent}{node.Name} {(node.Hash != null ? $"({node.Hash})" : "")}");
+
+            string type = node.Hash != null ? "File" : "Dir";
+
+            Console.WriteLine($"{indent}{node.Name} | {node.MimeType} | {node.Size} | {node.Hash}");
 
             foreach (var child in node.Children)
             {
@@ -92,27 +129,14 @@ namespace Janus.Utils
 
         private string SaveTreeRecursively(TreeNode node)
         {
-            if (node == null) throw new ArgumentNullException(nameof(node));
-
-            var lines = new List<string>();
-
-            foreach (var child in node.Children.OrderBy(c => c.Name))
-            {
-                if (child.Hash != null)
-                {
-                    // File entry
-                    lines.Add($"blob|{child.Name}|{child.Hash}");
-                }
-                else
-                {
-                    // Directory entry
-                    string childHash = SaveTreeRecursively(child);
-                    lines.Add($"tree|{child.Name}|{childHash}");
-                }
-            }
+            var entries = node.Children
+            .OrderBy(c => c.Name)
+            .Select(child => child.Hash == null
+                ? $"tree|{child.Name}|{child.MimeType}|{child.Size}|{SaveTreeRecursively(child)}"
+                : $"blob|{child.Name}|{child.MimeType}|{child.Size}|{child.Hash}");
 
             // Create the content for this directory
-            string content = string.Join("\n", lines);
+            string content = string.Join("\n", entries);
             string hash = HashHelper.ComputeHash(content);
 
             // Save the directory file (dont overide if already exists)
@@ -150,39 +174,35 @@ namespace Janus.Utils
 
 
                 // Create a new TreeNode for the current tree
-                var treeNode = new TreeNode("root");
+                var node = new TreeNode("root", mimeType: "inode/directory");
 
                 foreach (var line in treeContent)
                 {
                     var parts = line.Split('|');
+                    if (parts.Length != 5) continue;
 
-                    if (parts.Length >= 3)
-                    {
-                        string type = parts[0]; // blob or tree
-                        string name = parts[1]; // Name of the file or directory
-                        string hash = parts[2]; // Hash of the file or directory
 
-                        if (type == "tree")
-                        {
-                            // Recursively rebuild the child tree
-                            var childTree = RebuildTreeRecursive(logger, hash);
-                            if (childTree != null)
-                            {
-                                childTree.Name = name;
-                                treeNode.Children.Add(childTree);
-                            }
-                        }
-                        else if (type == "blob")
-                        {
-                            // Add file node
-                            var fileNode = new TreeNode(name, hash);
-                            treeNode.Children.Add(fileNode);
-                        }
-                    }
+                    string type = parts[0]; // blob or tree
+                    string name = parts[1]; // Name of the file or directory
+                    string mimeType = parts[2]; // Mime of the file (directory = null)
+                    long size = long.Parse(parts[3]); // Size of the file or directory
+                    string hash = parts[4]; // Hash of the file or directory
+
+                    var child = type == "tree"
+                        ? RebuildTreeRecursive(logger, hash)
+                        : new TreeNode(name, hash, mimeType, size);
+
+                    child.Name = name;
+                    child.MimeType = mimeType;
+                    child.Size = size;
+
+                    node.Children.Add(child);
+                    node.Size += size;
+
                 }
 
 
-                return treeNode;
+                return node;
             }
             catch (Exception ex)
             {
@@ -201,7 +221,12 @@ namespace Janus.Utils
             if (treeDto == null)
                 return null;
 
-            var node = new TreeNode(treeDto.Name, treeDto.Hash);
+            var node = new TreeNode(
+                treeDto.Name,
+                treeDto.Hash,
+                treeDto.MimeType,
+                treeDto.Size
+            );
 
             if (treeDto.Children != null)
             {
@@ -241,14 +266,14 @@ namespace Janus.Utils
 
 
 
-        public Dictionary<string, string> BuildIndexDictionary()
+        public Dictionary<string, FileMetadata> BuildIndexDictionary()
         {
-            var index = new Dictionary<string, string>();
+            var index = new Dictionary<string, FileMetadata>();
             BuildIndexDictionaryRecursive(root, "", index);
             return index;
         }
 
-        private void BuildIndexDictionaryRecursive(TreeNode node, string currentPath, Dictionary<string, string> index)
+        private void BuildIndexDictionaryRecursive(TreeNode node, string currentPath, Dictionary<string, FileMetadata> index)
         {
             foreach (var child in node.Children)
             {
@@ -256,7 +281,12 @@ namespace Janus.Utils
 
                 if (child.Hash != null)
                 {
-                    index[path] = child.Hash;
+                    index[path] = new FileMetadata
+                    {
+                        Hash = child.Hash,
+                        MimeType = child.MimeType,
+                        Size = child.Size
+                    };
                 }
                 else
                 {
@@ -369,7 +399,10 @@ namespace Janus.Utils
                     var file1 = node1Files[key];
                     var file2 = node2Files[key];
 
-                    if (file1.Hash != file2.Hash) // Modified
+                    //Modified
+                    if (file1.Hash != file2.Hash ||
+                        file1.MimeType != file2.MimeType ||
+                        file1.Size != file2.Size)
                     {
                         result.ModifiedOrNotStaged.Add(path);
                     }
@@ -427,7 +460,7 @@ namespace Janus.Utils
             return headTree;
         }
 
-        public static TreeNode GetWorkingTree(Paths paths, Dictionary<string, string> workingDirFiles = null)
+        public static TreeNode GetWorkingTree(Paths paths, Dictionary<string, FileMetadata> workingDirFiles = null)
         {
             // Load working directory files if not provided
             if (workingDirFiles == null)

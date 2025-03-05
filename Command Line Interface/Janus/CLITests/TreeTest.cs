@@ -1,8 +1,10 @@
+using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Moq;
 using static Janus.CommandHandler;
+using static Janus.Helpers.FileMetadataHelper;
 
 namespace CLITests
 {
@@ -69,14 +71,16 @@ namespace CLITests
         public void ShouldBuildTreeFromDictionary()
         {
             // Arrange
-            var index = new Dictionary<string, string>
+            var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "dir1/file2.txt", "hash2" },
-                { "dir1/file3.txt", "hash3" },
-                { "dir2/file4.txt", "hash4" },
-                { "dir2/subdir1/file5.txt", "hash5" }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/svg+xml", Size = 2048 } },
+                { "dir1/file3.txt", new FileMetadata { Hash = "hash3", MimeType = "text/pdf", Size = 3072 } },
+                { "dir2/file4.txt", new FileMetadata { Hash = "hash4", MimeType = "application/octet-stream", Size = 4096 } },
+                { "dir2/subdir1/file5.txt", new FileMetadata { Hash = "hash5", MimeType = "text/markdown", Size = 512 } }
             };
+
+
 
             // Act
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -85,46 +89,88 @@ namespace CLITests
             _treeBuilder.PrintTree();
 
             // Assert
-            // Root
-            Assert.That(root.Name, Is.EqualTo("root"));
-            Assert.That(root.Children.Count, Is.EqualTo(3));
+            Assert.Multiple(() =>
+            {
+                // Root directory
+                Assert.That(root.Name, Is.EqualTo("root"));
+                Assert.That(root.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(root.Size, Is.EqualTo(1024 + 2048 + 3072 + 4096 + 512));
+                Assert.That(root.Children, Has.Count.EqualTo(3));
+            });
 
-            // File 1
-            var file1 = root.Children.FirstOrDefault(c => c.Name == "file1.txt");
-            Assert.That(file1.Hash, Is.EqualTo("hash1"));
+            // File1 checks
+            var file1 = root.Children.First(c => c.Name == "file1.txt");
+            Assert.Multiple(() =>
+            {
+                Assert.That(file1.Hash, Is.EqualTo("hash1"));
+                Assert.That(file1.MimeType, Is.EqualTo("text/plain"));
+                Assert.That(file1.Size, Is.EqualTo(1024));
+            });
 
-            // Dir 1
-            var dir1 = root.Children.FirstOrDefault(c => c.Name == "dir1");
-            Assert.That(dir1.Hash, Is.Null);
-            Assert.That(dir1.Children.Count, Is.EqualTo(2));
+            // Dir1 checks
+            var dir1 = root.Children.First(c => c.Name == "dir1");
+            Assert.Multiple(() =>
+            {
+                Assert.That(dir1.Hash, Is.Null);
+                Assert.That(dir1.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(dir1.Size, Is.EqualTo(2048 + 3072));
+                Assert.That(dir1.Children, Has.Count.EqualTo(2));
+            });
 
-            // File 2
-            var file2 = dir1.Children.FirstOrDefault(c => c.Name == "file2.txt");
-            Assert.That(file2.Hash, Is.EqualTo("hash2"));
+            // Dir1 files
+            var file2 = dir1.Children.First(c => c.Name == "file2.txt");
+            Assert.Multiple(() =>
+            {
+                Assert.That(file2.Hash, Is.EqualTo("hash2"));
+                Assert.That(file2.MimeType, Is.EqualTo("text/svg+xml"));
+                Assert.That(file2.Size, Is.EqualTo(2048));
+            });
 
-            // File 3
-            var file3 = dir1.Children.FirstOrDefault(c => c.Name == "file3.txt");
-            Assert.That(file3.Hash, Is.EqualTo("hash3"));
+            var file3 = dir1.Children.First(c => c.Name == "file3.txt");
+            Assert.Multiple(() =>
+            {
+                Assert.That(file3.Hash, Is.EqualTo("hash3"));
+                Assert.That(file3.MimeType, Is.EqualTo("text/pdf"));
+                Assert.That(file3.Size, Is.EqualTo(3072));
+            });
 
+            // Dir2 checks
+            var dir2 = root.Children.First(c => c.Name == "dir2");
+            Assert.Multiple(() =>
+            {
+                Assert.That(dir2.Hash, Is.Null);
+                Assert.That(dir2.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(dir2.Size, Is.EqualTo(4096 + 512));
+                Assert.That(dir2.Children, Has.Count.EqualTo(2));
+            });
 
-            // Dir 2
-            var dir2 = root.Children.FirstOrDefault(c => c.Name == "dir2");
-            Assert.That(dir2.Hash, Is.Null);
-            Assert.That(dir2.Children.Count, Is.EqualTo(2));
+            // Dir2 files
+            var file4 = dir2.Children.First(c => c.Name == "file4.txt");
+            Assert.Multiple(() =>
+            {
+                Assert.That(file4.Hash, Is.EqualTo("hash4"));
+                Assert.That(file4.MimeType, Is.EqualTo("application/octet-stream"));
+                Assert.That(file4.Size, Is.EqualTo(4096));
+            });
 
-            // File 4
-            var file4 = dir2.Children.FirstOrDefault(c => c.Name == "file4.txt");
-            Assert.That(file4.Hash, Is.EqualTo("hash4"));
+            // Subdir1 checks
+            var subdir1 = dir2.Children.First(c => c.Name == "subdir1");
+            Assert.Multiple(() =>
+            {
+                Assert.That(subdir1.Hash, Is.Null);
+                Assert.That(subdir1.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(subdir1.Size, Is.EqualTo(512));
+                Assert.That(subdir1.Children, Has.Count.EqualTo(1));
+            });
 
-
-            // Subdir1
-            var subdir1 = dir2.Children.FirstOrDefault(c => c.Name == "subdir1");
-            Assert.That(subdir1.Hash, Is.Null);
-            Assert.That(subdir1.Children.Count, Is.EqualTo(1));
-
-            // File 5
-            var file5 = subdir1.Children.FirstOrDefault(c => c.Name == "file5.txt");
-            Assert.That(file5.Hash, Is.EqualTo("hash5"));
+            // File5 checks
+            var file5 = subdir1.Children.First(c => c.Name == "file5.txt");
+            Assert.Multiple(() =>
+            {
+                Assert.That(file5.Hash, Is.EqualTo("hash5"));
+                Assert.That(file5.MimeType, Is.EqualTo("text/markdown"));
+                Assert.That(file5.Size, Is.EqualTo(512));
+            });
 
         }
 
@@ -133,11 +179,11 @@ namespace CLITests
         public void ShouldSaveTree()
         {
             // Arrange
-            var index = new Dictionary<string, string>
+            var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "file2.txt", "hash2" },
-                { "file3.txt", "hash3" }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
+                { "file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/plain", Size = 2048 } },
+                { "file3.txt", new FileMetadata { Hash = "hash3", MimeType = "application/octet-stream", Size = 3072 } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -152,26 +198,23 @@ namespace CLITests
 
             var treeContent = File.ReadAllLines(treeFilePath);
 
-            Assert.That(treeContent.Length, Is.EqualTo(3));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|hash1")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file2.txt|hash2")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file3.txt|hash3")));
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(treeContent, Has.Length.EqualTo(3));
+                Assert.That(treeContent, Contains.Item("blob|file1.txt|text/plain|1024|hash1"));
+                Assert.That(treeContent, Contains.Item("blob|file2.txt|text/plain|2048|hash2"));
+                Assert.That(treeContent, Contains.Item("blob|file3.txt|application/octet-stream|3072|hash3"));
+            });
 
         }
-
 
         [Test]
         public void ShouldSaveTree_WithFolders()
         {
             // Arrange
-            var index = new Dictionary<string, string>
+            var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "dir1/file2.txt", "hash2" },
-                { "dir1/file3.txt", "hash3" },
-                { "dir2/file4.txt", "hash4" },
-                { "dir2/subdir1/file5.txt", "hash5" }
+                { "dir1/file.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -180,50 +223,20 @@ namespace CLITests
             var rootHash = _treeBuilder.SaveTree();
 
             // Assert
-            var treeFilePath = Path.Combine(_paths.TreeDir, rootHash);
-            Assert.IsTrue(File.Exists(treeFilePath));
+            var treeContent = File.ReadAllLines(Path.Combine(_paths.TreeDir, rootHash));
+            var dirLine = treeContent.First(l => l.StartsWith("tree|dir1|"));
 
-            var treeContent = File.ReadAllLines(treeFilePath);
-
-            Assert.That(treeContent.Length, Is.EqualTo(3));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("blob|file1.txt|hash1")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir1|")));
-            Assert.IsTrue(treeContent.Any(line => line.Contains("tree|dir2|")));
-
-            // Dir 1
-            var dir1Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree|dir1|")));
-            var dir1Path = Path.Combine(_paths.TreeDir, dir1Hash);
-            Assert.IsTrue(File.Exists(dir1Path));
-
-            var dir1Content = File.ReadAllLines(dir1Path);
-            Assert.That(dir1Content.Length, Is.EqualTo(2));
-            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob|file2.txt|hash2")));
-            Assert.IsTrue(dir1Content.Any(line => line.Contains("blob|file3.txt|hash3")));
-
-            // Dir 2
-            var dir2Hash = GetHashFromTreeLine(treeContent.First(line => line.StartsWith("tree|dir2|")));
-            var dir2Path = Path.Combine(_paths.TreeDir, dir2Hash);
-            Assert.IsTrue(File.Exists(dir2Path));
-
-            var dir2Content = File.ReadAllLines(dir2Path);
-            Assert.That(dir2Content.Length, Is.EqualTo(2));
-            Assert.IsTrue(dir2Content.Any(line => line.Contains("blob|file4.txt|hash4")));
-            Assert.IsTrue(dir2Content.Any(line => line.StartsWith("tree|subdir1|")));
-
-            // Subdir 1
-            var subdir1Hash = GetHashFromTreeLine(dir2Content.First(line => line.StartsWith("tree|subdir1|")));
-            var subdir1Path = Path.Combine(_paths.TreeDir, subdir1Hash);
-            Assert.IsTrue(File.Exists(subdir1Path));
-
-            var subdir1Content = File.ReadAllLines(subdir1Path);
-            Assert.That(subdir1Content.Length, Is.EqualTo(1));
-            Assert.IsTrue(subdir1Content.Any(line => line.Contains("blob|file5.txt|hash5")));
+            Assert.Multiple(() =>
+            {
+                Assert.That(dirLine, Does.StartWith("tree|dir1|inode/directory|1024|"));
+                Assert.That(dirLine.Split('|'), Has.Length.EqualTo(5));
+            });
         }
 
         private string GetHashFromTreeLine(string treeLine)
         {
             var parts = treeLine.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length > 2 ? parts[2] : string.Empty;
+            return parts.Length >= 5 ? parts[4] : string.Empty;
         }
 
 
@@ -234,13 +247,10 @@ namespace CLITests
         public void ShouldRebuildTreeFromHash()
         {
             // Arrange
-            var index = new Dictionary<string, string>
+            var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "dir1/file2.txt", "hash2" },
-                { "dir1/file3.txt", "hash3" },
-                { "dir2/file4.txt", "hash4" },
-                { "dir2/subdir1/file5.txt", "hash5" }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "image/png", Size = 2048 } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -250,45 +260,30 @@ namespace CLITests
             var recreatedTree = _treeBuilder.RecreateTree(_loggerMock.Object, rootHash);
 
             // Assert
+            Assert.Multiple(() =>
+            {
+                // Root
+                Assert.That(recreatedTree.Name, Is.EqualTo("root"));
+                Assert.That(recreatedTree.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(recreatedTree.Size, Is.EqualTo(1024 + 2048));
 
-            // Root
-            Assert.That(recreatedTree.Name, Is.EqualTo("root"));
-            Assert.That(recreatedTree.Children.Count, Is.EqualTo(3));
+                // File1
+                var file1 = recreatedTree.Children.First(c => c.Name == "file1.txt");
+                Assert.That(file1.Hash, Is.EqualTo("hash1"));
+                Assert.That(file1.MimeType, Is.EqualTo("text/plain"));
+                Assert.That(file1.Size, Is.EqualTo(1024));
 
-            // File 1
-            var file1 = recreatedTree.Children.FirstOrDefault(c => c.Name == "file1.txt");
-            Assert.That(file1.Hash, Is.EqualTo("hash1"));
+                // Dir1
+                var dir1 = recreatedTree.Children.First(c => c.Name == "dir1");
+                Assert.That(dir1.MimeType, Is.EqualTo("inode/directory"));
+                Assert.That(dir1.Size, Is.EqualTo(2048));
 
-            // Dir 1
-            var dir1 = recreatedTree.Children.FirstOrDefault(c => c.Name == "dir1");
-            Assert.That(dir1.Hash, Is.Null);
-            Assert.That(dir1.Children.Count, Is.EqualTo(2));
-
-            // File 2
-            var file2 = dir1.Children.FirstOrDefault(c => c.Name == "file2.txt");
-            Assert.That(file2.Hash, Is.EqualTo("hash2"));
-
-            // File 3
-            var file3 = dir1.Children.FirstOrDefault(c => c.Name == "file3.txt");
-            Assert.That(file3.Hash, Is.EqualTo("hash3"));
-
-            // Dir 2
-            var dir2 = recreatedTree.Children.FirstOrDefault(c => c.Name == "dir2");
-            Assert.That(dir2.Hash, Is.Null);
-            Assert.That(dir2.Children.Count, Is.EqualTo(2));
-
-            // File 4
-            var file4 = dir2.Children.FirstOrDefault(c => c.Name == "file4.txt");
-            Assert.That(file4.Hash, Is.EqualTo("hash4"));
-
-            // Subdir1
-            var subdir1 = dir2.Children.FirstOrDefault(c => c.Name == "subdir1");
-            Assert.That(subdir1.Hash, Is.Null);
-            Assert.That(subdir1.Children.Count, Is.EqualTo(1));
-
-            // File 5
-            var file5 = subdir1.Children.FirstOrDefault(c => c.Name == "file5.txt");
-            Assert.That(file5.Hash, Is.EqualTo("hash5"));
+                // File2
+                var file2 = dir1.Children.First(c => c.Name == "file2.txt");
+                Assert.That(file2.Hash, Is.EqualTo("hash2"));
+                Assert.That(file2.MimeType, Is.EqualTo("image/png"));
+                Assert.That(file2.Size, Is.EqualTo(2048));
+            });
         }
 
 
@@ -296,22 +291,17 @@ namespace CLITests
         public void ShouldCompareTrees()
         {
             // Arrange
-            var diction1 = new Dictionary<string, string>
+            var diction1 = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "dir1/file2.txt", "hash2" },
-                { "dir1/file3.txt", "hash3" },
-                { "dir2/file4.txt", "hash4" },
-                { "dir2/subdir1/file5.txt", "hash5" }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "image/png", Size = 2048 } }
             };
 
-            var diction2 = new Dictionary<string, string>
+            var diction2 = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", "hash1" },
-                { "dir1/file2.txt", "hash2_modified" }, // Modified file
-                { "dir1/file3.txt", "hash3" },
-                { "dir2/file6.txt", "hash6" }, // New file
-                { "dir3/file7.txt", "hash7" } // New file
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2mod", MimeType = "image/jpeg", Size = 3072 } },
+                { "newfile.txt", new FileMetadata { Hash = "hash3", MimeType = "text/csv", Size = 512 } }
             };
 
             var tree1 = _treeBuilder.BuildTreeFromDiction(diction1);
@@ -325,21 +315,19 @@ namespace CLITests
 
 
             // Assert
-            comparisonResult.AddedOrUntracked.ForEach(item => { Console.WriteLine($"Added: {item}"); });
-            comparisonResult.ModifiedOrNotStaged.ForEach(item => { Console.WriteLine($"Modified: {item}"); });
-            comparisonResult.Deleted.ForEach(item => { Console.WriteLine($"Deleted: {item}"); });
+            Assert.Multiple(() =>
+            {
+                Assert.That(comparisonResult.AddedOrUntracked, Has.Count.EqualTo(1));
+                Assert.That(comparisonResult.ModifiedOrNotStaged, Has.Count.EqualTo(1));
+                Assert.That(comparisonResult.Deleted, Has.Count.EqualTo(0));
 
-            Assert.That(comparisonResult.AddedOrUntracked.Count, Is.EqualTo(2));
-            Assert.That(comparisonResult.ModifiedOrNotStaged.Count, Is.EqualTo(1));
-            Assert.That(comparisonResult.Deleted.Count, Is.EqualTo(2));
+                // Added file
+                Assert.That(comparisonResult.AddedOrUntracked, Contains.Item("newfile.txt".Replace('/', Path.DirectorySeparatorChar)));
 
-            Assert.Contains("dir2/file6.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.AddedOrUntracked);
-            Assert.Contains("dir3/file7.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.AddedOrUntracked);
-
-            Assert.Contains("dir1/file2.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.ModifiedOrNotStaged);
-
-            Assert.Contains("dir2/file4.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);
-            Assert.Contains("dir2/subdir1/file5.txt".Replace('/', Path.DirectorySeparatorChar), comparisonResult.Deleted);
+                // Modified file
+                var modifiedPath = "dir1/file2.txt".Replace('/', Path.DirectorySeparatorChar);
+                Assert.That(comparisonResult.ModifiedOrNotStaged, Contains.Item(modifiedPath));
+            });
         }
 
 

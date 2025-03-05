@@ -549,7 +549,7 @@ namespace CLITests
 
 
             // Extract tree hashes for dir1
-            var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir1|"))?.Split('|')[2];
+            var dir1TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir1|"))?.Split('|')[4];
 
             var dir1TreeFilePath = Path.Combine(_paths.TreeDir, dir1TreeHash);
             Assert.IsTrue(File.Exists(dir1TreeFilePath));
@@ -561,7 +561,7 @@ namespace CLITests
 
 
             // Extract tree hashes for dir2
-            var dir2TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir2|"))?.Split('|')[2];
+            var dir2TreeHash = treeContent.FirstOrDefault(line => line.Contains("tree|dir2|"))?.Split('|')[4];
 
             var dir2TreeFilePath = Path.Combine(_paths.TreeDir, dir2TreeHash);
             Assert.IsTrue(File.Exists(dir2TreeFilePath));

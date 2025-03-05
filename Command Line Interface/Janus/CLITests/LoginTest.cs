@@ -67,11 +67,25 @@ namespace CLITests
         }
 
 
+
+        [Test]
+        public async Task ShouldLogError_WhenUsernameIsEmpty()
+        {
+            // Arrange
+            SetConsoleInput("\nuser@example.com\ntesttoken\n"); // Empty username
+
+            // Act
+            await _loginCommand.Execute(Array.Empty<string>());
+
+            // Assert
+            _loggerMock.Verify(x => x.Log("Username is required"), Times.Once);
+        }
+
         [Test]
         public async Task ShouldLogError_WhenEmailIsEmpty()
         {
             // Arrange
-            SetConsoleInput("\ninvalid_pat\n"); // Empty email
+            SetConsoleInput("testuser\n\nvalidtoken\n"); // Empty email
 
             // Act
             await _loginCommand.Execute(Array.Empty<string>());
@@ -84,14 +98,28 @@ namespace CLITests
         public async Task ShouldLogError_WhenPATIsEmpty()
         {
             // Arrange
-            SetConsoleInput("test@example.com\n\n"); // Empty PAT
+            SetConsoleInput("testuser\ntest@example.com\n\n"); // Empty PAT
 
             // Act
             await _loginCommand.Execute(Array.Empty<string>());
 
             // Assert
-            _loggerMock.Verify(x => x.Log("The personal access token is required"), Times.Once);
+            _loggerMock.Verify(x => x.Log("Saved login credantials as 'testuser' (test@example.com)"), Times.Once); // success message (PAT can be null)
         }
+
+        [Test]
+        public async Task ShouldSaveCredentials_WhenInputsAreValid()
+        {
+            // Arrange
+            SetConsoleInput("testuser\ntest@example.com\ntesttoken\n");
+
+            // Act
+            await _loginCommand.Execute(Array.Empty<string>());
+
+            // Assert
+            _loggerMock.Verify(x => x.Log(It.Is<string>(msg => msg.Contains("Saved login credantials as 'testuser'"))), Times.Once);
+        }
+
 
 
         private void SetConsoleInput(string input)
