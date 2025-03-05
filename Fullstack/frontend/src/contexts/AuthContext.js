@@ -34,6 +34,8 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
       localStorage.setItem('token', response.token);
 
+      // Return the username for navigation (stops async race condition)
+      return decodedToken.Username;
     } else {
       throw new Error(response.message);
     }

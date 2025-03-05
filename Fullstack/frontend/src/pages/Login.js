@@ -8,7 +8,7 @@ import styles from "../styles/pages/Login.module.css";
 
 
 const Login = () => {
-  const { login, authUser } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
@@ -29,9 +29,10 @@ const Login = () => {
 
     // Login
     try {
-      await login(formData.email, formData.password);
+      // Get username from login
+      const username = await login(formData.email, formData.password);
 
-      navigate(`/repositories/${authUser}`);
+      navigate(`/repositories/${username}`);
     } catch (error) {
       setMessageType("error");
       setMessage(error.message || "Login failed");
