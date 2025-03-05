@@ -29,7 +29,7 @@ namespace backend.Controllers.CLI
         }
 
 
-        // POST: api/CLI/SayHello
+        // POST: api/CLI/repo/SayHello
         [HttpPost("SayHello")]
         public async Task<IActionResult> SayHello()
         {
@@ -59,7 +59,7 @@ namespace backend.Controllers.CLI
 
         // POST: api/CLI/Init
 
-        // GET: api/CLI/{owner}/{repoName}/LatestCommit
+        // GET: api/CLI/repo/{owner}/{repoName}/LatestCommit
         [HttpGet("{owner}/{repoName}/{branch}/latestcommit")]
         public async Task<IActionResult> GetLatestCommit(string owner, string repoName, string branch)
         {
@@ -133,7 +133,7 @@ namespace backend.Controllers.CLI
 
 
 
-        // GET: api/CLI/janus/{owner}/{repoName}
+        // GET: api/CLI/repo/janus/{owner}/{repoName}
         [HttpGet("janus/{owner}/{repoName}")]
         public async Task<IActionResult> CloneRepo(string owner, string repoName)
         {
