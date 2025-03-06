@@ -95,21 +95,21 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5862),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5718),
                             CreatedBy = 1,
-                            LatestCommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef",
+                            LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                             RepoId = 1
                         },
                         new
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5866),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5722),
                             CreatedBy = 1,
-                            LatestCommitHash = "a86144601800e35b72f4427206042b4ec0da4288",
+                            LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                             ParentBranch = 1,
                             RepoId = 1,
-                            SplitFromCommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef"
+                            SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c"
                         });
                 });
 
@@ -168,8 +168,8 @@ namespace backend.Migrations
                             AuthorEmail = "janus",
                             AuthorName = "janus",
                             BranchId = 1,
-                            CommitHash = "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef",
-                            CommittedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5918),
+                            CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
+                            CommittedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5785),
                             Message = "Initial commit",
                             TreeHash = ""
                         },
@@ -179,10 +179,10 @@ namespace backend.Migrations
                             AuthorEmail = "user@2.com",
                             AuthorName = "User2",
                             BranchId = 2,
-                            CommitHash = "a86144601800e35b72f4427206042b4ec0da4288",
-                            CommittedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5920),
+                            CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
+                            CommittedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5788),
                             Message = "Next commit",
-                            TreeHash = "b2ee222a7d29faa635c1e98886bed90b8510c969"
+                            TreeHash = "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128"
                         });
                 });
 
@@ -286,7 +286,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5645),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5481),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -295,7 +295,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5659),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5500),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -356,19 +356,19 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5174),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5004),
                             Email = "user@1.com",
-                            PasswordHash = "UspTMQobBT1y1y9uVtrr0+xG4tbhbjGtTd2D2c9jFOg=",
-                            Salt = new byte[] { 103, 153, 57, 132, 248, 194, 36, 207, 29, 57, 73, 182, 37, 131, 42, 234 },
+                            PasswordHash = "rR6R+anytR2ZSFK349nqu2RRGJiuwoHBtqhuKJJd+EY=",
+                            Salt = new byte[] { 219, 63, 154, 111, 16, 201, 3, 225, 220, 124, 137, 160, 142, 9, 216, 108 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5222),
+                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5048),
                             Email = "user@2.com",
-                            PasswordHash = "TGRIu2qNE6inFFMnTP7Et+YIHQnApxICt7yx9BVjJ4o=",
-                            Salt = new byte[] { 172, 88, 56, 193, 227, 74, 109, 209, 202, 35, 230, 121, 244, 64, 93, 123 },
+                            PasswordHash = "hT6DqkQurVypqTSoYPvua6rVFC+Bw0Pu5EbPqAdrqTM=",
+                            Salt = new byte[] { 190, 46, 17, 247, 193, 142, 191, 204, 137, 235, 213, 247, 100, 92, 54, 73 },
                             Username = "User2"
                         });
                 });

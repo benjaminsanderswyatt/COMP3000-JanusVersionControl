@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -187,8 +188,8 @@ namespace backend.Migrations
                 columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5174), "user@1.com", "UspTMQobBT1y1y9uVtrr0+xG4tbhbjGtTd2D2c9jFOg=", null, null, null, new byte[] { 103, 153, 57, 132, 248, 194, 36, 207, 29, 57, 73, 182, 37, 131, 42, 234 }, "User1" },
-                    { 2, new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5222), "user@2.com", "TGRIu2qNE6inFFMnTP7Et+YIHQnApxICt7yx9BVjJ4o=", null, null, null, new byte[] { 172, 88, 56, 193, 227, 74, 109, 209, 202, 35, 230, 121, 244, 64, 93, 123 }, "User2" }
+                    { 1, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5004), "user@1.com", "rR6R+anytR2ZSFK349nqu2RRGJiuwoHBtqhuKJJd+EY=", null, null, null, new byte[] { 219, 63, 154, 111, 16, 201, 3, 225, 220, 124, 137, 160, 142, 9, 216, 108 }, "User1" },
+                    { 2, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5048), "user@2.com", "hT6DqkQurVypqTSoYPvua6rVFC+Bw0Pu5EbPqAdrqTM=", null, null, null, new byte[] { 190, 46, 17, 247, 193, 142, 191, 204, 137, 235, 213, 247, 100, 92, 54, 73 }, "User2" }
                 });
 
             migrationBuilder.InsertData(
@@ -196,14 +197,14 @@ namespace backend.Migrations
                 columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5645), false, 1, "First seeded", "Repo1" },
-                    { 2, new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5659), true, 2, "Sec seeded", "Repo2" }
+                    { 1, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5481), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5500), true, 2, "Sec seeded", "Repo2" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Branches",
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
-                values: new object[] { 1, "main", new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5862), 1, "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef", null, 1, null });
+                values: new object[] { 1, "main", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5718), 1, "925cc242245c8df69d12021001277c54ec4b321c", null, 1, null });
 
             migrationBuilder.InsertData(
                 table: "RepoAccess",
@@ -218,15 +219,15 @@ namespace backend.Migrations
             migrationBuilder.InsertData(
                 table: "Branches",
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
-                values: new object[] { 2, "branch", new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5866), 1, "a86144601800e35b72f4427206042b4ec0da4288", 1, 1, "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef" });
+                values: new object[] { 2, "branch", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5722), 1, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", 1, 1, "925cc242245c8df69d12021001277c54ec4b321c" });
 
             migrationBuilder.InsertData(
                 table: "Commits",
                 columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchId", "CommitHash", "CommittedAt", "Message", "TreeHash" },
                 values: new object[,]
                 {
-                    { 1, "janus", "janus", 1, "b62a22ce626f3648da1c6d5ea620cf683fe2e0ef", new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5918), "Initial commit", "" },
-                    { 2, "user@2.com", "User2", 2, "a86144601800e35b72f4427206042b4ec0da4288", new DateTime(2025, 2, 20, 0, 58, 39, 116, DateTimeKind.Utc).AddTicks(5920), "Next commit", "b2ee222a7d29faa635c1e98886bed90b8510c969" }
+                    { 1, "janus", "janus", 1, "925cc242245c8df69d12021001277c54ec4b321c", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5785), "Initial commit", "" },
+                    { 2, "user@2.com", "User2", 2, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5788), "Next commit", "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128" }
                 });
 
             migrationBuilder.InsertData(

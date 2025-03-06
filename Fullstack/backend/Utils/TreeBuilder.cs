@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
+using static backend.Helpers.FileMetadataHelper;
 
 namespace backend.Utils
 {
@@ -6,12 +8,16 @@ namespace backend.Utils
     {
         public string Name { get; set; } // Name of the file or directory
         public string? Hash { get; set; } // Hash of the file (null for directory)
+        public string MimeType { get; set; } // Mime type of the file
+        public long Size { get; set; } // Size of the file
         public List<TreeNode> Children { get; set; } // List of child nodes
 
-        public TreeNode(string name, string hash = null)
+        public TreeNode(string name, string hash = null, string mimeType = "inode/directory", long size = 0)
         {
             Name = name;
             Hash = hash;
+            MimeType = mimeType;
+            Size = size;
             Children = new List<TreeNode>();
         }
 
@@ -31,40 +37,66 @@ namespace backend.Utils
 
 
         // Build the tree from a dictionary of filepath hash
-        public TreeNode BuildTreeFromDiction(Dictionary<string, string> index)
+        public TreeNode BuildTreeFromDiction(Dictionary<string, FileMetadata> index)
         {
             foreach (var kvp in index)
             {
                 string filePath = kvp.Key;
-                string fileHash = kvp.Value;
+                FileMetadata metadata = kvp.Value;
 
                 string[] pathParts = filePath.Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
-                AddToTree(pathParts, fileHash, 0, root);
+
+                long addedSize = AddToTree(
+                    pathParts,
+                    metadata.Hash,
+                    metadata.MimeType,
+                    metadata.Size,
+                    0,
+                    root
+                );
+
+                root.Size += addedSize; // Handle root size
             }
 
             return root;
         }
 
 
-        private void AddToTree(string[] pathParts, string hash, int index, TreeNode current)
+        private long AddToTree(string[] pathParts, string hash, string mimeType, long size, int index, TreeNode current)
         {
             string part = pathParts[index]; // Get the current part of the path
+            bool isFile = index == pathParts.Length - 1; // Last part of the path is the file
+
 
             // Find and or create the child node with the current part
             var child = current.Children.Find(c => c.Name == part);
             if (child == null)
             {
-                bool isFile = index == pathParts.Length - 1; // Last part of the path is the file
-                child = new TreeNode(part, isFile ? hash : null);
+
+                child = new TreeNode(
+                    part,
+                    isFile ? hash : null,
+                    isFile ? mimeType : "inode/directory",
+                    0 // Handle size later
+                );
                 current.Children.Add(child);
             }
 
-            // Recurse if not at the end of the path
-            if (index < pathParts.Length - 1)
+            long addedSize;
+            if (isFile)
             {
-                AddToTree(pathParts, hash, index + 1, child);
+                child.Size = size;
+                addedSize = size;
+            }
+            else
+            {
+                // Recursively add the file
+                addedSize = AddToTree(pathParts, hash, mimeType, size, index + 1, child);
+                child.Size += addedSize;
             }
 
+
+            return addedSize;
         }
 
 
@@ -89,27 +121,14 @@ namespace backend.Utils
 
         private string SaveTreeRecursively(TreeNode node)
         {
-            if (node == null) throw new ArgumentNullException(nameof(node));
-
-            var lines = new List<string>();
-
-            foreach (var child in node.Children.OrderBy(c => c.Name))
-            {
-                if (child.Hash != null)
-                {
-                    // File entry
-                    lines.Add($"blob|{child.Name}|{child.Hash}");
-                }
-                else
-                {
-                    // Directory entry
-                    string childHash = SaveTreeRecursively(child);
-                    lines.Add($"tree|{child.Name}|{childHash}");
-                }
-            }
+            var entries = node.Children
+            .OrderBy(c => c.Name)
+            .Select(child => child.Hash == null
+                ? $"tree|{child.Name}|{child.MimeType}|{child.Size}|{SaveTreeRecursively(child)}"
+                : $"blob|{child.Name}|{child.MimeType}|{child.Size}|{child.Hash}");
 
             // Create the content for this directory
-            string content = string.Join("\n", lines);
+            string content = string.Join("\n", entries);
             string hash = HashHelper.ComputeHash(content);
 
             // Save the directory file (dont overide if already exists)
@@ -148,39 +167,35 @@ namespace backend.Utils
 
 
                 // Create a new TreeNode for the current tree
-                var treeNode = new TreeNode("root");
+                var node = new TreeNode("root", mimeType: "inode/directory");
 
                 foreach (var line in treeContent)
                 {
                     var parts = line.Split('|');
+                    if (parts.Length != 5) continue;
 
-                    if (parts.Length >= 3)
-                    {
-                        string type = parts[0]; // blob or tree
-                        string name = parts[1]; // Name of the file or directory
-                        string hash = parts[2]; // Hash of the file or directory
 
-                        if (type == "tree")
-                        {
-                            // Recursively rebuild the child tree
-                            var childTree = RebuildTreeRecursive(hash);
-                            if (childTree != null)
-                            {
-                                childTree.Name = name;
-                                treeNode.Children.Add(childTree);
-                            }
-                        }
-                        else if (type == "blob")
-                        {
-                            // Add file node
-                            var fileNode = new TreeNode(name, hash);
-                            treeNode.Children.Add(fileNode);
-                        }
-                    }
+                    string type = parts[0]; // blob or tree
+                    string name = parts[1]; // Name of the file or directory
+                    string mimeType = parts[2]; // Mime of the file (directory = null)
+                    long size = long.Parse(parts[3]); // Size of the file or directory
+                    string hash = parts[4]; // Hash of the file or directory
+
+                    var child = type == "tree"
+                        ? RebuildTreeRecursive(hash)
+                        : new TreeNode(name, hash, mimeType, size);
+
+                    child.Name = name;
+                    child.MimeType = mimeType;
+                    child.Size = size;
+
+                    node.Children.Add(child);
+                    node.Size += size;
+
                 }
 
 
-                return treeNode;
+                return node;
             }
             catch (Exception ex)
             {
@@ -189,130 +204,129 @@ namespace backend.Utils
             }
         }
 
-    }
 
-
-    // Represents the results of comparing two trees
-    public class TreeComparisonResult
-    {
-        public List<string> AddedOrUntracked { get; set; } = new(); // GetAddedModifiedDeleted -> Added, GetNotStagedUntracked -> Untracked
-        public List<string> ModifiedOrNotStaged { get; set; } = new(); // GetAddedModifiedDeleted -> Modified, GetNotStagedUntracked -> Not Staged
-        public List<string> Deleted { get; set; } = new();
-    }
-
-    public static class Tree
-    {
-        public static TreeComparisonResult CompareTrees(TreeNode tree1, TreeNode tree2)
+        // Represents the results of comparing two trees
+        public class TreeComparisonResult
         {
-            var result = new TreeComparisonResult();
-
-            if (tree1 == null && tree2 == null)
-            {
-                // Both trees are empty -> no changes
-                return result;
-            }
-
-            if (tree1 == null)
-            {
-                // All files in tree2 are added
-                CollectPaths(tree2, "", result.AddedOrUntracked);
-                return result;
-            }
-
-            if (tree2 == null)
-            {
-                // All files in tree1 are deleted
-                CollectPaths(tree1, "", result.Deleted);
-                return result;
-            }
-
-            // Compare
-            CompareNodes(tree1, tree2, "", result);
-
-            return result;
+            public List<string> AddedOrUntracked { get; set; } = new(); // GetAddedModifiedDeleted -> Added, GetNotStagedUntracked -> Untracked
+            public List<string> ModifiedOrNotStaged { get; set; } = new(); // GetAddedModifiedDeleted -> Modified, GetNotStagedUntracked -> Not Staged
+            public List<string> Deleted { get; set; } = new();
         }
 
-
-        private static void CollectPaths(TreeNode node, string currentPath, List<string> result)
+        public static class Tree
         {
-            if (node == null) return;
-
-            foreach (var child in node.Children)
+            public static TreeComparisonResult CompareTrees(TreeNode tree1, TreeNode tree2)
             {
-                string path = Path.Combine(currentPath, child.Name);
+                var result = new TreeComparisonResult();
 
-                if (child.Hash != null)
+                if (tree1 == null && tree2 == null)
                 {
-                    // Add file path to the result
-                    result.Add(path);
+                    // Both trees are empty -> no changes
+                    return result;
                 }
-                else
+
+                if (tree1 == null)
                 {
-                    // Recurse into sub directories
-                    CollectPaths(child, path, result);
+                    // All files in tree2 are added
+                    CollectPaths(tree2, "", result.AddedOrUntracked);
+                    return result;
                 }
+
+                if (tree2 == null)
+                {
+                    // All files in tree1 are deleted
+                    CollectPaths(tree1, "", result.Deleted);
+                    return result;
+                }
+
+                // Compare
+                CompareNodes(tree1, tree2, "", result);
+
+                return result;
             }
-        }
 
 
-        private static void CompareNodes(TreeNode node1, TreeNode node2, string currentPath, TreeComparisonResult result)
-        {
-            // Collect children as dictionaries for easier lookup
-            var node1Files = node1?.Children?.Where(c => c.Hash != null).ToDictionary(c => c.Name, c => c) ?? new Dictionary<string, TreeNode>();
-            var node2Files = node2?.Children?.Where(c => c.Hash != null).ToDictionary(c => c.Name, c => c) ?? new Dictionary<string, TreeNode>();
-
-            // Combine keys of all files in both trees
-            var allKeys = new HashSet<string>(node1Files.Keys.Concat(node2Files.Keys));
-
-            foreach (var key in allKeys)
+            private static void CollectPaths(TreeNode node, string currentPath, List<string> result)
             {
-                string path = Path.Combine(currentPath, key);
+                if (node == null) return;
 
-                if (!node1Files.ContainsKey(key)) // Added
+                foreach (var child in node.Children)
                 {
-                    // File is only in tree2
-                    result.AddedOrUntracked.Add(path);
-                }
-                else if (!node2Files.ContainsKey(key) || node2Files[key].Hash == "Deleted") // Deleted
-                {
-                    // File is only in tree1 (not in tree2)
-                    result.Deleted.Add(path);
-                }
-                else
-                {
-                    // File exists in both
-                    var file1 = node1Files[key];
-                    var file2 = node2Files[key];
+                    string path = Path.Combine(currentPath, child.Name);
 
-                    if (file1.Hash != file2.Hash) // Modified
+                    if (child.Hash != null)
                     {
-                        result.ModifiedOrNotStaged.Add(path);
+                        // Add file path to the result
+                        result.Add(path);
+                    }
+                    else
+                    {
+                        // Recurse into sub directories
+                        CollectPaths(child, path, result);
                     }
                 }
             }
 
-            // Recurse into subdirectories ignore empty folders
-            var node1Dirs = node1?.Children?.Where(c => c.Hash == null) ?? Enumerable.Empty<TreeNode>();
-            var node2Dirs = node2?.Children?.Where(c => c.Hash == null) ?? Enumerable.Empty<TreeNode>();
 
-            var allDirs = new HashSet<string>(node1Dirs.Select(d => d.Name).Concat(node2Dirs.Select(d => d.Name)));
-
-            foreach (var dirName in allDirs)
+            private static void CompareNodes(TreeNode node1, TreeNode node2, string currentPath, TreeComparisonResult result)
             {
-                var childNode1 = node1Dirs.FirstOrDefault(d => d.Name == dirName);
-                var childNode2 = node2Dirs.FirstOrDefault(d => d.Name == dirName);
+                // Collect children as dictionaries for easier lookup
+                var node1Files = node1?.Children?.Where(c => c.Hash != null).ToDictionary(c => c.Name, c => c) ?? new Dictionary<string, TreeNode>();
+                var node2Files = node2?.Children?.Where(c => c.Hash != null).ToDictionary(c => c.Name, c => c) ?? new Dictionary<string, TreeNode>();
 
-                CompareNodes(childNode1, childNode2, Path.Combine(currentPath, dirName), result);
+                // Combine keys of all files in both trees
+                var allKeys = new HashSet<string>(node1Files.Keys.Concat(node2Files.Keys));
+
+                foreach (var key in allKeys)
+                {
+                    string path = Path.Combine(currentPath, key);
+
+                    if (!node1Files.ContainsKey(key)) // Added
+                    {
+                        // File is only in tree2
+                        result.AddedOrUntracked.Add(path);
+                    }
+                    else if (!node2Files.ContainsKey(key) || node2Files[key].Hash == "Deleted") // Deleted
+                    {
+                        // File is only in tree1 (not in tree2)
+                        result.Deleted.Add(path);
+                    }
+                    else
+                    {
+                        // File exists in both
+                        var file1 = node1Files[key];
+                        var file2 = node2Files[key];
+
+                        if (file1.Hash != file2.Hash) // Modified
+                        {
+                            result.ModifiedOrNotStaged.Add(path);
+                        }
+                    }
+                }
+
+                // Recurse into subdirectories ignore empty folders
+                var node1Dirs = node1?.Children?.Where(c => c.Hash == null) ?? Enumerable.Empty<TreeNode>();
+                var node2Dirs = node2?.Children?.Where(c => c.Hash == null) ?? Enumerable.Empty<TreeNode>();
+
+                var allDirs = new HashSet<string>(node1Dirs.Select(d => d.Name).Concat(node2Dirs.Select(d => d.Name)));
+
+                foreach (var dirName in allDirs)
+                {
+                    var childNode1 = node1Dirs.FirstOrDefault(d => d.Name == dirName);
+                    var childNode2 = node2Dirs.FirstOrDefault(d => d.Name == dirName);
+
+                    CompareNodes(childNode1, childNode2, Path.Combine(currentPath, dirName), result);
+                }
             }
+
+
+
+
+
+
+
         }
 
 
-
-
-
-
-
     }
-
-
 }

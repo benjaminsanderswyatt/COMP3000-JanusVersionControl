@@ -241,6 +241,8 @@ namespace backend.Controllers.CLI
             {
                 node.Name,
                 node.Hash,
+                node.MimeType,
+                node.Size,
                 Children = node.Children?.Select(child => ConvertTreeNodeToDto(child))
             };
         }
@@ -328,14 +330,9 @@ namespace backend.Controllers.CLI
                     continue;
                 }
 
-                // Determine if the file is text or binary
-                bool isTextFile = IsTextFile(filePath);
-                string contentType = isTextFile ? "text/plain" : "application/octet-stream";
-
                 // Create stream content for the file
                 var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 var streamContent = new StreamContent(fileStream);
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
                 // Add file hash to the header
                 streamContent.Headers.Add("X-File-Hash", hash);
@@ -354,21 +351,6 @@ namespace backend.Controllers.CLI
             return new FileStreamResult(await multipartContent.ReadAsStreamAsync(), $"multipart/mixed; boundary={boundary}");
         }
 
-        private static bool IsTextFile(string filePath)
-        {
-            // Read the first 1024 bytes to check for non text characters
-            byte[] buffer = new byte[1024];
-            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                int bytesRead = fileStream.Read(buffer, 0, buffer.Length);
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    if (buffer[i] == 0 || buffer[i] > 127) // Non text character found
-                        return false;
-                }
-            }
-            return true;
-        }
 
 
 
