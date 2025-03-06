@@ -233,9 +233,7 @@ namespace Janus
                     return;
                 }
 
-                // Create folder for repo
-                Directory.CreateDirectory(repoPath);
-
+                
                 try
                 {
                     var (success, data) = await ApiHelper.SendGetAsync(endpoint, credentials.Token);
@@ -258,6 +256,8 @@ namespace Janus
 
                     Logger.Log($"Initialising local repository...");
 
+                    // Create folder for repo
+                    Directory.CreateDirectory(repoPath);
 
 
 

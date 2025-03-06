@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -26,11 +27,21 @@ namespace Janus.API
                 var content = new StringContent(JsonSerializer.Serialize(bodyObject), Encoding.UTF8, "application/json");
 
                 //Make request
-                var responseEndpoint = await client.PostAsync(apiUrl, content);
+                var response = await client.PostAsync(apiUrl, content);
 
-                string responseData = await responseEndpoint.Content.ReadAsStringAsync();
+                string responseData = await response.Content.ReadAsStringAsync();
 
-                return responseEndpoint.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
+                // Check if unauthorized
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    return (false, "Invalid login credentials");
+
+
+                if (!response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseData))
+                {
+                    return (false, $"Request failed {response.StatusCode}");
+                }
+
+                return response.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
             }
         }
 
@@ -49,7 +60,18 @@ namespace Janus.API
 
                 var response = await client.GetAsync(apiUrl);
 
+                // Check if unauthorized
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    return (false, "Invalid login credentials");
+
+
                 string responseData = await response.Content.ReadAsStringAsync();
+
+                // Check if response data is empty
+                if (!response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseData))
+                {
+                    return (false, $"Request failed {response.StatusCode}");
+                }
 
                 return response.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
             }
