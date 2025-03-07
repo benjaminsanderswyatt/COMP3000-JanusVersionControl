@@ -114,7 +114,7 @@ namespace CLITests
             // Arrange: Create a test file to add
             var testFilePath = Path.Combine(_testDir, "file.txt");
             File.WriteAllText(testFilePath, "test content");
-
+            var testTime = DateTimeOffset.UtcNow;
 
             // Act: Execute 'janus add file.txt'
             var args = new string[] { "file.txt" };
@@ -126,6 +126,8 @@ namespace CLITests
             Assert.That(stagedFiles.ContainsKey("file.txt"), Is.True, "File should be staged.");
             Assert.That(stagedFiles["file.txt"].Hash, Is.EqualTo(HashHelper.ComputeHashGivenRelFilepath(_paths.WorkingDir, "file.txt")));
 
+            // Check the file has a correct last modified time
+            Assert.That(stagedFiles["file.txt"].LastModified, Is.EqualTo(testTime).Within(2).Seconds);
         }
 
 

@@ -867,6 +867,7 @@ namespace Janus
                 // Repository has to be initialised for command to run
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
+                // Get parent commit and its tree
                 string parentCommit;
                 try
                 {
@@ -906,8 +907,7 @@ namespace Janus
 
 
                     var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
-
-
+                    
                     string branch = MiscHelper.GetCurrentBranchName(Paths);
 
                     // Generate commit metadata rootTreeHash commitMessage
@@ -937,7 +937,6 @@ namespace Janus
 
             }
         }
-
 
 
 

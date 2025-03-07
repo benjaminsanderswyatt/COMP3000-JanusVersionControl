@@ -71,13 +71,14 @@ namespace CLITests
         public void ShouldBuildTreeFromDictionary()
         {
             // Arrange
+            var testTime = DateTimeOffset.UtcNow;
             var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
-                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/svg+xml", Size = 2048 } },
-                { "dir1/file3.txt", new FileMetadata { Hash = "hash3", MimeType = "text/pdf", Size = 3072 } },
-                { "dir2/file4.txt", new FileMetadata { Hash = "hash4", MimeType = "application/octet-stream", Size = 4096 } },
-                { "dir2/subdir1/file5.txt", new FileMetadata { Hash = "hash5", MimeType = "text/markdown", Size = 512 } }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024, LastModified = testTime } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/svg+xml", Size = 2048, LastModified = testTime } },
+                { "dir1/file3.txt", new FileMetadata { Hash = "hash3", MimeType = "text/pdf", Size = 3072, LastModified = testTime } },
+                { "dir2/file4.txt", new FileMetadata { Hash = "hash4", MimeType = "application/octet-stream", Size = 4096, LastModified = testTime } },
+                { "dir2/subdir1/file5.txt", new FileMetadata { Hash = "hash5", MimeType = "text/markdown", Size = 512, LastModified = testTime } }
             };
 
 
@@ -105,6 +106,7 @@ namespace CLITests
                 Assert.That(file1.Hash, Is.EqualTo("hash1"));
                 Assert.That(file1.MimeType, Is.EqualTo("text/plain"));
                 Assert.That(file1.Size, Is.EqualTo(1024));
+                Assert.That(file1.LastModified, Is.EqualTo(testTime));
             });
 
             // Dir1 checks
@@ -116,6 +118,13 @@ namespace CLITests
                 Assert.That(dir1.Size, Is.EqualTo(2048 + 3072));
                 Assert.That(dir1.Children, Has.Count.EqualTo(2));
             });
+
+            // Verify that the last modified for dir is latest of its children
+            Assert.That(dir1.LastModified, Is.EqualTo(
+                index["dir1/file2.txt"].LastModified > index["dir1/file3.txt"].LastModified
+                    ? index["dir1/file2.txt"].LastModified
+                    : index["dir1/file3.txt"].LastModified
+            ));
 
             // Dir1 files
             var file2 = dir1.Children.First(c => c.Name == "file2.txt");
@@ -179,11 +188,12 @@ namespace CLITests
         public void ShouldSaveTree()
         {
             // Arrange
+            var testTime = DateTimeOffset.UtcNow;
             var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
-                { "file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/plain", Size = 2048 } },
-                { "file3.txt", new FileMetadata { Hash = "hash3", MimeType = "application/octet-stream", Size = 3072 } }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024, LastModified = testTime } },
+                { "file2.txt", new FileMetadata { Hash = "hash2", MimeType = "text/plain", Size = 2048, LastModified = testTime } },
+                { "file3.txt", new FileMetadata { Hash = "hash3", MimeType = "application/octet-stream", Size = 3072, LastModified = testTime } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -201,9 +211,9 @@ namespace CLITests
             Assert.Multiple(() =>
             {
                 Assert.That(treeContent, Has.Length.EqualTo(3));
-                Assert.That(treeContent, Contains.Item("blob|file1.txt|text/plain|1024|hash1"));
-                Assert.That(treeContent, Contains.Item("blob|file2.txt|text/plain|2048|hash2"));
-                Assert.That(treeContent, Contains.Item("blob|file3.txt|application/octet-stream|3072|hash3"));
+                Assert.That(treeContent, Contains.Item($"blob|file1.txt|text/plain|1024|hash1|{testTime.ToString("o")}"));
+                Assert.That(treeContent, Contains.Item($"blob|file2.txt|text/plain|2048|hash2|{testTime.ToString("o")}"));
+                Assert.That(treeContent, Contains.Item($"blob|file3.txt|application/octet-stream|3072|hash3|{testTime.ToString("o")}"));
             });
 
         }
@@ -212,9 +222,10 @@ namespace CLITests
         public void ShouldSaveTree_WithFolders()
         {
             // Arrange
+            var testTime = DateTimeOffset.UtcNow;
             var index = new Dictionary<string, FileMetadata>
             {
-                { "dir1/file.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } }
+                { "dir1/file.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024, LastModified = testTime } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -229,14 +240,8 @@ namespace CLITests
             Assert.Multiple(() =>
             {
                 Assert.That(dirLine, Does.StartWith("tree|dir1|inode/directory|1024|"));
-                Assert.That(dirLine.Split('|'), Has.Length.EqualTo(5));
+                Assert.That(dirLine.Split('|'), Has.Length.EqualTo(6));
             });
-        }
-
-        private string GetHashFromTreeLine(string treeLine)
-        {
-            var parts = treeLine.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length >= 5 ? parts[4] : string.Empty;
         }
 
 
@@ -247,10 +252,11 @@ namespace CLITests
         public void ShouldRebuildTreeFromHash()
         {
             // Arrange
+            var testTime = DateTimeOffset.UtcNow;
             var index = new Dictionary<string, FileMetadata>
             {
-                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024 } },
-                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "image/png", Size = 2048 } }
+                { "file1.txt", new FileMetadata { Hash = "hash1", MimeType = "text/plain", Size = 1024, LastModified = testTime } },
+                { "dir1/file2.txt", new FileMetadata { Hash = "hash2", MimeType = "image/png", Size = 2048, LastModified = testTime } }
             };
 
             var root = _treeBuilder.BuildTreeFromDiction(index);
@@ -272,6 +278,7 @@ namespace CLITests
                 Assert.That(file1.Hash, Is.EqualTo("hash1"));
                 Assert.That(file1.MimeType, Is.EqualTo("text/plain"));
                 Assert.That(file1.Size, Is.EqualTo(1024));
+                Assert.That(file1.LastModified, Is.EqualTo(testTime));
 
                 // Dir1
                 var dir1 = recreatedTree.Children.First(c => c.Name == "dir1");

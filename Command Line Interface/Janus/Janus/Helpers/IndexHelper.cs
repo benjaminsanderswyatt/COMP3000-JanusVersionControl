@@ -14,13 +14,14 @@ namespace Janus.Helpers
                 foreach (var line in File.ReadAllLines(indexPath))
                 {
                     var parts = line.Split('|');
-                    if (parts.Length == 4)
+                    if (parts.Length == 5)
                     {
                         index[parts[0].Trim()] = new FileMetadata
                         {
                             Hash = parts[1].Trim(),
                             MimeType = parts[2].Trim(),
-                            Size = long.Parse(parts[3].Trim())
+                            Size = long.Parse(parts[3].Trim()),
+                            LastModified = DateTimeOffset.Parse(parts[4].Trim())
                         };
                     }
                 }
@@ -32,7 +33,7 @@ namespace Janus.Helpers
         public static void SaveIndex(string indexPath, Dictionary<string, FileMetadata> stagedFiles)
         {
             var lines = stagedFiles.Select(kv =>
-                $"{kv.Key}|{kv.Value.Hash}|{kv.Value.MimeType}|{kv.Value.Size}");
+                $"{kv.Key}|{kv.Value.Hash}|{kv.Value.MimeType}|{kv.Value.Size}|{kv.Value.LastModified:o}");
 
             File.WriteAllLines(indexPath, lines);
         }

@@ -14,14 +14,16 @@ namespace Janus.Utils
         public string? Hash { get; set; } // Hash of the file (null for directory)
         public string? MimeType { get; set; } // Mime type of the file
         public long Size { get; set; } // Size of the file
+        public DateTimeOffset LastModified { get; set; } // Last modified date
         public List<TreeNode> Children { get; set; } // List of child nodes
 
-        public TreeNode(string name, string hash = null, string mimeType = "inode/directory", long size = 0)
+        public TreeNode(string name, string hash = null, string mimeType = "inode/directory", long size = 0, DateTimeOffset? lastModified = null)
         {
             Name = name;
             Hash = hash;
             MimeType = mimeType;
             Size = size;
+            LastModified = lastModified ?? DateTimeOffset.MinValue;
             Children = new List<TreeNode>();
         }
 
@@ -55,6 +57,7 @@ namespace Janus.Utils
                     meta.Hash,
                     meta.MimeType,
                     meta.Size,
+                    meta.LastModified,
                     0,
                     root
                 );
@@ -62,12 +65,44 @@ namespace Janus.Utils
                 root.Size += addedSize; // Handle root size
             }
 
+            ComputeDirectoryLastModified(root); // Compute the last modified date for dirs
 
             return root;
         }
 
+        private void ComputeDirectoryLastModified(TreeNode node)
+        {
+            if (node == null || node.Hash != null) return;
 
-        private long AddToTree(string[] pathParts, string hash, string mimeType, long size, int index, TreeNode current)
+            DateTimeOffset maxLastModified = DateTimeOffset.MinValue;
+            foreach (var child in node.Children)
+            {
+                ComputeDirectoryLastModified(child);
+                if (child.LastModified > maxLastModified)
+                {
+                    maxLastModified = child.LastModified;
+                }
+            }
+            node.LastModified = maxLastModified;
+        }
+
+
+        public static DateTimeOffset GetLastModifiedFromTree(TreeNode tree, string relativePath)
+        {
+            string[] pathParts = PathHelper.PathSplitter(relativePath);
+            TreeNode currentNode = tree;
+
+            foreach (var part in pathParts)
+            {
+                currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
+                if (currentNode == null) return DateTimeOffset.MinValue;
+            }
+
+            return currentNode.LastModified;
+        }
+
+
+        private long AddToTree(string[] pathParts, string hash, string mimeType, long size, DateTimeOffset lastModified, int index, TreeNode current)
         {
             string part = pathParts[index]; // Get the current part of the path
             bool isFile = index == pathParts.Length - 1; // Last part of the path is the file
@@ -82,7 +117,8 @@ namespace Janus.Utils
                     part,
                     isFile ? hash : null,
                     isFile ? mimeType : "inode/directory",
-                    0 // Handle size later
+                    0, // Handle size later
+                    isFile ? lastModified : DateTimeOffset.MinValue 
                 );
                 current.Children.Add(child);
             }
@@ -90,13 +126,14 @@ namespace Janus.Utils
             long addedSize;
             if (isFile)
             {
+                child.LastModified = lastModified;
                 child.Size = size;
                 addedSize = size;
             }
             else
             {
                 // Recursively add the file
-                addedSize = AddToTree(pathParts, hash, mimeType, size, index + 1, child);
+                addedSize = AddToTree(pathParts, hash, mimeType, size, lastModified, index + 1, child);
                 child.Size += addedSize;
             }
 
@@ -132,8 +169,8 @@ namespace Janus.Utils
             var entries = node.Children
             .OrderBy(c => c.Name)
             .Select(child => child.Hash == null
-                ? $"tree|{child.Name}|{child.MimeType}|{child.Size}|{SaveTreeRecursively(child)}"
-                : $"blob|{child.Name}|{child.MimeType}|{child.Size}|{child.Hash}");
+                ? $"tree|{child.Name}|{child.MimeType}|{child.Size}|{SaveTreeRecursively(child)}|{child.LastModified.ToString("o")}"
+                : $"blob|{child.Name}|{child.MimeType}|{child.Size}|{child.Hash}|{child.LastModified.ToString("o")}");
 
             // Create the content for this directory
             string content = string.Join("\n", entries);
@@ -179,7 +216,8 @@ namespace Janus.Utils
                 foreach (var line in treeContent)
                 {
                     var parts = line.Split('|');
-                    if (parts.Length != 5) continue;
+                    if (parts.Length != 6) 
+                        continue;
 
 
                     string type = parts[0]; // blob or tree
@@ -187,14 +225,18 @@ namespace Janus.Utils
                     string mimeType = parts[2]; // Mime of the file (directory = null)
                     long size = long.Parse(parts[3]); // Size of the file or directory
                     string hash = parts[4]; // Hash of the file or directory
+                    DateTimeOffset lastModified = DateTimeOffset.Parse(parts[5]); // Last modified date
 
                     var child = type == "tree"
                         ? RebuildTreeRecursive(logger, hash)
-                        : new TreeNode(name, hash, mimeType, size);
+                        : new TreeNode(name, hash, mimeType, size, lastModified);
 
+                    
+                   
                     child.Name = name;
                     child.MimeType = mimeType;
                     child.Size = size;
+                    child.LastModified = lastModified;
 
                     node.Children.Add(child);
                     node.Size += size;
@@ -225,7 +267,8 @@ namespace Janus.Utils
                 treeDto.Name,
                 treeDto.Hash,
                 treeDto.MimeType,
-                treeDto.Size
+                treeDto.Size,
+                treeDto.LastModified
             );
 
             if (treeDto.Children != null)

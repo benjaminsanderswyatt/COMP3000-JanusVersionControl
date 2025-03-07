@@ -18,6 +18,7 @@ namespace Janus.Helpers
             public string Hash { get; set; }
             public string MimeType { get; set; }
             public long Size { get; set; }
+            public DateTimeOffset LastModified { get; set; }
         }
 
 
@@ -28,7 +29,8 @@ namespace Janus.Helpers
             {
                 Hash = hash,
                 MimeType = GetMimeType(fullPath),
-                Size = new FileInfo(fullPath).Length
+                Size = new FileInfo(fullPath).Length,
+                LastModified = DateTimeOffset.UtcNow
             };
 
             return newMeta;
