@@ -32,7 +32,7 @@ const Login = () => {
       // Get username from login
       const username = await login(formData.email, formData.password);
 
-      navigate(`/repositories/${username}`);
+      navigate(`/repository/${username}`);
     } catch (error) {
       setMessageType("error");
       setMessage(error.message || "Login failed");

@@ -21,21 +21,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await apiLogin(email, password);
-
+  
     if (response.success) {
       const token = response.token;
-
+  
       // Decode the token to extract user information
       const decodedToken = jwtDecode(token);
-
+  
       setAuthUser(decodedToken.Username);
       setAuthUserId(decodedToken.UserId);
-
+  
       setIsLoggedIn(true);
       localStorage.setItem('token', response.token);
-
+  
       // Return the username for navigation (stops async race condition)
       return decodedToken.Username;
+
     } else {
       throw new Error(response.message);
     }
@@ -77,8 +78,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Bypass for debugging -------------------------------------------------------------
-    setIsLoggedIn(true);
-    setAuthUser("debug");
+    //setIsLoggedIn(true);
+    //setAuthUser("debug");
 
 
     const token = localStorage.getItem('token');

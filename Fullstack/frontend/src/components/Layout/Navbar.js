@@ -63,11 +63,8 @@ const Navbar = ({ authUser, isLoggedIn }) => {
         {isLoggedIn ? (
           <>
             <button
-              className={`${styles.navbarItem} ${location.pathname.startsWith("/repositories") ||
-                 location.pathname.startsWith(`/repository/${authUser}`) ||
-                 location.pathname.startsWith(`/repository/create`)
-                  ? styles.selected : ""}`}
-              onClick={() => handleNavigation(`/repositories/${authUser}`)}
+              className={`${styles.navbarItem} ${location.pathname.startsWith("/repository") ? styles.selected : ""}`}
+              onClick={() => handleNavigation(`/repository/${authUser}`)}
             >
               My Repositories
             </button>

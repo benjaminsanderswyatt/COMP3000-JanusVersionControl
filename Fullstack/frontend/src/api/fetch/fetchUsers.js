@@ -1,4 +1,4 @@
-import fetchWithTokenRefresh from '../fetchWithTokenRefresh';
+import { fetchWithTokenRefresh } from '../fetchWithTokenRefresh';
 
 const API_URL = 'https://localhost:82/api/web/users';
 

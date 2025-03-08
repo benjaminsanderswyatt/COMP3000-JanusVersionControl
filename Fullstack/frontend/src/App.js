@@ -5,6 +5,10 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router";
 import { useAuth, AuthProvider } from './contexts/AuthContext';
 
 
+import FileDisplay from './pages/repos/subpages/FileDisplay';
+
+
+
 
 import Layout from './pages/Layout';
 import NoPage from './pages/NoPage';
@@ -87,13 +91,15 @@ const App = () => {
               {/*Protected Routes*/}
               <Route element={<ProtectedRoute />}>
 
-                <Route path="repositories/:owner" element={<Repositories />} />
+                <Route path="repository/:owner" element={<Repositories />} />
                 <Route path="repository/create" element={<RepoCreate />} />
 
                 {/* Subpages wrapped in RepoLayout */}
                 <Route path="repository/:owner/:name" element={<RepoLayout />}>
                   <Route index element={<Navigate to="main" replace />}/> {/* Redirect to main branch */}
                   <Route path=":branch" element={<RepoPage />} />
+                    <Route path="file/:fileHash" element={<FileDisplay />}/>
+
                   <Route path=":branch/commits" element={<Commits />} />
                   <Route path="contributors" element={<Contributors />} />
                   <Route path="settings" element={<Settings />} />

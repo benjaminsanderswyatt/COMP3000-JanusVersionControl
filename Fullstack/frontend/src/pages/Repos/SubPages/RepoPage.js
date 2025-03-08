@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useOutletContext } from "react-router";
 
-// import { useAuth } from "../../../contexts/AuthContext";
+import { fetchWithTokenRefresh } from "../../../api/fetchWithTokenRefresh";
+import { useAuth } from "../../../contexts/AuthContext";
 import Page from "../../../components/Page";
 import Card from "../../../components/cards/Card";
 import Commit from "../../../components/repo/Commit"
@@ -14,225 +15,42 @@ import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import { DateType } from "../../../helpers/DateHelper";
 
 
-/*
-const branchData = {
-  latestCommit: { 
-    userId: 1, 
-    userName: "User 1",
-    message: "A much longer commit message",
-    hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
-    date: "2025-02-19T15:45:00Z",
-  },
-  readme: {
-    content: "Readme content"
-  },
-  tree: {
-    name: "root",
-    hash: null,
-    size: null,
-    lastModified: "2025-02-19T15:45:00Z",
-    children: [
-      {
-        name: "file1.txt",
-        hash: "60b27f004e454aca81b0480209cce5081ec52390",
-        size: 1.5,
-        lastModified: "2025-02-19T15:45:00Z",
-        children: []
-      },
-      {
-        name: "file2.txt",
-        hash: "cb99b709a1978bd205ab9dfd4c5aaa1fc91c7523",
-        size: 1.1,
-        lastModified: "2025-02-19T15:45:00Z",
-        children: []
-      },
-      {
-        name: "folder2",
-        hash: null,
-        lastModified: "2025-02-19T15:45:00Z",
-        children: [
-          {
-            name: "subfile2.txt",
-            hash: "10857312f8e7b367c7205972009d243501562a40",
-            size: 2.0,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          }
-        ]
-      },
-      {
-        name: "New folder",
-        hash: null,
-        size: null,
-        lastModified: "2025-02-19T15:45:00Z",
-        children: [
-          {
-            name: "PBig.pptx",
-            hash: "dcf15b8669eab90d495d7c469a79050dc4b684ed",
-            size: 5.2,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "TxtSmall.txt",
-            hash: "e7fb9f85c9f7ba9ba239751333cbbeb53da7926c",
-            size: 99,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "WordBig.docx",
-            hash: "a8e361783ffc2f72ca7d142cf9a44347423dc525",
-            size: 0.1,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "Sub folder",
-            hash: null,
-            size: null,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: [
-              {
-                name: "SubFile.png",
-                hash: "5pe361783ffc2f72ca7d142c7i844347423dc525",
-                size: 0.2,
-                lastModified: "2025-02-19T15:45:00Z",
-                children: []
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-*/
-
-
-// Poster data
-const branchData = {
-  latestCommit: { 
-    userId: 1, 
-    userName: "User 1",
-    message: "Initial Commit",
-    hash: "4a35387be739933f7c9e6486959ec1affb2c1648",
-    date: "2025-03-01T15:45:00Z",
-  },
-  readme: {
-    content: "A distrubuted version control system, providing a quick, secure and simple tool for project development!"
-  },
-  tree: {
-    name: "root",
-    hash: null,
-    size: null,
-    lastModified: "2025-02-19T15:45:00Z",
-    children: [
-      {
-        name: "Poster.pptx",
-        hash: "60b27f004e454aca81b0480209cce5081ec52390",
-        size: 45,
-        lastModified: "2025-03-04T10:30:00Z",
-        children: []
-      },
-      {
-        name: "README.md",
-        hash: "cb99b709a1978bd205ab9dfd4c5aaa1fc91c7523",
-        size: 1.1,
-        lastModified: "2025-03-04T12:00:00Z",
-        children: []
-      },
-      {
-        name: "Icons",
-        hash: null,
-        lastModified: "2025-02-27T15:45:00Z",
-        children: [
-          {
-            name: "subfile2.txt",
-            hash: "10857312f8e7b367c7205972009d243501562a40",
-            size: 2.0,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          }
-        ]
-      },
-      {
-        name: "Templates",
-        hash: null,
-        size: null,
-        lastModified: "2025-03-01T14:20:00Z",
-        children: [
-          {
-            name: "PBig.pptx",
-            hash: "dcf15b8669eab90d495d7c469a79050dc4b684ed",
-            size: 5.2,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "TxtSmall.txt",
-            hash: "e7fb9f85c9f7ba9ba239751333cbbeb53da7926c",
-            size: 99,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "WordBig.docx",
-            hash: "a8e361783ffc2f72ca7d142cf9a44347423dc525",
-            size: 0.1,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: []
-          },
-          {
-            name: "Sub folder",
-            hash: null,
-            size: null,
-            lastModified: "2025-02-19T15:45:00Z",
-            children: [
-              {
-                name: "SubFile.png",
-                hash: "5pe361783ffc2f72ca7d142c7i844347423dc525",
-                size: 0.2,
-                lastModified: "2025-02-19T15:45:00Z",
-                children: []
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-
-
-
-
-
-
-
 const RepoPage = () => {
-  // const { authUser } = useAuth();
+  const { sessionExpired } = useAuth();
   const navigate = useNavigate();
   const { owner, name, branch } = useParams();
 
+  const [branchData, setBranchData] = useState(null);
+  const [branchError, setBranchError] = useState(null);
+  const [loadingBranch, setLoadingBranch] = useState(true);
   
-  const headerSection = (pageStyles) => { return(
-    <header className={pageStyles.header}>
-        <RepoPageHeader/>
-    </header>
-  )};
+  useEffect(() => {
+    const fetchBranchData = async () => {
+      try {
+        const data = await fetchWithTokenRefresh(
+          `https://localhost:82/api/web/repo/${owner}/${name}/${branch}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          },
+          sessionExpired
+        );
 
-  // Loading
-  const repoData = useOutletContext();
-  if (!repoData) {
-    return (
-      <Page header={headerSection}>
-        <Card>
-          <LoadingSpinner/>
-        </Card>
-      </Page>
-    );
-  }
+        console.log(data);
+        
+        setBranchData(data);
+      } catch (err) {
+        setBranchError(err.message);
+      } finally {
+        setLoadingBranch(false);
+      }
+    };
+
+    if (branch) {
+      fetchBranchData();
+    }
+  }, [owner, name, branch, sessionExpired]);
+
 
 
 
@@ -260,15 +78,32 @@ const RepoPage = () => {
 
 
 
-  
-  
+
+  const headerSection = (pageStyles) => { return(
+    <header className={pageStyles.header}>
+        <RepoPageHeader/>
+    </header>
+  )};
+
+  // Loading repo data from RepoLayout
+  const repoData = useOutletContext();
+  if (!repoData) {
+    return (
+      <Page header={headerSection}>
+        <Card>
+          <LoadingSpinner/>
+        </Card>
+      </Page>
+    );
+  }
+
   return (
     <Page header={headerSection}>
 
       <Card>
         <div className={styles.header}>
           <h1>{name}</h1>
-          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
+          <div className={styles.visibility}>{repoData.isPrivate ? "Private": "Public" }</div>
         </div>
 
         <p>{repoData.description}</p>
@@ -295,22 +130,40 @@ const RepoPage = () => {
         </div>
       </Card>
 
-      <Card>
-        <Commit commit={branchData.latestCommit} dateType={DateType.RELATIVE}/>
-      </Card>
+      {/* Branch data loading */}
+      {loadingBranch ? (
+        <Card>
+          <LoadingSpinner/>
+        </Card>
 
+      ) : branchError ? (
+        <Card>
+          <div>Error: {branchError}</div>
+        </Card>
 
-      <Card>
-        <FileExplorer root={branchData.tree}></FileExplorer>
-      </Card>
+      ) : (
+        <>
+          <Card>
+            <Commit commit={branchData.latestCommit} dateType={DateType.RELATIVE}/>
+          </Card>
+
+          <Card>
+            <FileExplorer root={branchData.tree}></FileExplorer>
+          </Card>
+
+          {/* Only show readme when exists */}
+          {branchData.readme && (
+            <Card>
+              <h2 className={styles.readme}>Read Me</h2>
+              <p>{branchData.readme}</p>
+            </Card>
+          )}
+          
+        </>
+      )}
 
 
       
-
-      <Card>
-        <h2 className={styles.readme}>Read Me</h2>
-        <p>{branchData.readme.content}</p>
-      </Card>
       
     </Page>
   );
