@@ -25,7 +25,7 @@ namespace backend.Models
 
         public int? ParentBranch { get; set; } // root branch is null (has no parent)
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
 
         [ForeignKey("RepoId")]

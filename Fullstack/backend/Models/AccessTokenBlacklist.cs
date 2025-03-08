@@ -11,9 +11,9 @@ namespace backend.Models
         public string Token { get; set; }
 
         [Required]
-        public DateTime Expires { get; set; }
+        public DateTimeOffset Expires { get; set; }
 
-        public DateTime BlacklistedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset BlacklistedAt { get; set; } = DateTimeOffset.UtcNow;
 
     }
 

@@ -21,7 +21,7 @@ namespace backend.Models
         [Required]
         public bool IsPrivate { get; set; } = true; // true - > hidden. false -> visable
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
 
         [ForeignKey("OwnerId")]

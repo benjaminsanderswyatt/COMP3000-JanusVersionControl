@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static backend.Utils.TreeBuilder;
 
 namespace backend.Controllers.CLI
 {
@@ -192,16 +193,33 @@ namespace backend.Controllers.CLI
                 {
                     var parentCommitHash = commit.Parents.FirstOrDefault()?.Parent?.CommitHash;
 
+                    // Get the author of the commit
+                    string commitAuthorUsername;
+                    string commitAuthorEmail;
+                    int commitAuthorId = commit.CreatedBy;
+                    if (commit.CreatedBy == 0)
+                    {
+                        commitAuthorUsername = "Janus";
+                        commitAuthorEmail = "Janus";
+                    }
+                    else
+                    {
+                        var author = _janusDbContext.Users.FirstOrDefault(u => u.UserId == commit.CreatedBy);
+                        commitAuthorUsername = author.Username;
+                        commitAuthorEmail = author.Email;
+                    }
+
                     // Recreate the tree for the commit
                     TreeNode tree = treeBuilder.RecreateTree(commit.TreeHash);
-                    var treeDto = ConvertTreeNodeToDto(tree);
+                    var treeDto = Tree.ConvertTreeNodeToDto(tree);
+
 
                     return new
                     {
                         commit.CommitHash,
                         ParentCommitHash = parentCommitHash,
-                        commit.AuthorName,
-                        commit.AuthorEmail,
+                        AuthorName = commitAuthorUsername,
+                        AuthorEmail = commitAuthorEmail,
                         commit.Message,
                         commit.CommittedAt,
                         commit.TreeHash,
@@ -232,20 +250,6 @@ namespace backend.Controllers.CLI
             return Ok(cloneData);
         }
 
-        private object ConvertTreeNodeToDto(TreeNode node)
-        {
-            if (node == null)
-                return null;
-
-            return new
-            {
-                node.Name,
-                node.Hash,
-                node.MimeType,
-                node.Size,
-                Children = node.Children?.Select(child => ConvertTreeNodeToDto(child))
-            };
-        }
 
 
 

@@ -142,8 +142,8 @@ namespace backend.Models
 
             // Seed Branches
             modelBuilder.Entity<Branch>().HasData(
-                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", CreatedBy = 1, CreatedAt = DateTime.UtcNow },
-                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTime.UtcNow }
+                new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow }
             );
 
 
@@ -155,21 +155,19 @@ namespace backend.Models
                     CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                     BranchId = 1,
                     TreeHash = "",
-                    AuthorName = "janus",
-                    AuthorEmail = "janus",
+                    CreatedBy = 0,
                     Message = "Initial commit",
-                    CommittedAt = DateTime.UtcNow
+                    CommittedAt = DateTimeOffset.UtcNow
                 },
                 new Commit
                 {
                     CommitId = 2,
                     CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                     BranchId = 2,
-                    TreeHash = "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128",
-                    AuthorName = "User2",
-                    AuthorEmail = "user@2.com",
+                    TreeHash = "517e4c52e1020d3bc9901cb81093943d4919b55c",
+                    CreatedBy = 2,
                     Message = "Next commit",
-                    CommittedAt = DateTime.UtcNow
+                    CommittedAt = DateTimeOffset.UtcNow
                 }
             );
 

@@ -31,10 +31,10 @@ namespace backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("BlacklistedAt")
+                    b.Property<DateTimeOffset>("BlacklistedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("Expires")
+                    b.Property<DateTimeOffset>("Expires")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Token")
@@ -59,7 +59,7 @@ namespace backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("CreatedBy")
@@ -95,7 +95,7 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5718),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3966), new TimeSpan(0, 0, 0, 0, 0)),
                             CreatedBy = 1,
                             LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                             RepoId = 1
@@ -104,7 +104,7 @@ namespace backend.Migrations
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5722),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3968), new TimeSpan(0, 0, 0, 0, 0)),
                             CreatedBy = 1,
                             LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                             ParentBranch = 1,
@@ -121,16 +121,6 @@ namespace backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CommitId"));
 
-                    b.Property<string>("AuthorEmail")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
@@ -139,8 +129,11 @@ namespace backend.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("varchar(40)");
 
-                    b.Property<DateTime>("CommittedAt")
+                    b.Property<DateTimeOffset>("CommittedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -165,24 +158,22 @@ namespace backend.Migrations
                         new
                         {
                             CommitId = 1,
-                            AuthorEmail = "janus",
-                            AuthorName = "janus",
                             BranchId = 1,
                             CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
-                            CommittedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5785),
+                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(4535), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = 0,
                             Message = "Initial commit",
                             TreeHash = ""
                         },
                         new
                         {
                             CommitId = 2,
-                            AuthorEmail = "user@2.com",
-                            AuthorName = "User2",
                             BranchId = 2,
                             CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
-                            CommittedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5788),
+                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(4538), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = 2,
                             Message = "Next commit",
-                            TreeHash = "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128"
+                            TreeHash = "517e4c52e1020d3bc9901cb81093943d4919b55c"
                         });
                 });
 
@@ -256,7 +247,7 @@ namespace backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("RepoId"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsPrivate")
@@ -286,7 +277,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5481),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3773), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -295,7 +286,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5500),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3778), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -311,7 +302,7 @@ namespace backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
@@ -330,7 +321,7 @@ namespace backend.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                    b.Property<DateTimeOffset?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime(6)");
 
                     b.Property<byte[]>("Salt")
@@ -356,19 +347,19 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5004),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3164), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "user@1.com",
-                            PasswordHash = "rR6R+anytR2ZSFK349nqu2RRGJiuwoHBtqhuKJJd+EY=",
-                            Salt = new byte[] { 219, 63, 154, 111, 16, 201, 3, 225, 220, 124, 137, 160, 142, 9, 216, 108 },
+                            PasswordHash = "4ntt5lSIVO+oue1/K33qnu1bedxJ9yl2lSaR0T36O50=",
+                            Salt = new byte[] { 177, 214, 23, 142, 31, 62, 244, 229, 168, 214, 184, 109, 20, 1, 166, 20 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5048),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3179), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "user@2.com",
-                            PasswordHash = "hT6DqkQurVypqTSoYPvua6rVFC+Bw0Pu5EbPqAdrqTM=",
-                            Salt = new byte[] { 190, 46, 17, 247, 193, 142, 191, 204, 137, 235, 213, 247, 100, 92, 54, 73 },
+                            PasswordHash = "2OLZ09KsuTQuqEAnsFWG9ocQYCFR77D49Dt/6Rwk+vc=",
+                            Salt = new byte[] { 80, 195, 255, 181, 53, 53, 114, 20, 19, 126, 150, 137, 79, 191, 88, 123 },
                             Username = "User2"
                         });
                 });

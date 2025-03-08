@@ -21,8 +21,8 @@ namespace backend.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Token = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
-                    Expires = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    BlacklistedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Expires = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
+                    BlacklistedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,9 +40,9 @@ namespace backend.Migrations
                     Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
                     PasswordHash = table.Column<string>(type: "varchar(64)", maxLength: 64, nullable: false, collation: "utf8mb4_unicode_ci"),
                     Salt = table.Column<byte[]>(type: "longblob", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci"),
-                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
                     ProfilePicturePath = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_unicode_ci")
                 },
                 constraints: table =>
@@ -61,7 +61,7 @@ namespace backend.Migrations
                     RepoName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
                     RepoDescription = table.Column<string>(type: "varchar(511)", maxLength: 511, nullable: false, collation: "utf8mb4_unicode_ci"),
                     IsPrivate = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -87,7 +87,7 @@ namespace backend.Migrations
                     LatestCommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: true, collation: "utf8mb4_unicode_ci"),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     ParentBranch = table.Column<int>(type: "int", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -141,10 +141,9 @@ namespace backend.Migrations
                     CommitHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
                     BranchId = table.Column<int>(type: "int", nullable: false),
                     TreeHash = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    AuthorName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
-                    AuthorEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, collation: "utf8mb4_unicode_ci"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
                     Message = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_unicode_ci"),
-                    CommittedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    CommittedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -188,8 +187,8 @@ namespace backend.Migrations
                 columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5004), "user@1.com", "rR6R+anytR2ZSFK349nqu2RRGJiuwoHBtqhuKJJd+EY=", null, null, null, new byte[] { 219, 63, 154, 111, 16, 201, 3, 225, 220, 124, 137, 160, 142, 9, 216, 108 }, "User1" },
-                    { 2, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5048), "user@2.com", "hT6DqkQurVypqTSoYPvua6rVFC+Bw0Pu5EbPqAdrqTM=", null, null, null, new byte[] { 190, 46, 17, 247, 193, 142, 191, 204, 137, 235, 213, 247, 100, 92, 54, 73 }, "User2" }
+                    { 1, new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3164), new TimeSpan(0, 0, 0, 0, 0)), "user@1.com", "4ntt5lSIVO+oue1/K33qnu1bedxJ9yl2lSaR0T36O50=", null, null, null, new byte[] { 177, 214, 23, 142, 31, 62, 244, 229, 168, 214, 184, 109, 20, 1, 166, 20 }, "User1" },
+                    { 2, new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3179), new TimeSpan(0, 0, 0, 0, 0)), "user@2.com", "2OLZ09KsuTQuqEAnsFWG9ocQYCFR77D49Dt/6Rwk+vc=", null, null, null, new byte[] { 80, 195, 255, 181, 53, 53, 114, 20, 19, 126, 150, 137, 79, 191, 88, 123 }, "User2" }
                 });
 
             migrationBuilder.InsertData(
@@ -197,14 +196,14 @@ namespace backend.Migrations
                 columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5481), false, 1, "First seeded", "Repo1" },
-                    { 2, new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5500), true, 2, "Sec seeded", "Repo2" }
+                    { 1, new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3773), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3778), new TimeSpan(0, 0, 0, 0, 0)), true, 2, "Sec seeded", "Repo2" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Branches",
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
-                values: new object[] { 1, "main", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5718), 1, "925cc242245c8df69d12021001277c54ec4b321c", null, 1, null });
+                values: new object[] { 1, "main", new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3966), new TimeSpan(0, 0, 0, 0, 0)), 1, "925cc242245c8df69d12021001277c54ec4b321c", null, 1, null });
 
             migrationBuilder.InsertData(
                 table: "RepoAccess",
@@ -219,15 +218,15 @@ namespace backend.Migrations
             migrationBuilder.InsertData(
                 table: "Branches",
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
-                values: new object[] { 2, "branch", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5722), 1, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", 1, 1, "925cc242245c8df69d12021001277c54ec4b321c" });
+                values: new object[] { 2, "branch", new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(3968), new TimeSpan(0, 0, 0, 0, 0)), 1, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", 1, 1, "925cc242245c8df69d12021001277c54ec4b321c" });
 
             migrationBuilder.InsertData(
                 table: "Commits",
-                columns: new[] { "CommitId", "AuthorEmail", "AuthorName", "BranchId", "CommitHash", "CommittedAt", "Message", "TreeHash" },
+                columns: new[] { "CommitId", "BranchId", "CommitHash", "CommittedAt", "CreatedBy", "Message", "TreeHash" },
                 values: new object[,]
                 {
-                    { 1, "janus", "janus", 1, "925cc242245c8df69d12021001277c54ec4b321c", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5785), "Initial commit", "" },
-                    { 2, "user@2.com", "User2", 2, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", new DateTime(2025, 3, 6, 2, 6, 36, 626, DateTimeKind.Utc).AddTicks(5788), "Next commit", "5ff93ec6a598177c61c1a6cbedf7f6d41fea8128" }
+                    { 1, 1, "925cc242245c8df69d12021001277c54ec4b321c", new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(4535), new TimeSpan(0, 0, 0, 0, 0)), 0, "Initial commit", "" },
+                    { 2, 2, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", new DateTimeOffset(new DateTime(2025, 3, 7, 20, 1, 46, 167, DateTimeKind.Unspecified).AddTicks(4538), new TimeSpan(0, 0, 0, 0, 0)), 2, "Next commit", "517e4c52e1020d3bc9901cb81093943d4919b55c" }
                 });
 
             migrationBuilder.InsertData(

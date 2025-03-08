@@ -20,18 +20,13 @@ namespace backend.Models
         public string TreeHash { get; set; }
 
         [Required]
-        [MaxLength(255)]
-        public string AuthorName { get; set; }
-
-        [Required]
-        [MaxLength(255)]
-        public string AuthorEmail { get; set; }
+        public int CreatedBy { get; set; }
 
         [Required]
         public string Message { get; set; }
 
         [Required]
-        public DateTime CommittedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CommittedAt { get; set; } = DateTimeOffset.UtcNow;
 
 
 
