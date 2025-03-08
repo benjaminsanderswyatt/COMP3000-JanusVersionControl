@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams  } from 'react-router';
+import React, { useMemo } from 'react';
+import { useNavigate  } from 'react-router';
 
 import Repository from '../../components/repo/Repository';
 import Page from "../../components/Page";
 import SearchBox from '../../components/search/SearchBox';
-import { useDebounce } from '../../helpers/Debounce';
+import { useSearch } from '../../components/search/useSearch';
 
 import { useAuth  } from '../../contexts/AuthContext';
 
@@ -73,41 +73,18 @@ const Repositories = () => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
   
-  
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get('search') || '';
-  const [query, setQuery] = useState(initialQuery);
-  const [debouncedQuery, { flush }] = useDebounce(query, 300);
 
+// Searching hook handles urls and debounce
+const [searchValue, setSearchValue, debouncedSearchValue] = useSearch(500);
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (debouncedQuery) {
-      params.set('search', debouncedQuery);
-    } else {
-      params.delete('search');
-    }
-    setSearchParams(params);
-  }, [debouncedQuery]);
+const filteredRepos = useMemo(() => {
+  const searchTerm = debouncedSearchValue.toLowerCase();
+  return repoData.filter(repo =>
+    repo.name.toLowerCase().includes(searchTerm) ||
+    repo.description.toLowerCase().includes(searchTerm)
+  );
+}, [debouncedSearchValue]);
 
-  const handleSearch = (newQuery) => {
-    setQuery(newQuery);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    flush(); // Immediately update the URL (skip debounce)
-  };
-
-  const filteredRepos = useMemo(() => {
-    return repoData.filter(repo => {
-      const searchTerm = query.toLowerCase();
-      return (
-        repo.name.toLowerCase().includes(searchTerm) ||
-        repo.description.toLowerCase().includes(searchTerm)
-      );
-    });
-  }, [query]);
 
 
 
@@ -133,7 +110,7 @@ const Repositories = () => {
     <header className={styling.header}>
         <button className={styling.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
-        <SearchBox searchingWhat="repositories" value={query} onChange={handleSearch} onSearch={handleSubmit} />
+        <SearchBox searchingWhat="repositories" value={searchValue} onChange={setSearchValue} onSubmit={(e) => e.preventDefault()} />
 
     </header>
   )};
@@ -165,4 +142,3 @@ const Repositories = () => {
 
 
 export default Repositories;
-  
