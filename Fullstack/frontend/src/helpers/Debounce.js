@@ -1,19 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-// Debouncing for search
-export function useDebounce(value, delay) {
+export function useDebounce(value, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value);
+  const timeoutRef = useRef();
+  const forceUpdateRef = useRef(false);
 
   useEffect(() => {
 
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
+    if (forceUpdateRef.current) {
 
+      clearTimeout(timeoutRef.current);
+      setDebouncedValue(value);
+      forceUpdateRef.current = false;
+
+      return;
+    }
+
+    // Update the url after timeout delay
+    timeoutRef.current = setTimeout(() => {
+      setDebouncedValue(value);
+
+    }, delay);
+
+    return () => clearTimeout(timeoutRef.current);
   }, [value, delay]);
 
-  return debouncedValue;
+  // Dont debounce update immediately
+  const flush = () => {
+    clearTimeout(timeoutRef.current);
+    setDebouncedValue(value);
+  };
+
+  return [debouncedValue, { flush }];
 }

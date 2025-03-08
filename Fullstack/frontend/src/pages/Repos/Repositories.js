@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams  } from 'react-router';
+
 import Repository from '../../components/repo/Repository';
-import { useNavigate } from 'react-router';
 import Page from "../../components/Page";
 import SearchBox from '../../components/search/SearchBox';
 import { useDebounce } from '../../helpers/Debounce';
@@ -71,27 +72,47 @@ const repoData = [
 const Repositories = () => {
   const { authUser } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQuery = searchParams.get('search') || '';
+  const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, { flush }] = useDebounce(query, 300);
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (debouncedQuery) {
+      params.set('search', debouncedQuery);
+    } else {
+      params.delete('search');
+    }
+    setSearchParams(params);
+  }, [debouncedQuery]);
+
+  const handleSearch = (newQuery) => {
+    setQuery(newQuery);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    flush(); // Immediately update the URL (skip debounce)
+  };
 
   const filteredRepos = useMemo(() => {
-    
     return repoData.filter(repo => {
-      const query = debouncedSearchQuery.toLowerCase();
-
+      const searchTerm = query.toLowerCase();
       return (
-        repo.name.toLowerCase().includes(query) ||
-        repo.description.toLowerCase().includes(query)
+        repo.name.toLowerCase().includes(searchTerm) ||
+        repo.description.toLowerCase().includes(searchTerm)
       );
     });
-  }, [debouncedSearchQuery]);
+  }, [query]);
 
 
-  const handleSearch = (query) => {
-    // Search
-    setSearchQuery(query);
-  };
+
+
+
 
 
   const handleEnterRepo = (name) => {
@@ -112,7 +133,7 @@ const Repositories = () => {
     <header className={styling.header}>
         <button className={styling.button} onClick={() => CreateNewRepo()}>New Repository</button>
 
-        <SearchBox searchingWhat="repositories" onSearch={handleSearch} />
+        <SearchBox searchingWhat="repositories" value={query} onChange={handleSearch} onSearch={handleSubmit} />
 
     </header>
   )};
