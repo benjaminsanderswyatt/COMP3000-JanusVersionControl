@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 
-import styles from "../../styles/components/login/TextInput.module.css";
+import styles from "../../styles/components/inputs/TextInput.module.css";
 
-const PasswordInput = ({ label, name, value, onChange, required = false, placeholder = "" }) => {
+const PasswordInput = ({ 
+  label, 
+  name, 
+  value, 
+  onChange, 
+  required = false, 
+  placeholder = "",
+  hasError = false
+}) => {
+
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleVisibility = () => setShowPassword((prev) => !prev);

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Checkbox = ({ id, checked, onChange, label}) => {
+const Checkbox = ({ id, checked, onChange, label, labelStyle }) => {
     return (
         <div style={styles.container}>
             <input 
@@ -10,7 +10,7 @@ const Checkbox = ({ id, checked, onChange, label}) => {
                 checked={checked}
                 onChange={onChange}
             />
-            <label htmlFor={id} style={styles.label}>
+            <label htmlFor={id} style={{ ...styles.label, ...labelStyle }}>
                 {label}
             </label>
 
@@ -31,6 +31,6 @@ const styles = {
     label: {
         fontSize: "0.95rem",
     },
-  };
+};
   
-  export default Checkbox;
+export default Checkbox;

@@ -1,6 +1,6 @@
 import React from 'react';
-import TextInput from './TextInput';
-import PasswordInput from './PasswordInput';
+import TextInput from '../inputs/TextInput';
+import PasswordInput from '../inputs/PasswordInput';
 
 import styles from "../../styles/components/login/UserForm.module.css";
 

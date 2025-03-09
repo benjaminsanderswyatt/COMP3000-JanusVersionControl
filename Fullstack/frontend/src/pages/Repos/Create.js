@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router';
 import { InitRepo } from '../../api/fetch/fetchCreateRepo';
 import Page from "../../components/Page";
 
-import TextInput from '../../components/login/TextInput';
+import TextInput from '../../components/inputs/TextInput';
+import AreaInput from '../../components/inputs/AreaInput';
 import Checkbox from '../../components/Checkbox';
 
 import { useAuth  } from '../../contexts/AuthContext';
@@ -14,6 +15,7 @@ const Create = () => {
   const navigate = useNavigate();
   const [message, setError] = useState('');
   const [loading , setLoading] = useState(false);
+  const [errorField, setErrorField] = useState('');
   const { sessionExpired, authUser } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -89,39 +91,41 @@ const Create = () => {
   
   return (
     <Page header={headerSection}>
-      <header className={styles.header}>
-      </header>
 
-      {message && <p className={styles.error}>{message}</p>}
 
       <form onSubmit={onSubmit}>
 
-        <TextInput 
-          label="Repository name" 
-          name="name" 
-          type="text" 
-          value={formData.name} 
-          onChange={onChange} 
-          placeholder="Repository name..." 
-          required 
-        />
+        <div>
+          <TextInput 
+            label="Repository name" 
+            name="name" 
+            type="text" 
+            value={formData.name} 
+            onChange={onChange} 
+            placeholder="Name..." 
+            hasError={errorField === "name"}
+          />
 
-        <TextInput 
-          label="Repository description" 
-          name="description" 
-          type="text" 
-          value={formData.description} 
-          onChange={onChange} 
-          placeholder="Repository description..." 
-          required 
-        />
+          <AreaInput 
+            label="Repository description" 
+            name="description" 
+            type="text" 
+            value={formData.description} 
+            onChange={onChange} 
+            placeholder="Description..."
+          />
 
-        <Checkbox
-          id="privateRepo"
-          checked={formData.isPrivate}
-          onChange={(e) => setFormData((prev) => ({ ...prev, isPrivate: e.target.checked }))}
-          label="Private Repository"
-        />
+          <Checkbox
+            id="privateRepo"
+            checked={formData.isPrivate}
+            onChange={(e) => setFormData((prev) => ({ ...prev, isPrivate: e.target.checked }))}
+            label="Private Repository?"
+            labelStyle={{ fontWeight: "bold", color: "var(--lighttext)" }}
+          />
+        </div>
+        
+        
+        {message && <p className={styles.error}>{message}</p>}
 
         <button type="submit" className={styles.button} disabled={loading}>
           {loading ? "Creating..." : "Create Repository"}
@@ -134,65 +138,5 @@ const Create = () => {
   );
 };
 
-/*
-const styles = {
-  container: {
-    background: "var(--card)",
-    width: "90%",
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    alignItems: "center",
-    borderRadius: "8px",
-    marginTop: "20px",
-    justifyItems: "center",
-    height: "fit-content",
-  },
-  header: {
-    display: "flex",
-    width: "100%",
-    background: "var(--accent)",
-    alignItems: "center",
-    borderBottom: "var(--border) solid 1px",
-    padding: "4px 10px",
-    gap: "10px",
-    justifyContent: "center",
-    minHeight: "46px",
-    borderRadius: "8px 8px 0px 0px",
-  },
-  createHolder: {
-    background: "var(--card)",
-    width: "90%",
-    padding: "18px",
-    justifyItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-    alignItems: "center",
-    borderRadius: "0px 0px 8px 8px",
-  },
-
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-  },
-  button: {
-    padding: "10px 15px",
-    backgroundColor: "var(--primary)",
-    color: "#fff",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-}
-*/
 
 export default Create;
-  
