@@ -17,32 +17,48 @@ const Create = () => {
   const { sessionExpired, authUser } = useAuth();
 
   const [formData, setFormData] = useState({
-      name: "",
-      description: "",
-      isPrivate: false,
-    });
+    name: "",
+    description: "",
+    isPrivate: false,
+  });
 
-  const isValidRepoName = (name) => {
-    const regex = /^[a-zA-Z0-9_-]+$/; // Only letters, numbers, dash, underscore (chars that arnt encoded in url)
-    return regex.test(name);
-  };
+  
 
   const onChange = ({ target: { name, value, type, checked } }) => {
     setFormData((prev) => ({
        ...prev, 
        [name]: type === "checkbox" ? checked : value, 
-      }));
+    }));
   };
 
   const onSubmit = async (event) => {
     event.preventDefault();
 
     setError("");
+    setErrorField('');
     setLoading(true);
 
-    // Validate repo name
-    if (!isValidRepoName(formData.name)) {
-      setError("Repository name can only contain letters, numbers, dashes, and underscores.");
+    // Check repo name is longer than 10 chars
+    if (formData.name.length <= 10) {
+      setError("Repository name must be longer than 10 characters");
+      setErrorField("name");
+      setLoading(false);
+      return;
+    }
+
+    // Check repo name doesnt contain spaces
+    if (/\s/.test(formData.name)) {
+      setError("Repository name cannot contain spaces");
+      setErrorField("name");
+      setLoading(false);
+      return;
+    }
+
+    // Check for invalid chars space ~, ^, :, ?, /, \, *, [, ], and control chars
+    const invalidChars = /[ ~^:?/\\*\[\]\x00-\x1F\x7F]|(\.\.)/;
+    if (invalidChars.test(formData.name)) {
+      setError("Repository name cannot contain invalid characters: ~ ^ : ? . / \\ * []");
+      setErrorField("name");
       setLoading(false);
       return;
     }
@@ -59,7 +75,7 @@ const Create = () => {
       }
 
     } catch (error) {
-      setError("Failed to create repository");
+      setError("Failed to create repository. Try again later");
     }
 
     setLoading(false);

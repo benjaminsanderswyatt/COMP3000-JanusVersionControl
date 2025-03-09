@@ -11,9 +11,11 @@ namespace Janus.Helpers.CommandHelpers
             if (string.IsNullOrWhiteSpace(name))
                 return false;
 
+            if (name.Length < 10)
+                return false;
 
-            // ivalid characters: ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
-            var invalidCharsPattern = @"[~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
+            // ivalid characters: apace, ~ ^ : ? / \ * [ ] \x00-\x1F \x7F ..
+            var invalidCharsPattern = @"[ ~^:\?\\\*/\[\]\x00-\x1F\x7F]|(\.\.)";
             if (Regex.IsMatch(name, invalidCharsPattern))
                 return false;
 
