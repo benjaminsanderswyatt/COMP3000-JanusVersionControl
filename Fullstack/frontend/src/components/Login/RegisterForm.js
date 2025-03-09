@@ -5,15 +5,15 @@ import Checkbox from '../Checkbox';
 
 import styles from "../../styles/components/login/UserForm.module.css";
 
-const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms }) => (
+const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedToTerms, errorField }) => (
   <form onSubmit={onSubmit}>
     <TextInput 
       label="Username" 
       name="username" 
       value={formData.username} 
       onChange={onChange} 
-      placeholder="Username..." 
-      required 
+      placeholder="Username..."
+      hasError={errorField === "username"}
     />
 
     <TextInput 
@@ -22,8 +22,8 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
       type="email" 
       value={formData.email} 
       onChange={onChange} 
-      placeholder="Email..." 
-      required 
+      placeholder="Email..."
+      hasError={errorField === "email"}
     />
     
     <PasswordInput 
@@ -31,8 +31,8 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
       name="password" 
       value={formData.password} 
       onChange={onChange} 
-      placeholder="Password..." 
-      required 
+      placeholder="Password..."
+      hasError={errorField === "password"}
     />
     
     <PasswordInput 
@@ -40,8 +40,8 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
       name="confirmPassword" 
       value={formData.confirmPassword} 
       onChange={onChange} 
-      placeholder="Confirm Password..." 
-      required 
+      placeholder="Confirm Password..."
+      hasError={errorField === "confirmPassword"}
     />
     
     <div>
@@ -61,7 +61,7 @@ const RegisterForm = ({ formData, onChange, onSubmit, agreedToTerms, setAgreedTo
     </div>
 
    
-    <button type="submit" className={styles.button} disabled={!agreedToTerms}>Register</button>
+    <button type="submit" className={styles.button}>Register</button>
     
   </form>
 );

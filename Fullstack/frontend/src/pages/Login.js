@@ -12,6 +12,10 @@ const Login = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // Stores if the error is 'success' or 'error'
+  const [errorField, setErrorField] = useState('');
+
+  
+
 
   const [formData, setFormData] = useState({
     email: "",
@@ -26,6 +30,37 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setMessage("");
+    setErrorField('');
+
+    // Check email is provided
+    if (!formData.email.trim()) {
+      setMessageType("error");
+      setErrorField("email");
+      setMessage("Email is required");
+      return;
+    }
+
+    // Regex to validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setMessageType("error");
+      setErrorField("email");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    // Check password is provided
+    if (!formData.password) {
+      setMessageType("error");
+      setErrorField("password");
+      setMessage("Password is required");
+      return;
+    }
+
+
+
 
     // Login
     try {
@@ -52,6 +87,7 @@ const Login = () => {
           formData={formData}
           onChange={handleChange}
           onSubmit={handleSubmit}
+          errorField={errorField}
         />
         
 

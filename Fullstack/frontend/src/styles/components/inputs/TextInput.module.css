@@ -20,11 +20,6 @@
     box-sizing: border-box;
 }
 
-.errorInput {
-    border: 1px solid var(--red);
-}
-
-
 .inputGroup {
     display: flex;
     align-items: center;
@@ -38,6 +33,10 @@
     font-size: 16px;
     box-sizing: border-box;
     margin: 0px 4px 0px 0px;
+}
+
+.errorInput {
+    border: 1px solid var(--red);
 }
 
 .showButton {

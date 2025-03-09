@@ -7,7 +7,6 @@ const PasswordInput = ({
   name, 
   value, 
   onChange, 
-  required = false, 
   placeholder = "",
   hasError = false
 }) => {
@@ -21,14 +20,13 @@ const PasswordInput = ({
       <label className={styles.label} htmlFor={name}>{label}</label>
       <div className={styles.inputGroup}>
         <input
-          className={styles.inputPassword}
+          className={`${styles.inputPassword} ${hasError ? styles.errorInput : ""}`}
           type={showPassword ? 'text' : 'password'}
           id={name}
           name={name}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          required={required}
         />
         <button
           type="button"

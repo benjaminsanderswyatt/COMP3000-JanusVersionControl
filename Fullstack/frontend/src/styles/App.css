@@ -23,6 +23,7 @@ a:hover {
 
 .error {
   color: var(--red);
+  font-weight: 500;
 }
 
 .errorMessage {

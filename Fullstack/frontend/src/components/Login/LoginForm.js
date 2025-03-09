@@ -4,17 +4,16 @@ import PasswordInput from '../inputs/PasswordInput';
 
 import styles from "../../styles/components/login/UserForm.module.css";
 
-const LoginForm = ({ formData, onChange, onSubmit }) => (
+const LoginForm = ({ formData, onChange, onSubmit, errorField }) => (
   <form onSubmit={onSubmit}>
 
     <TextInput 
       label="Email" 
       name="email" 
-      type="email" 
       value={formData.email} 
       onChange={onChange} 
       placeholder="Email..." 
-      required 
+      hasError={errorField === "email"}
     />
     
     <PasswordInput 
@@ -23,7 +22,7 @@ const LoginForm = ({ formData, onChange, onSubmit }) => (
       value={formData.password} 
       onChange={onChange} 
       placeholder="Password..." 
-      required 
+      hasError={errorField === "password"}
     />
     
     <button type="submit" className={styles.button}>Login</button>

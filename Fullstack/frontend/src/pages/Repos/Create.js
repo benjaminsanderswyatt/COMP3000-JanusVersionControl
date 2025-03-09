@@ -56,8 +56,8 @@ const Create = () => {
       return;
     }
 
-    // Check for invalid chars space ~, ^, :, ?, /, \, *, [, ], and control chars
-    const invalidChars = /[ ~^:?/\\*\[\]\x00-\x1F\x7F]|(\.\.)/;
+    // Check for invalid chars space ~, ^, :, ?, /, \, *, [, ]
+    const invalidChars = /[ ~^:?/\\*[\]\x7F]|(\.\.)/;
     if (invalidChars.test(formData.name)) {
       setError("Repository name cannot contain invalid characters: ~ ^ : ? . / \\ * []");
       setErrorField("name");
@@ -93,7 +93,7 @@ const Create = () => {
     <Page header={headerSection}>
 
 
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className="form">
 
         <div>
           <TextInput 
@@ -124,12 +124,11 @@ const Create = () => {
           />
         </div>
         
-        
-        {message && <p className={styles.error}>{message}</p>}
-
         <button type="submit" className={styles.button} disabled={loading}>
           {loading ? "Creating..." : "Create Repository"}
         </button>
+
+        {message && <p className={styles.error}>{message}</p>}
 
       </form>
       
