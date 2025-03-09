@@ -21,20 +21,20 @@ const repoData = [
     lastUpdated: "2025-02-19T15:45:00Z",
     owner: { 
       id: 2, 
-      userName: "User2" 
+      username: "User2" 
     },
     avatars: [
-      { id: 1, userName: "User1" },
-      { id: 2, userName: "User2" },
-      { id: 3, userName: "User3" },
-      { id: 4, userName: "User4" },
-      { id: 5, userName: "User5" },
-      { id: 6, userName: "User6" },
-      { id: 7, userName: "User7" },
-      { id: 8, userName: "User8" },
-      { id: 9, userName: "User9" },
-      { id: 10, userName: "User10" },
-      { id: 11, userName: "User11" },
+      { id: 1, username: "User1" },
+      { id: 2, username: "User2" },
+      { id: 3, username: "User3" },
+      { id: 4, username: "User4" },
+      { id: 5, username: "User5" },
+      { id: 6, username: "User6" },
+      { id: 7, username: "User7" },
+      { id: 8, username: "User8" },
+      { id: 9, username: "User9" },
+      { id: 10, username: "User10" },
+      { id: 11, username: "User11" },
     ],
   },
   {
@@ -45,10 +45,10 @@ const repoData = [
     lastUpdated: "2024-02-18T09:30:00Z",
     owner: { 
       id: 3, 
-      userName: "User3" 
+      username: "User3" 
     },
     avatars: [
-      { id: 4, userName: "User4" }
+      { id: 4, username: "User4" }
     ],
   },
   {
@@ -59,11 +59,11 @@ const repoData = [
     lastUpdated: "2025-03-18T09:30:00Z",
     owner: { 
       id: 4, 
-      userName: "User4" 
+      username: "User4" 
     },
     avatars: [
-      { id: 5, userName: "User5" },
-      { id: 6, userName: "User6" }
+      { id: 5, username: "User5" },
+      { id: 6, username: "User6" }
     ],
   },
   {
@@ -74,7 +74,7 @@ const repoData = [
     lastUpdated: "2025-11-18T09:30:00Z",
     owner: { 
       id: 5, 
-      userName: "User5" 
+      username: "User5" 
     },
     avatars: [
     ],

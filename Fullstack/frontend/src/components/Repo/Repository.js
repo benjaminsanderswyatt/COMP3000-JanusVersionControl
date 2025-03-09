@@ -24,7 +24,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
   const extraCount = avatars.length - maxDisplayedAvatars;
 
   const extraAvatars = avatars.slice(maxDisplayedAvatars);
-  const extraUsernames = extraAvatars.map(avatar => avatar.userName).join(', ');
+  const extraUsernames = extraAvatars.map(avatar => avatar.username).join(', ');
 
 
   return (
@@ -32,7 +32,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
       <div className={styles.header}>
         <h2 className={styles.repoName} onClick={() => enterRepo()}>{repoName}</h2>
         
-        <div className={styles.visibility}>{visibility ? "Public" : "Private"}</div>
+        <div className={styles.visibility}>{visibility ? "Private": "Public" }</div>
         
         <div onClick={() => enterRepoContrib()} className={styles.colaborators}>
           
@@ -42,7 +42,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
               <ProfilePic
                 key={avatar.id}
                 userId={avatar.id}
-                label={avatar.userName}
+                label={avatar.username}
                 innerClassName={styles.avatar}
                 handleClick={() => {}}
               />
@@ -59,7 +59,7 @@ const Repository = ({ enterRepo, enterRepoContrib, id,
           {owner && (
             <div 
               className={styles.ownerHolder} 
-              title={`Owner: ${owner.userName}`}
+              title={`Owner: ${owner.username}`}
               style={{ borderLeft: avatars.length > 0 ? "1px solid var(--primary)" : "none" }}
             >
               <ProfilePic
