@@ -36,8 +36,6 @@ const RepoPage = () => {
           sessionExpired
         );
 
-        console.log(data);
-        
         setBranchData(data);
       } catch (err) {
         setBranchError(err.message);
