@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -125,6 +126,50 @@ namespace backend.Controllers.Frontend
 
 
 
+
+
+        // ------- REPOSITORY LIST -------
+        [HttpGet("repository-list")]
+        public async Task<IActionResult> GetRepositoryList()
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized(new { Message = "Invalid user" });
+
+            // Get all repos owned by the user
+            var repositories = await _janusDbContext.Repositories
+                .Where(r => r.OwnerId == userId)
+                .Include(r => r.Owner)
+                .Include(r => r.Branches)
+                    .ThenInclude(b => b.Commits)
+                .Include(r => r.RepoAccesses)
+                    .ThenInclude(ra => ra.User)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(repositories.Select(r => new
+            {
+                Id = r.RepoId,
+                Name = r.RepoName,
+                Description = r.RepoDescription,
+                IsPrivate = r.IsPrivate,
+                // Find the latest commit date among all branches (if any)
+                LastUpdated = r.Branches
+                    .SelectMany(b => b.Commits)
+                    .OrderByDescending(c => c.CommittedAt)
+                    .FirstOrDefault()?.CommittedAt,
+
+                // Get all collaborators (users with access who are not the owner)
+                Colaborators = r.RepoAccesses
+                    .Where(ra => ra.UserId != r.OwnerId)
+                    .Select(ra => new
+                    {
+                        Id = ra.UserId,
+                        Username = ra.User.Username,
+                        AccessLevel = ra.AccessLevel.ToString()
+                    }).ToList()
+            }));
+        }
         // ------- REPO LAYOUT -------
 
         [HttpGet("{owner}/{repoName}")]
