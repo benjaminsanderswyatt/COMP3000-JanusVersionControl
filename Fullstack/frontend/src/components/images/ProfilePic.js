@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
 import styles from "../../styles/components/images/ProfilePic.module.css";
