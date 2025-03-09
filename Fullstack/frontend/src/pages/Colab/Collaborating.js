@@ -71,8 +71,8 @@ const Colaborating = () => {
 
 
 
-  const handleEnterRepo = (name) => {
-    navigate(`/repository/${authUser}/${name}/main`);
+  const handleEnterRepo = (ownerUsername, name) => {
+    navigate(`/repository/${ownerUsername}/${name}/main`);
   }
 
   const handleEnterRepoContrib = (ownerUsername, name) => {
@@ -129,8 +129,8 @@ const Colaborating = () => {
               return (
                 <Repository
                   key={repo.id}
-                  enterRepo={() => handleEnterRepo(repo.name, ownerUsername)}
-                  enterRepoContrib={() => handleEnterRepoContrib(repo.name, ownerUsername)}
+                  enterRepo={() => handleEnterRepo(repo.name, ownerCollab.username)}
+                  enterRepoContrib={() => handleEnterRepoContrib(repo.name, ownerCollab.username)}
                   owner={ownerUsername}
                   repoName={repo.name}
                   description={repo.description || ''}
