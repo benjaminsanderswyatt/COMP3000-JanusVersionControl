@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Repository from '../../components/repo/Repository';
 import { useNavigate } from 'react-router';
 import Page from "../../components/Page";
@@ -13,7 +13,7 @@ import styles from "../../styles/pages/repos/Repositories.module.css";
 
 
 const Colaborating = () => {
-  const { authUser, sessionExpired } = useAuth();
+  const { sessionExpired } = useAuth();
   const navigate = useNavigate();
 
 
@@ -21,7 +21,7 @@ const Colaborating = () => {
   const [repoError, setRepoError] = useState(null);
   const [loadingRepo, setLoadingRepo] = useState(true);
 
-  const fetchColaboratingList = async () => {
+  const fetchColaboratingList = useCallback(async () => {
     setLoadingRepo(true);
     setRepoError(null);
 
@@ -42,12 +42,12 @@ const Colaborating = () => {
       setLoadingRepo(false);
     }
     
-  };
+  }, [sessionExpired]);
 
 
   useEffect(() => {
     fetchColaboratingList();
-  }, [sessionExpired]);
+  }, [fetchColaboratingList]);
 
 
 

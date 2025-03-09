@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate  } from 'react-router';
 
 import Repository from '../../components/repo/Repository';
@@ -25,7 +25,7 @@ const Repositories = () => {
   const [repoError, setRepoError] = useState(null);
   const [loadingRepo, setLoadingRepo] = useState(true);
   
-  const fetchRepositoryList = async () => {
+  const fetchRepositoryList = useCallback(async () => {
     setLoadingRepo(true);
     setRepoError(null);
 
@@ -46,11 +46,11 @@ const Repositories = () => {
       setLoadingRepo(false);
     }
     
-  };
+  }, [sessionExpired]);
 
   useEffect(() => {
     fetchRepositoryList();
-  }, [sessionExpired]);
+  }, [fetchRepositoryList]);
 
 
 
