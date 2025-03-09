@@ -13,64 +13,6 @@ import { useAuth } from '../../contexts/AuthContext';
 
 import styles from "../../styles/pages/repos/Repositories.module.css";
 
-/*
-// Example repo data
-const repoData = [
-  {
-    id: 1,
-    name: "Project_1",
-    description: "Project description 1",
-    visibility: false,
-    lastUpdated: "2025-02-19T15:45:00Z",
-    colaborators: [
-      { id: 1, userName: "User1" },
-      { id: 2, userName: "User2" },
-      { id: 3, userName: "User3" },
-      { id: 4, userName: "User4" },
-      { id: 5, userName: "User5" },
-      { id: 6, userName: "User6" },
-      { id: 7, userName: "User7" },
-      { id: 8, userName: "User8" },
-      { id: 9, userName: "User9" },
-      { id: 10, userName: "User10" },
-      { id: 11, userName: "User11" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Project_2",
-    description: "Project description 2",
-    visibility: true,
-    lastUpdated: "2024-02-18T09:30:00Z",
-    colaborators: [
-      { id: 4, userName: "User4" }
-    ],
-  },
-  {
-    id: 3,
-    name: "Project_3",
-    description: "Project description 3",
-    visibility: false,
-    lastUpdated: "2025-03-18T09:30:00Z",
-    colaborators: [
-      { id: 5, userName: "User5" },
-      { id: 6, userName: "User6" }
-    ],
-  },
-  {
-    id: 4,
-    name: "Project_4",
-    description: "Project description 4",
-    visibility: true,
-    lastUpdated: "2025-11-18T09:30:00Z",
-    colaborators: [
-    ],
-  }
-];
-*/
-
-
-
 
 const Repositories = () => {
   const { authUser, sessionExpired } = useAuth();
@@ -176,7 +118,10 @@ const Repositories = () => {
         <>
           {/* Display repositories */}
           {filteredRepos.length === 0 ? (
-            <p className={styles.noRepositories}>No repositories...</p>
+            <Card>
+              <p className={styles.noRepositories}>No repositories...</p>
+              <button>Create Me</button>
+            </Card>
           ) : (
           
             filteredRepos.map((repo) => (

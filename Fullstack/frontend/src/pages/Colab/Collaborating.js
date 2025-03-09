@@ -1,122 +1,82 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Repository from '../../components/repo/Repository';
 import { useNavigate } from 'react-router';
 import Page from "../../components/Page";
 import SearchBox from '../../components/search/SearchBox';
-import { useDebounce } from '../../helpers/Debounce';
-
+import { useSearch } from '../../components/search/useSearch';
+import Card from '../../components/cards/Card';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import { fetchWithTokenRefresh } from '../../api/fetchWithTokenRefresh';
 import { useAuth  } from '../../contexts/AuthContext';
 
 import styles from "../../styles/pages/repos/Repositories.module.css";
 
 
-
-// Example repo data
-const repoData = [
-  {
-    id: 1,
-    name: "Project_1",
-    description: "Project description 1",
-    visibility: false,
-    lastUpdated: "2025-02-19T15:45:00Z",
-    owner: { 
-      id: 2, 
-      username: "User2" 
-    },
-    avatars: [
-      { id: 1, username: "User1" },
-      { id: 2, username: "User2" },
-      { id: 3, username: "User3" },
-      { id: 4, username: "User4" },
-      { id: 5, username: "User5" },
-      { id: 6, username: "User6" },
-      { id: 7, username: "User7" },
-      { id: 8, username: "User8" },
-      { id: 9, username: "User9" },
-      { id: 10, username: "User10" },
-      { id: 11, username: "User11" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Project_2",
-    description: "Project description 2",
-    visibility: true,
-    lastUpdated: "2024-02-18T09:30:00Z",
-    owner: { 
-      id: 3, 
-      username: "User3" 
-    },
-    avatars: [
-      { id: 4, username: "User4" }
-    ],
-  },
-  {
-    id: 3,
-    name: "Project_3",
-    description: "Project description 3",
-    visibility: false,
-    lastUpdated: "2025-03-18T09:30:00Z",
-    owner: { 
-      id: 4, 
-      username: "User4" 
-    },
-    avatars: [
-      { id: 5, username: "User5" },
-      { id: 6, username: "User6" }
-    ],
-  },
-  {
-    id: 4,
-    name: "Project_4",
-    description: "Project description 4",
-    visibility: true,
-    lastUpdated: "2025-11-18T09:30:00Z",
-    owner: { 
-      id: 5, 
-      username: "User5" 
-    },
-    avatars: [
-    ],
-  }
-];
-
-
-
-
-
-const Repositories = () => {
-  const { authUser } = useAuth();
+const Colaborating = () => {
+  const { authUser, sessionExpired } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  const [repoData, setRepoData] = useState([]);
+  const [repoError, setRepoError] = useState(null);
+  const [loadingRepo, setLoadingRepo] = useState(true);
+
+  useEffect(() => {
+    const fetchColaboratingList = async () => {
+          try {
+            const data = await fetchWithTokenRefresh(
+              `https://localhost:82/api/web/repo/colaborating-list`,
+              {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+              },
+              sessionExpired
+            );
+    
+            console.log("Fetched colab repositories:", data);
+            
+            setRepoData(data);
+          } catch (err) {
+            setRepoError(err.message);
+          } finally {
+            setLoadingRepo(false);
+          }
+        };
+    
+        fetchColaboratingList();
+        
+  }, [sessionExpired]);
+
+
+
+
+
+
+
+
+  // Searching hook handles urls and debounce
+  const [searchValue, setSearchValue, debouncedSearchValue] = useSearch(500);
 
   const filteredRepos = useMemo(() => {
-    
-    return repoData.filter(repo => {
-      const query = debouncedSearchQuery.toLowerCase();
-
-      return (
-        repo.name.toLowerCase().includes(query) ||
-        repo.description.toLowerCase().includes(query)
-      );
-    });
-  }, [debouncedSearchQuery]);
+    const searchTerm = debouncedSearchValue.toLowerCase();
+    return repoData.filter(repo =>
+      repo.name.toLowerCase().includes(searchTerm) ||
+      repo.description.toLowerCase().includes(searchTerm)
+    );
+  }, [debouncedSearchValue, repoData]);
 
 
-  const handleSearch = (query) => {
-    // Search
-    setSearchQuery(query);
-  };
+
+
+
 
 
   const handleEnterRepo = (name) => {
     navigate(`/repository/${authUser}/${name}/main`);
   }
 
-  const handleEnterRepoContrib = (name) => {
-    navigate(`/repository/${authUser}/${name}/contributors`);
+  const handleEnterRepoContrib = (ownerUsername, name) => {
+    navigate(`/repository/${ownerUsername}/${name}/contributors`);
   }
 
 
@@ -125,37 +85,72 @@ const Repositories = () => {
   const headerSection = (styling) => { return(
     <header className={styling.header}>
       
-        <SearchBox searchingWhat="repositories" onSearch={handleSearch} />
+        <SearchBox searchingWhat="repositories" value={searchValue} onChange={setSearchValue} onSubmit={(e) => e.preventDefault()} />
 
     </header>
   )};
 
   return (
     <Page header={headerSection}>
-
-      {/* Display repositories */}
-      {filteredRepos.length === 0 ? (
-        <p className={styles.noRepositories}>No repositories...</p>
+      {loadingRepo ? (
+        <Card>
+          <LoadingSpinner />
+        </Card>
+      ) : repoError ? (
+        <Card>
+          <div>Error: {repoError}</div>
+        </Card>
       ) : (
-      
-        filteredRepos.map((repo) => (
-          <Repository
-            key={repo.id}
-            enterRepo={() => handleEnterRepo(repo.name)}
-            enterRepoContrib={() => handleEnterRepoContrib(repo.name)}
-            owner={repo.owner}
-            repoName={repo.name}
-            description={repo.description}
-            visability={repo.visibility}
-            lastUpdated={repo.lastUpdated}
-            avatars={repo.avatars}
-          />
-      )))}
+        <>
+          {/* Display repositories */}
+          {filteredRepos.length === 0 ? (
+            <Card>
+              <p className={styles.noRepositories}>No repositories...</p>
+            </Card>
+          ) : (
+          
+            filteredRepos.map((repo) => {
+              // Get the owner from the collaborator with OWNER access level
+              const ownerCollab = repo.collaborators.find(
+                (collab) => collab.accessLevel === "OWNER"
+              );
+              
+              if (!ownerCollab) {
+                return (
+                  <Card key={repo.id}>
+                    <p>
+                      Error: No owner found for repository "{repo.name}"
+                    </p>
+                  </Card>
+                );
+              }
+
+
+              return (
+                <Repository
+                  key={repo.id}
+                  enterRepo={() => handleEnterRepo(repo.name, ownerUsername)}
+                  enterRepoContrib={() => handleEnterRepoContrib(repo.name, ownerUsername)}
+                  owner={ownerUsername}
+                  repoName={repo.name}
+                  description={repo.description || ''}
+                  visability={repo.isPrivate}
+                  lastUpdated={repo.lastUpdated}
+                  avatars={repo.collaborators}
+                />
+              );
+            })
+
+
+          )}
+        </>
+      )}
+
 
     </Page>
   );
 };
 
 
-export default Repositories;
+export default Colaborating;
   

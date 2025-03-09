@@ -170,6 +170,59 @@ namespace backend.Controllers.Frontend
                     }).ToList()
             }));
         }
+
+
+
+        // ------- COLABORATING LIST -------
+        [HttpGet("colaborating-list")]
+        public async Task<IActionResult> GetColaboratingList()
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized(new { Message = "Invalid user" });
+
+            // Get repos user has access to (but isnt owner)
+            var repositories = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                    .ThenInclude(ra => ra.User)
+                .Include(r => r.Owner)
+                .Include(r => r.Branches)
+                    .ThenInclude(b => b.Commits)
+                .Where(r => r.OwnerId != userId && r.RepoAccesses.Any(ra => ra.UserId == userId))
+                .AsNoTracking()
+                .ToListAsync();
+
+            
+            return Ok (repositories.Select(r => new
+            {
+                Id = r.RepoId,
+                Name = r.RepoName,
+                IsPrivate = r.IsPrivate,
+                LastUpdated = r.Branches
+                    .SelectMany(b => b.Commits)
+                    .OrderByDescending(c => c.CommittedAt)
+                    .FirstOrDefault()?.CommittedAt,
+                Collaborators = r.RepoAccesses
+                    .Select(ra => new
+                    {
+                        Id = ra.UserId,
+                        Username = ra.User.Username,
+                        AccessLevel = ra.AccessLevel.ToString()
+                    }).ToList()
+            }));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         // ------- REPO LAYOUT -------
 
         [HttpGet("{owner}/{repoName}")]
