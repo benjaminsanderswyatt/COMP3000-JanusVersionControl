@@ -24,3 +24,12 @@ a:hover {
 .error {
   color: var(--red);
 }
+
+.button {
+  background-color: var(--primary);
+  padding: 10px 15px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

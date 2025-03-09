@@ -4,19 +4,8 @@ import { Outlet, useNavigate, useParams } from "react-router";
 import { useAuth } from "../../../contexts/AuthContext";
 import { fetchWithTokenRefresh } from "../../../api/fetchWithTokenRefresh";
 import Page from "../../../components/Page";
+import Card from "../../../components/cards/Card";
 
-/*
-const mockRepoData = {
-    id: 1,
-    owner: { 
-        id: 2, 
-        userName: "User2" 
-    },
-    description: "Repository description",
-    visibility: false,
-    branches: [ "main", "first", "second"],
-};
-*/
 
 const RepoLayout = () => {
     const navigate = useNavigate();
@@ -51,14 +40,29 @@ const RepoLayout = () => {
     }, [owner, name, sessionExpired]);
 
 
+    
+
 
     if (error) {
-        return (
-            <Page>
-                <div>Error: {error}</div>;
-                <button onClick={() => navigate(`/repository/${authUser}`)}>Go Back</button>
-            </Page>
-        )
+      const headerSection = (pageStyles) => { return(
+        <header className={pageStyles.header}>
+        </header>
+      )};
+
+
+      return (
+          <Page header={headerSection}>
+              <Card>
+                <p style={{paddingBottom: "20px"}}>Error: {error}</p>
+                <button 
+                  className="button"
+                  onClick={() => navigate(`/repository/${authUser}`)}
+                  >
+                    Go Back
+                </button>
+              </Card>
+          </Page>
+      )
         
     }
 
