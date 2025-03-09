@@ -25,30 +25,31 @@ const Repositories = () => {
   const [repoError, setRepoError] = useState(null);
   const [loadingRepo, setLoadingRepo] = useState(true);
   
-  useEffect(() => {
-    const fetchRepositoryList = async () => {
-      try {
-        const data = await fetchWithTokenRefresh(
-          `https://localhost:82/api/web/repo/repository-list`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          },
-          sessionExpired
-        );
+  const fetchRepositoryList = async () => {
+    setLoadingRepo(true);
+    setRepoError(null);
 
-        console.log("Fetched repositories:", data);
-        
-        setRepoData(data);
-      } catch (err) {
-        setRepoError(err.message);
-      } finally {
-        setLoadingRepo(false);
-      }
-    };
-
-    fetchRepositoryList();
+    try {
+      const data = await fetchWithTokenRefresh(
+        `https://localhost:82/api/web/repo/repository-list`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+        sessionExpired
+      );
+      
+      setRepoData(data);
+    } catch (err) {
+      setRepoError(err.message);
+    } finally {
+      setLoadingRepo(false);
+    }
     
+  };
+
+  useEffect(() => {
+    fetchRepositoryList();
   }, [sessionExpired]);
 
 
@@ -111,9 +112,9 @@ const Repositories = () => {
 
       ) : repoError ? (
         <Card>
-          <div>Error: {repoError}</div>
+          <p className='errorMessage'>Error: {repoError}</p>
+          <button onClick={fetchRepositoryList} className="button">Try Again</button>
         </Card>
-
       ) : (
         <>
           {/* Display repositories */}

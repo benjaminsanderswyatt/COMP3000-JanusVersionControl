@@ -21,30 +21,32 @@ const Colaborating = () => {
   const [repoError, setRepoError] = useState(null);
   const [loadingRepo, setLoadingRepo] = useState(true);
 
+  const fetchColaboratingList = async () => {
+    setLoadingRepo(true);
+    setRepoError(null);
+
+    try {
+      const data = await fetchWithTokenRefresh(
+        `https://localhost:82/api/web/repo/colaborating-list`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+        sessionExpired
+      );
+
+      setRepoData(data);
+    } catch (err) {
+      setRepoError(err.message);
+    } finally {
+      setLoadingRepo(false);
+    }
+    
+  };
+
+
   useEffect(() => {
-    const fetchColaboratingList = async () => {
-          try {
-            const data = await fetchWithTokenRefresh(
-              `https://localhost:82/api/web/repo/colaborating-list`,
-              {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-              },
-              sessionExpired
-            );
-    
-            console.log("Fetched colab repositories:", data);
-            
-            setRepoData(data);
-          } catch (err) {
-            setRepoError(err.message);
-          } finally {
-            setLoadingRepo(false);
-          }
-        };
-    
-        fetchColaboratingList();
-        
+    fetchColaboratingList();
   }, [sessionExpired]);
 
 
@@ -98,7 +100,8 @@ const Colaborating = () => {
         </Card>
       ) : repoError ? (
         <Card>
-          <div>Error: {repoError}</div>
+          <p className='errorMessage'>Error: {repoError}</p>
+          <button onClick={fetchColaboratingList} className="button">Try Again</button>
         </Card>
       ) : (
         <>

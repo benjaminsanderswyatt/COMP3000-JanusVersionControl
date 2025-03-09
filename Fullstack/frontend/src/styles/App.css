@@ -25,6 +25,10 @@ a:hover {
   color: var(--red);
 }
 
+.errorMessage {
+  margin-bottom: 20px;
+}
+
 .button {
   background-color: var(--primary);
   padding: 10px 15px;
@@ -32,4 +36,8 @@ a:hover {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.button:hover {
+  background-color: var(--primary-hover);
 }
