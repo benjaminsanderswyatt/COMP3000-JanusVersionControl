@@ -132,8 +132,8 @@ const Colaborating = () => {
               return (
                 <Repository
                   key={repo.id}
-                  enterRepo={() => handleEnterRepo(repo.name, ownerCollab.username)}
-                  enterRepoContrib={() => handleEnterRepoContrib(repo.name, ownerCollab.username)}
+                  enterRepo={() => handleEnterRepo(ownerCollab.username, repo.name)}
+                  enterRepoContrib={() => handleEnterRepoContrib(ownerCollab.username, repo.name)}
                   owner={ownerCollab.username}
                   repoName={repo.name}
                   description={repo.description || ''}
