@@ -91,9 +91,8 @@ const Create = () => {
   
   return (
     <Page header={headerSection}>
-
-
-      <form onSubmit={onSubmit} className="form">
+      
+      <form onSubmit={onSubmit}>
 
         <div>
           <TextInput 
@@ -123,14 +122,21 @@ const Create = () => {
             labelStyle={{ fontWeight: "bold", color: "var(--lighttext)" }}
           />
         </div>
-        
-        <button type="submit" className={styles.button} disabled={loading}>
-          {loading ? "Creating..." : "Create Repository"}
-        </button>
 
-        {message && <p className={styles.error}>{message}</p>}
+        <div className={styles.createHolder}>
+          {message && <p className={`${styles.message} error`}>{message}</p>}
 
+
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? "Creating..." : "Create Repository"}
+          </button>
+
+        </div>
       </form>
+      
+
+
+      
       
 
     </Page>
