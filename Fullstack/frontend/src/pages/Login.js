@@ -47,7 +47,7 @@ const Login = () => {
     if (!emailRegex.test(formData.email)) {
       setMessageType("error");
       setErrorField("email");
-      setMessage("Please enter a valid email address.");
+      setMessage("Please enter a valid email address");
       return;
     }
 
