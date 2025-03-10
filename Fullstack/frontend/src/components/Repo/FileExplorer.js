@@ -40,19 +40,14 @@ const FileExplorer = ({ root }) => {
     for (const folderName of currentPath) {
       const next = current.children.find(child => child.name === folderName);
       
-      console.log("next: ", next);
-
-      if (!next) {
-        console.log("reset");
-
+      if (!next)
         return root;
-      }
-
+      
       current = next;
     }
 
     return current;
-  }, [root, currentPath, setSearchParams]);
+  }, [root, currentPath]);
 
 
   useEffect(() => {
@@ -79,14 +74,18 @@ const FileExplorer = ({ root }) => {
 
   // Sort folders then files
   const sortedChildren = useMemo(() => {
-    const children = (currentDir && Array.isArray(currentDir.children))
-      ? currentDir.children
-      : [];
+    const children = currentDir?.children || [];
+
     return [...children].sort((a, b) => {
       const aIsFolder = a.hash === null;
       const bIsFolder = b.hash === null;
-      if (aIsFolder && !bIsFolder) return -1;
-      if (!aIsFolder && bIsFolder) return 1;
+
+      if (aIsFolder && !bIsFolder) 
+        return -1;
+
+      if (!aIsFolder && bIsFolder) 
+        return 1;
+
       return a.name.localeCompare(b.name);
     });
   }, [currentDir]);
@@ -94,21 +93,20 @@ const FileExplorer = ({ root }) => {
 
 
 
-  const updatePath = (newPathArray) => {
-    console.log("old path: ", searchParams);
-    console.log("new path: ", newPathArray);
+  const updatePath = useCallback((newPathArray) => {
     const newPath = newPathArray.join('/');
+
     if (newPath) {
       setSearchParams({ path: newPath });
     } else {
       setSearchParams({});
     }
-  };
+  }, [setSearchParams]);
 
 
   const handleFolderClick = useCallback((folderName) => {
     updatePath([...currentPath, folderName]);
-  }, [currentPath]);
+  }, [currentPath, updatePath]);
 
   const handleFileClick = useCallback((fileName, mimeType, fileSize, fileHash) => {
     navigate(`/repository/${owner}/${name}/file/${fileHash}`, {
@@ -119,15 +117,15 @@ const FileExplorer = ({ root }) => {
 
   const handleBreadcrumbClick = useCallback((index) => {
     updatePath(currentPath.slice(0, index + 1));
-  }, [currentPath]);
+  }, [currentPath, updatePath]);
 
   const handleBack = useCallback(() => {
     updatePath(currentPath.slice(0, -1));
-  }, [currentPath]);
+  }, [currentPath, updatePath]);
 
   const handleHome = useCallback(() => {
     updatePath([]);
-  }, []);
+  }, [updatePath]);
 
 
   return (
