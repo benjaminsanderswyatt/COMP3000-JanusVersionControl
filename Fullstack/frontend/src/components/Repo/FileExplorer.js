@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import React, { useEffect, useMemo, useCallback, memo } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { formatDate } from "../../helpers/DateHelper";
 
 import styles from "../../styles/components/repo/FileExplorer.module.css";
@@ -7,9 +7,12 @@ import tableStyles from "../../styles/components/Table.module.css"
 
 // Helper to make size readable
 const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
+  
+  if (bytes === 0) 
+    return '0 B';
+
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
@@ -18,9 +21,18 @@ const formatFileSize = (bytes) => {
 
 
 const FileExplorer = ({ root }) => {
-  const [currentPath, setCurrentPath] = useState([]);
   const navigate = useNavigate();
   const { owner, name } = useParams();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPath = useMemo(() => {
+    const path = searchParams.get('path') || "";
+    return path.split('/').filter(p => p);
+  }, [searchParams]);
+
+
+  
 
   const currentDir = useMemo(() => {
     let current = root || { children: [] };
@@ -28,8 +40,11 @@ const FileExplorer = ({ root }) => {
     for (const folderName of currentPath) {
       const next = current.children.find(child => child.name === folderName);
       
+      console.log("next: ", next);
+
       if (!next) {
-        setCurrentPath([]);
+        console.log("reset");
+
         return root;
       }
 
@@ -37,9 +52,32 @@ const FileExplorer = ({ root }) => {
     }
 
     return current;
-  }, [root, currentPath]);
+  }, [root, currentPath, setSearchParams]);
 
 
+  useEffect(() => {
+    let current = root || { children: [] };
+    
+    for (const folderName of currentPath) {
+      const next = current.children.find(child => child.name === folderName);
+      
+      if (!next) {
+        setSearchParams({});
+        break;
+      }
+
+      current = next;
+    }
+
+  }, [root, currentPath, setSearchParams]);
+
+
+
+
+
+
+
+  // Sort folders then files
   const sortedChildren = useMemo(() => {
     const children = (currentDir && Array.isArray(currentDir.children))
       ? currentDir.children
@@ -55,27 +93,40 @@ const FileExplorer = ({ root }) => {
 
 
 
+
+  const updatePath = (newPathArray) => {
+    console.log("old path: ", searchParams);
+    console.log("new path: ", newPathArray);
+    const newPath = newPathArray.join('/');
+    if (newPath) {
+      setSearchParams({ path: newPath });
+    } else {
+      setSearchParams({});
+    }
+  };
+
+
   const handleFolderClick = useCallback((folderName) => {
-    setCurrentPath(prev => [...prev, folderName]);
-  }, []);
+    updatePath([...currentPath, folderName]);
+  }, [currentPath]);
 
   const handleFileClick = useCallback((fileName, mimeType, fileSize, fileHash) => {
-    // Navigate to the file display route and pass file details via state
     navigate(`/repository/${owner}/${name}/file/${fileHash}`, {
       state: { fileName, mimeType, fileSize }
     });
-  }, [ owner, name, navigate]);
+  }, [owner, name, navigate]);
+
 
   const handleBreadcrumbClick = useCallback((index) => {
-    setCurrentPath(prev => prev.slice(0, index + 1));
-  }, []);
+    updatePath(currentPath.slice(0, index + 1));
+  }, [currentPath]);
 
   const handleBack = useCallback(() => {
-    setCurrentPath(prev => prev.slice(0, -1));
-  }, []);
+    updatePath(currentPath.slice(0, -1));
+  }, [currentPath]);
 
   const handleHome = useCallback(() => {
-    setCurrentPath([]);
+    updatePath([]);
   }, []);
 
 
@@ -139,7 +190,7 @@ const FileExplorer = ({ root }) => {
           {sortedChildren.length === 0 ? (
             <tr className={tableStyles.tbodyRow}>
               <td className={tableStyles.td} colSpan={4} style={{ textAlign: 'center' }}>
-                <div className={styles.empty}>Empty...</div>
+                <div className={tableStyles.empty}>Empty...</div>
               </td>
             </tr>
           ) : (

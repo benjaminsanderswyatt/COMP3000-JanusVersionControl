@@ -60,3 +60,8 @@ td:nth-child(4) {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.empty {
+    padding: 10px;
+    color: var(--lighttext);
+}
