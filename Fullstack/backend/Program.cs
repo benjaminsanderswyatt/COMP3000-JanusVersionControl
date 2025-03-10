@@ -27,6 +27,8 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
+builder.Services.AddMemoryCache();
+
 // Dependancy Injection
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();

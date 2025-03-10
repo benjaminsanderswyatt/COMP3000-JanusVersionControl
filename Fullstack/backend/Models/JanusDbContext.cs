@@ -131,6 +131,23 @@ namespace backend.Models
                 new Repository { RepoId = 2, OwnerId = 2, RepoName = "Repo2", RepoDescription = "Sec seeded", IsPrivate = true }
             );
 
+            // Seed many repositories
+            for (int i = 3; i <= 50; i++)
+            {
+                modelBuilder.Entity<Repository>().HasData(
+                    new Repository { RepoId = i, OwnerId = 1, RepoName = $"Repo{i}", RepoDescription = $"Seeded {i}", IsPrivate = false }
+                );
+            }
+
+            // Seed the repo accesses for the many repos
+            for (int i = 3; i <= 50; i++)
+            {
+                modelBuilder.Entity<RepoAccess>().HasData(
+                    new RepoAccess { RepoId = i, UserId = 1, AccessLevel = AccessLevel.OWNER }
+                );
+            }
+
+
 
             // Seed Repo Access
             modelBuilder.Entity<RepoAccess>().HasData(
