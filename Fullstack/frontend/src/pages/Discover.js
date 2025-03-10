@@ -4,8 +4,9 @@ import { useNavigate, useSearchParams } from "react-router";
 import Page from "../components/Page";
 import Card from "../components/cards/Card";
 import LoadingSpinner from '../components/LoadingSpinner';
-//import SearchBoxEnter from "../components/search/SearchBoxEnter";
+
 import Repository from '../components/repo/Repository';
+import Pagination from '../components/Pagination';
 
 import styles from "../styles/pages/Discover.module.css";
 
@@ -131,27 +132,11 @@ const Discover = () => {
                 </>
             )}
 
-            <div className={styles.pagination}>
-                <button 
-                    onClick={() => handlePageChange(page - 1)} 
-                    disabled={page === 1} 
-                    className={styles.pageButton}
-                >
-                    {"<"}
-                </button>
-
-                <span className={styles.pageNum}>
-                    {page} / {totalPages}
-                </span>
-
-                <button 
-                    onClick={() => handlePageChange(page + 1)} 
-                    disabled={page === totalPages}
-                    className={styles.pageButton}
-                >
-                    {">"}
-                </button>
-            </div>
+            <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
 
         </Page>
     );
