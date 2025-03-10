@@ -139,7 +139,7 @@ const FileExplorer = ({ root }) => {
           {sortedChildren.length === 0 ? (
             <tr className={tableStyles.tbodyRow}>
               <td className={tableStyles.td} colSpan={4} style={{ textAlign: 'center' }}>
-                such empty
+                <div className={styles.empty}>Empty...</div>
               </td>
             </tr>
           ) : (
