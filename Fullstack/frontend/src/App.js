@@ -100,11 +100,13 @@ const App = () => {
                   
                   <Route path="file/:fileHash" element={<FileDisplay />}/>
                   
-                  <Route path=":branch" element={<RepoPage />} />
-
-                  <Route path=":branch/commits" element={<Commits />} />
+                  <Route path="commits/:branch" element={<Commits />} />
+                  
                   <Route path="contributors" element={<Contributors />} />
                   <Route path="settings" element={<Settings />} />
+
+                  <Route path=":branch" element={<RepoPage />} />
+
                 </Route>
 
 
