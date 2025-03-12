@@ -5,6 +5,7 @@ import RepoPageHeader from '../../../components/repo/RepoPageHeader';
 import Page from '../../../components/Page';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import Card from "../../../components/cards/Card";
+import AreaInput from '../../../components/inputs/AreaInput';
 
 import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 
@@ -26,20 +27,36 @@ const Settings = () => {
     </header>
   )};
   
+
   return (
     <Page header={headerSection}>
 
       <Card>
         <div className={styles.header}>
           <h1>{name}</h1>
-          <div className={styles.visibility}>{repoData.visibility ? "Public" : "Private"}</div>
         </div>
       </Card>
 
       <h1>Settings</h1>
       <p>Change description</p>
+      <Card>
+        <AreaInput className={styles.description}></AreaInput>
+
+        <button>Edit Description</button>
+      </Card>
+
+
       <p>Change visibility</p>
+      <Card>
+        <div className={styles.visibility}>{repoData.visibility ? "Private" : "Public"}</div>
+
+        <button>{repoData.visibility ? "Change to Public" : "Change to Private"}</button>
+      </Card>
+
       <p>Delete repo</p>
+      <Card>
+        <button>Delete Repository?</button>
+      </Card>
     </Page>
   );
 };

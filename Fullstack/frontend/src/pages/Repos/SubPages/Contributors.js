@@ -10,7 +10,7 @@ import ProfilePic from "../../../components/images/ProfilePic";
 import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import stylesContrib from "../../../styles/pages/repos/subpages/Contributors.module.css";
 
-
+import Pagination from '../../../components/Pagination';
 
 const Contributors = () => {
   const { owner, name } = useParams(); // Get the name from the URL

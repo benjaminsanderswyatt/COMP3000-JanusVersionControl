@@ -77,11 +77,7 @@ export const AuthProvider = ({ children }) => {
 
 
   useEffect(() => {
-    // Bypass for debugging -------------------------------------------------------------
-    //setIsLoggedIn(true);
-    //setAuthUser("debug");
-
-
+    
     const token = localStorage.getItem('token');
     if (token) {
       try {
