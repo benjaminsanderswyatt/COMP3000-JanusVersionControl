@@ -13,7 +13,7 @@ const RepoPageHeader = () => {
     }
 
     const GotoCommits = () => {
-        navigate(`/repository/${owner}/${name}/${branch || 'main'}/commits`);
+        navigate(`/repository/${owner}/${name}/commits/${branch || 'main'}`);
     }
 
     const GotoContributors = () => {
@@ -41,7 +41,7 @@ const RepoPageHeader = () => {
             </button>
 
             <button 
-                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/${branch}/commits`) ? styles.selected: {}}`}
+                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/commits/${branch}`) ? styles.selected: {}}`}
                 onClick={() => GotoCommits()}>
                 Commits
             </button>

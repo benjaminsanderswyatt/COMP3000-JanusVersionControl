@@ -102,7 +102,7 @@ const Commits = () => {
 
   const handleBranchChange = (newBranch) => {
     // Navigate to the new branch
-    navigate(`/repository/${owner}/${name}/${newBranch}/commits`);
+    navigate(`/repository/${owner}/${name}/commits/${newBranch}`);
   };
 
   

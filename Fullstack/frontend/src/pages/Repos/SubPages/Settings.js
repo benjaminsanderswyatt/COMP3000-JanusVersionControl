@@ -40,7 +40,7 @@ const Settings = () => {
       <h1>Settings</h1>
       <p>Change description</p>
       <Card>
-        <AreaInput className={styles.description}></AreaInput>
+        {/*<AreaInput className={styles.description}></AreaInput>*/}
 
         <button>Edit Description</button>
       </Card>
