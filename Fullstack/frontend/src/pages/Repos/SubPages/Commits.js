@@ -87,7 +87,7 @@ const Commits = () => {
   )};
 
   // Loading
-  const repoData = useOutletContext();
+  const { repoData } = useOutletContext();
   if (!repoData) {
     return (
       <Page header={headerSection}>

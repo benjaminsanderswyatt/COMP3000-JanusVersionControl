@@ -45,4 +45,5 @@ a:hover {
 
 .button:disabled {
   background: var(--border);
+  cursor: default;
 }

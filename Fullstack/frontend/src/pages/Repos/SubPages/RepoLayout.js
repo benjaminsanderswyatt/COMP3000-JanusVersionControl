@@ -67,7 +67,7 @@ const RepoLayout = () => {
     }
 
 
-    return <Outlet context={repoData} />;
+    return <Outlet context={{repoData, setRepoData}} />;
 }
 
 export default RepoLayout;

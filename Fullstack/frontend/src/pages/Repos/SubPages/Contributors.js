@@ -15,7 +15,7 @@ import Pagination from '../../../components/Pagination';
 const Contributors = () => {
   const { owner, name } = useParams(); // Get the name from the URL
 
-  const repoData = useOutletContext();
+  const { repoData } = useOutletContext();
   if (!repoData) {
     return <LoadingSpinner/>;
   }
