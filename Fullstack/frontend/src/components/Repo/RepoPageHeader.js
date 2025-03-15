@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router';
 
+import { useAuth } from '../../contexts/AuthContext';
 import styles from "../../styles/components/repo/RepoPageHeader.module.css";
 
 const RepoPageHeader = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { owner, name, branch } = useParams();
+    const { authUser } = useAuth();
 
     const GotoFiles = () => {
         navigate(`/repository/${owner}/${name}/${branch || 'main'}`);
@@ -52,11 +54,14 @@ const RepoPageHeader = () => {
                 Contributors
             </button>
 
-            <button 
-                className={`${styles.button} ${isActive(`/repository/${owner}/${name}/settings`) ? styles.selected: {}}`}
-                onClick={() => GotoSettings()}>
-                Settings
-            </button>
+            {/* Only owner sees setting page */}
+            {authUser === owner && (
+                <button 
+                    className={`${styles.button} ${isActive(`/repository/${owner}/${name}/settings`) ? styles.selected: {}}`}
+                    onClick={() => GotoSettings()}>
+                    Settings
+                </button>
+            )}
         </nav>
     );
 };

@@ -11,6 +11,7 @@ const AreaInput = ({
   placeholder = "", 
   maxLength = 256,
   rows = 4,
+  hasError = false
 }) => {
   const [remainingChars, setRemainingChars] = useState(maxLength);
 
@@ -31,7 +32,7 @@ const AreaInput = ({
       </label>
       <div className="textAreaContainer">
         <textarea
-            className={`${styles.input} ${styles.descriptionInput}`}
+            className={`${styles.input} ${styles.descriptionInput} ${hasError ? styles.errorInput : ""}`}
             id={name}
             name={name}
             value={value}
