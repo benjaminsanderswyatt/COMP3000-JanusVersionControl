@@ -101,7 +101,7 @@ export const deleteUser = async (sessionExpired) => {
     const token = localStorage.getItem('token');
 
     // Use fetchWithTokenRefresh instead of direct fetch
-    const responseJson = await fetchWithTokenRefresh(`${API_URL}/delete`, {
+    const responseJson = await fetchWithTokenRefresh(`https://localhost:82/api/web/account/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
