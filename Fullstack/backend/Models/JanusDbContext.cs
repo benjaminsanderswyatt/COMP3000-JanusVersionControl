@@ -93,9 +93,13 @@ namespace backend.Models
                 .HasOne(ra => ra.Repository)
                 .WithMany(r => r.RepoAccesses)
                 .HasForeignKey(ra => ra.RepoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
-
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Parent)
+                .WithMany()
+                .HasForeignKey(b => b.ParentBranch)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 
