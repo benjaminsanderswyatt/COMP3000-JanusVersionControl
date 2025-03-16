@@ -31,16 +31,18 @@ a:hover {
 }
 
 .button {
-  background-color: var(--primary);
+  background: var(--primary);
   padding: 10px 15px;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.1s ease-in-out;
+  font-size: 0.9rem;
 }
 
 .button:hover {
-  background-color: var(--primary-hover);
+  background: var(--primary-hover);
 }
 
 .button:disabled {

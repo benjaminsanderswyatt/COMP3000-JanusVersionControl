@@ -12,31 +12,23 @@
     height: fit-content;
 }
 
-.logoutButton {
-    background: #FF4747;
-    margin-top: 50px;
-    width: 70%;
-    min-width: 100px;
-    border: none;
-    border-radius: 10px;
-    color: var(--inverttext);
-    font-size: 1rem;
+.deleteButton {
+    font-size: 0.9rem;
+    background: var(--light-red);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
     cursor: pointer;
-    padding: 5px;
+    padding: 10px 15px;
+    width: 100%;
+    margin-top: 20px;
+    transition: background 0.1s ease-in-out;
 }
 
-.deleteButton {
-    background: #BF3535;
-    margin-top: 20px;
-    width: 30%;
-    min-width: 100px;
-    border: none;
-    border-radius: 10px;
-    color: var(--inverttext);
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 5px;
+.deleteButton:hover {
+    background: var(--light-red-hover);
 }
+
 
 .PATHolder {
     width: 100%;

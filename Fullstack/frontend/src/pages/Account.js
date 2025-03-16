@@ -10,6 +10,7 @@ import { GenAccessToken } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
 
 import Page from "../components/Page";
+import Card from '../components/cards/Card';
 
 import styles from "../styles/pages/Account.module.css";
 
@@ -78,26 +79,31 @@ const Account = () => {
 
             <ProfilePictureCard/>
 
+            
 
-            <div className={styles.buttonHolder}>
-                <button className={styles.logoutButton} onClick={handleLogout}>Logout</button>
+            {/* Generate PAT */}
+            <Card>
+                <button onClick={handleGenAccessToken}>Generate PAT</button>
+                {loading && <p>Loading...</p>}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {tokenData  && (
+                    <div className={styles.PATHolder}>
+                    <h2>Token Generated:</h2>
+                    <pre className={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
+                    </div>
+                )}
+            </Card>
 
-                <button className={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
 
-            </div>
+            
+            <Card>
+                {/* Logout */}
+                <button className="button" style={{width: "100%"}} onClick={handleLogout}>Logout</button>
                 
-
-            <button onClick={handleGenAccessToken}>Generate PAT</button>
-            {loading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {tokenData  && (
-                <div className={styles.PATHolder}>
-                <h2>Token Generated:</h2>
-                <pre className={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
-                </div>
-            )}
-
-
+                {/* Delete Account */}
+                <button className={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
+            
+            </Card>
             
         </Page>
     );
