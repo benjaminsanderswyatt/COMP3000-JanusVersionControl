@@ -179,7 +179,7 @@ namespace backend.Models
                     CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                     BranchId = 1,
                     TreeHash = "",
-                    CreatedBy = 0,
+                    CreatedBy = "Janus",
                     Message = "Initial commit",
                     CommittedAt = DateTimeOffset.UtcNow
                 },
@@ -189,7 +189,7 @@ namespace backend.Models
                     CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                     BranchId = 2,
                     TreeHash = "517e4c52e1020d3bc9901cb81093943d4919b55c",
-                    CreatedBy = 2,
+                    CreatedBy = "User2",
                     Message = "Next commit",
                     CommittedAt = DateTimeOffset.UtcNow
                 }

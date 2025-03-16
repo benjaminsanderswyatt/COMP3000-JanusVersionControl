@@ -194,18 +194,17 @@ namespace backend.Controllers.CLI
                     var parentCommitHash = commit.Parents.FirstOrDefault()?.Parent?.CommitHash;
 
                     // Get the author of the commit
-                    string commitAuthorUsername;
+                    string commitAuthorUsername = commit.CreatedBy;
                     string commitAuthorEmail;
-                    int commitAuthorId = commit.CreatedBy;
-                    if (commit.CreatedBy == 0)
+                    int commitAuthorId;
+                    if (commit.CreatedBy == "Janus")
                     {
-                        commitAuthorUsername = "Janus";
+                        commitAuthorId = 0;
                         commitAuthorEmail = "Janus";
                     }
                     else
                     {
-                        var author = _janusDbContext.Users.FirstOrDefault(u => u.UserId == commit.CreatedBy);
-                        commitAuthorUsername = author.Username;
+                        var author = _janusDbContext.Users.FirstOrDefault(u => u.Username == commit.CreatedBy);
                         commitAuthorEmail = author.Email;
                     }
 

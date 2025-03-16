@@ -129,7 +129,7 @@ namespace backend.Migrations
                         {
                             BranchId = 1,
                             BranchName = "main",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(2364), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(3597), new TimeSpan(0, 0, 0, 0, 0)),
                             CreatedBy = 1,
                             LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                             RepoId = 1
@@ -138,7 +138,7 @@ namespace backend.Migrations
                         {
                             BranchId = 2,
                             BranchName = "branch",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(2366), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(3599), new TimeSpan(0, 0, 0, 0, 0)),
                             CreatedBy = 1,
                             LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                             ParentBranch = 1,
@@ -166,8 +166,9 @@ namespace backend.Migrations
                     b.Property<DateTimeOffset>("CommittedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -194,8 +195,8 @@ namespace backend.Migrations
                             CommitId = 1,
                             BranchId = 1,
                             CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
-                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(2404), new TimeSpan(0, 0, 0, 0, 0)),
-                            CreatedBy = 0,
+                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(3639), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "Janus",
                             Message = "Initial commit",
                             TreeHash = ""
                         },
@@ -204,8 +205,8 @@ namespace backend.Migrations
                             CommitId = 2,
                             BranchId = 2,
                             CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
-                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(2407), new TimeSpan(0, 0, 0, 0, 0)),
-                            CreatedBy = 2,
+                            CommittedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(3641), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "User2",
                             Message = "Next commit",
                             TreeHash = "517e4c52e1020d3bc9901cb81093943d4919b55c"
                         });
@@ -599,7 +600,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 1,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 372, DateTimeKind.Unspecified).AddTicks(9981), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1267), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "First seeded",
@@ -608,7 +609,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 372, DateTimeKind.Unspecified).AddTicks(9985), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1285), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = true,
                             OwnerId = 2,
                             RepoDescription = "Sec seeded",
@@ -617,7 +618,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 3,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(20), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1333), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 3",
@@ -626,7 +627,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 4,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(94), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1407), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 4",
@@ -635,7 +636,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 5,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(130), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1438), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 5",
@@ -644,7 +645,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 6,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(160), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1462), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 6",
@@ -653,7 +654,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 7,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(186), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1498), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 7",
@@ -662,7 +663,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 8,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(218), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1525), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 8",
@@ -671,7 +672,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 9,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(237), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1543), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 9",
@@ -680,7 +681,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 10,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(363), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1596), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 10",
@@ -689,7 +690,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 11,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(396), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1624), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 11",
@@ -698,7 +699,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 12,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(414), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1642), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 12",
@@ -707,7 +708,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 13,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(442), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1661), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 13",
@@ -716,7 +717,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 14,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(460), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1680), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 14",
@@ -725,7 +726,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 15,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(520), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1751), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 15",
@@ -734,7 +735,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 16,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(546), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1781), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 16",
@@ -743,7 +744,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 17,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(565), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1800), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 17",
@@ -752,7 +753,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 18,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(613), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1887), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 18",
@@ -761,7 +762,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 19,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(632), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1907), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 19",
@@ -770,7 +771,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 20,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(651), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1925), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 20",
@@ -779,7 +780,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 21,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(668), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1943), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 21",
@@ -788,7 +789,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 22,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(686), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1961), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 22",
@@ -797,7 +798,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 23,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(705), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1980), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 23",
@@ -806,7 +807,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 24,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(723), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(1998), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 24",
@@ -815,7 +816,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 25,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(741), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2016), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 25",
@@ -824,7 +825,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 26,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(759), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2033), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 26",
@@ -833,7 +834,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 27,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(778), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2051), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 27",
@@ -842,7 +843,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 28,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(840), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2084), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 28",
@@ -851,7 +852,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 29,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(866), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2115), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 29",
@@ -860,7 +861,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 30,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(929), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2212), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 30",
@@ -869,7 +870,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 31,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(972), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2265), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 31",
@@ -878,7 +879,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 32,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(993), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2286), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 32",
@@ -887,7 +888,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 33,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1012), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2305), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 33",
@@ -896,7 +897,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 34,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1032), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2356), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 34",
@@ -905,7 +906,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 35,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1051), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2374), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 35",
@@ -914,7 +915,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 36,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1069), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2392), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 36",
@@ -923,7 +924,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 37,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1088), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2412), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 37",
@@ -932,7 +933,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 38,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1105), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2431), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 38",
@@ -941,7 +942,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 39,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1122), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2450), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 39",
@@ -950,7 +951,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 40,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1140), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2466), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 40",
@@ -959,7 +960,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 41,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1158), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2483), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 41",
@@ -968,7 +969,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 42,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1177), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2502), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 42",
@@ -977,7 +978,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 43,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1194), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2520), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 43",
@@ -986,7 +987,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 44,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1239), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2539), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 44",
@@ -995,7 +996,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 45,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1260), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2556), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 45",
@@ -1004,7 +1005,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 46,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1279), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2573), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 46",
@@ -1013,7 +1014,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 47,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1297), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2591), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 47",
@@ -1022,7 +1023,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 48,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1315), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2608), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 48",
@@ -1031,7 +1032,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 49,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1333), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2626), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 49",
@@ -1040,7 +1041,7 @@ namespace backend.Migrations
                         new
                         {
                             RepoId = 50,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 373, DateTimeKind.Unspecified).AddTicks(1352), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(2644), new TimeSpan(0, 0, 0, 0, 0)),
                             IsPrivate = false,
                             OwnerId = 1,
                             RepoDescription = "Seeded 50",
@@ -1101,19 +1102,19 @@ namespace backend.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 372, DateTimeKind.Unspecified).AddTicks(9605), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(866), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "user@1.com",
-                            PasswordHash = "AzsQl0T1Rs33Fb2DCrNHsgGqtNOs+E7yDAuxhXaGyRE=",
-                            Salt = new byte[] { 235, 33, 66, 94, 233, 6, 134, 88, 30, 87, 229, 199, 3, 110, 217, 236 },
+                            PasswordHash = "u9oqkf3xMCrhMq768yrxQ1tuI95824XJ581i3b3YYns=",
+                            Salt = new byte[] { 126, 187, 159, 194, 179, 183, 165, 135, 216, 210, 169, 149, 2, 163, 252, 144 },
                             Username = "User1"
                         },
                         new
                         {
                             UserId = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 16, 9, 16, 372, DateTimeKind.Unspecified).AddTicks(9619), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 3, 16, 17, 20, 17, 85, DateTimeKind.Unspecified).AddTicks(908), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "user@2.com",
-                            PasswordHash = "vXjpOmmjohW4W1IaLzt6ICPt7Nzl5ecuZR5og9Gos8k=",
-                            Salt = new byte[] { 80, 73, 21, 54, 188, 15, 154, 211, 19, 187, 125, 12, 3, 20, 225, 230 },
+                            PasswordHash = "qsEgUz7lghlTtoNYD8YNKFti9Lj1edZaintXn2NlIBA=",
+                            Salt = new byte[] { 196, 142, 112, 105, 203, 51, 57, 196, 89, 2, 247, 245, 52, 129, 115, 210 },
                             Username = "User2"
                         });
                 });

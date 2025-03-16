@@ -20,7 +20,7 @@ namespace backend.Models
         public string TreeHash { get; set; }
 
         [Required]
-        public int CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
 
         [Required]
         public string Message { get; set; }

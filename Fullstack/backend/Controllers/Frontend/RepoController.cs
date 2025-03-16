@@ -304,16 +304,16 @@ namespace backend.Controllers.Frontend
 
 
             // Get the author of the latest commit
-            string commitAuthorUsername;
-            int commitAuthorId = latestCommit.CreatedBy;
-            if (commitAuthorId == 0)
+            string commitAuthorUsername = latestCommit.CreatedBy;
+            int commitAuthorId;
+            if (commitAuthorUsername == "Janus")
             {
-                commitAuthorUsername = "Janus";
+                commitAuthorId = 0;
             }
             else
             {
-                var author = _janusDbContext.Users.FirstOrDefault(u => u.UserId == commitAuthorId);
-                commitAuthorUsername = author.Username;
+                var author = _janusDbContext.Users.FirstOrDefault(u => u.Username == commitAuthorUsername);
+                commitAuthorId = author.UserId;
             }
             
 
