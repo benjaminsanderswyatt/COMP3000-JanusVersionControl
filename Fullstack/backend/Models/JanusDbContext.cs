@@ -16,6 +16,9 @@ namespace backend.Models
         public DbSet<CommitParent> CommitParents { get; set; }
 
 
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Case insensitve
@@ -203,6 +206,86 @@ namespace backend.Models
 
             base.OnModelCreating(modelBuilder);
         }
-    }
 
+
+
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ChangeTracker.DetectChanges();
+
+            var auditEntries = new List<AuditEntry>();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                // Skip non changed entries
+                if (entry.Entity is AuditLog ||
+                    entry.State == EntityState.Unchanged ||
+                    entry.State == EntityState.Detached)
+                    continue;
+
+                var auditEntry = new AuditEntry(entry);
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        auditEntry.Action = "Added";
+
+                        // Get the updated value
+                        foreach (var property in entry.Properties)
+                        {
+                            auditEntry.NewValues[property.Metadata.Name] = property.CurrentValue;
+                        }
+                        break;
+
+                    case EntityState.Deleted:
+                        auditEntry.Action = "Deleted";
+
+                        // Get the original value
+                        foreach (var property in entry.Properties)
+                        {
+                            auditEntry.OldValues[property.Metadata.Name] = property.OriginalValue;
+                        }
+                        break;
+
+                    case EntityState.Modified:
+                        auditEntry.Action = "Modified";
+
+                        foreach (var property in entry.Properties)
+                        {
+                            if (property.IsModified && !Equals(property.OriginalValue, property.CurrentValue))
+                            {
+                                auditEntry.ChangedColumns.Add(property.Metadata.Name);
+                                auditEntry.OldValues[property.Metadata.Name] = property.OriginalValue;
+                                auditEntry.NewValues[property.Metadata.Name] = property.CurrentValue;
+                            }
+                        }
+                        break;
+                }
+
+                
+                if (auditEntry.Action != "Modified" || auditEntry.ChangedColumns.Any())
+                {
+                    auditEntries.Add(auditEntry);
+                }
+            }
+
+            // Add the audit log
+            foreach (var audit in auditEntries)
+            {
+                AuditLogs.Add(audit.ToAuditLog());
+            }
+
+            // Save the changed and log the audit
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+
+
+
+
+
+    }
+    
 }
+
