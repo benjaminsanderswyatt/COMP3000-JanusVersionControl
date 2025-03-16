@@ -24,16 +24,10 @@ namespace backend.Controllers.Frontend
     public class RepoSettingsController : ControllerBase
     {
         private readonly JanusDbContext _janusDbContext;
-        private readonly JwtHelper _jwtHelper;
-        private RepoManagement _repoManagement;
-        private readonly RepoService _repoService;
 
-        public RepoSettingsController(JanusDbContext janusDbContext, JwtHelper jwtHelper, RepoManagement repoManagement, RepoService repoService)
+        public RepoSettingsController(JanusDbContext janusDbContext)
         {
             _janusDbContext = janusDbContext;
-            _jwtHelper = jwtHelper;
-            _repoManagement = repoManagement;
-            _repoService = repoService;
         }
 
         public class EditDescriptionDto
@@ -124,7 +118,38 @@ namespace backend.Controllers.Frontend
             _janusDbContext.Repositories.Remove(repo);
             await _janusDbContext.SaveChangesAsync();
 
-            // TODO: remove files from the file system
+
+
+            // Delete the repo files
+            string fileDir = Path.Combine(Environment.GetEnvironmentVariable("FILE_STORAGE_PATH"), repo.RepoId.ToString());
+            string treeDir = Path.Combine(Environment.GetEnvironmentVariable("TREE_STORAGE_PATH"), repo.RepoId.ToString());
+            
+            if (Directory.Exists(fileDir))
+            {
+                try
+                {
+                    Directory.Delete(fileDir, true);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            if (Directory.Exists(treeDir))
+            {
+                try
+                {
+                    Directory.Delete(treeDir, true);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+
+
 
             return Ok(new { Message = "Repository deleted successfully" });
         }
