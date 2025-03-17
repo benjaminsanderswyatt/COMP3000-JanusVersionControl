@@ -76,7 +76,7 @@ const ProfilePictureCard = () => {
             onChange={handleFileChange} 
           />
           <label htmlFor="file-upload" className={`${styles.baseButton} ${styles.fileInputButton}`} >
-            Change image
+            Change profile picture
           </label>
           <span className={styles.fileName}>
             {selectedFile ? selectedFile.name : ""}

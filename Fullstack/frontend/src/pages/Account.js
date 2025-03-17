@@ -18,7 +18,8 @@ import styles from "../styles/pages/Account.module.css";
 const Account = () => {
     const [tokenData, setTokenData] = useState(null);
     const [revokeToken, setRevokeToken] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loadingGen, setLoadingGen] = useState(false);
+    const [loadingRevoke, setLoadingRevoke] = useState(false);
     const navigate = useNavigate();
     const { logout, sessionExpired } = useAuth();
 
@@ -30,7 +31,7 @@ const Account = () => {
 
 
     const handleGenAccessToken = async () => {
-        setLoading(true);
+        setLoadingGen(true);
         setMessage('');
         setMessageType('');
         setErrorField('');
@@ -55,20 +56,36 @@ const Account = () => {
             setMessageType('error');
             setErrorField('generatePAT');
         } finally {
-            setLoading(false);
+            setLoadingGen(false);
         }
     }
+
+    const handleCopyToClipboard = () => {
+    
+        navigator.clipboard
+          .writeText(tokenData)
+          .then(() => {
+            
+            alert("PAT copied to clipboard");
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err);
+    
+            alert("Failed to copy PAT");
+          });
+      };
+
 
 
     const handleRevokeAccessToken = async () => {
         if (!revokeToken) {
-            setMessage("Please enter a token to revoke");
+            setMessage("Please enter a PAT to revoke");
             setMessageType('error');
             setErrorField('revokePAT');
             return;
         }
 
-        setLoading(true);
+        setLoadingRevoke(true);
         setMessage('');
         setMessageType('');
         setErrorField('');
@@ -89,7 +106,7 @@ const Account = () => {
             setMessageType('error');
             setErrorField('revokePAT');
         } finally {
-            setLoading(false);
+            setLoadingRevoke(false);
         }
     }
 
@@ -139,41 +156,48 @@ const Account = () => {
 
             {/* Generate PAT */}
             <Card>
-                <button onClick={handleGenAccessToken}>
-                    {loading ? "Generating..." : "Generate PAT"}
-                </button>
-                
-                {errorField === 'generatePAT' && message && (
-                    <div className={styles.message}>
-                        <p className={styles[messageType]}>{message}</p>
-                    </div>
-                )}
+                <h3 className={styles.headings}>Generate Personal Access Token</h3>
 
-                {tokenData && (
-                    <div className={styles.PATHolder}>
-                        <h2>Token Generated:</h2>
-                        <pre className={styles.GenPAT}>{tokenData}</pre>
-                    </div>
-                )}
+
+                <div className={styles.GenPATHolder}>
+                    {!tokenData ? 
+                        <button className="button" style={{width: "fit-content"}} onClick={handleGenAccessToken}>
+                            {loadingGen ? "Generating..." : "Generate PAT"}
+                        </button>
+                    : 
+                        <>
+                            <p className={styles.GenPAT}>{tokenData}</p>
+                            <button onClick={handleCopyToClipboard} className={styles.copyButton}>
+                                Copy
+                            </button>
+                        </>
+                    }
+
+                    {errorField === 'generatePAT' && message && (
+                        <p className={messageType}>{message}</p>
+                    )}
+                </div>
             </Card>
 
             {/* Revoke PAT */}
             <Card>
+                <h3 className={styles.headings}>Revoke Personal Access Token</h3>
+
                 <TextInput
-                    label="PAT to Revoke"
                     name="revokeToken"
                     value={revokeToken}
                     onChange={(e) => setRevokeToken(e.target.value)}
                     placeholder="Enter PAT to revoke"
+                    hasError={errorField === "revokePAT" && messageType === "error"}
                 />
                 
-                <button onClick={handleRevokeAccessToken}>
-                    {loading ? "Revoking..." : "Revoke PAT"}
+                <button className="button" onClick={handleRevokeAccessToken}>
+                    {loadingRevoke ? "Revoking..." : "Revoke PAT"}
                 </button>
                 
                 {errorField === 'revokePAT' && message && (
-                    <div className={styles.message}>
-                        <p className={styles[messageType]}>{message}</p>
+                    <div className={styles.revokeMessage}>
+                        <p className={messageType}>{message}</p>
                     </div>
                 )}
             </Card>
@@ -191,9 +215,7 @@ const Account = () => {
                 </button>
 
                 {errorField === 'deleteAccount' && message && (
-                    <div className={styles.message}>
-                        <p className={styles[messageType]}>{message}</p>
-                    </div>
+                    <p className={messageType}>{message}</p>
                 )}
             </Card>
         </Page>

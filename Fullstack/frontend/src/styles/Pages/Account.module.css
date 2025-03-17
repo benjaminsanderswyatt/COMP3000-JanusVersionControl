@@ -30,16 +30,33 @@
 }
 
 
-.PATHolder {
-    width: 100%;
+
+.GenPATHolder {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .GenPAT {
-    overflow: auto;
+    overflow-wrap: anywhere;
 }
 
-.buttonHolder {
-    display: flex;
-    gap: 20px;
-    overflow: auto;
+.copyButton {
+    width: fit-content;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--lightsecondary);
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.revokeMessage {
+    margin-top: 20px;
+}
+
+
+.headings {
+    margin-bottom: 10px;
 }

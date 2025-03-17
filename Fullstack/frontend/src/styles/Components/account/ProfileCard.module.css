@@ -55,7 +55,7 @@
     width: 150px;
     cursor: pointer;
     display: inline-block;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--border);
     text-align: center;
     color: var(--text);
 }
