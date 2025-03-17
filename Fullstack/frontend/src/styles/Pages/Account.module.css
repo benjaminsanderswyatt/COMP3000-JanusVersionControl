@@ -39,9 +39,14 @@
 
 .GenPAT {
     overflow-wrap: anywhere;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px;
+
 }
 
 .copyButton {
+    color: var(--text);
     width: fit-content;
     padding: 8px;
     font-size: 1rem;
