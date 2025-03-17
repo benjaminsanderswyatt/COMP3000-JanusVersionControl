@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
-
-namespace backend.Helpers
+﻿namespace backend.Helpers
 {
     public class FileMetadataHelper
     {

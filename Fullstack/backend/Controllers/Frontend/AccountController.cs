@@ -140,7 +140,7 @@ namespace backend.Controllers.Frontend
                 }
             }
 
-                
+
 
             return Ok(new { message = "User deleted successfully" });
         }

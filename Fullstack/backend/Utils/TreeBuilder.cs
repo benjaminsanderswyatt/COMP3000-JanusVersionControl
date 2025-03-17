@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using static backend.Helpers.FileMetadataHelper;
 
 namespace backend.Utils
@@ -182,7 +181,7 @@ namespace backend.Utils
                 foreach (var line in treeContent)
                 {
                     var parts = line.Split('|');
-                    if (parts.Length != 6) 
+                    if (parts.Length != 6)
                         continue;
 
 
@@ -197,7 +196,7 @@ namespace backend.Utils
                         ? RebuildTreeRecursive(hash)
                         : new TreeNode(name, hash, mimeType, size, lastModified);
 
-                    
+
                     child.Name = name;
                     child.MimeType = mimeType;
                     child.Size = size;

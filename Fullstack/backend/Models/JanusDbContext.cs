@@ -343,7 +343,7 @@ namespace backend.Models
                         break;
                 }
 
-                
+
                 if (auditEntry.Action != "Modified" || auditEntry.ChangedColumns.Any())
                 {
                     auditEntries.Add(auditEntry);
@@ -366,6 +366,6 @@ namespace backend.Models
 
 
     }
-    
+
 }
 

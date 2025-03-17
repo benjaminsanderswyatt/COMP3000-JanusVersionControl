@@ -1,18 +1,9 @@
-﻿using backend.DataTransferObjects;
-using backend.Models;
-using backend.Services;
-using backend.Utils;
-using backend.Utils.Users;
+﻿using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using static backend.Utils.TreeBuilder;
 
 namespace backend.Controllers.Frontend
 {
@@ -123,7 +114,7 @@ namespace backend.Controllers.Frontend
             // Delete the repo files
             string fileDir = Path.Combine(Environment.GetEnvironmentVariable("FILE_STORAGE_PATH"), repo.RepoId.ToString());
             string treeDir = Path.Combine(Environment.GetEnvironmentVariable("TREE_STORAGE_PATH"), repo.RepoId.ToString());
-            
+
             if (Directory.Exists(fileDir))
             {
                 try

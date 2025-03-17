@@ -8,10 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using static backend.Utils.TreeBuilder;
 
 namespace backend.Controllers.Frontend
@@ -75,7 +72,7 @@ namespace backend.Controllers.Frontend
 
 
 
-        
+
 
 
 
@@ -192,8 +189,8 @@ namespace backend.Controllers.Frontend
                 .AsNoTracking()
                 .ToListAsync();
 
-            
-            return Ok (repositories.Select(r => new
+
+            return Ok(repositories.Select(r => new
             {
                 Id = r.RepoId,
                 Name = r.RepoName,
@@ -236,8 +233,8 @@ namespace backend.Controllers.Frontend
                 .Include(r => r.Owner)
                 .Include(r => r.RepoAccesses)
                 .Include(r => r.Branches)
-                .FirstOrDefaultAsync(r => 
-                    r.Owner.Username == owner && 
+                .FirstOrDefaultAsync(r =>
+                    r.Owner.Username == owner &&
                     r.RepoName == repoName);
 
             if (repo == null)
@@ -315,7 +312,7 @@ namespace backend.Controllers.Frontend
                 var author = _janusDbContext.Users.FirstOrDefault(u => u.Username == commitAuthorUsername);
                 commitAuthorId = author.UserId;
             }
-            
+
 
 
 
@@ -327,7 +324,7 @@ namespace backend.Controllers.Frontend
 
             // Load the README.md file
             var readmeNode = treeRoot.Children.FirstOrDefault(child => child.Name.Equals("README.md", StringComparison.OrdinalIgnoreCase));
-            
+
             string? readmeContent = null;
             if (readmeNode != null)
             {
@@ -343,8 +340,8 @@ namespace backend.Controllers.Frontend
                     readmeContent = Encoding.UTF8.GetString(fileBytes);
                 }
             }
-            
-            
+
+
 
 
 
@@ -365,7 +362,7 @@ namespace backend.Controllers.Frontend
 
         }
 
-        
+
 
 
 

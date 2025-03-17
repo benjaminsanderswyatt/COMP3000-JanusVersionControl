@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using static backend.Utils.TreeBuilder;
 
@@ -349,7 +347,7 @@ namespace backend.Controllers.CLI
                 Response.Headers.Add("X-Missing-Files", JsonSerializer.Serialize(missingFiles));
             }
 
-            
+
             // return a multipart content async stream
             return new FileStreamResult(await multipartContent.ReadAsStreamAsync(), $"multipart/mixed; boundary={boundary}");
         }
