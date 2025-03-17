@@ -2,8 +2,6 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
-    max-width: 1000px;
-    margin: 0 auto;
 }
 
 .date {
