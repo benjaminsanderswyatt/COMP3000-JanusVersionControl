@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace backend.Controllers
 {
@@ -45,7 +47,7 @@ namespace backend.Controllers
             // Validate expiration time (min 12 hours, max 1 year)
             if (request.ExpirationInHours < 12 || request.ExpirationInHours > 8760) // 8760 hours = 1 year
             {
-                return BadRequest(new { message = "Expiration time must be between 12 hours and 1 year." });
+                return BadRequest(new { message = "Expiration time must be between 12 hours and 1 year" });
             }
 
 
@@ -74,7 +76,7 @@ namespace backend.Controllers
 
             if (existingToken != null)
             {
-                return BadRequest(new { message = "This token is already revoked." });
+                return BadRequest(new { message = "This token is already revoked" });
             }
 
 
@@ -83,7 +85,7 @@ namespace backend.Controllers
 
             if (string.IsNullOrEmpty(exp) || !long.TryParse(exp, out var expUnix))
             {
-                return BadRequest(new { error = "Invalid or missing expiration date." });
+                return BadRequest(new { error = "Invalid or missing expiration date" });
             }
 
             // Convert the expiration time (Unix timestamp) to a DateTime
@@ -99,7 +101,96 @@ namespace backend.Controllers
             _janusDbContext.AccessTokenBlacklists.Add(token);
             await _janusDbContext.SaveChangesAsync();
 
-            return Ok(new { message = "Token has been revoked." });
+            return Ok(new { message = "Token has been revoked" });
+        }
+
+
+
+
+        public class RevokePatDto
+        {
+            public string PatToken { get; set; }
+        }
+
+
+        // POST: api/AccessToken/RevokePATFrontend
+        [EnableRateLimiting("FrontendRateLimit")]
+        [Authorize(Policy = "FrontendPolicy")]
+        [EnableCors("FrontendPolicy")]
+        [HttpPost("RevokePATFrontend")]
+        public async Task<IActionResult> RevokePATFrontend([FromBody] RevokePatDto PAT)
+        {
+            var accessTokenHelper = new AccessTokenHelper();
+
+            SecurityToken validatedToken;
+
+            try
+            {
+                var principal = accessTokenHelper.ValidateAccessToken(PAT.PatToken, out validatedToken);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Invalid PAT" });
+            }
+
+
+
+
+            var jwtToken = validatedToken as JwtSecurityToken;
+            if (jwtToken == null)
+            {
+                return BadRequest(new { message = "Invalid PAT" });
+            }
+
+
+
+            // Check the token type claim
+            var tokenTypeClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "TokenType")?.Value;
+            if (string.IsNullOrEmpty(tokenTypeClaim) || tokenTypeClaim != "PAT")
+            {
+                return BadRequest(new { message = "Invalid PAT" });
+            }
+
+
+            // Get the expiration claim from the PAT
+            var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
+            if (string.IsNullOrEmpty(expClaim) || !long.TryParse(expClaim, out var expUnix))
+            {
+                return BadRequest(new { message = "Invalid PAT" });
+            }
+
+            var expirationDate = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+
+            if (expirationDate < DateTime.UtcNow)
+            {
+                return BadRequest(new { message = "PAT has already expired" });
+            }
+
+
+
+            // Check if the token is already blacklisted
+            var existingToken = await _janusDbContext.AccessTokenBlacklists
+                .FirstOrDefaultAsync(t => t.Token == PAT.PatToken);
+
+            if (existingToken != null)
+            {
+                return BadRequest(new { message = "This PAT is already revoked" });
+            }
+
+
+
+
+            // Add token to blacklist
+            var token = new AccessTokenBlacklist
+            {
+                Token = PAT.PatToken,
+                Expires = expirationDate
+            };
+
+            _janusDbContext.AccessTokenBlacklists.Add(token);
+            await _janusDbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Token has been revoked" });
         }
 
 
