@@ -11,3 +11,7 @@
     padding-bottom: 18px;
     height: fit-content;
 }
+
+.noRepositories {
+    margin-bottom: 10px;
+}

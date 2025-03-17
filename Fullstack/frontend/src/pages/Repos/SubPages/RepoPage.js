@@ -120,6 +120,7 @@ const RepoPage = () => {
 
           <div className={styles.clone}>
             <div>janus/{owner}/{name}</div>
+            
             {/* Copy to clipboard */}
             <button onClick={handleCopyToClipboard} className={styles.copyButton}>
               Copy

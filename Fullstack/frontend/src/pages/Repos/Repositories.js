@@ -121,7 +121,7 @@ const Repositories = () => {
           {filteredRepos.length === 0 ? (
             <Card>
               <p className={styles.noRepositories}>No repositories...</p>
-              <button>Create Me</button>
+              <button className="button" onclick={() => CreateNewRepo()}>Create Repository</button>
             </Card>
           ) : (
           
