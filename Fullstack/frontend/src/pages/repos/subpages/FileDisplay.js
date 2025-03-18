@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from 'react-router';
 import Editor from '@monaco-editor/react';
+import styled from "styled-components";
 import { useTheme } from "../../../contexts/ThemeContext";
 
 import { useAuth } from "../../../contexts/AuthContext";
@@ -9,6 +10,45 @@ import Card from "../../../components/cards/Card";
 import RepoPageHeader from "../../../components/repo/RepoPageHeader";
 
 import { fetchFileWithTokenRefresh } from "../../../api/fetchWithTokenRefresh";
+
+import styles from "../../../styles/pages/repos/subpages/FileDisplay.module.css";
+
+
+const EditorContainer = styled.div`
+  display: block;
+  width: 100%;
+  height: 65vh;
+  background: var(--tintcard);
+  border: var(--border) thin solid;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 12px 4px 16px 0px;
+`;
+
+const handleEditorWillMount = (monaco) => {
+  monaco.editor.defineTheme("CustomLight", {
+    base: "vs",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#FCFCFD",
+    },
+  });
+
+  monaco.editor.defineTheme("CustomDark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#252525",
+    },
+  });
+};
+
+
+
+
+
 
 
 //const owner = "user1";
@@ -24,7 +64,7 @@ const getEditorLanguage = ({ fileName, mimeType }) => {
   if (mimeType === 'application/json' || extension === 'json') return 'json';
   if (mimeType === 'text/html' || extension === 'html') return 'html';
   if (mimeType === 'text/css' || extension === 'css') return 'css';
-  // Add more mappings as needed
+  
   return 'plaintext';
 };
 
@@ -40,6 +80,7 @@ const FileDisplay = () => {
 
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -49,6 +90,8 @@ const FileDisplay = () => {
 
   const editorOptions = {
     lineNumbers: 'on',
+    glyphMargin: false,
+    lineNumbersMinChars: 3,
     scrollBeyondLastLine: true,
     automaticLayout: true,
     quickSuggestions: {
@@ -59,6 +102,8 @@ const FileDisplay = () => {
     wordWrap: 'on',
     matchBrackets: 'always',
     folding: true,
+
+    
 
     contextmenu: false,
     minimap: { enabled: false },
@@ -126,24 +171,32 @@ const FileDisplay = () => {
 
   return (
     <Page header={headerSection}>
+
+      <EditorContainer>
+        <Editor
+          height="100%"
+          theme={theme === "dark" ? "CustomDark" : "CustomLight"}
+          value={content}
+          onChange={(value) => setContent(value)}
+          language={getEditorLanguage({ fileName, mimeType })}
+          options={editorOptions}
+          beforeMount={handleEditorWillMount}
+        />
+      </EditorContainer>
+
+
+      {/*
       <Card>
-          <Editor
-            height="70vh"
-            theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
-            value={content}
-            onChange={(value) => setContent(value)}
-            language={getEditorLanguage({ fileName, mimeType })}
-            options={editorOptions}
-          />
+        <button onClick={handleSave} disabled={isSaving}>
+          Save Changes
+        </button>
 
-          <button onClick={handleSave} disabled={isSaving}>
-            Save Changes
-          </button>
-
-          {saveSuccess && <p>Changes saved successfully!</p>}
-          {saveError && <p style={{ color: "red" }}>{saveError}</p>}
+        {saveSuccess && <p>Changes saved successfully!</p>}
+        {saveError && <p style={{ color: "red" }}>{saveError}</p>}
         
       </Card>
+      */}
+
     </Page>
   );
 
