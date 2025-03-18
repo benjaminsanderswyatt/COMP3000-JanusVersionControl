@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useOutletContext } from "react-router";
+import { useParams, useNavigate, useOutletContext, useOutlet } from "react-router";
 
 import { fetchWithTokenRefresh } from "../../../api/fetchWithTokenRefresh";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -19,6 +19,7 @@ const RepoPage = () => {
   const { sessionExpired } = useAuth();
   const navigate = useNavigate();
   const { owner, name, branch } = useParams();
+
 
   const [branchData, setBranchData] = useState(null);
   const [branchError, setBranchError] = useState(null);
@@ -84,7 +85,7 @@ const RepoPage = () => {
   )};
 
   // Loading repo data from RepoLayout
-  const repoData = useOutletContext();
+  const { repoData } = useOutletContext();
   if (!repoData) {
     return (
       <Page header={headerSection}>
@@ -119,6 +120,7 @@ const RepoPage = () => {
 
           <div className={styles.clone}>
             <div>janus/{owner}/{name}</div>
+            
             {/* Copy to clipboard */}
             <button onClick={handleCopyToClipboard} className={styles.copyButton}>
               Copy

@@ -52,10 +52,10 @@
     font-size: 1rem;
     border-radius: 6px;
     padding: 4px 6px;
-    width: 150px;
+    width: 175px;
     cursor: pointer;
     display: inline-block;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--border);
     text-align: center;
     color: var(--text);
 }

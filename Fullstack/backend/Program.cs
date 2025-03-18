@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.Json;
 using System.Threading.RateLimiting;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +29,10 @@ builder.WebHost.ConfigureKestrel(options =>
 
 builder.Services.AddMemoryCache();
 
+
+
+
+
 // Dependancy Injection
 builder.Services.AddScoped<AccessTokenHelper>();
 builder.Services.AddScoped<JwtHelper>();
@@ -37,6 +41,7 @@ builder.Services.AddScoped<UserManagement>();
 builder.Services.AddScoped<ProfilePicManagement>();
 builder.Services.AddScoped<RepoManagement>();
 builder.Services.AddScoped<RepoService>();
+
 
 
 // Add Db context

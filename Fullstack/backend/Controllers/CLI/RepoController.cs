@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using static backend.Utils.TreeBuilder;
 
@@ -194,18 +192,17 @@ namespace backend.Controllers.CLI
                     var parentCommitHash = commit.Parents.FirstOrDefault()?.Parent?.CommitHash;
 
                     // Get the author of the commit
-                    string commitAuthorUsername;
+                    string commitAuthorUsername = commit.CreatedBy;
                     string commitAuthorEmail;
-                    int commitAuthorId = commit.CreatedBy;
-                    if (commit.CreatedBy == 0)
+                    int commitAuthorId;
+                    if (commit.CreatedBy == "Janus")
                     {
-                        commitAuthorUsername = "Janus";
+                        commitAuthorId = 0;
                         commitAuthorEmail = "Janus";
                     }
                     else
                     {
-                        var author = _janusDbContext.Users.FirstOrDefault(u => u.UserId == commit.CreatedBy);
-                        commitAuthorUsername = author.Username;
+                        var author = _janusDbContext.Users.FirstOrDefault(u => u.Username == commit.CreatedBy);
                         commitAuthorEmail = author.Email;
                     }
 
@@ -350,7 +347,7 @@ namespace backend.Controllers.CLI
                 Response.Headers.Add("X-Missing-Files", JsonSerializer.Serialize(missingFiles));
             }
 
-            
+
             // return a multipart content async stream
             return new FileStreamResult(await multipartContent.ReadAsStreamAsync(), $"multipart/mixed; boundary={boundary}");
         }

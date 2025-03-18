@@ -32,5 +32,4 @@
 
 .pageButton:disabled {
     background: var(--border);
-    border-radius: 4px;
 }

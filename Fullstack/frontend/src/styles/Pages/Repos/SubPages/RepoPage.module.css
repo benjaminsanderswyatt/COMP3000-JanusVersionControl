@@ -8,6 +8,8 @@
 
 .header.spaced {
     justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .visibility {
@@ -56,4 +58,8 @@
     border-bottom: 2px solid var(--primary);
     margin-bottom: 10px;
 }
+
+
+
+
 

@@ -1,0 +1,26 @@
+.commitPage {
+    justify-items: center;
+}
+
+.loadMoreButton {
+    align-items: center;
+    justify-self: center;
+    width: fit-content;
+    margin-top: 10px;
+    padding: 6px 20px;
+    font-size: 1rem;
+    background-color: var(--lightsecondary);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+
+}
+
+.loadMoreButton:hover {
+    background-color: var(--lightsecondary-hover);
+}
+
+.loadMoreButton:disabled {
+    background: var(--border);
+}

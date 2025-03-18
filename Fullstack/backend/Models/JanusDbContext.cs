@@ -16,6 +16,9 @@ namespace backend.Models
         public DbSet<CommitParent> CommitParents { get; set; }
 
 
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Case insensitve
@@ -93,9 +96,13 @@ namespace backend.Models
                 .HasOne(ra => ra.Repository)
                 .WithMany(r => r.RepoAccesses)
                 .HasForeignKey(ra => ra.RepoId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
-
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Parent)
+                .WithMany()
+                .HasForeignKey(b => b.ParentBranch)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 
@@ -128,11 +135,12 @@ namespace backend.Models
             // Seed Repos
             modelBuilder.Entity<Repository>().HasData(
                 new Repository { RepoId = 1, OwnerId = 1, RepoName = "Repo1", RepoDescription = "First seeded", IsPrivate = false },
-                new Repository { RepoId = 2, OwnerId = 2, RepoName = "Repo2", RepoDescription = "Sec seeded", IsPrivate = true }
+                new Repository { RepoId = 2, OwnerId = 2, RepoName = "Repo2", RepoDescription = "Sec seeded", IsPrivate = true },
+                new Repository { RepoId = 3, OwnerId = 1, RepoName = "RepoWithManyCommits", RepoDescription = "This repo has many commits", IsPrivate = false }
             );
 
             // Seed many repositories
-            for (int i = 3; i <= 50; i++)
+            for (int i = 4; i <= 50; i++)
             {
                 modelBuilder.Entity<Repository>().HasData(
                     new Repository { RepoId = i, OwnerId = 1, RepoName = $"Repo{i}", RepoDescription = $"Seeded {i}", IsPrivate = false }
@@ -140,7 +148,7 @@ namespace backend.Models
             }
 
             // Seed the repo accesses for the many repos
-            for (int i = 3; i <= 50; i++)
+            for (int i = 4; i <= 50; i++)
             {
                 modelBuilder.Entity<RepoAccess>().HasData(
                     new RepoAccess { RepoId = i, UserId = 1, AccessLevel = AccessLevel.OWNER }
@@ -153,15 +161,94 @@ namespace backend.Models
             modelBuilder.Entity<RepoAccess>().HasData(
                 new RepoAccess { RepoId = 1, UserId = 1, AccessLevel = AccessLevel.OWNER },
                 new RepoAccess { RepoId = 1, UserId = 2, AccessLevel = AccessLevel.WRITE },
-                new RepoAccess { RepoId = 2, UserId = 2, AccessLevel = AccessLevel.OWNER }
+                new RepoAccess { RepoId = 2, UserId = 2, AccessLevel = AccessLevel.OWNER },
+                new RepoAccess { RepoId = 3, UserId = 1, AccessLevel = AccessLevel.OWNER }
             );
 
 
             // Seed Branches
             modelBuilder.Entity<Branch>().HasData(
                 new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
-                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow }
+                new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
+                new Branch { BranchId = 3, RepoId = 3, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "branch3_commit_100", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow }
             );
+
+
+
+
+            // Seed commits for repo with many commits branch 3
+            var baseDate = new DateTimeOffset(new DateTime(2025, 3, 1), TimeSpan.Zero);
+            var random = new Random(12345);
+            var currentCommitDate = baseDate;
+
+            int initialCommitId = 3;
+            string initialCommitHash = "branch3_initial_commit_hash";
+
+            // Create an initial commit
+            modelBuilder.Entity<Commit>().HasData(
+                new Commit
+                {
+                    CommitId = initialCommitId,
+                    CommitHash = initialCommitHash,
+                    BranchId = 3,
+                    TreeHash = "",
+                    CreatedBy = "User1",
+                    Message = "Initial commit for branch 3",
+                    CommittedAt = currentCommitDate
+                }
+            );
+
+            // Generate 100 additional commits
+            int totalAdditionalCommits = 100;
+            for (int i = 1; i <= totalAdditionalCommits; i++)
+            {
+                int commitId = initialCommitId + i;
+                string currentCommitHash = $"branch3_commit_{i}";
+
+                int rndSkipScale = random.Next(0, 100);
+
+                if (rndSkipScale < 70)
+                {
+                    currentCommitDate = currentCommitDate.AddMinutes(random.Next(1, 120)); // 1-120 min
+
+                }
+                else
+                {
+                    currentCommitDate = currentCommitDate.AddDays(random.Next(1, 4)); // 1-3 days
+                }
+
+                // Create the commit
+                modelBuilder.Entity<Commit>().HasData(
+                    new Commit
+                    {
+                        CommitId = commitId,
+                        CommitHash = currentCommitHash,
+                        BranchId = 3,
+                        TreeHash = "",
+                        CreatedBy = "User1",
+                        Message = $"Commit {i} for branch 3",
+                        CommittedAt = currentCommitDate
+                    }
+                );
+
+                // Create a commit parent
+                modelBuilder.Entity<CommitParent>().HasData(
+                    new CommitParent
+                    {
+                        ChildId = commitId,
+                        ParentId = commitId - 1
+                    }
+                );
+            }
+
+
+
+
+
+
+
+
+
 
 
             // Seed Commits
@@ -172,7 +259,7 @@ namespace backend.Models
                     CommitHash = "925cc242245c8df69d12021001277c54ec4b321c",
                     BranchId = 1,
                     TreeHash = "",
-                    CreatedBy = 0,
+                    CreatedBy = "Janus",
                     Message = "Initial commit",
                     CommittedAt = DateTimeOffset.UtcNow
                 },
@@ -182,7 +269,7 @@ namespace backend.Models
                     CommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe",
                     BranchId = 2,
                     TreeHash = "517e4c52e1020d3bc9901cb81093943d4919b55c",
-                    CreatedBy = 2,
+                    CreatedBy = "User2",
                     Message = "Next commit",
                     CommittedAt = DateTimeOffset.UtcNow
                 }
@@ -199,6 +286,86 @@ namespace backend.Models
 
             base.OnModelCreating(modelBuilder);
         }
+
+
+
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ChangeTracker.DetectChanges();
+
+            var auditEntries = new List<AuditEntry>();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                // Skip non changed entries
+                if (entry.Entity is AuditLog ||
+                    entry.State == EntityState.Unchanged ||
+                    entry.State == EntityState.Detached)
+                    continue;
+
+                var auditEntry = new AuditEntry(entry);
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        auditEntry.Action = "Added";
+
+                        // Get the updated value
+                        foreach (var property in entry.Properties)
+                        {
+                            auditEntry.NewValues[property.Metadata.Name] = property.CurrentValue;
+                        }
+                        break;
+
+                    case EntityState.Deleted:
+                        auditEntry.Action = "Deleted";
+
+                        // Get the original value
+                        foreach (var property in entry.Properties)
+                        {
+                            auditEntry.OldValues[property.Metadata.Name] = property.OriginalValue;
+                        }
+                        break;
+
+                    case EntityState.Modified:
+                        auditEntry.Action = "Modified";
+
+                        foreach (var property in entry.Properties)
+                        {
+                            if (property.IsModified && !Equals(property.OriginalValue, property.CurrentValue))
+                            {
+                                auditEntry.ChangedColumns.Add(property.Metadata.Name);
+                                auditEntry.OldValues[property.Metadata.Name] = property.OriginalValue;
+                                auditEntry.NewValues[property.Metadata.Name] = property.CurrentValue;
+                            }
+                        }
+                        break;
+                }
+
+
+                if (auditEntry.Action != "Modified" || auditEntry.ChangedColumns.Any())
+                {
+                    auditEntries.Add(auditEntry);
+                }
+            }
+
+            // Add the audit log
+            foreach (var audit in auditEntries)
+            {
+                AuditLogs.Add(audit.ToAuditLog());
+            }
+
+            // Save the changed and log the audit
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+
+
+
+
+
     }
 
 }
+

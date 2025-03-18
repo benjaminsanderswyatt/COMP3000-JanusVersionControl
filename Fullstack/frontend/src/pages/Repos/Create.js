@@ -127,7 +127,7 @@ const Create = () => {
           {message && <p className={`${styles.message} error`}>{message}</p>}
 
 
-          <button type="submit" className={styles.button} disabled={loading}>
+          <button type="submit" className="button" disabled={loading}>
             {loading ? "Creating..." : "Create Repository"}
           </button>
 

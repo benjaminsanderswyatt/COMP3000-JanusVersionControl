@@ -6,19 +6,114 @@ import { useAuth } from '../contexts/AuthContext';
 
 import ThemeToggle from '../components/ThemeToggle';
 
-import { GenAccessToken } from '../api/fetch/fetchPAT';
+import { GenAccessToken, RevokePAT } from '../api/fetch/fetchPAT';
 import ProfilePictureCard from '../components/account/ProfileCard';
 
 import Page from "../components/Page";
+import Card from '../components/cards/Card';
+import TextInput from '../components/inputs/TextInput';
 
 import styles from "../styles/pages/Account.module.css";
 
 const Account = () => {
-    const [tokenData , setTokenData] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [tokenData, setTokenData] = useState(null);
+    const [revokeToken, setRevokeToken] = useState("");
+    const [loadingGen, setLoadingGen] = useState(false);
+    const [loadingRevoke, setLoadingRevoke] = useState(false);
     const navigate = useNavigate();
     const { logout, sessionExpired } = useAuth();
+
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+    const [errorField, setErrorField] = useState('');
+
+
+
+
+    const handleGenAccessToken = async () => {
+        setLoadingGen(true);
+        setMessage('');
+        setMessageType('');
+        setErrorField('');
+
+        try {
+          
+            const ExpirationInHours = 30;
+    
+            const response = await GenAccessToken(ExpirationInHours, sessionExpired);
+    
+            if (!response.success)
+                throw new Error(response.message);
+          
+
+            setTokenData(response.token);
+            setMessage('Token generated successfully');
+            setMessageType('success');
+            setErrorField('generatePAT');
+
+        } catch (err) {
+            setMessage(err.message);
+            setMessageType('error');
+            setErrorField('generatePAT');
+        } finally {
+            setLoadingGen(false);
+        }
+    }
+
+    const handleCopyToClipboard = () => {
+    
+        navigator.clipboard
+          .writeText(tokenData)
+          .then(() => {
+            
+            alert("PAT copied to clipboard");
+          })
+          .catch((err) => {
+            console.error("Failed to copy: ", err);
+    
+            alert("Failed to copy PAT");
+          });
+      };
+
+
+
+    const handleRevokeAccessToken = async () => {
+        if (!revokeToken) {
+            setMessage("Please enter a PAT to revoke");
+            setMessageType('error');
+            setErrorField('revokePAT');
+            return;
+        }
+
+        setLoadingRevoke(true);
+        setMessage('');
+        setMessageType('');
+        setErrorField('');
+
+        try {
+            const response = await RevokePAT(revokeToken, sessionExpired);
+            if (!response.success) 
+                throw new Error(response.message);
+
+            
+            setMessage(response.message);
+            setMessageType('success');
+            setErrorField('revokePAT');
+            setRevokeToken("");
+            
+        } catch (err) {
+            setMessage(err.message);
+            setMessageType('error');
+            setErrorField('revokePAT');
+        } finally {
+            setLoadingRevoke(false);
+        }
+    }
+
+
+
+
+
 
 
     const handleLogout = () => {
@@ -35,37 +130,16 @@ const Account = () => {
             if (result.success) {
                 handleLogout(); // Logout user after account is deleted
             } else {
-                alert(result.message);
+                setMessage(result.message || "Failed to delete account");
+                setMessageType('error');
+                setErrorField('deleteAccount');
             }
         }
     };
 
 
-    const handleGenAccessToken = async () => {
-        setLoading(true);
-        setError(null);
-        setTokenData (null);
-        try {
-          
-          const ExpirationInHours = 30;
-    
-          const response = await GenAccessToken(ExpirationInHours, sessionExpired);
-          console.log('Finished response Try');
-    
-          if (!response.success) {
-            console.log('Failed: ' + response.message + ' token: ' + response.token);
-            throw new Error(response.message);
-          }
-    
-          setTokenData(response);
-        } catch (err) {
-          console.log('Catch');
-          setError(err.message);
-        } finally {
-          console.log('Final');
-          setLoading(false);
-        }
-    }
+
+
 
     const headerSection = (pageStyles) => { return(
         <header className={pageStyles.header}>
@@ -78,27 +152,72 @@ const Account = () => {
 
             <ProfilePictureCard/>
 
-
-            <div className={styles.buttonHolder}>
-                <button className={styles.logoutButton} onClick={handleLogout}>Logout</button>
-
-                <button className={styles.deleteButton} onClick={handleDeleteAccount}>Delete Account</button>
-
-            </div>
-                
-
-            <button onClick={handleGenAccessToken}>Generate PAT</button>
-            {loading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {tokenData  && (
-                <div className={styles.PATHolder}>
-                <h2>Token Generated:</h2>
-                <pre className={styles.GenPAT}>{JSON.stringify(tokenData, null, 2)}</pre>
-                </div>
-            )}
-
-
             
+
+            {/* Generate PAT */}
+            <Card>
+                <h3 className={styles.headings}>Generate Personal Access Token</h3>
+
+
+                <div className={styles.GenPATHolder}>
+                    {!tokenData ? 
+                        <button className="button" style={{width: "fit-content"}} onClick={handleGenAccessToken}>
+                            {loadingGen ? "Generating..." : "Generate PAT"}
+                        </button>
+                    : 
+                        <>
+                            <p className={styles.GenPAT}>{tokenData}</p>
+                            <button onClick={handleCopyToClipboard} className={styles.copyButton}>
+                                Copy
+                            </button>
+                        </>
+                    }
+
+                    {errorField === 'generatePAT' && message && (
+                        <p className={messageType}>{message}</p>
+                    )}
+                </div>
+            </Card>
+
+            {/* Revoke PAT */}
+            <Card>
+                <h3 className={styles.headings}>Revoke Personal Access Token</h3>
+
+                <TextInput
+                    name="revokeToken"
+                    value={revokeToken}
+                    onChange={(e) => setRevokeToken(e.target.value)}
+                    placeholder="Enter PAT to revoke"
+                    hasError={errorField === "revokePAT" && messageType === "error"}
+                />
+                
+                <button className="button" onClick={handleRevokeAccessToken}>
+                    {loadingRevoke ? "Revoking..." : "Revoke PAT"}
+                </button>
+                
+                {errorField === 'revokePAT' && message && (
+                    <div className={styles.revokeMessage}>
+                        <p className={messageType}>{message}</p>
+                    </div>
+                )}
+            </Card>
+
+
+
+            {/* Account Actions */}
+            <Card>
+                <button className="button" style={{ width: "100%" }} onClick={handleLogout}>
+                    Logout
+                </button>
+                
+                <button className={styles.deleteButton} onClick={handleDeleteAccount}>
+                    Delete Account
+                </button>
+
+                {errorField === 'deleteAccount' && message && (
+                    <p className={messageType}>{message}</p>
+                )}
+            </Card>
         </Page>
     );
 };

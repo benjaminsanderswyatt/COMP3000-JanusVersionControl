@@ -1,15 +1,9 @@
-﻿using backend.DataTransferObjects;
-using backend.DataTransferObjects.CLI;
-using backend.Models;
-using backend.Utils.Users;
-using Microsoft.AspNetCore.Authorization;
+﻿using backend.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.IdentityModel.Tokens.Jwt;
-using System.Threading;
 
 namespace backend.Controllers.Frontend
 {
