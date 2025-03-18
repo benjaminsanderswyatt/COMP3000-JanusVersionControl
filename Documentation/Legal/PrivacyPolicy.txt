@@ -1,0 +1,41 @@
+Privacy Policy for Janus Version Control System
+
+Last Updated: 18/03/2025
+
+1. Introduction
+This Privacy Policy explains how Janus (“we”, “us”, or “our”) collects, uses, stores, and protects information for the Janus Version Control System (“Janus”). Janus is hosted on-premise by your organization, and access is restricted to authorized users. By using Janus, you agree to the practices described in this Privacy Policy. If you do not agree with this policy, you should not use the Service.
+
+2. Information We Collect
+
+Account Information: When you are provided with or create an account, we collect personal information such as your name, email address, username, and other details required by your organization.
+Usage Data: We may collect data regarding your usage of Janus, including login times, accessed repositories, and system interactions.
+Technical Data: Information about the device, browser, or other tools used to access Janus may be collected to assist in troubleshooting and system improvements.
+3. How We Use Your Information
+
+Provision of Service: The information collected is used to manage and operate Janus, authenticate users, and ensure the proper functioning of the Service.
+Security and Maintenance: Usage and technical data help us monitor system performance, enhance security measures, and troubleshoot issues.
+Compliance: We use the collected information to comply with legal obligations, internal policies, and auditing requirements as mandated by your organization.
+4. Data Storage and Security
+
+On-Premise Hosting: Janus is hosted on-premise, and all data is stored on servers maintained by your organization.
+Security Measures: We implement appropriate physical, technical, and administrative measures to protect your information against unauthorized access, alteration, or loss.
+Access Control: Access to data is strictly limited to authorized personnel who require it to perform their job functions, and all access is subject to your organization’s security policies.
+5. Data Sharing and Disclosure
+
+Internal Use: Your personal and usage data may be shared with relevant departments within your organization for support, auditing, or system improvement purposes.
+Third Parties: Janus does not share your information with third parties outside your organization, except as required by law or with express authorization from your organization.
+Legal Compliance: We may disclose information if required to do so by law, regulation, or legal process.
+6. Data Retention
+Your information is retained for as long as necessary to fulfil the purposes for which it was collected or as required by your organization’s policies and applicable law. Once the information is no longer required, it will be securely deleted or anonymized.
+
+7. User Rights and Responsibilities
+
+Accuracy: It is your responsibility to ensure that your account information is accurate and up-to-date.
+Access and Correction: Subject to your organization’s policies, you may have the right to access and request correction of your data.
+Security Practices: You are encouraged to follow best practices for password security and notify your IT department if you suspect any unauthorized access or data breaches.
+8. Monitoring and Updates
+We periodically review our data collection and processing practices to ensure compliance with applicable laws and the needs of your organization. This Privacy Policy may be updated from time to time. You will be notified of any material changes as required by your organization’s internal policies.
+
+9. Contact Information
+If you have any questions about this Privacy Policy or our data handling practices, please contact Janus at:
+Email: office@janus.com
