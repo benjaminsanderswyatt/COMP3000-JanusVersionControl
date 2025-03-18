@@ -1,0 +1,32 @@
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+}
+
+.holder {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.holder h4 {
+    margin-bottom: 10px;
+}
+
+.holder ul {
+    padding-left: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.holder li {
+    margin-bottom: 8px;
+}
+
+.holder p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
