@@ -39,7 +39,7 @@ namespace CLITests
 
             credManager.SaveCredentials(testCredentials);
 
-            // Initialize the repository
+            // Initialise the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
 
@@ -91,18 +91,18 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldLogError_WhenRepositoryIsNotInitialized()
+        public void ShouldLogError_WhenRepositoryIsNotInitialised()
         {
             // Arrange: The repo doesnt exist
             Directory.Delete(_paths.JanusDir, true);
 
 
-            // Act: Execute 'janus add file.txt' when repo is not initialized
+            // Act: Execute 'janus add file.txt' when repo is not initialised
             var args = new string[] { "file.txt" };
             _addCommand.Execute(args);
 
 
-            // Assert: Verify that the error about repo initialization is logged
+            // Assert: Verify that the error about repo initialisation is logged
             _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise repository."), Times.Once);
         }
 
@@ -311,7 +311,7 @@ namespace CLITests
 
 
             // Act: Execute 'janus add all'
-            var args = new string[] { "all" };
+            var args = new string[] { "--all" };
             _addCommand.Execute(args);
 
             // Assert: Verify that all files in the directory are staged

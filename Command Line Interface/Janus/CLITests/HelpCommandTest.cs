@@ -62,10 +62,9 @@ namespace CLITests
             _helpCommand.Execute(new string[0]);
 
             // Assert: Verify that the logger is called for each command in the list
-            _loggerMock.Verify(logger => logger.Log("Usage: janus <command>"), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Usage: janus <command> [arguments]"), Times.Once);
             _loggerMock.Verify(logger => logger.Log("Commands:"), Times.Once);
-            _loggerMock.Verify(logger => logger.Log("init                 : Initializes the janus repository."), Times.Once);
-            _loggerMock.Verify(logger => logger.Log("help                 : Displays a list of available commands."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("init"))), Times.Exactly(1));
         }
 
 

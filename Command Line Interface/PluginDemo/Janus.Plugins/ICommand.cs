@@ -5,6 +5,7 @@ namespace Janus.Plugins
     {
         string Name { get; } // Command name
         string Description { get; } // Command description
+        string Usage { get; } // Command usage instructions
         Task Execute(string[] args); // Command execution logic
     }
 }

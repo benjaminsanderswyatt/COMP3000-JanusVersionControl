@@ -66,7 +66,7 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldInitializeRepository_WhenNotAlreadyInitialized()
+        public void ShouldInitialiseRepository_WhenNotAlreadyInitialised()
         {
             // Arrange: Ensure the directories and files do not exist initially
             if (Directory.Exists(_paths.JanusDir))
@@ -78,7 +78,7 @@ namespace CLITests
             _initCommand.Execute(new string[0]);
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("Initialized janus repository"), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Initialised janus repository"), Times.Once);
             Assert.True(Directory.Exists(_paths.JanusDir));
             Assert.True(Directory.Exists(_paths.ObjectDir));
             Assert.True(Directory.Exists(_paths.BranchesDir));
@@ -137,16 +137,16 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldLogRepositoryAlreadyInitialized_WhenAlreadyInitialized()
+        public void ShouldLogRepositoryAlreadyInitialised_WhenAlreadyInitialised()
         {
-            // Arrange: Initialize the repository for this test
+            // Arrange: Initialise the repository for this test
             _initCommand.Execute(new string[0]);
 
             // Act
             _initCommand.Execute(new string[0]);
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("Repository already initialized"), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Repository already initialised"), Times.Once);
         }
 
 

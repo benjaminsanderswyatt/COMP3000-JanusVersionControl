@@ -40,7 +40,7 @@ namespace CLITests
 
             credManager.SaveCredentials(testCredentials);
 
-            // Initialize the repository
+            // Initialise the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
 
@@ -72,7 +72,7 @@ namespace CLITests
 
 
         [Test]
-        public void ShouldLogError_WhenRepositoryIsNotInitialized()
+        public void ShouldLogError_WhenRepositoryIsNotInitialised()
         {
             // Arrange: Delete the repository
             Directory.Delete(_paths.JanusDir, true);
@@ -80,7 +80,7 @@ namespace CLITests
             // Act: Execute 'janus status'
             _statusCommand.Execute(new string[0]);
 
-            // Assert: Verify that the error about repository initialization is logged
+            // Assert: Verify that the error about repository initialisation is logged
             _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise repository."), Times.Once);
 
         }

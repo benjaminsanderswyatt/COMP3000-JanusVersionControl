@@ -39,7 +39,7 @@ namespace CLITests
 
             credManager.SaveCredentials(testCredentials);
 
-            // Initialize the repository
+            // Initialise the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
 

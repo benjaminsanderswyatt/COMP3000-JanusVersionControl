@@ -40,7 +40,7 @@ namespace CLITests
 
             credManager.SaveCredentials(testCredentials);
 
-            // Initialize the repository
+            // Initialise the repository
             InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
             _initCommand.Execute(new string[0]);
 
@@ -228,7 +228,7 @@ namespace CLITests
             File.WriteAllText(Path.Combine(dirPath, "file5.txt"), "content5");
             File.WriteAllText(Path.Combine(dirPath, "file6.txt"), "content6");
 
-            _addCommand.Execute(new string[] { "all", "--force" });
+            _addCommand.Execute(new string[] { "--all", "--force" });
             _commitCommand.Execute(new string[] { "Commit message" });
 
 
@@ -256,7 +256,7 @@ namespace CLITests
             File.Delete(Path.Combine(_testDir, "file3.txt"));
             File.Delete(Path.Combine(dirPath, "file6.txt"));
 
-            _addCommand.Execute(new string[] { "all", "--force" });
+            _addCommand.Execute(new string[] { "--all", "--force" });
             _commitCommand.Execute(new string[] { "New branch commit message" });
 
             Console.WriteLine("Original branch working tree files:");

@@ -121,7 +121,7 @@ namespace Janus.Helpers
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
             {
-                throw new FileNotFoundException("HEAD file not found. The repository may not be initialized correctly.", paths.HEAD);
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly.", paths.HEAD);
             }
 
             // Check contents of HEAD
@@ -163,7 +163,7 @@ namespace Janus.Helpers
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
             {
-                throw new FileNotFoundException("HEAD file not found. The repository may not be initialized correctly.", paths.HEAD);
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly.", paths.HEAD);
             }
 
             // Check contents of HEAD

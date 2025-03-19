@@ -8,7 +8,7 @@ namespace Janus.Helpers.CommandHelpers
     {
         public static void SwitchBranch(ILogger logger, Paths paths, string currentBranch, string branchName)
         {
-            // Initialize TreeBuilder for operations
+            // Initialise TreeBuilder for operations
             var treeBuilder = new TreeBuilder(paths);
 
             // Get the current branch

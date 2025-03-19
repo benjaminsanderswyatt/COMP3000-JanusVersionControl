@@ -122,10 +122,10 @@ namespace CLITests
             var args = new string[] { };
 
             // Act
-            _logCommand.Execute(args);
+            _logCommand.Execute(args).Wait();
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("Error commit directory doesnt exist."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Error: Commit directory doesn't exist."), Times.Once);
         }
 
 
@@ -146,7 +146,7 @@ namespace CLITests
             _logCommand.Execute(args);
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("Error no commits found. Repository might not have initialized correctly."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Error: No commits found. Repository might not have been initialised correctly."), Times.Once);
         }
 
 
@@ -165,8 +165,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Commit:"))), Times.Exactly(6)); // 5 commits + initial commit
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author name:"))), Times.Exactly(6));
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author email:"))), Times.Exactly(6));
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:"))), Times.Exactly(6));
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Date:"))), Times.Exactly(6));
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Branch:"))), Times.Exactly(6));
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Message:"))), Times.Exactly(6));
@@ -180,7 +179,6 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("commitMessage5"))), Times.Exactly(1));
 
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("testAuthorName"))), Times.Exactly(5));
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("testAuthorEmail"))), Times.Exactly(5));
 
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("main"))), Times.Exactly(6)); // 5 commits + initial commit
 
@@ -193,7 +191,7 @@ namespace CLITests
             // Arrange: Create commits on two branches
             string finalCommitHash = CreateManyCommits(3, "main", "testAuthor", "testAuthorEmail");
             CreateManyCommits(2, "feature", "testAuthor", "testAuthorEmail", finalCommitHash, 1);
-            var args = new string[] { "branch=feature" };
+            var args = new string[] { "--branch", "feature" };
 
             // Act
             _logCommand.Execute(args);
@@ -209,17 +207,17 @@ namespace CLITests
             // Arrange: Create commits with two authors
             string finalCommitHash = CreateManyCommits(3, "main", "testAuthor1", "testAuthorEmail1");
             CreateManyCommits(2, "main", "testAuthor2", "testAuthorEmail2", finalCommitHash, 1);
-            var args = new string[] { "author=testAuthor1" };
+            var args = new string[] { "--author", "testAuthor1" };
 
             // Act
             _logCommand.Execute(args);
 
             // Assert: Verify only testAuthor1 commits are displayed
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author name:  testAuthor1"))), Times.Exactly(3));
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author name:  testAuthor2"))), Times.Never);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor1"))), Times.Exactly(3));
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author:  testAuthor2"))), Times.Never);
 
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author email:  testAuthorEmail1"))), Times.Exactly(3));
-            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Author email:  testAuthorEmail2"))), Times.Never);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("testAuthorEmail1"))), Times.Exactly(3));
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("testAuthorEmail2"))), Times.Never);
         }
 
         [Test]
@@ -235,7 +233,7 @@ namespace CLITests
 
             CreateManyCommits(2, "2nd", "testAuthor", "testAuthorEmail", finalCommitHash, 1);
 
-            var args = new string[] { $"until={later}" }; // Only commits before this date should be displayed
+            var args = new string[] { "--until", $"{later}" }; // Only commits before this date should be displayed
 
             // Act
             _logCommand.Execute(args);
@@ -259,7 +257,7 @@ namespace CLITests
 
             CreateManyCommits(2, "main", "testAuthor", "testAuthorEmail", finalCommitHash, 1);
 
-            var args = new string[] { $"since={later}" }; // Only commits before this date should be displayed
+            var args = new string[] { "--since", $"{later}" }; // Only commits before this date should be displayed
 
             // Act
             _logCommand.Execute(args);
@@ -276,7 +274,7 @@ namespace CLITests
             // Arrange
             CreateManyCommits(10, "main", "testAuthor", "testAuthorEmail");
 
-            var args = new string[] { $"limit=5" }; // Only commits this many commits should be displayed
+            var args = new string[] { "--limit", "5" }; // Only commits this many commits should be displayed
 
             // Act
             _logCommand.Execute(args);

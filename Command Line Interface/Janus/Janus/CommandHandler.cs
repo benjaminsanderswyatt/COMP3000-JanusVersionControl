@@ -55,7 +55,13 @@ namespace Janus
         {
             public DiffCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "diff";
-            public override string Description => "Displays the difference between two files.";
+            public override string Description => "Displays the difference between two files";
+            public override string Usage =>
+                @"janus diff <file1> <file2>
+                    <file1> : Path to the first file.
+                    <file2> : Path to the second file.
+                Example:
+                    janus diff src/old.txt src/new.txt";
             public override async Task Execute(string[] args)
             {
                 string file1 = args[0];
@@ -88,15 +94,48 @@ namespace Janus
             public HelpCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "help";
-            public override string Description => "Displays a list of available commands.";
+            public override string Description => "Displays all available commands or detailed usage for a specific command";
+            public override string Usage =>
+@"janus help [command]
+    [command] : (Optional) The command for which detailed usage is displayed.
+Examples:
+    janus help
+    janus help clone";
             public override async Task Execute(string[] args)
             {
-                Logger.Log("Usage: janus <command>");
-                Logger.Log("Commands:");
-                foreach (var command in Program.CommandList)
+                if (args.Length == 0)
                 {
-                    Logger.Log($"{command.Name.PadRight(20)} : {command.Description}");
+                    Logger.Log("Usage: janus <command> [arguments]");
+                    Logger.Log("Commands:");
+                    foreach (var command in Program.CommandList)
+                    {
+                        Logger.Log($"{command.Name.PadRight(20)} : {command.Description}");
+                    }
+
+                    Logger.Log("\nFor detailed usage of a specific command, type:");
+                    Logger.Log("  janus help [command]");
                 }
+                else
+                {
+
+                    // If a specific command is provided display its usage and description
+                    string commandName = args[0];
+                    var command = Program.CommandList
+                        .FirstOrDefault(c => c.Name.Equals(commandName, StringComparison.OrdinalIgnoreCase));
+
+                    if (command != null)
+                    {
+                        Logger.Log($"Usage for command '{command.Name}':");
+                        Logger.Log($"{command.Usage}");
+                        Logger.Log($"{command.Description}");
+                    }
+                    else
+                    {
+                        Logger.Log($"Command '{commandName}' not found.");
+                    }
+
+                }
+
             }
         }
 
@@ -105,7 +144,15 @@ namespace Janus
             public LoginCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "login";
-            public override string Description => "Save your user credentials";
+            public override string Description => "Saves your user credentials for repository access.";
+            public override string Usage =>
+@"janus login
+This command prompts you for:
+    Username : Your user name.
+    Email    : Your email address.
+    Token    : (Optional) Your personal access token.
+Example:
+    janus login";
             public override async Task Execute(string[] args)
             {
                 // Prompt for credentials
@@ -151,7 +198,15 @@ namespace Janus
             public RemoteCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "remote";
-            public override string Description => "Manage your remote repositories";
+            public override string Description => "Manages remote repository settings (add, remove, list).";
+            public override string Usage =>
+@"janus remote <subcommand> [arguments]
+Subcommands:
+    add <name> <endpoint>    : Adds a remote repository.
+    remove <name>        : Removes a remote repository.
+    list                 : Lists all remote repositories.
+Example:
+    janus remote add origin janus/repo/user";
             public override async Task Execute(string[] args)
             {
                 if (args.Length == 0)
@@ -194,7 +249,13 @@ namespace Janus
         {
             public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "clone";
-            public override string Description => "Clone a repository from the remote repository";
+            public override string Description => "Clones a repository from a remote server to your local machine.";
+            public override string Usage =>
+@"janus clone <endpoint> [branch]
+<endpoint> : Repository endpoint in the format 'janus/{owner}/{repoName}'.
+[branch]   : (Optional) Branch to activate (defaults to 'main').
+Example:
+    janus clone janus/owner/repo main";
             public override async Task Execute(string[] args)
             {
                 if (args.Length == 0)
@@ -443,7 +504,15 @@ namespace Janus
         {
             public PushCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "push";
-            public override string Description => "Push the local repository changes to the backend";
+            public override string Description => "Pushes your local commits to the remote repository.";
+            public override string Usage =>
+@"janus push
+Ensure:
+    - You are in a valid repository.
+    - All changes have been committed.
+    - You are logged in.
+Example:
+    janus push";
             public override async Task Execute(string[] args)
             {
                 // Load the stored user credentials
@@ -517,7 +586,15 @@ namespace Janus
         {
             public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "fetch";
-            public override string Description => "fetch the latest commits from the remote repo";
+            public override string Description => "Fetches the latest commits from the remote repository and updates your local history.";
+            public override string Usage =>
+@"janus fetch
+This command will:
+    - Retrieve new commits from the remote repository.
+    - Update your local commit history.
+Ensure you are logged in and in a valid repository.
+Example:
+    janus fetch";
             public override async Task Execute(string[] args)
             {
                 // Load credentials
@@ -596,7 +673,16 @@ namespace Janus
         {
             public PullCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "pull";
-            public override string Description => "pull the remote repo";
+            public override string Description => "Pulls changes from the remote repository and updates your local working directory.";
+            public override string Usage =>
+@"janus pull
+This command will:
+    - Fetch new commits from the remote.
+    - Merge remote changes into your current branch.
+Notes:
+    - Ensure all local changes are committed or stashed.
+Example:
+    janus pull";
             public override async Task Execute(string[] args)
             {
                 // Load credentials
@@ -663,7 +749,16 @@ namespace Janus
         {
             public InitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "init";
-            public override string Description => "Initializes the janus repository.";
+            public override string Description => "Initialises the janus repository.";
+            public override string Usage =>
+@"janus init
+This command will:
+    - Create the .janus directory and subdirectories.
+    - Set up initial configuration files.
+Prerequisite:
+    - You must be logged in (use 'janus login').
+Example:
+    janus init";
             public override async Task Execute(string[] args)
             {
                 // Check the store user credentials
@@ -678,7 +773,7 @@ namespace Janus
                 // Initialise .janus folder
                 if (Directory.Exists(Paths.JanusDir))
                 {
-                    Logger.Log("Repository already initialized");
+                    Logger.Log("Repository already initialised");
                     return;
                 }
 
@@ -687,11 +782,11 @@ namespace Janus
                 {
                     InitHelper.InitRepo(Paths);
 
-                    Logger.Log("Initialized janus repository");
+                    Logger.Log("Initialised janus repository");
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"Error initializing repository: {ex.Message}");
+                    Logger.Log($"Error initialising repository: {ex.Message}");
                 }
             }
         }
@@ -702,7 +797,16 @@ namespace Janus
         {
             public AddCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "add";
-            public override string Description => "Adds files to the staging area. To add all files use 'janus add all'.";
+            public override string Description => "Stages specified files or directories for the next commit.";
+            public override string Usage =>
+@"janus add <file(s) or directory>
+Examples:
+    janus add file.txt           : Stages a single file.
+    janus add folder             : Stages all files within a folder.
+    janus add --all              : Stages every file in the repository.
+Notes:
+    - You can provide relative or absolute paths.
+    - '--all' stages the entire working directory.";
             public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
@@ -715,7 +819,7 @@ namespace Janus
                     return;
                 }
 
-                if (args.Any(arg => arg.ToLowerInvariant().Equals("all", StringComparison.OrdinalIgnoreCase)))
+                if (args.Any(arg => arg.ToLowerInvariant().Equals("--all", StringComparison.OrdinalIgnoreCase)))
                 {
                     args = new string[] { "" }; // replaces args with 1 argument of the whole working directory
                 }
@@ -861,7 +965,15 @@ namespace Janus
         {
             public CommitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "commit";
-            public override string Description => "Saves changes to the repository.";
+            public override string Description => "Commits the staged changes to the repository with a commit message.";
+            public override string Usage =>
+@"janus commit <commit message>
+<commit message> : A short description of the changes.
+Notes:
+    - Ensure you have staged files using 'janus add'.
+    - The commit message should be descriptive.
+Example:
+    janus commit ""Fixed bug in file upload""";
             public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
@@ -951,7 +1063,17 @@ namespace Janus
             public LogCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "log";
-            public override string Description => "Displays the commit history. 'janus log branch=<> author=<> since=<> until=<> limit=<>'";
+            public override string Description => "Displays the commit history. Optional filters allow you to narrow down the results.";
+            public override string Usage =>
+@"janus log [options]
+Options:
+    --branch <branch>   : Show commits from a specific branch.
+    --author <author>   : Show commits by a specific author.
+    --since <date>      : Show commits since the specified date (YYYY-MM-DD).
+    --until <date>      : Show commits until the specified date (YYYY-MM-DD).
+    --limit <number>    : Limit the number of commits displayed.
+Example:
+    janus log --branch main --author Alice --since 2023-01-01 --limit 10";
             public override async Task Execute(string[] args)
             {
                 // Repository has to be initialised for command to run
@@ -959,49 +1081,78 @@ namespace Janus
 
                 if (!Directory.Exists(Paths.CommitDir))
                 {
-                    Logger.Log("Error commit directory doesnt exist.");
+                    Logger.Log("Error: Commit directory doesn't exist.");
                     return;
                 }
-
 
                 // Get all commit files
                 var commitFiles = Directory.GetFiles(Paths.CommitDir);
 
                 if (commitFiles.Length == 0)
                 {
-                    Logger.Log("Error no commits found. Repository might not have initialized correctly.");
+                    Logger.Log("Error: No commits found. Repository might not have been initialised correctly.");
                     return;
                 }
 
-
-                // Get arguments for filters
+                // Parse options using CLI notation
+                string branch = null, author = null, since = null, until = null, limit = null;
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i])
+                    {
+                        case "--branch":
+                            if (i + 1 < args.Length)
+                            {
+                                branch = args[++i];
+                            }
+                            break;
+                        case "--author":
+                            if (i + 1 < args.Length)
+                            {
+                                author = args[++i];
+                            }
+                            break;
+                        case "--since":
+                            if (i + 1 < args.Length)
+                            {
+                                since = args[++i];
+                            }
+                            break;
+                        case "--until":
+                            if (i + 1 < args.Length)
+                            {
+                                until = args[++i];
+                            }
+                            break;
+                        case "--limit":
+                            if (i + 1 < args.Length)
+                            {
+                                limit = args[++i];
+                            }
+                            break;
+                    }
+                }
 
                 LogFilters filters = new LogFilters
                 {
-                    Branch = args.FirstOrDefault(arg => arg.StartsWith("branch="))?.Split('=')[1],
-                    Author = args.FirstOrDefault(arg => arg.StartsWith("author="))?.Split('=')[1],
-                    Since = args.FirstOrDefault(arg => arg.StartsWith("since="))?.Split('=')[1],
-                    Until = args.FirstOrDefault(arg => arg.StartsWith("until="))?.Split('=')[1],
-                    Limit = args.FirstOrDefault(arg => arg.StartsWith("limit="))?.Split('=')[1]
+                    Branch = branch,
+                    Author = author,
+                    Since = since,
+                    Until = until,
+                    Limit = limit
                 };
-
 
                 List<CommitMetadata?> commitPathsInFolder;
                 try
                 {
                     commitPathsInFolder = commitFiles
                         .Select(commit => JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commit)))
-                        .Where(metadata => metadata != null) // Exclude invalid or null metadata
+                        .Where(metadata => metadata != null)
                         .Where(metadata =>
-
-                            // Filter by branch
                             (string.IsNullOrEmpty(filters.Branch) || metadata.Branch.Equals(filters.Branch, StringComparison.OrdinalIgnoreCase)) &&
-                            // Filter by author
                             (string.IsNullOrEmpty(filters.Author) || metadata.AuthorName.Equals(filters.Author, StringComparison.OrdinalIgnoreCase)) &&
-                            // Filter by date range
                             (string.IsNullOrEmpty(filters.Since) || metadata.Date >= DateTime.Parse(filters.Since)) &&
                             (string.IsNullOrEmpty(filters.Until) || metadata.Date <= DateTime.Parse(filters.Until))
-
                         )
                         .OrderBy(metadata => metadata.Date)
                         .ToList();
@@ -1013,11 +1164,10 @@ namespace Janus
                 }
 
                 // Apply the limit if specified
-                if (int.TryParse(filters.Limit, out int limit))
+                if (int.TryParse(filters.Limit, out int limitValue))
                 {
-                    commitPathsInFolder = commitPathsInFolder.Take(limit).ToList();
+                    commitPathsInFolder = commitPathsInFolder.Take(limitValue).ToList();
                 }
-
 
                 // Display commit history
                 if (!commitPathsInFolder.Any())
@@ -1026,44 +1176,26 @@ namespace Janus
                     return;
                 }
 
-
-                // Display commit history
                 foreach (var commit in commitPathsInFolder)
                 {
-                    // Color code the commit output
-
-                    // Commit Hash
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Logger.Log($"Commit:  {commit.Commit}");
 
-                    // Author Name
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Logger.Log($"Author name:  {commit.AuthorName}");
+                    Logger.Log($"Author:  {commit.AuthorName} ({commit.AuthorEmail})");
 
-                    // Author Email
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Logger.Log($"Author email:  {commit.AuthorEmail}");
-
-                    // Date
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Logger.Log($"Date:    {commit.Date}");
 
-                    // Branch
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Logger.Log($"Branch:  {commit.Branch}");
 
-                    // Message
                     Console.ForegroundColor = ConsoleColor.White;
                     Logger.Log($"Message: {commit.Message}");
 
-
-                    // Reset color after each commit log
                     Console.ResetColor();
                     MiscHelper.DisplaySeperator(Logger);
                 }
-
-
-
             }
         }
 
@@ -1121,7 +1253,15 @@ namespace Janus
             public CreateBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "create_branch";
-            public override string Description => "Creates a branch from the head commit of current branch.";
+            public override string Description => "Creates a new branch based on the current HEAD commit.";
+            public override string Usage =>
+@"janus create_branch <branch name>
+<branch name> : Name of the new branch to create.
+This command:
+    - Validates the branch name.
+    - Sets the new branch's HEAD to the current commit.
+Example:
+    janus create_branch featureBranch";
             public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -1270,7 +1410,12 @@ namespace Janus
             public ListBranchesCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "list_branch";
-            public override string Description => "list branch help";
+            public override string Description => "Lists all branches in the repository and highlights the current branch.";
+            public override string Usage =>
+@"janus list_branch
+This command displays:
+    - All branch names.
+    - The current branch marked with an arrow (->).";
             public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -1309,7 +1454,14 @@ namespace Janus
             public SwitchBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
 
             public override string Name => "switch_branch";
-            public override string Description => "switch branch help";
+            public override string Description => "Switches the working directory to a different branch.";
+            public override string Usage =>
+@"janus switch_branch <branch name> [--force]
+<branch name> : The branch to switch to.
+--force       : (Optional) Force the switch even if there are uncommitted changes (they will be lost).
+Example:
+    janus switch_branch develop
+    janus switch_branch featureBranch --force";
             public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
@@ -1433,7 +1585,17 @@ namespace Janus
         {
             public StatusCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "status";
-            public override string Description => "Displays the status of the repository.";
+            public override string Description => "Displays the repository status including branch info, staged changes, and untracked files.";
+            public override string Usage =>
+@"janus status
+This command shows:
+    - The current branch.
+    - Files staged for commit.
+    - Modified files not staged.
+    - Untracked files.
+    - A summary of local vs remote changes.
+Example:
+    janus status";
             public override async Task Execute(string[] args)
             {
                 if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
