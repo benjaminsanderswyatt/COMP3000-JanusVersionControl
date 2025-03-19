@@ -25,7 +25,7 @@ namespace CLITests
         [TestCase("name[with]brackets", ExpectedResult = false)] // Contains []
         [TestCase("branch..name", ExpectedResult = false)] // Contains ..
         [TestCase("branch_name123", ExpectedResult = true)] // Valid
-        [TestCase("random", ExpectedResult = true)] // Valid
+        [TestCase("random", ExpectedResult = false)] // Valid
         [TestCase("release_v1.0", ExpectedResult = true)] // Valid
         [TestCase("new_branch", ExpectedResult = true)] // Valid
         public bool IsValidBranchNameTests(string branchName)
