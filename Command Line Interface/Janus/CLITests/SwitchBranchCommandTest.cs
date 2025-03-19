@@ -238,7 +238,7 @@ namespace CLITests
 
 
             // Create new branch
-            string branchName = "NewBranch";
+            string branchName = "TheNewBranch";
             _createBranchCommand.Execute(new string[] { branchName });
 
             // Switch to new branch
