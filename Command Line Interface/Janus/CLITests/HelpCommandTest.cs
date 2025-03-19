@@ -68,5 +68,44 @@ namespace CLITests
         }
 
 
+
+        [Test]
+        public void ShouldDisplayDetailedUsage_ForSpecificCommand()
+        {
+            // Arrange: Add commands to the CommandList
+            List<ICommand> commandList = new List<ICommand>
+            {
+                new InitCommand(_loggerMock.Object, _paths),
+                new HelpCommand(_loggerMock.Object, _paths)
+            };
+            Janus.Program.CommandList = commandList;
+
+            // Act
+            _helpCommand.Execute(new string[] { "init" });
+
+            // Assert: Verify that the logger logs the usage and description for the init command
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Usage for command 'init':"))), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("janus init"))), Times.Once);
+            _loggerMock.Verify(logger => logger.Log(It.Is<string>(s => s.Contains("Initialises the janus repository"))), Times.Once);
+        }
+
+        [Test]
+        public void ShouldDisplayNotFound_ForInvalidCommand()
+        {
+            // Arrange
+            List<ICommand> commandList = new List<ICommand>
+            {
+                new InitCommand(_loggerMock.Object, _paths),
+                new HelpCommand(_loggerMock.Object, _paths)
+            };
+            Janus.Program.CommandList = commandList;
+
+            // Act
+            _helpCommand.Execute(new string[] { "invalid" });
+
+            // Assert: Verify that the logger logs that the command was not found
+            _loggerMock.Verify(logger => logger.Log("Command 'invalid' not found."), Times.Once);
+        }
+
     }
 }
