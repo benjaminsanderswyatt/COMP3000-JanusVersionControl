@@ -1,5 +1,5 @@
-﻿using Janus.Helpers;
-using Janus.Models;
+﻿using Janus.Models;
+using Janus.Plugins;
 using System.Text.Json;
 
 namespace Janus.Utils
@@ -10,14 +10,14 @@ namespace Janus.Utils
 
         public CredentialManager()
         {
-            string credentialDir = PathHelper.GetCredentialPath();
+            string configDir = Paths.GetGlobalConfigPath();
 
-            if (!Directory.Exists(credentialDir))
+            if (!Directory.Exists(configDir))
             {
-                Directory.CreateDirectory(credentialDir);
+                Directory.CreateDirectory(configDir);
             }
 
-            _filePath = Path.Combine(credentialDir, "credentials");
+            _filePath = Path.Combine(configDir, "credentials");
         }
 
 

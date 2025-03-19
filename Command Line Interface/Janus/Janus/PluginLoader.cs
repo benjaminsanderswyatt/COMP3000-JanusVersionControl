@@ -7,15 +7,29 @@ namespace Janus
     {
         public static List<ICommand> LoadPlugins(ILogger logger, Paths paths)
         {
-            string pluginsDir = paths.PluginsDir;
             List<ICommand> commands = new List<ICommand>();
-
-            if (!Directory.Exists(pluginsDir))
+            
+            // Load local plugins
+            if (Directory.Exists(paths.PluginsDir))
             {
-                return commands;
+                var localDllFiles = Directory.GetFiles(paths.PluginsDir, "*.dll");
+                commands.AddRange(LoadPluginsFromDirectory(logger, localDllFiles, paths));
             }
 
-            var dllFiles = Directory.GetFiles(pluginsDir, "*.dll");
+            // Load global plugins
+            if (Directory.Exists(paths.GlobalPluginsDir))
+            {
+                var globalDllFiles = Directory.GetFiles(paths.GlobalPluginsDir, "*.dll");
+                commands.AddRange(LoadPluginsFromDirectory(logger, globalDllFiles, paths));
+            }
+
+            return commands;
+        }
+
+
+        private static List<ICommand> LoadPluginsFromDirectory(ILogger logger, string[] dllFiles, Paths paths)
+        {
+            List<ICommand> commands = new List<ICommand>();
 
             foreach (var dll in dllFiles)
             {
@@ -28,7 +42,7 @@ namespace Janus
 
                     foreach (var type in commandTypes)
                     {
-                        // Use reflection to find the correct constructor
+                        // Look for a constructor that accepts ILogger and/or Paths
                         var constructor = type.GetConstructors().FirstOrDefault(c => c.GetParameters()
                                 .All(p => p.ParameterType == typeof(ILogger) || p.ParameterType == typeof(Paths)));
 
@@ -36,7 +50,6 @@ namespace Janus
                         {
                             // Use Activator to create the instance with parameters
                             var command = (ICommand)Activator.CreateInstance(type, logger, paths);
-
                             commands.Add(command);
                         }
                     }

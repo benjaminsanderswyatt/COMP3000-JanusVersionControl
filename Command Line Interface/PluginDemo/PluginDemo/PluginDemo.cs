@@ -11,7 +11,6 @@ namespace PluginDemo
         public override async Task Execute(string[] args)
         {
             Logger.Log("Plugin Demo - hello world");
-            Logger.Log($"Plugin Demo - Paths: {Paths.JanusDir}");
         }
     }
 }
