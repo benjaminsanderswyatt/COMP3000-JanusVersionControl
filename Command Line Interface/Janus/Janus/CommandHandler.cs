@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Data;
 using System.Net;
+using System.Security.AccessControl;
 using System.Text.Json;
+using static Janus.Diff;
 using static Janus.Helpers.CommandHelpers.RemoteHelper;
 using static Janus.Helpers.FileMetadataHelper;
 
@@ -55,38 +57,131 @@ namespace Janus
         {
             public DiffCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "diff";
-            public override string Description => "Displays the difference between two files";
+            public override string Description => "Displays differences between versions.";
             public override string Usage =>
-                @"janus diff <file1> <file2>
-                    <file1> : Path to the first file.
-                    <file2> : Path to the second file.
-                Example:
-                    janus diff src/old.txt src/new.txt";
+@"janus diff [options] [<commit> [<commit>]] [--path <file>]
+Options:
+    --staged         : Show changes staged for commit.
+    --path <file>    : Filter diff to a specific file.
+    --parent         : Compare a commit with its parent.
+Examples:
+    janus diff                     : Show unstaged changes.
+    janus diff --staged            : Show staged changes.
+    janus diff abc123 def456       : Compare two commits.
+    janus diff abc123 def456 --path file.txt : Compare a specific file between commits.
+    janus diff abc123 --parent     : Compare a commit with its parent.";
             public override async Task Execute(string[] args)
             {
-                string file1 = args[0];
-                string file2 = args[1];
+                bool staged = false;
+                string pathFilter = null;
+                bool parent = false;
+                List<string> commits = new List<string>();
 
-                string before = File.ReadAllText(file1);
-                string after = File.ReadAllText(file2);
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (args[i] == "--staged")
+                    {
+                        staged = true;
+                    }
+                    else if (args[i] == "--path")
+                    {
+                        if (i + 1 < args.Length)
+                        {
+                            pathFilter = args[++i].Replace('/', Path.DirectorySeparatorChar);
+                        }
+                    }
+                    else if (args[i] == "--parent")
+                    {
+                        parent = true;
+                    }
+                    else
+                    {
+                        commits.Add(args[i]);
+                    }
+                }
+                
 
-                Diff.TestDiff(before, after);
 
 
-                // This command will
-                // Read the metadata of the commit
-                // get the tree and decifer the commits 
-                // work out the diff delta between the commit files
-                // display the diff
+                // Determine comparison mode
+                TreeNode oldTree = null;
+                TreeNode newTree = null;
+                TreeSourceType oldSourceType = TreeSourceType.Staged;
+                TreeSourceType newSourceType = TreeSourceType.Staged;
 
-                // file name - path
-                // diff
+                if (staged)
+                {
+                    oldTree = Tree.GetHeadTree(Logger, Paths);
+                    newTree = Tree.GetStagedTree(Paths);
+                    oldSourceType = TreeSourceType.Commit;
+                    newSourceType = TreeSourceType.Staged;
+                }
+                else if (commits.Count == 2)
+                {
+                    oldTree = GetTreeFromCommit(Logger, Paths, commits[0]);
+                    newTree = GetTreeFromCommit(Logger, Paths, commits[1]);
+                    oldSourceType = TreeSourceType.Commit;
+                    newSourceType = TreeSourceType.Commit;
+                }
+                else if (commits.Count == 1 && parent)
+                {
+                    string commit = commits[0];
+                    string parentCommit = GetParentCommit(Logger, Paths, commit);
+
+                    if (string.IsNullOrEmpty(parentCommit))
+                    {
+                        oldTree = new TreeNode("root");
+                    }
+                    else
+                    {
+                        oldTree = GetTreeFromCommit(Logger, Paths, parentCommit);
+                    }
+
+                    newTree = GetTreeFromCommit(Logger, Paths, commit);
+                    oldSourceType = TreeSourceType.Commit;
+                    newSourceType = TreeSourceType.Commit;
+                }
+                else
+                {
+                    oldTree = Tree.GetHeadTree(Logger, Paths);
+                    newTree = Tree.GetWorkingTree(Paths);
+                    oldSourceType = TreeSourceType.Commit;
+                    newSourceType = TreeSourceType.Working;
+                }
 
 
+                if (oldTree == null || newTree == null)
+                {
+                    Logger.Log("Error: Getting trees for comparison");
+                    return;
+                }
+                
 
+                // Compare trees
+                var comparisonResult = Tree.CompareTrees(oldTree, newTree);
+
+                // Filter by path
+                if (!string.IsNullOrEmpty(pathFilter))
+                {
+                    comparisonResult.AddedOrUntracked = comparisonResult.AddedOrUntracked
+                        .Where(p => p == pathFilter).ToList();
+
+                    comparisonResult.ModifiedOrNotStaged = comparisonResult.ModifiedOrNotStaged
+                        .Where(p => p == pathFilter).ToList();
+
+                    comparisonResult.Deleted = comparisonResult.Deleted
+                        .Where(p => p == pathFilter).ToList();
+                }
+
+                // Display diff
+                DisplayDiffs(Logger, Paths, comparisonResult, oldTree, newTree, oldSourceType, newSourceType);
 
             }
         }
+
+
+
+
 
 
         public class HelpCommand : BaseCommand

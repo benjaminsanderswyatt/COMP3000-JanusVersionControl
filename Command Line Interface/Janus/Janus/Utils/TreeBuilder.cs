@@ -527,7 +527,8 @@ namespace Janus.Utils
             foreach (var part in pathParts)
             {
                 currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
-                if (currentNode == null) break;
+                if (currentNode == null) 
+                    break;
             }
 
             return currentNode?.Hash;
