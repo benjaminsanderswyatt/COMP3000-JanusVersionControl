@@ -66,6 +66,7 @@ namespace backend.Controllers.Frontend
                 {
                     UserId = access.User.UserId,
                     Username = access.User.Username,
+                    Email = access.User.Email,
                     AccessLevel = access.AccessLevel.ToString()
                 });
             }

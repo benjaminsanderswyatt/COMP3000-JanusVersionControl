@@ -1,13 +1,25 @@
-.ownerHolder {
+.contributorItem {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-    color: var(--text);
+    gap: 20px;
 }
 
-.owner {
+
+.groupTitle {
+    border-bottom: 2px solid var(--primary);
+    margin-bottom: 2px;
+    padding: 8px 0;
+}
+
+
+.empty {
+    height: 34px;
+    align-content: center;
+}
+
+
+
+.contributorPic {
     height: 34px;
     width: 34px;
-    border: var(--primary) 1px solid;
+    border: 1px solid var(--primary);
 }
