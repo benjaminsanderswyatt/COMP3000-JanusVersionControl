@@ -11,6 +11,7 @@ namespace backend.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Repository> Repositories { get; set; }
         public DbSet<RepoAccess> RepoAccess { get; set; }
+        public DbSet<RepoInvite> RepoInvites { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Commit> Commits { get; set; }
         public DbSet<CommitParent> CommitParents { get; set; }
@@ -44,6 +45,14 @@ namespace backend.Models
             modelBuilder.Entity<Repository>()
                 .HasIndex(r => new { r.OwnerId, r.RepoName })
                 .IsUnique();
+
+
+            modelBuilder.Entity<RepoInvite>(entity =>
+            {
+                entity.HasIndex(ri => ri.InviteeUserId);
+                entity.HasIndex(ri => ri.Status);
+                entity.HasIndex(ri => ri.RepoId);
+            });
 
 
 
@@ -105,7 +114,23 @@ namespace backend.Models
                 .OnDelete(DeleteBehavior.Cascade);
 
 
+            modelBuilder.Entity<RepoInvite>()
+                    .HasOne(ri => ri.Repository)
+                    .WithMany(r => r.RepoInvites)
+                    .HasForeignKey(ri => ri.RepoId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<RepoInvite>()
+                .HasOne(ri => ri.Inviter)
+                .WithMany(u => u.SentInvites)
+                .HasForeignKey(ri => ri.InviterUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RepoInvite>()
+                .HasOne(ri => ri.Invitee)
+                .WithMany(u => u.ReceivedInvites)
+                .HasForeignKey(ri => ri.InviteeUserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
 

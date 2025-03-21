@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -152,6 +153,44 @@ namespace backend.Migrations
                 .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
 
             migrationBuilder.CreateTable(
+                name: "RepoInvites",
+                columns: table => new
+                {
+                    InviteId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    RepoId = table.Column<int>(type: "int", nullable: false),
+                    InviterUserId = table.Column<int>(type: "int", nullable: false),
+                    InviteeUserId = table.Column<int>(type: "int", nullable: false),
+                    AccessLevel = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RepoInvites", x => x.InviteId);
+                    table.ForeignKey(
+                        name: "FK_RepoInvites_Repositories_RepoId",
+                        column: x => x.RepoId,
+                        principalTable: "Repositories",
+                        principalColumn: "RepoId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RepoInvites_Users_InviteeUserId",
+                        column: x => x.InviteeUserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RepoInvites_Users_InviterUserId",
+                        column: x => x.InviterUserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("Relational:Collation", "utf8mb4_unicode_ci");
+
+            migrationBuilder.CreateTable(
                 name: "Commits",
                 columns: table => new
                 {
@@ -206,8 +245,8 @@ namespace backend.Migrations
                 columns: new[] { "UserId", "CreatedAt", "Email", "PasswordHash", "ProfilePicturePath", "RefreshToken", "RefreshTokenExpiryTime", "Salt", "Username" },
                 values: new object[,]
                 {
-                    { 1, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, 0, 0, 0, 0)), "user@1.com", "OmYraCpyfaI3VYP0ggcUF3WSlmH22hqGMIgqdXJbXHY=", null, null, null, new byte[] { 81, 152, 4, 26, 224, 34, 132, 230, 115, 74, 55, 165, 112, 151, 75, 159 }, "User1" },
-                    { 2, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2045), new TimeSpan(0, 0, 0, 0, 0)), "user@2.com", "xLWrSJKuOkHmabnXpSyglVL48AnL7gL2xFSyuJ1rBio=", null, null, null, new byte[] { 87, 143, 224, 126, 115, 39, 81, 62, 87, 109, 177, 162, 97, 177, 150, 245 }, "User2" }
+                    { 1, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(4676), new TimeSpan(0, 0, 0, 0, 0)), "user@1.com", "9yFX7gZH4kzXPKv9cJCjeMHOmGAeu3ZN/xk38xqSs9M=", null, null, null, new byte[] { 162, 83, 152, 5, 53, 24, 84, 255, 223, 133, 139, 80, 66, 12, 68, 253 }, "User1" },
+                    { 2, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(4731), new TimeSpan(0, 0, 0, 0, 0)), "user@2.com", "dPvEXf/wGCzCRsuhocgnj++alDjKzUHP+De3XxhrHYo=", null, null, null, new byte[] { 234, 67, 94, 49, 49, 35, 63, 199, 120, 112, 65, 180, 201, 164, 223, 150 }, "User2" }
                 });
 
             migrationBuilder.InsertData(
@@ -215,56 +254,56 @@ namespace backend.Migrations
                 columns: new[] { "RepoId", "CreatedAt", "IsPrivate", "OwnerId", "RepoDescription", "RepoName" },
                 values: new object[,]
                 {
-                    { 1, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2485), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "First seeded", "Repo1" },
-                    { 2, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2491), new TimeSpan(0, 0, 0, 0, 0)), true, 2, "Sec seeded", "Repo2" },
-                    { 3, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2493), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "This repo has many commits", "RepoWithManyCommits" },
-                    { 4, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2656), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 4", "Repo4" },
-                    { 5, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(2987), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 5", "Repo5" },
-                    { 6, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3060), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 6", "Repo6" },
-                    { 7, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3082), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 7", "Repo7" },
-                    { 8, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3113), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 8", "Repo8" },
-                    { 9, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3147), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 9", "Repo9" },
-                    { 10, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3252), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 10", "Repo10" },
-                    { 11, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3346), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 11", "Repo11" },
-                    { 12, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3371), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 12", "Repo12" },
-                    { 13, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3393), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 13", "Repo13" },
-                    { 14, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3412), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 14", "Repo14" },
-                    { 15, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3437), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 15", "Repo15" },
-                    { 16, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3530), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 16", "Repo16" },
-                    { 17, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3565), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 17", "Repo17" },
-                    { 18, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3586), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 18", "Repo18" },
-                    { 19, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3643), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 19", "Repo19" },
-                    { 20, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3665), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 20", "Repo20" },
-                    { 21, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3683), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 21", "Repo21" },
-                    { 22, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3701), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 22", "Repo22" },
-                    { 23, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3719), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 23", "Repo23" },
-                    { 24, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3738), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 24", "Repo24" },
-                    { 25, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3756), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 25", "Repo25" },
-                    { 26, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3773), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 26", "Repo26" },
-                    { 27, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3821), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 27", "Repo27" },
-                    { 28, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3873), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 28", "Repo28" },
-                    { 29, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3917), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 29", "Repo29" },
-                    { 30, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(3936), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 30", "Repo30" },
-                    { 31, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4035), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 31", "Repo31" },
-                    { 32, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4102), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 32", "Repo32" },
-                    { 33, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4123), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 33", "Repo33" },
-                    { 34, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4145), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 34", "Repo34" },
-                    { 35, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4164), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 35", "Repo35" },
-                    { 36, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4183), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 36", "Repo36" },
-                    { 37, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4203), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 37", "Repo37" },
-                    { 38, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4221), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 38", "Repo38" },
-                    { 39, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4243), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 39", "Repo39" },
-                    { 40, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4262), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 40", "Repo40" },
-                    { 41, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4280), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 41", "Repo41" },
-                    { 42, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4299), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 42", "Repo42" },
-                    { 43, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4380), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 43", "Repo43" },
-                    { 44, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4405), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 44", "Repo44" },
-                    { 45, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 764, DateTimeKind.Unspecified).AddTicks(4425), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 45", "Repo45" },
-                    { 46, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(1376), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 46", "Repo46" },
-                    { 47, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(1503), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 47", "Repo47" },
-                    { 48, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(1534), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 48", "Repo48" },
-                    { 49, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(1560), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 49", "Repo49" },
-                    { 50, new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(1584), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 50", "Repo50" }
+                    { 1, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5114), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "First seeded", "Repo1" },
+                    { 2, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5129), new TimeSpan(0, 0, 0, 0, 0)), true, 2, "Sec seeded", "Repo2" },
+                    { 3, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5131), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "This repo has many commits", "RepoWithManyCommits" },
+                    { 4, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5197), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 4", "Repo4" },
+                    { 5, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5281), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 5", "Repo5" },
+                    { 6, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5336), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 6", "Repo6" },
+                    { 7, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5361), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 7", "Repo7" },
+                    { 8, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5393), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 8", "Repo8" },
+                    { 9, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5428), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 9", "Repo9" },
+                    { 10, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5450), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 10", "Repo10" },
+                    { 11, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5526), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 11", "Repo11" },
+                    { 12, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5559), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 12", "Repo12" },
+                    { 13, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5580), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 13", "Repo13" },
+                    { 14, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5598), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 14", "Repo14" },
+                    { 15, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5619), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 15", "Repo15" },
+                    { 16, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5715), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 16", "Repo16" },
+                    { 17, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5787), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 17", "Repo17" },
+                    { 18, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5808), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 18", "Repo18" },
+                    { 19, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5862), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 19", "Repo19" },
+                    { 20, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5883), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 20", "Repo20" },
+                    { 21, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5901), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 21", "Repo21" },
+                    { 22, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5919), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 22", "Repo22" },
+                    { 23, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5939), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 23", "Repo23" },
+                    { 24, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5957), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 24", "Repo24" },
+                    { 25, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5974), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 25", "Repo25" },
+                    { 26, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(5993), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 26", "Repo26" },
+                    { 27, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6011), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 27", "Repo27" },
+                    { 28, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6054), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 28", "Repo28" },
+                    { 29, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6079), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 29", "Repo29" },
+                    { 30, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6098), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 30", "Repo30" },
+                    { 31, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6211), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 31", "Repo31" },
+                    { 32, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6270), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 32", "Repo32" },
+                    { 33, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6323), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 33", "Repo33" },
+                    { 34, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6343), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 34", "Repo34" },
+                    { 35, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6362), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 35", "Repo35" },
+                    { 36, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6381), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 36", "Repo36" },
+                    { 37, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6398), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 37", "Repo37" },
+                    { 38, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6416), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 38", "Repo38" },
+                    { 39, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6433), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 39", "Repo39" },
+                    { 40, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6452), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 40", "Repo40" },
+                    { 41, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6469), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 41", "Repo41" },
+                    { 42, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6488), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 42", "Repo42" },
+                    { 43, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6506), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 43", "Repo43" },
+                    { 44, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6526), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 44", "Repo44" },
+                    { 45, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6545), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 45", "Repo45" },
+                    { 46, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6564), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 46", "Repo46" },
+                    { 47, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6583), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 47", "Repo47" },
+                    { 48, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6628), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 48", "Repo48" },
+                    { 49, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6648), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 49", "Repo49" },
+                    { 50, new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(6667), new TimeSpan(0, 0, 0, 0, 0)), false, 1, "Seeded 50", "Repo50" }
                 });
 
             migrationBuilder.InsertData(
@@ -272,8 +311,8 @@ namespace backend.Migrations
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
                 values: new object[,]
                 {
-                    { 1, "main", new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(2678), new TimeSpan(0, 0, 0, 0, 0)), 1, "925cc242245c8df69d12021001277c54ec4b321c", null, 1, null },
-                    { 3, "main", new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(2683), new TimeSpan(0, 0, 0, 0, 0)), 1, "branch3_commit_100", null, 3, null }
+                    { 1, "main", new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(7451), new TimeSpan(0, 0, 0, 0, 0)), 1, "925cc242245c8df69d12021001277c54ec4b321c", null, 1, null },
+                    { 3, "main", new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(7457), new TimeSpan(0, 0, 0, 0, 0)), 1, "branch3_commit_100", null, 3, null }
                 });
 
             migrationBuilder.InsertData(
@@ -337,14 +376,14 @@ namespace backend.Migrations
             migrationBuilder.InsertData(
                 table: "Branches",
                 columns: new[] { "BranchId", "BranchName", "CreatedAt", "CreatedBy", "LatestCommitHash", "ParentBranch", "RepoId", "SplitFromCommitHash" },
-                values: new object[] { 2, "branch", new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(2681), new TimeSpan(0, 0, 0, 0, 0)), 1, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", 1, 1, "925cc242245c8df69d12021001277c54ec4b321c" });
+                values: new object[] { 2, "branch", new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 978, DateTimeKind.Unspecified).AddTicks(7455), new TimeSpan(0, 0, 0, 0, 0)), 1, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", 1, 1, "925cc242245c8df69d12021001277c54ec4b321c" });
 
             migrationBuilder.InsertData(
                 table: "Commits",
                 columns: new[] { "CommitId", "BranchId", "CommitHash", "CommittedAt", "CreatedBy", "Message", "TreeHash" },
                 values: new object[,]
                 {
-                    { 1, 1, "925cc242245c8df69d12021001277c54ec4b321c", new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(7143), new TimeSpan(0, 0, 0, 0, 0)), "Janus", "Initial commit", "" },
+                    { 1, 1, "925cc242245c8df69d12021001277c54ec4b321c", new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 979, DateTimeKind.Unspecified).AddTicks(6255), new TimeSpan(0, 0, 0, 0, 0)), "Janus", "Initial commit", "" },
                     { 3, 3, "branch3_initial_commit_hash", new DateTimeOffset(new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "User1", "Initial commit for branch 3", "" },
                     { 4, 3, "branch3_commit_1", new DateTimeOffset(new DateTime(2025, 3, 1, 0, 9, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "User1", "Commit 1 for branch 3", "" },
                     { 5, 3, "branch3_commit_2", new DateTimeOffset(new DateTime(2025, 3, 3, 0, 9, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "User1", "Commit 2 for branch 3", "" },
@@ -558,7 +597,7 @@ namespace backend.Migrations
             migrationBuilder.InsertData(
                 table: "Commits",
                 columns: new[] { "CommitId", "BranchId", "CommitHash", "CommittedAt", "CreatedBy", "Message", "TreeHash" },
-                values: new object[] { 2, 2, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", new DateTimeOffset(new DateTime(2025, 3, 17, 19, 53, 28, 765, DateTimeKind.Unspecified).AddTicks(7145), new TimeSpan(0, 0, 0, 0, 0)), "User2", "Next commit", "517e4c52e1020d3bc9901cb81093943d4919b55c" });
+                values: new object[] { 2, 2, "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", new DateTimeOffset(new DateTime(2025, 3, 21, 14, 28, 50, 979, DateTimeKind.Unspecified).AddTicks(6257), new TimeSpan(0, 0, 0, 0, 0)), "User2", "Next commit", "517e4c52e1020d3bc9901cb81093943d4919b55c" });
 
             migrationBuilder.InsertData(
                 table: "CommitParents",
@@ -612,6 +651,26 @@ namespace backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RepoInvites_InviteeUserId",
+                table: "RepoInvites",
+                column: "InviteeUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepoInvites_InviterUserId",
+                table: "RepoInvites",
+                column: "InviterUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepoInvites_RepoId",
+                table: "RepoInvites",
+                column: "RepoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RepoInvites_Status",
+                table: "RepoInvites",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Repositories_OwnerId_RepoName",
                 table: "Repositories",
                 columns: new[] { "OwnerId", "RepoName" },
@@ -644,6 +703,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "RepoAccess");
+
+            migrationBuilder.DropTable(
+                name: "RepoInvites");
 
             migrationBuilder.DropTable(
                 name: "Commits");
