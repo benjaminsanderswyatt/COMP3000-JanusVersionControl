@@ -12,6 +12,7 @@ import ProfilePictureCard from '../components/account/ProfileCard';
 import Page from "../components/Page";
 import Card from '../components/cards/Card';
 import TextInput from '../components/inputs/TextInput';
+import Dropdown from '../components/inputs/Dropdown';
 
 import styles from "../styles/pages/Account.module.css";
 
@@ -29,6 +30,28 @@ const Account = () => {
 
 
 
+    
+    const expirationLabels = [
+        '12 Hours',
+        '1 Day', 
+        '7 Days',
+        '30 Days',
+        '90 Days',
+        '6 Months',
+        '1 Year'
+    ];
+    
+    const labelToHoursMap = {
+        '12 Hours': 12,
+        '1 Day': 24,
+        '7 Days': 168,
+        '30 Days': 720,
+        '90 Days': 2160,
+        '6 Months': 4320,
+        '1 Year': 8760
+    };
+
+    const [selectedExpirationLabel, setSelectedExpirationLabel] = useState('30 Days');
 
     const handleGenAccessToken = async () => {
         setLoadingGen(true);
@@ -37,10 +60,11 @@ const Account = () => {
         setErrorField('');
 
         try {
-          
-            const ExpirationInHours = 30;
-    
-            const response = await GenAccessToken(ExpirationInHours, sessionExpired);
+            const hours = labelToHoursMap[selectedExpirationLabel];
+
+            console.log("hours", hours);
+
+            const response = await GenAccessToken(hours, sessionExpired);
     
             if (!response.success)
                 throw new Error(response.message);
@@ -158,20 +182,26 @@ const Account = () => {
             <Card>
                 <h3 className={styles.headings}>Generate Personal Access Token</h3>
 
+                <Dropdown
+                    label="Expiration Time"
+                    dataArray={expirationLabels}
+                    onSelect={setSelectedExpirationLabel}
+                    selectedValue={selectedExpirationLabel}
+                />
 
                 <div className={styles.GenPATHolder}>
-                    {!tokenData ? 
-                        <button className="button" style={{width: "fit-content"}} onClick={handleGenAccessToken}>
-                            {loadingGen ? "Generating..." : "Generate PAT"}
-                        </button>
-                    : 
+                    <button className="button" style={{width: "fit-content"}} onClick={handleGenAccessToken}>
+                        {loadingGen ? "Generating..." : "Generate PAT"}
+                    </button>
+
+                    {tokenData && (
                         <>
                             <p className={styles.GenPAT}>{tokenData}</p>
                             <button onClick={handleCopyToClipboard} className={styles.copyButton}>
                                 Copy
                             </button>
                         </>
-                    }
+                    )}
 
                     {errorField === 'generatePAT' && message && (
                         <p className={messageType}>{message}</p>
