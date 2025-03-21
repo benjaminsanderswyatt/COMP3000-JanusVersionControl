@@ -80,6 +80,74 @@ namespace backend.Controllers.Frontend
 
 
 
+        [HttpPost("{owner}/{repoName}/invite")]
+        public async Task<IActionResult> SendInvite(string owner, string repoName, [FromBody] InviteRequest request)
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized(new { Message = "Invalid user" });
+
+            // Get repo with owner
+            var repo = await _janusDbContext.Repositories
+                .Include(r => r.Owner)
+                .Include(r => r.RepoAccesses)
+                .FirstOrDefaultAsync(r => r.Owner.Username == owner && r.RepoName == repoName);
+
+            if (repo == null) 
+                return NotFound(new { Message = "Repository not found" });
+
+
+            // Get invitee user
+            var invitee = await _janusDbContext.Users
+                .FirstOrDefaultAsync(u => u.Username == request.InviteeUsername);
+            if (invitee == null) 
+                return NotFound(new { Message = "User not found" });
+
+            // Check permissions
+            var inviterAccess = repo.RepoAccesses.FirstOrDefault(ra => ra.UserId == userId);
+            if (inviterAccess == null ||
+               (inviterAccess.AccessLevel != AccessLevel.OWNER && inviterAccess.AccessLevel != AccessLevel.ADMIN))
+                return Forbid();
+
+            // Check if user already has access or pending invite
+            bool hasAccess = repo.RepoAccesses.Any(ra => ra.UserId == invitee.UserId);
+            bool existingInvite = await _janusDbContext.RepoInvites
+                .AnyAsync(ri => ri.RepoId == repo.RepoId &&
+                              ri.InviteeUserId == invitee.UserId &&
+                              ri.Status == InviteStatus.Pending);
+
+            if (hasAccess || existingInvite)
+                return BadRequest(new { Message = "User already has access or pending invite" });
+
+
+
+            // Create invite
+            var invite = new RepoInvite
+            {
+                RepoId = repo.RepoId,
+                InviterUserId = userId,
+                InviteeUserId = invitee.UserId,
+                AccessLevel = request.AccessLevel,
+                Status = InviteStatus.Pending
+            };
+
+            _janusDbContext.RepoInvites.Add(invite);
+            await _janusDbContext.SaveChangesAsync();
+
+            return Ok(new { Message = "Invite sent" });
+        }
+
+        public class InviteRequest
+        {
+            public string InviteeUsername { get; set; }
+            public AccessLevel AccessLevel { get; set; }
+        }
+
+
+
+
+
+
 
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useOutletContext } from 'react-router';
 
 import RepoPageHeader from '../../../components/repo/RepoPageHeader';
@@ -7,12 +7,15 @@ import Card from '../../../components/cards/Card';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import ProfilePic from "../../../components/images/ProfilePic";
 
+import { AccessLevel, accessLevelMapping } from '../../../helpers/AccessLevel';
 import { useAuth } from '../../../contexts/AuthContext';
 import { fetchWithTokenRefresh } from '../../../api/fetchWithTokenRefresh';
 
 import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import stylesContrib from "../../../styles/pages/repos/subpages/Contributors.module.css";
 import tableStyles from "../../../styles/components/Table.module.css";
+import TextInput from '../../../components/inputs/TextInput';
+import Dropdown from '../../../components/inputs/Dropdown';
 
 
 const Contributors = () => {
@@ -23,35 +26,68 @@ const Contributors = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  
+  const fetchContributors = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const url = `https://localhost:82/api/web/contributors/${owner}/${name}/contributors`;
+      const data = await fetchWithTokenRefresh(
+        url,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        },
+        sessionExpired
+      );
 
-
-  useEffect(() => {
-    const fetchContributors = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const url = `https://localhost:82/api/web/contributors/${owner}/${name}/contributors`;
-        const data = await fetchWithTokenRefresh(
-          url,
-          {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          },
-          sessionExpired
-        );
-
-        setContributors(data.contributors);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContributors();
+      setContributors(data.contributors);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [sessionExpired, owner, name]);
 
+  useEffect(() => {
+    fetchContributors();
+  }, [fetchContributors]);
 
+
+
+
+  const [inviteUsername, setInviteUsername] = useState('');
+  const [accessLevel, setAccessLevel] = useState(AccessLevel.READ);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
+
+  const handleSendInvite = async () => {
+    try {
+      await fetchWithTokenRefresh(
+        `https://localhost:82/api/web/contributors/${owner}/${name}/invite`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inviteeUsername: inviteUsername,
+            accessLevel: accessLevelMapping[accessLevel]
+          }),
+        },
+        sessionExpired
+      );
+      
+      setInviteUsername('');
+      setMessage('Invite sent');
+      setMessageType('success');
+
+      fetchContributors();
+
+    } catch (err) {
+
+      setMessage(err.message || 'Failed to send invite');
+      setMessageType('error');
+    }
+  };
 
 
 
@@ -77,9 +113,9 @@ const Contributors = () => {
 
 
 
-  const groupContributors = (accessLevel) => {
+  const groupContributors = (accessLevelParam) => {
     return contributors.filter(contributor =>
-      contributor.accessLevel.toLowerCase() === accessLevel.toLowerCase()
+      contributor.accessLevel.toLowerCase() === accessLevelParam.toLowerCase()
     );
   };
 
@@ -90,6 +126,8 @@ const Contributors = () => {
     { label: "Write", emptyMessage: "No contributors with Write permissions..." },
     { label: "Read", emptyMessage: "No contributors with Read permissions..." },
   ];
+
+  const dropdownData = ["Read", "Write", "Admin"];
 
   
   
@@ -104,8 +142,38 @@ const Contributors = () => {
 
 
       <Card>
-        <button className="button">New colaborator</button>
+        <h3>Invite Collaborator</h3>
+
+        <Dropdown
+          label="Access"
+          dataArray={dropdownData} // Read, Write, Admin
+          onSelect={(selectedValue) => setAccessLevel(selectedValue)}
+          selectedValue={accessLevel}
+        />
+
+        <TextInput 
+          name="username" 
+          value={inviteUsername} 
+          onChange={(e) => setInviteUsername(e.target.value)} 
+          placeholder="Username..." 
+          hasError={messageType === "error"}
+        />
+
+        <div className={stylesContrib.inviteHolder}>
+          <button className="button" onClick={handleSendInvite}>
+            Send Invite
+          </button>
+
+          {message && (
+            <p className={messageType}>{message}</p>
+          )}
+        </div>
       </Card>
+
+
+
+
+      
 
       
       {loading ? (
