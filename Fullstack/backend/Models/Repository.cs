@@ -29,6 +29,7 @@ namespace backend.Models
 
         public ICollection<RepoAccess> RepoAccesses { get; set; } = new List<RepoAccess>();
         public ICollection<Branch> Branches { get; set; } = new List<Branch>();
+        public ICollection<RepoInvite> RepoInvites { get; set; } = new List<RepoInvite>();
     }
 
 }

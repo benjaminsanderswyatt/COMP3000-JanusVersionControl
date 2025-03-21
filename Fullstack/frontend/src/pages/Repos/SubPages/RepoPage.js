@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useOutletContext, useOutlet } from "react-router";
+import { useParams, useNavigate, useOutletContext } from "react-router";
 
 import { fetchWithTokenRefresh } from "../../../api/fetchWithTokenRefresh";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -9,7 +9,7 @@ import Commit from "../../../components/repo/Commit"
 import RepoPageHeader from "../../../components/repo/RepoPageHeader";
 import FileExplorer from "../../../components/repo/FileExplorer";
 import LoadingSpinner from "../../../components/LoadingSpinner";
-import Dropdown from "../../../components/Dropdown";
+import Dropdown from "../../../components/inputs/Dropdown";
 
 import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import { DateType } from "../../../helpers/DateHelper";

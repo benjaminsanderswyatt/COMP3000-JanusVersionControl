@@ -222,7 +222,7 @@ const Settings = () => {
           <button 
             className="button"
            onClick={handleDescriptionSave}
-            disabled={updating || repoData.description == description}
+            disabled={updating || repoData.description === description}
           >
             {updating ? "Saving..." : "Save"}
           </button>
@@ -230,7 +230,7 @@ const Settings = () => {
           <button 
             className="button"
             onClick={() => setDescription(repoData.description)}
-            disabled={updating || repoData.description == description}
+            disabled={updating || repoData.description === description}
           >
             Cancel
           </button>

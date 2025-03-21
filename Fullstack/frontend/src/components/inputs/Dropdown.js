@@ -1,8 +1,6 @@
 import React from 'react';
 
-
-
-import styles from "../styles/components/Dropdown.module.css";
+import styles from "../../styles/components/inputs/Dropdown.module.css"
 
 
 const Dropdown = ({ label ,dataArray , onSelect, selectedValue }) => {

@@ -5,7 +5,7 @@ import RepoPageHeader from '../../../components/repo/RepoPageHeader';
 import Page from '../../../components/Page';
 import Card from "../../../components/cards/Card";
 import LoadingSpinner from '../../../components/LoadingSpinner';
-import Dropdown from "../../../components/Dropdown";
+import Dropdown from '../../../components/inputs/Dropdown';
 import CommitGrid from '../../../components/repo/CommitGrid';
 
 import { useAuth } from '../../../contexts/AuthContext';
