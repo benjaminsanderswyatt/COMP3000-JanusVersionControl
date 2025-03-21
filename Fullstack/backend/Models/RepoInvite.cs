@@ -20,12 +20,7 @@ namespace backend.Models
         [Required]
         public AccessLevel AccessLevel { get; set; }
 
-        [Required]
-        public InviteStatus Status { get; set; } = InviteStatus.Pending;
-
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-        public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
-        
 
 
         [ForeignKey("RepoId")]
@@ -38,12 +33,5 @@ namespace backend.Models
         public User Invitee { get; set; }
     }
 
-    public enum InviteStatus
-    {
-        Pending,
-        Accepted,
-        Declined,
-        Revoked
-    }
 
 }

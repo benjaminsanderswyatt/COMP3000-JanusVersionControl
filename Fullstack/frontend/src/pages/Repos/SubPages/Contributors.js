@@ -26,7 +26,7 @@ const Contributors = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  
+
   const fetchContributors = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -63,6 +63,9 @@ const Contributors = () => {
 
   const handleSendInvite = async () => {
     try {
+      const accessLevelKey = accessLevel.toUpperCase();
+      const numericAccessLevel = accessLevelMapping[accessLevelKey];
+
       await fetchWithTokenRefresh(
         `https://localhost:82/api/web/contributors/${owner}/${name}/invite`,
         {
@@ -70,7 +73,7 @@ const Contributors = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             inviteeUsername: inviteUsername,
-            accessLevel: accessLevelMapping[accessLevel]
+            accessLevel: numericAccessLevel
           }),
         },
         sessionExpired

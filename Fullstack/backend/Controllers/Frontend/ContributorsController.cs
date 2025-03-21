@@ -113,8 +113,7 @@ namespace backend.Controllers.Frontend
             bool hasAccess = repo.RepoAccesses.Any(ra => ra.UserId == invitee.UserId);
             bool existingInvite = await _janusDbContext.RepoInvites
                 .AnyAsync(ri => ri.RepoId == repo.RepoId &&
-                              ri.InviteeUserId == invitee.UserId &&
-                              ri.Status == InviteStatus.Pending);
+                              ri.InviteeUserId == invitee.UserId);
 
             if (hasAccess || existingInvite)
                 return BadRequest(new { Message = "User already has access or pending invite" });
@@ -127,8 +126,7 @@ namespace backend.Controllers.Frontend
                 RepoId = repo.RepoId,
                 InviterUserId = userId,
                 InviteeUserId = invitee.UserId,
-                AccessLevel = request.AccessLevel,
-                Status = InviteStatus.Pending
+                AccessLevel = request.AccessLevel
             };
 
             _janusDbContext.RepoInvites.Add(invite);

@@ -50,7 +50,6 @@ namespace backend.Models
             modelBuilder.Entity<RepoInvite>(entity =>
             {
                 entity.HasIndex(ri => ri.InviteeUserId);
-                entity.HasIndex(ri => ri.Status);
                 entity.HasIndex(ri => ri.RepoId);
             });
 
@@ -115,10 +114,10 @@ namespace backend.Models
 
 
             modelBuilder.Entity<RepoInvite>()
-                    .HasOne(ri => ri.Repository)
-                    .WithMany(r => r.RepoInvites)
-                    .HasForeignKey(ri => ri.RepoId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(ri => ri.Repository)
+                .WithMany(r => r.RepoInvites)
+                .HasForeignKey(ri => ri.RepoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RepoInvite>()
                 .HasOne(ri => ri.Inviter)
