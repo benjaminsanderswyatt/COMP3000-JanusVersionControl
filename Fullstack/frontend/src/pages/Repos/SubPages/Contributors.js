@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useOutletContext } from 'react-router';
+import { useParams, useOutletContext, useNavigate } from 'react-router';
 
 import RepoPageHeader from '../../../components/repo/RepoPageHeader';
 import Page from '../../../components/Page';
@@ -19,6 +19,8 @@ import Dropdown from '../../../components/inputs/Dropdown';
 
 
 const Contributors = () => {
+  const navigate = useNavigate();
+  const { authUserId } = useAuth();
   const { owner, name } = useParams();
   const { sessionExpired } = useAuth()
 
@@ -94,6 +96,36 @@ const Contributors = () => {
 
 
 
+  const handleLeaveRepo = async () => {
+    if (!window.confirm("Are you sure you want to leave this repository?")) return;
+
+    try {
+        await fetchWithTokenRefresh(
+            `https://localhost:82/api/web/contributors/${owner}/${name}/leave`,
+            {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            },
+            sessionExpired
+        );
+
+        // Redirect after leaving
+        navigate('/collaborating');
+    } catch (err) {
+        setMessage(err.message || 'Failed to leave repository');
+        setMessageType('error');
+    }
+  };
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -145,7 +177,7 @@ const Contributors = () => {
 
 
       <Card>
-        <h3>Invite Collaborator</h3>
+        <h3 className={stylesContrib.header}>Invite Collaborator</h3>
 
         <Dropdown
           label="Access"
@@ -221,6 +253,20 @@ const Contributors = () => {
           </Card>
         ))
       )}
+
+
+      {owner !== authUserId && (
+        <Card>
+          <h3 className={stylesContrib.header}>Stop Colaborating</h3>
+          <button 
+            className="button"
+            onClick={handleLeaveRepo}
+          >
+            Leave
+          </button>
+        </Card>
+      )}
+
 
 
     </Page>

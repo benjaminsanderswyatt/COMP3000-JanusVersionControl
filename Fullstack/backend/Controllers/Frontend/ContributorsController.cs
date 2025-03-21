@@ -143,6 +143,37 @@ namespace backend.Controllers.Frontend
 
 
 
+        [HttpDelete("{owner}/{repoName}/leave")]
+        public async Task<IActionResult> LeaveRepository(string owner, string repoName)
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized(new { Message = "Invalid user" });
+
+            // Get repository
+            var repo = await _janusDbContext.Repositories
+                .Include(r => r.Owner)
+                .Include(r => r.RepoAccesses)
+                .FirstOrDefaultAsync(r => r.Owner.Username == owner && r.RepoName == repoName);
+
+            if (repo == null)
+                return NotFound(new { Message = "Repository not found" });
+
+            // Check if user is owner
+            if (repo.OwnerId == userId)
+                return BadRequest(new { Message = "Owners cannot leave repositories" });
+
+            // Find users access
+            var userAccess = repo.RepoAccesses.FirstOrDefault(ra => ra.UserId == userId);
+            if (userAccess == null)
+                return NotFound(new { Message = "You are not a contributor" });
+
+            // Remove access
+            _janusDbContext.RepoAccess.Remove(userAccess);
+            await _janusDbContext.SaveChangesAsync();
+
+            return Ok(new { Message = "Left repository successfully" });
+        }
 
 
 
