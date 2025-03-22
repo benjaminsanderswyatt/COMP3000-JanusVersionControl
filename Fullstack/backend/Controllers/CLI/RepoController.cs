@@ -189,7 +189,10 @@ namespace backend.Controllers.CLI
                 // Get all commits for the branch
                 var commits = branch.Commits.Select(commit =>
                 {
-                    var parentCommitHash = commit.Parents.FirstOrDefault()?.Parent?.CommitHash;
+                    var parentsCommitHash = commit.Parents
+                        .Select(cp => cp.Parent.CommitHash)
+                        .ToList();
+
 
                     // Get the author of the commit
                     string commitAuthorUsername = commit.CreatedBy;
@@ -214,7 +217,7 @@ namespace backend.Controllers.CLI
                     return new
                     {
                         commit.CommitHash,
-                        ParentCommitHash = parentCommitHash,
+                        parentsCommitHash = parentsCommitHash,
                         AuthorName = commitAuthorUsername,
                         AuthorEmail = commitAuthorEmail,
                         commit.Message,
