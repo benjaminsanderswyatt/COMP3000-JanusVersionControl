@@ -26,7 +26,10 @@ import RepoCreate from './pages/repos/Create';
 
 import RepoLayout from './pages/repos/subpages/RepoLayout';
 import RepoPage from './pages/repos/subpages/RepoPage';
+
 import Commits from './pages/repos/subpages/Commits';
+import CommitDiff from './pages/repos/subpages/CommitDiff';
+
 import Contributors from './pages/repos/subpages/Contributors';
 import Settings from './pages/repos/subpages/Settings';
 
@@ -101,6 +104,7 @@ const App = () => {
                   <Route path="file/:fileHash" element={<FileDisplay />}/>
                   
                   <Route path="commits/:branch" element={<Commits />} />
+                  <Route path="commit/:commitHash/diff" element={<CommitDiff />}/>
                   
                   <Route path="contributors" element={<Contributors />} />
                   <Route path="settings" element={<Settings />} />
