@@ -23,7 +23,7 @@
     public class CommitDto
     {
         public string CommitHash { get; set; }
-        public string ParentCommitHash { get; set; }
+        public List<string> ParentsCommitHash { get; set; }
         public string AuthorName { get; set; }
         public string AuthorEmail { get; set; }
         public string Message { get; set; }

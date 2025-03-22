@@ -173,7 +173,7 @@ namespace CLITests
 
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
             Assert.That(newCommitData.Message, Is.EqualTo("First commit"), "Commit message should be 'First commit'.");
 
@@ -230,7 +230,7 @@ namespace CLITests
 
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
             Assert.That(newCommitData.Message, Is.EqualTo("Multiple files commit"), "Commit message should be 'Multiple files commit'.");
 
@@ -290,9 +290,9 @@ namespace CLITests
 
             CommitMetadata newCommitData = commitPathsInFolder[2];
 
-            Assert.That(originalCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(originalCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(originalCommitData.Commit), "Parent commit should be the original commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(originalCommitData.Commit), "Parent commit should be the original commit hash.");
 
             Assert.That(newCommitData.Message, Is.EqualTo("Updated file"), "Commit message should be 'Updated file'.");
 
@@ -350,7 +350,7 @@ namespace CLITests
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
             Assert.That(newCommitData.Message, Is.EqualTo("Deleting file commit"), "Commit message should be 'Deleting file commit'.");
 
@@ -404,7 +404,7 @@ namespace CLITests
             CommitMetadata initialCommitData = commitPathsInFolder[0];
             CommitMetadata newCommitData = commitPathsInFolder[1];
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
             Assert.That(newCommitData.Message, Is.EqualTo("Partial commit"), "Commit message should be 'Partial commit'.");
 
@@ -471,9 +471,9 @@ namespace CLITests
 
             CommitMetadata newCommitData = commitPathsInFolder[2];
 
-            Assert.That(deleteCommitData.Parent, Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
+            Assert.That(deleteCommitData.Parents.FirstOrDefault(), Is.EqualTo(initialCommitData.Commit), "Parent commit should be the initial commit hash.");
 
-            Assert.That(newCommitData.Parent, Is.EqualTo(deleteCommitData.Commit), "Parent commit should be the original commit hash.");
+            Assert.That(newCommitData.Parents.FirstOrDefault(), Is.EqualTo(deleteCommitData.Commit), "Parent commit should be the original commit hash.");
 
 
             // Check that the commit tree contains the file

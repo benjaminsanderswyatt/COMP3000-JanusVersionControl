@@ -88,6 +88,8 @@ namespace Janus.Helpers
 
         public static List<string> FindCommitsToPush(Paths paths, string localHead, string remoteHead)
         {
+            // TODO: handle the multiple parent commits scenario
+            /*
             List<string> commitsToPush = new List<string>();
 
             string currentCommit = localHead;
@@ -101,10 +103,12 @@ namespace Janus.Helpers
 
                 commitsToPush.Add(currentCommit);
                 var commitData = LoadCommit(paths, currentCommit);
-                currentCommit = commitData?.Parent;
+                currentCommit = commitData?.Parents.FirstOrDefault();
             }
 
             Console.WriteLine("Local and remote branches have diverged.");
+
+            */
             return new List<string>(); // Indicates a divergence
         }
 

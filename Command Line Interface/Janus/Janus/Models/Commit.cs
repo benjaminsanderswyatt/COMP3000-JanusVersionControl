@@ -3,7 +3,7 @@
     public class CommitMetadata
     {
         public string Commit { get; set; }
-        public string Parent { get; set; }
+        public List<string> Parents { get; set; }
         public string Branch { get; set; }
         public string AuthorName { get; set; }
         public string AuthorEmail { get; set; }

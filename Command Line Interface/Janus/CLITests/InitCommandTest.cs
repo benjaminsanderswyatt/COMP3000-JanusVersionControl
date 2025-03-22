@@ -100,7 +100,7 @@ namespace CLITests
             var initialCommit = File.ReadAllText(commitPathsInFolder[0]);
             CommitMetadata initialCommitData = JsonSerializer.Deserialize<CommitMetadata>(initialCommit);
 
-            Assert.That(initialCommitData.Parent, Is.Null);
+            Assert.That(initialCommitData.Parents.FirstOrDefault(), Is.Null);
 
             Assert.That(initialCommitData.Message, Is.EqualTo("Initial commit"), "Commit message should be 'Initial commit'.");
 

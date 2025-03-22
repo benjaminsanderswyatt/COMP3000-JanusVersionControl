@@ -453,7 +453,7 @@ Example:
                             // Save commit
                             CommitHelper.SaveCommit(clonePaths,
                                 commit.CommitHash,
-                                commit.ParentCommitHash,
+                                commit.ParentsCommitHash,
                                 branch.BranchName,
                                 commit.AuthorName,
                                 commit.AuthorEmail,
@@ -1124,7 +1124,7 @@ Example:
 
                     string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
-                    CommitHelper.SaveCommit(Paths, commitHash, parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
+                    CommitHelper.SaveCommit(Paths, commitHash, new List<string> { parentCommit }, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);

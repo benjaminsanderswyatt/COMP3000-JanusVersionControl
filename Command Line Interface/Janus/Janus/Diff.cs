@@ -169,7 +169,7 @@ namespace Janus
 
             var commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitPath));
             
-            return commitMetadata.Parent;
+            return commitMetadata.Parents.FirstOrDefault();
         }
 
 
