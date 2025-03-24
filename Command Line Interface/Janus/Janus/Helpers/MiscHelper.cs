@@ -1,5 +1,6 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using System.Text.Json;
 
 namespace Janus.Helpers
@@ -42,8 +43,9 @@ namespace Janus.Helpers
         public static string GetUsername()
         {
             // Get the username
-            UserCredentials credManager = new UserCredentials();
-            string username = credManager.Username;
+            var credManager = new CredentialManager();
+            var credentials = credManager.LoadCredentials();
+            string username = credentials.Username;
 
             // No config set use systems username
             if (string.IsNullOrWhiteSpace(username))
@@ -57,8 +59,9 @@ namespace Janus.Helpers
         public static string GetEmail()
         {
             // Get the email from credentials
-            UserCredentials credManager = new UserCredentials();
-            string email = credManager.Email;
+            var credManager = new CredentialManager();
+            var credentials = credManager.LoadCredentials();
+            string email = credentials.Email;
 
             return email;
         }
