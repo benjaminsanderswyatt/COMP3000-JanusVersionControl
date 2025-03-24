@@ -80,7 +80,7 @@ namespace Janus.Helpers
 
             string initCommitHash = HashHelper.ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTime.UtcNow, initialCommitMessage, emptyTreeHash);
 
-            string commitMetadata = GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, new List<string> { parentHash }, authorName, authorEmail);
+            string commitMetadata = GenerateCommitMetadata(branchName, initCommitHash, emptyTreeHash, initialCommitMessage, new List<string> { }, authorName, authorEmail);
 
             return (initCommitHash, commitMetadata);
         }
