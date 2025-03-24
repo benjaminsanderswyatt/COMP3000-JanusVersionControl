@@ -72,7 +72,7 @@ namespace Janus.Helpers
 
 
 
-        private static CommitMetadata LoadCommit(Paths paths, string commitHash)
+        public static CommitMetadata LoadCommit(Paths paths, string commitHash)
         {
             string commitPath = Path.Combine(paths.CommitDir, commitHash);
             if (!File.Exists(commitPath))

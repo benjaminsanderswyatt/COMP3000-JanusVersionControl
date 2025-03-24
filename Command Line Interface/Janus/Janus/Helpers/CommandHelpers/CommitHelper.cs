@@ -36,5 +36,45 @@ namespace Janus.Helpers.CommandHelpers
         }
 
 
+
+
+
+
+
+        public static string CreateMergeCommit(Paths paths, string currentHead, string targetHead, string treeHash, string message, string username, string email)
+        {
+            // Ensure order of parents is consistent
+            var parents = new List<string> { currentHead, targetHead };
+
+            DateTime now = DateTime.UtcNow;
+
+            string commitHash = HashHelper.ComputeCommitHash(
+                string.Join("|", parents),
+                MiscHelper.GetCurrentBranchName(paths),
+                username,
+                email,
+                now,
+                message,
+                treeHash
+                );
+
+
+            SaveCommit(
+                paths,
+                commitHash,
+                parents,
+                MiscHelper.GetCurrentBranchName(paths),
+                username,
+                email,
+                now,
+                message,
+                treeHash
+                );
+
+            return commitHash;
+        }
+
+
+
     }
 }

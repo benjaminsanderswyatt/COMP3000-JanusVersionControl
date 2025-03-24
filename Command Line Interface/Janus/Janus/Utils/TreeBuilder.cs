@@ -343,7 +343,13 @@ namespace Janus.Utils
 
 
 
+        public static (string, TreeNode) CreateMergedTree(Paths paths, Dictionary<string, FileMetadata> mergedEntries)
+        {
+            var treeBuilder = new TreeBuilder(paths);
+            var mergedTree = treeBuilder.BuildTreeFromDiction(mergedEntries);
 
+            return (treeBuilder.SaveTree(), mergedTree);
+        }
 
 
 
@@ -535,6 +541,38 @@ namespace Janus.Utils
         }
 
 
+
+
+
+
+        public static FileMetadata GetMetadataFromTree(TreeNode tree, string relativePath)
+        {
+            var node = GetNodeFromTree(tree, relativePath);
+
+            return node == null || node.Hash == null ? null : new FileMetadata
+            {
+                Hash = node.Hash,
+                MimeType = node.MimeType,
+                Size = node.Size,
+                LastModified = node.LastModified
+            };
+        }
+
+        private static TreeNode GetNodeFromTree(TreeNode tree, string relativePath)
+        {
+            string[] pathParts = PathHelper.PathSplitter(relativePath);
+            TreeNode current = tree;
+
+            foreach (var part in pathParts)
+            {
+                current = current.Children.FirstOrDefault(c => c.Name == part);
+                
+                if (current == null)
+                    return null;
+            }
+
+            return current;
+        }
 
 
     }

@@ -25,6 +25,8 @@ namespace Janus
             {
                 new HelpCommand(logger, paths),
 
+                new MergeCommand(logger, paths),
+
                 new LoginCommand(logger, paths),
                 new RemoteCommand(logger, paths),
                 new CloneCommand(logger, paths),
@@ -52,6 +54,146 @@ namespace Janus
 
             return commands;
         }
+
+
+
+        
+        public class MergeCommand : BaseCommand
+        {
+            public MergeCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "merge";
+            public override string Description => "Merge changes from another branch into the current";
+            public override string Usage =>
+@"janus merge <branch>
+<branch>: Branch to merge into the current branch
+Example:
+    janus merge featureBranch";
+            public override async Task Execute(string[] args)
+            {
+                // Load credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. janus login");
+                    return;
+                }
+
+                // Check the user is in a valid dir (.janus exists)
+                if (!Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Local repository not found");
+                    return;
+                }
+
+                if (args.Length == 0)
+                {
+                    Logger.Log("Please provide a branch to merge");
+                    return;
+                }
+
+                string targetBranch = args[0];
+
+
+                try
+                {
+                    // Check target branch exists
+                    string targetBranchHead = Path.Combine(Paths.BranchesDir, targetBranch, "head");
+
+                    if (!File.Exists(targetBranchHead))
+                    {
+                        Logger.Log($"Branch '{targetBranch}' doesnt exist");
+                        return;
+                    }
+
+
+                    // Get the current head and branch head
+                    string currentBranch = MiscHelper.GetCurrentBranchName(Paths);
+                    string currentHead = BranchHelper.GetBranchHead(Paths, currentBranch);
+                    string targetHead = BranchHelper.GetBranchHead(Paths, targetBranch);
+
+
+                    // Check if the branches are the same
+                    if (currentHead == targetHead)
+                    {
+                        Logger.Log("No changes to merge");
+                        return;
+                    }
+
+
+                    // Get the common ancestor
+                    string commonAncestor = MergeHelper.FindCommonAncestor(Logger, Paths, currentHead, targetHead);
+
+                    if (commonAncestor == null)
+                    {
+                        Logger.Log($"No common ancestor found. Cannot merge");
+                        return;
+                    }
+
+
+
+                    // Get trees for comparison
+                    TreeNode baseTree = Diff.GetTreeFromCommit(Logger, Paths, commonAncestor);
+                    TreeNode currentTree = Diff.GetTreeFromCommit(Logger, Paths, currentHead);
+                    TreeNode targetTree = Diff.GetTreeFromCommit(Logger, Paths, targetHead);
+                    
+
+                    // Compute merge changes
+                    var mergeResult = MergeHelper.ComputeMergeChanges(Logger, Paths, baseTree, currentTree, targetTree);
+
+
+                    // Handle conflicts
+                    if (mergeResult.HasConflicts)
+                    {
+                        Logger.Log("Merge conflicts detected:");
+                        foreach (var conflict in mergeResult.Conflicts)
+                        {
+                            Logger.Log($"Conflict: {conflict}");
+                        }
+                        Logger.Log("Resolve conflificts and commit the result");
+                        return;
+                    }
+
+                    // Create merge commit
+                    string commitMessage = $"Merge branch '{targetBranch}' into '{currentBranch}'";
+
+                    var (newTreeHash, tree) = TreeBuilder.CreateMergedTree(Paths, mergeResult.MergedEntries);
+
+
+                    // Create commit with 2 parents
+                    string commitHash = CommitHelper.CreateMergeCommit(
+                        Paths,
+                        currentHead,
+                        targetHead,
+                        newTreeHash,
+                        commitMessage,
+                        MiscHelper.GetUsername(),
+                        MiscHelper.GetEmail()
+                    );
+
+
+                    // Update branch head
+                    HeadHelper.SetHeadCommit(Paths, commitHash, currentBranch);
+
+                    // Recreate working directory
+                    MergeHelper.RecreateWorkingDir(Logger, Paths, tree);
+
+                    Logger.Log($"Created merge commit {commitHash}");
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Failed to merge: {ex.Message}");
+                }
+
+
+
+            }
+        }
+        
+
+
+
 
         public class DiffCommand : BaseCommand
         {
@@ -956,9 +1098,9 @@ Notes:
                         }
 
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal)
-                                                            && !directoryFiles.Contains(filePath))
-                                                        .ToList();
+                            .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal)
+                                && !directoryFiles.Contains(filePath))
+                            .ToList();
 
                         // Handle deleted files in dir
                         foreach (var filepath in stagedFilesInFolder)
@@ -976,8 +1118,8 @@ Notes:
                     else // Doesnt exist -> check index
                     {
                         var stagedFilesInFolder = stagedFiles.Keys
-                                                        .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal))
-                                                        .ToList();
+                            .Where(filePath => filePath.StartsWith(relPath, StringComparison.Ordinal))
+                            .ToList();
 
                         if (stagedFilesInFolder.Any())
                         {
