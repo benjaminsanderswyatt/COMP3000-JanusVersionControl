@@ -628,7 +628,7 @@ Example:
 
                     Logger.Log($"Setting repository configs...");
                     // Create repo config file
-                    MiscHelper.CreateRepoConfig(clonePaths.RepoConfig, cloneData.IsPrivate, cloneData.RepoDescription);
+                    MiscHelper.CreateRepoConfig(clonePaths.LocalConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
                     // Check the chosen branch exists
                     if (!cloneData.Branches.Any(b => b.BranchName == chosenBranch))

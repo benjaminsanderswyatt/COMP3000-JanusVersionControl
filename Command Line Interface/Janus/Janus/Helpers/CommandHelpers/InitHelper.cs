@@ -74,7 +74,7 @@ namespace Janus.Helpers.CommandHelpers
                 File.WriteAllText(paths.DETACHED_HEAD, initCommitHash);
 
                 // Create config file (for private & description)
-                MiscHelper.CreateRepoConfig(paths.RepoConfig);
+                MiscHelper.CreateRepoConfig(paths.LocalConfig);
 
             }
             catch (Exception ex)
