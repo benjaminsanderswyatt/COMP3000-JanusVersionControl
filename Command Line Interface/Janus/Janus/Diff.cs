@@ -4,7 +4,6 @@ using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
-using System.Text;
 using System.Text.Json;
 
 namespace Janus
@@ -49,7 +48,7 @@ namespace Janus
 
         public static void DisplayDiffs(ILogger Logger, Paths paths, TreeComparisonResult result, TreeNode oldTree, TreeNode newTree, TreeSourceType oldSource, TreeSourceType newSource)
         {
-            
+
             foreach (var file in result.AddedOrUntracked)
             {
                 string newMime = GetMimeTypeFromTree(newTree, file);
@@ -138,7 +137,7 @@ namespace Janus
             {
                 return "<Binary Content>";
             }
-            
+
         }
 
         public static TreeNode GetTreeFromCommit(ILogger logger, Paths paths, string commitHash)
@@ -168,7 +167,7 @@ namespace Janus
             }
 
             var commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitPath));
-            
+
             return commitMetadata.Parents.FirstOrDefault();
         }
 
@@ -185,7 +184,7 @@ namespace Janus
             foreach (var part in pathParts)
             {
                 currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
-                if (currentNode == null) 
+                if (currentNode == null)
                     break;
             }
 

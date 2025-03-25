@@ -5,13 +5,7 @@ using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Net;
-using System.Security.AccessControl;
 using System.Text.Json;
 using static Janus.Diff;
 using static Janus.Helpers.CommandHelpers.RemoteHelper;
@@ -256,7 +250,7 @@ Example:
                     TreeNode baseTree = Diff.GetTreeFromCommit(Logger, Paths, commonAncestor);
                     TreeNode currentTree = Diff.GetTreeFromCommit(Logger, Paths, currentHead);
                     TreeNode targetTree = Diff.GetTreeFromCommit(Logger, Paths, targetHead);
-                    
+
 
                     // Compute merge changes
                     var mergeResult = MergeHelper.ComputeMergeChanges(Logger, Paths, baseTree, currentTree, targetTree);
@@ -310,7 +304,7 @@ Example:
 
             }
         }
-        
+
 
 
 
@@ -361,7 +355,7 @@ Examples:
                         commits.Add(args[i]);
                     }
                 }
-                
+
 
 
 
@@ -417,7 +411,7 @@ Examples:
                     Logger.Log("Error: Getting trees for comparison");
                     return;
                 }
-                
+
 
                 // Compare trees
                 var comparisonResult = Tree.CompareTrees(oldTree, newTree);
@@ -651,7 +645,7 @@ Example:
                     return;
                 }
 
-                
+
                 try
                 {
                     var (success, data) = await ApiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
@@ -695,7 +689,7 @@ Example:
                     // Create repo config file
                     MiscHelper.CreateRepoConfig(clonePaths.LocalConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
-                    
+
                     // Get file hashes from commits
                     var fileHashes = new HashSet<string>();
                     var branchTrees = new Dictionary<string, TreeNode>();
@@ -776,7 +770,7 @@ Example:
 
                         File.WriteAllText(Path.Combine(branchDir, "info"),
                             JsonSerializer.Serialize(branchInfo, new JsonSerializerOptions { WriteIndented = true }));
-                    
+
                         // Create branch index from latest tree
                         if (branchTrees.TryGetValue(branchDto.BranchName, out var tree))
                         {
@@ -792,7 +786,7 @@ Example:
 
                     // Set active branch
                     string activeBranchDir = Path.Combine(clonePaths.BranchesDir, chosenBranch);
-                    
+
                     // Copy active branch's index to main index
                     var activeIndex = IndexHelper.LoadIndex(Path.Combine(activeBranchDir, "index"));
                     IndexHelper.SaveIndex(clonePaths.Index, activeIndex);
@@ -1296,7 +1290,8 @@ Notes:
                 // Mark deleted files "Deleted"
                 foreach (string relativeFilePath in deletedFiles)
                 {
-                    stagedFiles[relativeFilePath] = new FileMetadata { 
+                    stagedFiles[relativeFilePath] = new FileMetadata
+                    {
                         Hash = "Deleted",
                         MimeType = null,
                         Size = 0
@@ -1379,7 +1374,7 @@ Example:
 
 
                     var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
-                    
+
                     string branch = MiscHelper.GetCurrentBranchName(Paths);
 
                     // Generate commit metadata rootTreeHash commitMessage

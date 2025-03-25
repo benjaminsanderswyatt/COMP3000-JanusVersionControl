@@ -1,5 +1,4 @@
-﻿using Janus.Utils;
-using static Janus.Helpers.FileMetadataHelper;
+﻿using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus.Helpers
 {

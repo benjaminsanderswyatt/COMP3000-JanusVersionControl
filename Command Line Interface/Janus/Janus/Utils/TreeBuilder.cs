@@ -2,7 +2,6 @@
 using Janus.Helpers;
 using Janus.Helpers.CommandHelpers;
 using Janus.Plugins;
-using System.Drawing;
 using System.Text;
 using static Janus.Helpers.FileMetadataHelper;
 
@@ -118,7 +117,7 @@ namespace Janus.Utils
                     isFile ? hash : null,
                     isFile ? mimeType : "inode/directory",
                     0, // Handle size later
-                    isFile ? lastModified : DateTimeOffset.MinValue 
+                    isFile ? lastModified : DateTimeOffset.MinValue
                 );
                 current.Children.Add(child);
             }
@@ -216,7 +215,7 @@ namespace Janus.Utils
                 foreach (var line in treeContent)
                 {
                     var parts = line.Split('|');
-                    if (parts.Length != 6) 
+                    if (parts.Length != 6)
                         continue;
 
 
@@ -231,8 +230,8 @@ namespace Janus.Utils
                         ? RebuildTreeRecursive(logger, hash)
                         : new TreeNode(name, hash, mimeType, size, lastModified);
 
-                    
-                   
+
+
                     child.Name = name;
                     child.MimeType = mimeType;
                     child.Size = size;
@@ -533,7 +532,7 @@ namespace Janus.Utils
             foreach (var part in pathParts)
             {
                 currentNode = currentNode.Children.FirstOrDefault(c => c.Name == part);
-                if (currentNode == null) 
+                if (currentNode == null)
                     break;
             }
 
@@ -566,7 +565,7 @@ namespace Janus.Utils
             foreach (var part in pathParts)
             {
                 current = current.Children.FirstOrDefault(c => c.Name == part);
-                
+
                 if (current == null)
                     return null;
             }

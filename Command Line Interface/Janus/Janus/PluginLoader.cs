@@ -8,7 +8,7 @@ namespace Janus
         public static List<ICommand> LoadPlugins(ILogger logger, Paths paths)
         {
             List<ICommand> commands = new List<ICommand>();
-            
+
             // Load local plugins
             if (Directory.Exists(paths.PluginsDir))
             {

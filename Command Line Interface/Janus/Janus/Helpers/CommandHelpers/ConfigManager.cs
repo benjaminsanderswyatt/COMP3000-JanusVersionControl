@@ -63,7 +63,7 @@
         public string GetIp(bool isGlobal)
         {
             string configPath = isGlobal ? _globalConfigPath : _localConfigPath;
-            
+
             if (File.Exists(configPath))
             {
                 try
@@ -82,7 +82,7 @@
         public void SetIp(bool isGlobal, string newIp)
         {
             string configPath = isGlobal ? _globalConfigPath : _localConfigPath;
-            
+
             try
             {
                 File.WriteAllText(configPath, newIp);
@@ -98,7 +98,7 @@
         public void ResetIp(bool isGlobal)
         {
             string configPath = isGlobal ? _globalConfigPath : _localConfigPath;
-            
+
             if (File.Exists(configPath))
             {
                 try

@@ -1,7 +1,5 @@
 ﻿using GlobExpressions;
 using Janus.Plugins;
-using Janus.Utils;
-using Microsoft.AspNetCore.StaticFiles;
 using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus.Helpers
@@ -35,7 +33,7 @@ namespace Janus.Helpers
             foreach (var relPath in workingDirFiles)
             {
                 var fullPath = Path.Combine(paths.WorkingDir, relPath);
-                
+
                 FileMetadata metadata = GetFileMetadata(fullPath, HashHelper.ComputeHashGivenRelFilepath(paths.WorkingDir, relPath));
 
                 filePathMeta[relPath] = metadata;

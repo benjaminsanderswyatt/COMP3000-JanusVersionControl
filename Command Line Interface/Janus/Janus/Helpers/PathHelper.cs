@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Janus.Helpers
+﻿namespace Janus.Helpers
 {
     public static class PathHelper
     {
@@ -11,7 +9,7 @@ namespace Janus.Helpers
         }
 
 
-        
+
     }
 
 }
