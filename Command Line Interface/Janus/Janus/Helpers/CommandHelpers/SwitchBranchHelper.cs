@@ -35,6 +35,14 @@ namespace Janus.Helpers.CommandHelpers
                 if (File.Exists(objectFilePath))
                 {
                     var fileContents = File.ReadAllBytes(objectFilePath);
+
+                    // Ensure the directory exists
+                    string directory = Path.GetDirectoryName(filePath);
+                    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
                     File.WriteAllBytes(filePath, fileContents);
                 }
                 else

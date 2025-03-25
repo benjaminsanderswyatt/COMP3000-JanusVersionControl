@@ -1879,7 +1879,7 @@ Example:
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"Error switching branch '{branchName}': {ex.Message}");
+                    Logger.Log($"Error switching branch to '{branchName}': {ex.Message}");
                     return;
                 }
 
