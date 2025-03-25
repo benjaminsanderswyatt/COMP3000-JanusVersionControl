@@ -270,6 +270,10 @@ namespace CLITests
 
             // Modify in feature
             _switchBranchCommand.Execute(new[] { "featureBranch" });
+            Directory.CreateDirectory(nestedDir);
+            File.WriteAllText(Path.Combine(nestedDir, "file.txt"), "Created content");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Nested base" });
             File.WriteAllText(Path.Combine(nestedDir, "file.txt"), "Feature content");
             _addCommand.Execute(new[] { "--all" });
             _commitCommand.Execute(new[] { "Feature nested change" });

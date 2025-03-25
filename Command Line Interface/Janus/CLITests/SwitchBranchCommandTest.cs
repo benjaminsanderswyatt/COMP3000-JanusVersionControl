@@ -160,7 +160,7 @@ namespace CLITests
             _switchBranchCommand.Execute(new string[] { branchName });
 
             // Assert
-            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Successfully switched to branch"))), Times.Once);
+            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Switched to branch"))), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: {_paths.BranchesDir}/{branchName}/head"));
 
             string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
@@ -193,7 +193,7 @@ namespace CLITests
 
 
             // Assert: 
-            _loggerMock.Verify(logger => logger.Log($"Successfully switched to branch '{branchName}'."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log($"Switched to branch '{branchName}'"), Times.Once);
             Assert.That(File.ReadAllText(_paths.HEAD), Is.EqualTo($"ref: {_paths.BranchesDir}/{branchName}/head"));
 
             string branchIndex = File.ReadAllText(Path.Combine(_paths.BranchesDir, "test_branch", "index"));
@@ -343,6 +343,74 @@ namespace CLITests
             Assert.That(mainDirChildren2, Is.EquivalentTo(expectedMainDirChildren2));
 
         }
+
+
+
+
+
+        [Test]
+        public void ShouldSwitchBetweenDifferentDirStructures()
+        {
+            // Arrange: Create a subdir structure
+            string mainSubDir = Path.Combine(_testDir, "main_subdir");
+            Directory.CreateDirectory(mainSubDir);
+            string mainFile1 = Path.Combine(mainSubDir, "mainFile1.txt");
+            string mainFile2 = Path.Combine(_testDir, "rootFile_main.txt");
+            File.WriteAllText(mainFile1, "Main branch - content of mainFile1");
+            File.WriteAllText(mainFile2, "Main branch - content of rootFile_main");
+
+            _addCommand.Execute(new string[] { "--all", "--force" });
+            _commitCommand.Execute(new string[] { "Commit main branch structure" });
+
+            // Create a branch with different folder structure
+            string branchName = "different_structure";
+            _createBranchCommand.Execute(new string[] { branchName });
+            _switchBranchCommand.Execute(new string[] { branchName });
+
+            // Act for new branch:
+            // Remove any files from the main branch structure
+            if (Directory.Exists(mainSubDir))
+            {
+                Directory.Delete(mainSubDir, true);
+            }
+            if (File.Exists(mainFile2))
+            {
+                File.Delete(mainFile2);
+            }
+
+            // Create a different directory structure on the new branch
+            string diffSubDir = Path.Combine(_testDir, "diff_subdir");
+            Directory.CreateDirectory(diffSubDir);
+            string diffFile1 = Path.Combine(_testDir, "diff_rootFile.txt");
+            string diffFile2 = Path.Combine(diffSubDir, "diffFile1.txt");
+            File.WriteAllText(diffFile1, "Different branch - root file content");
+            File.WriteAllText(diffFile2, "Different branch - subdirectory file content");
+
+            _addCommand.Execute(new string[] { "--all", "--force" });
+            _commitCommand.Execute(new string[] { "Commit different structure branch" });
+
+
+            // Assert: Switch back to main branch
+            _switchBranchCommand.Execute(new string[] { "main" });
+            // Main branch should have main_subdir and rootFile_main.txt.
+            Assert.IsTrue(Directory.Exists(mainSubDir), "Main branch should contain the directory 'main_subdir'.");
+            Assert.IsTrue(File.Exists(mainFile1), "Main branch should contain the file 'mainFile1.txt' inside 'main_subdir'.");
+            Assert.IsTrue(File.Exists(mainFile2), "Main branch should contain the file 'rootFile_main.txt' in the root.");
+
+            Assert.IsFalse(Directory.Exists(diffSubDir), "Main branch should not contain the directory 'diff_subdir'.");
+            Assert.IsFalse(File.Exists(diffFile1), "Main branch should not contain the file 'diff_rootFile.txt'.");
+
+            // Switch to the different branch
+            _switchBranchCommand.Execute(new string[] { branchName });
+            Assert.IsTrue(Directory.Exists(diffSubDir), "Different branch should contain the directory 'diff_subdir'.");
+            Assert.IsTrue(File.Exists(diffFile1), "Different branch should contain the file 'diff_rootFile.txt' in the root.");
+            Assert.IsTrue(File.Exists(diffFile2), "Different branch should contain the file 'diffFile1.txt' inside 'diff_subdir'.");
+
+            Assert.IsFalse(Directory.Exists(mainSubDir), "Different branch should not contain the directory 'main_subdir'.");
+            Assert.IsFalse(File.Exists(mainFile2), "Different branch should not contain the file 'rootFile_main.txt'.");
+        }
+
+
 
 
 
