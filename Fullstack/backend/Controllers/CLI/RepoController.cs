@@ -153,6 +153,8 @@ namespace backend.Controllers.CLI
             var repository = await _janusDbContext.Repositories
                 .Include(r => r.RepoAccesses)
                 .Include(r => r.Branches)
+                    .ThenInclude(b => b.Parent)
+                .Include(r => r.Branches)
                     .ThenInclude(b => b.Commits)  // Include commits inside branches
                         .ThenInclude(c => c.Parents)    // Include commit parents
                             .ThenInclude(cp => cp.Parent)   // Include parent commit
@@ -230,10 +232,11 @@ namespace backend.Controllers.CLI
                 branchesData.Add(new
                 {
                     BranchName = branch.BranchName,
-                    ParentBranch = branch.ParentBranch,
+                    ParentBranch = branch.Parent != null ? branch.Parent.BranchName : null,
                     SplitFromCommitHash = branch.SplitFromCommitHash,
                     LatestCommitHash = branch.LatestCommitHash,
                     CreatedBy = createdByUser,
+                    Created = branch.CreatedAt,
                     Commits = commits
                 });
             }

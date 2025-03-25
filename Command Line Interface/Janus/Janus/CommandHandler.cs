@@ -609,8 +609,8 @@ Example:
             public override string Description => "Clones a repository from a remote server to your local machine.";
             public override string Usage =>
 @"janus clone <endpoint> [branch]
-<endpoint> : Repository endpoint in the format 'janus/{owner}/{repoName}'.
-[branch]   : (Optional) Branch to activate (defaults to 'main').
+<endpoint> : Repository endpoint in the format 'janus/{owner}/{repoName}'
+[branch]   : (Optional) Branch to activate (defaults to 'main')
 Example:
     janus clone janus/owner/repo main";
             public override async Task Execute(string[] args)
@@ -677,18 +677,10 @@ Example:
                     // Create folder for repo
                     Directory.CreateDirectory(repoPath);
 
-
-
                     // Init repo
                     Paths clonePaths = new Paths(repoPath);
                     InitHelper.InitRepo(clonePaths, false);
 
-                    // TODO Handle setting up branches latest commit
-
-
-                    Logger.Log($"Setting repository configs...");
-                    // Create repo config file
-                    MiscHelper.CreateRepoConfig(clonePaths.LocalConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
                     // Check the chosen branch exists
                     if (!cloneData.Branches.Any(b => b.BranchName == chosenBranch))
@@ -698,16 +690,21 @@ Example:
                         Logger.Log($"Your chosen branch doesnt exist. Defaulting to main...");
                     }
 
-                    // Store the chosen branch tree to be built
-                    var chosenTree = new TreeBuilder(clonePaths);
 
+                    Logger.Log($"Setting repository configs...");
+                    // Create repo config file
+                    MiscHelper.CreateRepoConfig(clonePaths.LocalConfig, cloneData.IsPrivate, cloneData.RepoDescription);
+
+                    
                     // Get file hashes from commits
                     var fileHashes = new HashSet<string>();
+                    var branchTrees = new Dictionary<string, TreeNode>();
 
                     foreach (var branch in cloneData.Branches)
                     {
                         Logger.Log($"Building '{branch.BranchName}' branch...");
-                        string latestCommitHash = branch.LatestCommitHash;
+
+                        TreeNode latestTree = null;
 
                         foreach (var commit in branch.Commits)
                         {
@@ -742,20 +739,66 @@ Example:
                                 }
 
 
-                                if (branch.BranchName == chosenBranch)
-                                {
-                                    // Save tree to be rebuilt
-                                    chosenTree = treeBuilder;
-                                }
-
+                                // Store latest tree for branch
+                                latestTree = treeBuilder.root;
 
                                 // Get file hashes from tree
                                 treeBuilder.GetFileHashes(fileHashes);
 
                             }
                         }
+
+                        if (latestTree != null)
+                        {
+                            branchTrees[branch.BranchName] = latestTree;
+                        }
                     }
 
+
+                    // Create branch dirs and files
+                    foreach (var branchDto in cloneData.Branches)
+                    {
+                        string branchDir = Path.Combine(clonePaths.BranchesDir, branchDto.BranchName);
+                        Directory.CreateDirectory(branchDir);
+
+                        // Create head file with latest commit
+                        File.WriteAllText(Path.Combine(branchDir, "head"), branchDto.LatestCommitHash);
+
+                        // Create info file
+                        var branchInfo = new Branch
+                        {
+                            Name = branchDto.BranchName,
+                            SplitFromCommit = branchDto.SplitFromCommitHash,
+                            ParentBranch = branchDto.ParentBranch,
+                            CreatedBy = branchDto.CreatedBy,
+                            Created = branchDto.Created
+                        };
+
+                        File.WriteAllText(Path.Combine(branchDir, "info"),
+                            JsonSerializer.Serialize(branchInfo, new JsonSerializerOptions { WriteIndented = true }));
+                    
+                        // Create branch index from latest tree
+                        if (branchTrees.TryGetValue(branchDto.BranchName, out var tree))
+                        {
+                            var indexDict = new TreeBuilder(clonePaths).BuildIndexDictionary(tree);
+                            IndexHelper.SaveIndex(Path.Combine(branchDir, "index"), indexDict);
+                        }
+                        else
+                        {
+                            File.Create(Path.Combine(branchDir, "index")).Close();
+                        }
+
+                    }
+
+                    // Set active branch
+                    string activeBranchDir = Path.Combine(clonePaths.BranchesDir, chosenBranch);
+                    
+                    // Copy active branch's index to main index
+                    var activeIndex = IndexHelper.LoadIndex(Path.Combine(activeBranchDir, "index"));
+                    IndexHelper.SaveIndex(clonePaths.Index, activeIndex);
+
+                    // Set HEAD reference
+                    BranchHelper.SetCurrentHEAD(clonePaths, chosenBranch);
 
 
 
@@ -777,64 +820,18 @@ Example:
                         if (!downloadSuccess)
                         {
                             Logger.Log("Error downloading file objects");
+                            Directory.Delete(repoPath, true); // Clean up partial clone
                             return;
                         }
                     }
 
 
-                    // Recreate chosen branch branch
-                    Logger.Log($"Setting up '{chosenBranch}' branch...");
-
-
-                    // Build the index
-                    var indexDict = chosenTree.BuildIndexDictionary();
-
-
-                    // TODO
-                    /*
-                     */
-                    // Ensure main branch dir exists
-                    string chosenBranchDir = Path.Combine(clonePaths.BranchesDir, chosenBranch);
-                    Directory.CreateDirectory(chosenBranchDir);
-                    /*
-                     */
-
-                    // Save the index into the main branch
-                    // TODO create and save the index for all branches
-                    string chosenBranchIndexPath = Path.Combine (chosenBranchDir, "index");
-                    IndexHelper.SaveIndex(clonePaths.Index, indexDict);
-                    IndexHelper.SaveIndex(chosenBranchIndexPath, indexDict);
-
-
-                    // Set HEAD to main branch
-                    BranchHelper.SetCurrentHEAD(clonePaths, chosenBranch);
-
-
-
-                    // Recreate working dir
+                    // Recreate working directory
                     Logger.Log("Recreating working directory files...");
-
-                    var comparisonResults = Tree.CompareTrees(null, chosenTree.root);
-                    foreach (var filePath in comparisonResults.AddedOrUntracked)
+                    if (branchTrees.TryGetValue(chosenBranch, out var activeTree))
                     {
-                        string hash = Tree.GetHashFromTree(chosenTree.root, filePath);
-
-                        string objectFilePath = Path.Combine(clonePaths.ObjectDir, hash);
-                        string destPath = Path.Combine(repoPath, filePath);
-
-                        try
-                        {
-                            Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-                            File.Copy(objectFilePath, destPath, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log($"Error copying {filePath}: {ex.Message}");
-                        }
-
+                        MergeHelper.RecreateWorkingDir(Logger, clonePaths, activeTree);
                     }
-
-
 
 
                     Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");
@@ -843,6 +840,11 @@ Example:
                 catch (Exception ex)
                 {
                     Logger.Log($"An error occurred during cloning: {ex.Message}");
+
+                    if (Directory.Exists(repoPath)) // Cleanup fail
+                    {
+                        Directory.Delete(repoPath, true);
+                    }
                 }
 
 

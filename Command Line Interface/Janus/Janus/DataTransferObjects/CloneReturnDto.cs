@@ -13,10 +13,11 @@
     public class BranchDto
     {
         public string BranchName { get; set; }
-        public int? ParentBranch { get; set; }
+        public string ParentBranch { get; set; }
         public string SplitFromCommitHash { get; set; }
         public string LatestCommitHash { get; set; }
         public string CreatedBy { get; set; }
+        public DateTime Created { get; set; }
         public List<CommitDto> Commits { get; set; }
     }
 

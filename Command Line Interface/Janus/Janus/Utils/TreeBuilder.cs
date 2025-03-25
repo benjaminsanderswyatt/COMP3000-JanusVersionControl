@@ -309,10 +309,10 @@ namespace Janus.Utils
 
 
 
-        public Dictionary<string, FileMetadata> BuildIndexDictionary()
+        public Dictionary<string, FileMetadata> BuildIndexDictionary(TreeNode startNode)
         {
             var index = new Dictionary<string, FileMetadata>();
-            BuildIndexDictionaryRecursive(root, "", index);
+            BuildIndexDictionaryRecursive(startNode, "", index);
             return index;
         }
 

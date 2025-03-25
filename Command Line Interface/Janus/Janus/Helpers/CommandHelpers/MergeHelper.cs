@@ -1,10 +1,8 @@
-﻿using Janus.Helpers;
-using Janus.Helpers.CommandHelpers;
-using Janus.Plugins;
+﻿using Janus.Plugins;
 using Janus.Utils;
 using static Janus.Helpers.FileMetadataHelper;
 
-namespace Janus
+namespace Janus.Helpers.CommandHelpers
 {
     public class MergeHelper
     {
@@ -155,7 +153,7 @@ namespace Janus
             {
 
                 string objectFilePath = Path.Combine(paths.ObjectDir, node.Hash);
-                
+
                 if (!File.Exists(objectFilePath))
                 {
                     logger.Log($"Object file '{node.Name}' not found");
