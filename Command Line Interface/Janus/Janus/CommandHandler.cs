@@ -67,47 +67,107 @@ namespace Janus
             public override string Usage =>
 @"janus config <subcommand> [arguments]
 Subcommands:
-    get ip [--global]           : Gets the configured IP (local or global)
-    set ip <value> [--global]   : Sets the IP configuration
-    reset [--global]            : Removes configuration file
+    ip get [--global]           : Gets the configured IP (local or global)
+    ip set <value> [--global]   : Sets the IP configuration
+    ip reset [--global]         : Removes configuration file
 Examples:
-    janus config get ip
-    janus config set ip 192.168.1.100 --global
-    janus config reset          : Removes local config
-    janus config reset --global : Removes global config";
+    janus config ip get
+    janus config ip set 192.168.1.100 --global
+    janus config ip reset          : Removes local config
+    janus config ip reset --global : Removes global config";
             public override async Task Execute(string[] args)
             {
-                if (args.Length < 1)
+                if (args.Length < 2)
                 {
-                    Logger.Log("Please specify a subcommand (get/set)");
+                    Logger.Log("Please specify a subcommand");
                     return;
                 }
 
-                try
+                // Check for the --global flag
+                bool isGlobal = args.Any(arg => arg.Equals("--global", StringComparison.OrdinalIgnoreCase));
+
+                // Determine the proper config file path based on the flag
+                string configPath = isGlobal ? Paths.GlobalConfig : Paths.LocalConfig;
+
+                var configManager = new ConfigManager(Paths.LocalConfig, Paths.GlobalConfig);
+
+                if (args[0].ToLower() == "ip")
                 {
-                    switch (args[0].ToLower())
+
+                    switch (args[1].ToLower())
                     {
                         case "get":
-                            HandleGetConfig(args);
+
+                            try
+                            {
+                                string ip = configManager.GetIp(isGlobal);
+
+                                if (string.IsNullOrWhiteSpace(ip))
+                                {
+                                    Logger.Log("No IP configuration found");
+                                }
+                                else
+                                {
+                                    Logger.Log("Configured IP: " + ip);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Log("Error reading IP configuration: " + ex.Message);
+                            }
+
                             break;
 
                         case "set":
-                            HandleSetConfig(args);
+
+                            if (args.Length < 3)
+                            {
+                                Logger.Log("Please provide an IP");
+                                return;
+                            }
+                            string newIP = args[2];
+                            try
+                            {
+                                configManager.SetIp(isGlobal, newIP);
+                                Logger.Log("IP configuration set to: " + newIP);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Log("Error setting IP configuration: " + ex.Message);
+                            }
+
                             break;
 
                         case "reset":
-                            HandleResetConfig(args);
+
+                            try
+                            {
+                                configManager.ResetIp(isGlobal);
+                                Logger.Log("IP configuration has been reset");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Log("Error resetting IP configuration: " + ex.Message);
+                            }
+
                             break;
 
+
                         default:
-                            Logger.Log("Invalid subcommand. Valid subcommands: get, set, reset");
+                            Logger.Log("Invalid subcommand");
                             break;
                     }
+
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.Log($"Error handling config command: {ex.Message}");
+                    Logger.Log("Invalid command. Use 'janus config <subcommand>'");
                 }
+
+
+
+
+
 
             }
 
@@ -594,7 +654,7 @@ Example:
                 
                 try
                 {
-                    var (success, data) = await ApiHelper.SendGetAsync(endpoint, credentials.Token);
+                    var (success, data) = await ApiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
 
                     if (!success)
                     {
@@ -705,6 +765,7 @@ Example:
                     if (fileHashes.Any())
                     {
                         bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                            Paths,
                             owner,
                             repoName,
                             fileHashes.ToList(),
@@ -865,7 +926,7 @@ Example:
                 var pushData = ""; // Temp
 
                 // Send push
-                var (success, response) = await ApiHelper.SendPostAsync($"Push/{repoName}/{branchName}", pushData, credentials.Token);
+                var (success, response) = await ApiHelper.SendPostAsync(Paths, $"Push/{repoName}/{branchName}", pushData, credentials.Token);
 
                 if (success)
                 {
@@ -932,7 +993,7 @@ Example:
 
                 // Fetch remote commits
                 string owner = "temp";
-                var (success, remoteCommitsJson) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branchName}/commits", credentials.Token);
+                var (success, remoteCommitsJson) = await ApiHelper.SendGetAsync(Paths, $"{owner}/{repoName}/{branchName}/commits", credentials.Token);
                 if (!success)
                 {
                     Logger.Log("Failed to fetch remote commit history.");

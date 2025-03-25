@@ -10,7 +10,7 @@ namespace Janus.Helpers
 
         public static async Task<List<string>> CompareRemoteAndLocalRepos(Paths paths, string pat, string owner, string repoName, string branch)
         {
-            var (success, latestRemoteCommitHash) = await ApiHelper.SendGetAsync($"{owner}/{repoName}/{branch}/latestcommit", pat);
+            var (success, latestRemoteCommitHash) = await ApiHelper.SendGetAsync(paths, $"{owner}/{repoName}/{branch}/latestcommit", pat);
 
             if (!success)
             {

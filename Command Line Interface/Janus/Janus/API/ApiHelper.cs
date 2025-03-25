@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using Janus.Helpers.CommandHelpers;
+using Janus.Plugins;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 using System.Net;
 using System.Net.Http.Headers;
@@ -9,10 +11,18 @@ namespace Janus.API
 {
     public static class ApiHelper
     {
-
-        public static async Task<(bool, string)> SendPostAsync(string endpoint, object bodyObject, string? pat = null)
+        private static string GetApiBaseUrl(Paths paths)
         {
-            string apiUrl = "https://localhost:82/api/" + endpoint;
+            var configManager = new ConfigManager(paths.LocalConfig, paths.GlobalConfig);
+            return configManager.GetEffectiveIp();
+        }
+
+
+        public static async Task<(bool, string)> SendPostAsync(Paths paths, string endpoint, object bodyObject, string? pat = null)
+        {
+            string effectiveIp = GetApiBaseUrl(paths);
+
+            string apiUrl = $"https://{effectiveIp}/api/{endpoint}";
 
             using (HttpClient client = new HttpClient())
             {
@@ -46,9 +56,11 @@ namespace Janus.API
         }
 
 
-        public static async Task<(bool, string)> SendGetAsync(string endpoint, string? pat = null)
+        public static async Task<(bool, string)> SendGetAsync(Paths paths, string endpoint, string? pat = null)
         {
-            string apiUrl = "https://localhost:82/api/cli/repo/" + endpoint;
+            string effectiveIp = GetApiBaseUrl(paths);
+
+            string apiUrl = $"https://{effectiveIp}/api/cli/repo/{endpoint}";
 
             using (HttpClient client = new HttpClient())
             {
@@ -79,9 +91,11 @@ namespace Janus.API
 
 
 
-        public static async Task<bool> DownloadBatchFilesAsync(string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
+        public static async Task<bool> DownloadBatchFilesAsync(Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
-            string apiUrl = $"https://localhost:82/api/cli/repo/batchfiles/{owner}/{repoName}";
+            string effectiveIp = GetApiBaseUrl(paths);
+
+            string apiUrl = $"https://{effectiveIp}/api/cli/repo/batchfiles/{owner}/{repoName}";
 
             using (HttpClient client = new HttpClient())
             {

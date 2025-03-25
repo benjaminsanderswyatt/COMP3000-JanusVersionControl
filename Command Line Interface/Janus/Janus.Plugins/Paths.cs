@@ -40,7 +40,7 @@ namespace Janus.Plugins
             Remote = Path.Combine(JanusDir, "remote");
             RemoteCommitDir = Path.Combine(JanusDir, "remote");
 
-            LocalConfig = Path.Combine(JanusDir, "repoConfig.json");
+            LocalConfig = Path.Combine(JanusDir, "repoConfig");
 
             GlobalConfig = GetGlobalConfigPath();
         }
