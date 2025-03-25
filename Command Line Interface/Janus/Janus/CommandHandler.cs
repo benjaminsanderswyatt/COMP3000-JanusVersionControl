@@ -6,7 +6,9 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Net;
 using System.Security.AccessControl;
@@ -25,6 +27,7 @@ namespace Janus
             {
                 new HelpCommand(logger, paths),
 
+                new ConfigCommand(logger, paths),
                 new MergeCommand(logger, paths),
 
                 new LoginCommand(logger, paths),
@@ -56,8 +59,65 @@ namespace Janus
         }
 
 
+        public class ConfigCommand : BaseCommand
+        {
+            public ConfigCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "config";
+            public override string Description => "Manages local and global configuration settings";
+            public override string Usage =>
+@"janus config <subcommand> [arguments]
+Subcommands:
+    get ip [--global]           : Gets the configured IP (local or global)
+    set ip <value> [--global]   : Sets the IP configuration
+    reset [--global]            : Removes configuration file
+Examples:
+    janus config get ip
+    janus config set ip 192.168.1.100 --global
+    janus config reset          : Removes local config
+    janus config reset --global : Removes global config";
+            public override async Task Execute(string[] args)
+            {
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please specify a subcommand (get/set)");
+                    return;
+                }
 
-        
+                try
+                {
+                    switch (args[0].ToLower())
+                    {
+                        case "get":
+                            HandleGetConfig(args);
+                            break;
+
+                        case "set":
+                            HandleSetConfig(args);
+                            break;
+
+                        case "reset":
+                            HandleResetConfig(args);
+                            break;
+
+                        default:
+                            Logger.Log("Invalid subcommand. Valid subcommands: get, set, reset");
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error handling config command: {ex.Message}");
+                }
+
+            }
+
+        }
+
+
+
+
+
+
         public class MergeCommand : BaseCommand
         {
             public MergeCommand(ILogger logger, Paths paths) : base(logger, paths) { }
