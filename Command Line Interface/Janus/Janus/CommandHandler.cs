@@ -40,7 +40,7 @@ namespace Janus
                 //new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
                 //new SwitchCommitCommand(logger, paths),
-                //new MergeCommand(logger, paths),
+                new MergeCommand(logger, paths),
                 
                 new StatusCommand(logger, paths),
 
