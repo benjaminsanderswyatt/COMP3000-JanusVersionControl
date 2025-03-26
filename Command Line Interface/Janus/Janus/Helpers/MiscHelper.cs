@@ -89,18 +89,7 @@ namespace Janus.Helpers
         }
 
 
-        public static void CreateRepoConfig(string repoConfigPath, bool isPrivate = true, string description = "")
-        {
-            // Create config file (for private & description)
-            var repoConfig = new RepoConfig
-            {
-                IsPrivate = isPrivate,
-                Description = description
-            };
-
-            string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(repoConfigPath, configJson);
-        }
+        
 
 
 

@@ -1,5 +1,45 @@
-﻿namespace Janus.Helpers.CommandHelpers
+﻿using Janus.Models;
+using System.Text.Json;
+
+namespace Janus.Utils
 {
+    public class RepoConfigHelper
+    {
+        public static void CreateRepoConfig(string repoConfigPath, bool isPrivate = true, string description = "")
+        {
+            // Create config file (for private & description)
+            var repoConfig = new RepoConfig
+            {
+                IsPrivate = isPrivate,
+                Description = description
+            };
+
+            string configJson = JsonSerializer.Serialize(repoConfig, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(repoConfigPath, configJson);
+        }
+
+
+        public static RepoConfig GetRepoConfig(string repoConfigPath)
+        {
+            if (!File.Exists(repoConfigPath))
+            {
+                return null;
+            }
+
+            string json = File.ReadAllText(repoConfigPath);
+            return JsonSerializer.Deserialize<RepoConfig>(json);
+        }
+
+
+        public static void SetRepoConfig(string repoConfigPath, RepoConfig config)
+        {
+            string configJson = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(repoConfigPath, configJson);
+        }
+
+    }
+
+
     public class ConfigManager
     {
         private readonly string _localConfigPath;

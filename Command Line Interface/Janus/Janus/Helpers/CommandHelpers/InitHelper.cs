@@ -1,5 +1,7 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
+using System.Net.Security;
 using System.Text.Json;
 
 namespace Janus.Helpers.CommandHelpers
@@ -73,8 +75,9 @@ namespace Janus.Helpers.CommandHelpers
                 // Create detached Head file
                 File.WriteAllText(paths.DETACHED_HEAD, initCommitHash);
 
+
                 // Create config file (for private & description)
-                MiscHelper.CreateRepoConfig(paths.LocalConfig);
+                RepoConfigHelper.CreateRepoConfig(paths.RepoConfig);
 
             }
             catch (Exception ex)

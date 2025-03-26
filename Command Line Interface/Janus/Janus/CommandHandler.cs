@@ -64,11 +64,16 @@ Subcommands:
     ip get [--global]           : Gets the configured IP (local or global)
     ip set <value> [--global]   : Sets the IP configuration
     ip reset [--global]         : Removes configuration file
+    repo get <property>         : Gets a repository property (is-private, description)
+    repo set <property> <value> : Sets a repository property
 Examples:
     janus config ip get
     janus config ip set 192.168.1.100 --global
-    janus config ip reset          : Removes local config
-    janus config ip reset --global : Removes global config";
+    janus config ip reset
+    janus config ip reset --global
+    janus config repo get is-private
+    janus config repo set is-private false
+    janus config repo set description ""My project""";
             public override async Task Execute(string[] args)
             {
                 if (args.Length < 2)
@@ -77,91 +82,21 @@ Examples:
                     return;
                 }
 
-                // Check for the --global flag
-                bool isGlobal = args.Any(arg => arg.Equals("--global", StringComparison.OrdinalIgnoreCase));
 
-                // Determine the proper config file path based on the flag
-                string configPath = isGlobal ? Paths.GlobalConfig : Paths.LocalConfig;
-
-                var configManager = new ConfigManager(Paths.LocalConfig, Paths.GlobalConfig);
-
-                if (args[0].ToLower() == "ip")
+                switch (args[0].ToLower())
                 {
+                    case "ip":
+                        ConfigHelper.HandleIpConfig(Logger, Paths, args);
+                        break;
 
-                    switch (args[1].ToLower())
-                    {
-                        case "get":
+                    case "repo":
+                        ConfigHelper.HandleRepoConfig(Logger, Paths, args);
+                        break;
 
-                            try
-                            {
-                                string ip = configManager.GetIp(isGlobal);
-
-                                if (string.IsNullOrWhiteSpace(ip))
-                                {
-                                    Logger.Log("No IP configuration found");
-                                }
-                                else
-                                {
-                                    Logger.Log("Configured IP: " + ip);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Log("Error reading IP configuration: " + ex.Message);
-                            }
-
-                            break;
-
-                        case "set":
-
-                            if (args.Length < 3)
-                            {
-                                Logger.Log("Please provide an IP");
-                                return;
-                            }
-                            string newIP = args[2];
-                            try
-                            {
-                                configManager.SetIp(isGlobal, newIP);
-                                Logger.Log("IP configuration set to: " + newIP);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Log("Error setting IP configuration: " + ex.Message);
-                            }
-
-                            break;
-
-                        case "reset":
-
-                            try
-                            {
-                                configManager.ResetIp(isGlobal);
-                                Logger.Log("IP configuration has been reset");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Log("Error resetting IP configuration: " + ex.Message);
-                            }
-
-                            break;
-
-
-                        default:
-                            Logger.Log("Invalid subcommand");
-                            break;
-                    }
-
+                    default:
+                        Logger.Log("Invalid subcommand. Use 'ip' or 'repo'.");
+                        break;
                 }
-                else
-                {
-                    Logger.Log("Invalid command. Use 'janus config <subcommand>'");
-                }
-
-
-
-
-
 
             }
 
@@ -687,7 +622,7 @@ Example:
 
                     Logger.Log($"Setting repository configs...");
                     // Create repo config file
-                    MiscHelper.CreateRepoConfig(clonePaths.LocalConfig, cloneData.IsPrivate, cloneData.RepoDescription);
+                    RepoConfigHelper.CreateRepoConfig(clonePaths.RepoConfig, cloneData.IsPrivate, cloneData.RepoDescription);
 
 
                     // Get file hashes from commits
