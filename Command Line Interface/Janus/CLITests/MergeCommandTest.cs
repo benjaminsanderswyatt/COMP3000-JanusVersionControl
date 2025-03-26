@@ -283,7 +283,7 @@ namespace CLITests
             _mergeCommand.Execute(new[] { "featureBranch" });
 
             // Assert
-            _loggerMock.Verify(x => x.Log($"Conflict: nested{Path.DirectorySeparatorChar}file.txt"), Times.Once);
+            _loggerMock.Verify(x => x.Log($"Conflict: nested/file.txt".Replace('/', Path.DirectorySeparatorChar)), Times.Once);
         }
 
 
