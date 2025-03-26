@@ -119,15 +119,6 @@ Example:
     janus merge featureBranch";
             public override async Task Execute(string[] args)
             {
-                // Load credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
-                if (credentials == null)
-                {
-                    Logger.Log("Please login first. janus login");
-                    return;
-                }
-
                 // Check the user is in a valid dir (.janus exists)
                 if (!Directory.Exists(Paths.JanusDir))
                 {
