@@ -42,28 +42,35 @@ namespace Janus.Helpers
 
         public static string GetUsername()
         {
-            // Get the username
             var credManager = new CredentialManager();
             var credentials = credManager.LoadCredentials();
-            string username = credentials.Username;
 
-            // No config set use systems username
-            if (string.IsNullOrWhiteSpace(username))
+            // Use credentials if valid
+            if (credentials != null && !string.IsNullOrEmpty(credentials.Username))
             {
-                return Environment.UserName;
+                return credentials.Username;
             }
 
-            return username;
+            // Fallback to system username
+            string envUsername = Environment.UserName;
+
+            return string.IsNullOrEmpty(envUsername) ? "" : envUsername;
+
         }
 
         public static string GetEmail()
         {
-            // Get the email from credentials
             var credManager = new CredentialManager();
             var credentials = credManager.LoadCredentials();
-            string email = credentials.Email;
 
-            return email;
+            // Return email if valid
+            if (credentials != null && !string.IsNullOrEmpty(credentials.Email))
+            {
+                return credentials.Email;
+            }
+
+            // No email configured
+            return "";
         }
 
 
