@@ -53,6 +53,10 @@ namespace Janus
         }
 
 
+
+
+
+
         public class ConfigCommand : BaseCommand
         {
             public ConfigCommand(ILogger logger, Paths paths) : base(logger, paths) { }
@@ -479,16 +483,16 @@ Example:
             public override string Usage =>
 @"janus remote <subcommand> [arguments]
 Subcommands:
-    add <name> <endpoint>    : Adds a remote repository.
-    remove <name>        : Removes a remote repository.
-    list                 : Lists all remote repositories.
+    add <name> <endpoint>   : Adds a remote repository.
+    remove <name>           : Removes a remote repository.
+    list                    : Lists all remote repositories.
 Example:
     janus remote add origin janus/repo/user";
             public override async Task Execute(string[] args)
             {
                 if (args.Length == 0)
                 {
-                    Logger.Log("Provide a command");
+                    Logger.Log("Provide a subcommand. Usage: janus help remote");
                     return;
                 }
 

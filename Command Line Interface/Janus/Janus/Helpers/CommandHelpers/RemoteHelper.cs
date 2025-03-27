@@ -86,7 +86,7 @@ namespace Janus.Helpers.CommandHelpers
         {
             List<RemoteRepos> remotes = LoadRemotes(remotePath);
 
-            if (remotes == null)
+            if (remotes == null || remotes.Count == 0)
             {
                 logger.Log("No saved remotes");
                 return;
