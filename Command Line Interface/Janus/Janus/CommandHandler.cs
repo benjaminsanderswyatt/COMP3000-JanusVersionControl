@@ -1284,6 +1284,7 @@ Example:
                     var stagedFiles = IndexHelper.LoadIndex(Paths.Index);
                     var stagedTreeBuilder = new TreeBuilder(Paths);
 
+
                     // Clean up index removing deleted files
                     var updatedIndex = stagedFiles.Where(kv => kv.Value.Hash != "Deleted")
                                           .ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -1298,11 +1299,10 @@ Example:
                         return;
                     }
 
-
                     var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
 
                     string branch = MiscHelper.GetCurrentBranchName(Paths);
-
+                    
                     // Generate commit metadata rootTreeHash commitMessage
                     var username = MiscHelper.GetUsername();
                     var email = MiscHelper.GetEmail();
@@ -1311,10 +1311,9 @@ Example:
                     string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
                     CommitHelper.SaveCommit(Paths, commitHash, new List<string> { parentCommit }, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
-
+                    
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
-
 
 
                     // Save cleaned up index

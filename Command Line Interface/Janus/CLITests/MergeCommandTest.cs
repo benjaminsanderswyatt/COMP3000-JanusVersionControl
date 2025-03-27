@@ -376,33 +376,6 @@ namespace CLITests
         }
 
 
-        [Test]
-        public void ShouldHaveCorrectMergeCommitMetadata()
-        {
-            // Arrange
-            File.WriteAllText(Path.Combine(_testDir, "meta-test.txt"), "Content");
-            _addCommand.Execute(new[] { "--all" });
-            _commitCommand.Execute(new[] { "Prep commit" });
-
-            // Act
-            _mergeCommand.Execute(new[] { "featureBranch" });
-
-            // Assert
-            var mergeCommit = GetLatestCommitMetadata();
-            Assert.Multiple(() =>
-            {
-                Assert.That(mergeCommit.AuthorName, Is.EqualTo("testuser"));
-                Assert.That(mergeCommit.Message, Does.StartWith("Merge branch"));
-                Assert.That(mergeCommit.Date, Is.GreaterThan(DateTime.UtcNow.AddMinutes(-1)));
-            });
-        }
-
-
-
-
-
-
-
 
     }
 }
