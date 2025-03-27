@@ -76,7 +76,7 @@ namespace CLITests
             await _remoteCommand.Execute(args);
 
             // Assert
-            _loggerMock.Verify(l => l.Log("Provide a command"), Times.Once);
+            _loggerMock.Verify(l => l.Log("Provide a subcommand. Usage: janus help remote"), Times.Once);
         }
 
         [Test]
