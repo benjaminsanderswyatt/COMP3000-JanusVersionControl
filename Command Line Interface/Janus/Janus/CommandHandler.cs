@@ -496,19 +496,25 @@ Example:
                     return;
                 }
 
+
+                var remoteManager = new RemoteManager(Logger, Paths);
+
                 switch (args[0].ToLower())
                 {
                     case "add":
-                        await AddRemote(Logger, Paths.Remote, args);
+                        await remoteManager.AddRemote(args);
 
                         break;
+
                     case "remove":
-                        await RemoveRemote(Logger, Paths.Remote, args);
+                        await remoteManager.RemoveRemote(args);
 
                         break;
+
                     case "list":
-                        ListRemotes(Logger, Paths.Remote);
+                        remoteManager.ListRemotes();
                         break;
+
                     default:
                         Logger.Log("Usage:");
                         Logger.Log("    janus remotes add <name> <link>");
