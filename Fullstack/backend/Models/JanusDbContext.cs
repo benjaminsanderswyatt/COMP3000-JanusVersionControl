@@ -160,11 +160,13 @@ namespace backend.Models
             modelBuilder.Entity<Repository>().HasData(
                 new Repository { RepoId = 1, OwnerId = 1, RepoName = "Repo1", RepoDescription = "First seeded", IsPrivate = false },
                 new Repository { RepoId = 2, OwnerId = 2, RepoName = "Repo2", RepoDescription = "Sec seeded", IsPrivate = true },
-                new Repository { RepoId = 3, OwnerId = 1, RepoName = "RepoWithManyCommits", RepoDescription = "This repo has many commits", IsPrivate = false }
+                new Repository { RepoId = 3, OwnerId = 1, RepoName = "RepoWithManyCommits", RepoDescription = "This repo has many commits", IsPrivate = false },
+                new Repository { RepoId = 4, OwnerId = 1, RepoName = "MergeTestRepo", RepoDescription = "Repo with merge commits", IsPrivate = false }
             );
 
+
             // Seed many repositories
-            for (int i = 4; i <= 50; i++)
+            for (int i = 5; i <= 50; i++)
             {
                 modelBuilder.Entity<Repository>().HasData(
                     new Repository { RepoId = i, OwnerId = 1, RepoName = $"Repo{i}", RepoDescription = $"Seeded {i}", IsPrivate = false }
@@ -172,7 +174,7 @@ namespace backend.Models
             }
 
             // Seed the repo accesses for the many repos
-            for (int i = 4; i <= 50; i++)
+            for (int i = 5; i <= 50; i++)
             {
                 modelBuilder.Entity<RepoAccess>().HasData(
                     new RepoAccess { RepoId = i, UserId = 1, AccessLevel = AccessLevel.OWNER }
@@ -186,7 +188,8 @@ namespace backend.Models
                 new RepoAccess { RepoId = 1, UserId = 1, AccessLevel = AccessLevel.OWNER },
                 new RepoAccess { RepoId = 1, UserId = 2, AccessLevel = AccessLevel.WRITE },
                 new RepoAccess { RepoId = 2, UserId = 2, AccessLevel = AccessLevel.OWNER },
-                new RepoAccess { RepoId = 3, UserId = 1, AccessLevel = AccessLevel.OWNER }
+                new RepoAccess { RepoId = 3, UserId = 1, AccessLevel = AccessLevel.OWNER },
+                new RepoAccess { RepoId = 4, UserId = 1, AccessLevel = AccessLevel.OWNER }
             );
 
 
@@ -194,7 +197,11 @@ namespace backend.Models
             modelBuilder.Entity<Branch>().HasData(
                 new Branch { BranchId = 1, RepoId = 1, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
                 new Branch { BranchId = 2, RepoId = 1, BranchName = "branch", ParentBranch = 1, SplitFromCommitHash = "925cc242245c8df69d12021001277c54ec4b321c", LatestCommitHash = "18bd7fcf86b444b0270f93d333f7c5457e4abcbe", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
-                new Branch { BranchId = 3, RepoId = 3, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "branch3_commit_100", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow }
+                new Branch { BranchId = 3, RepoId = 3, BranchName = "main", ParentBranch = null, SplitFromCommitHash = null, LatestCommitHash = "branch3_commit_100", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
+
+
+                new Branch { BranchId = 4, RepoId = 4, BranchName = "main", ParentBranch = null, LatestCommitHash = "main_commit_4", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow },
+                new Branch { BranchId = 5, RepoId = 4, BranchName = "feature", ParentBranch = 4, SplitFromCommitHash = "main_commit_2", LatestCommitHash = "feature_commit_2", CreatedBy = 1, CreatedAt = DateTimeOffset.UtcNow }
             );
 
 
@@ -267,9 +274,31 @@ namespace backend.Models
 
 
 
+            // Seed Commits Merge
+            modelBuilder.Entity<Commit>().HasData(
+                new Commit { CommitId = 104, CommitHash = "main_commit_1", BranchId = 4, TreeHash = "", CreatedBy = "User1", Message = "Initial commit on main", CommittedAt = DateTimeOffset.UtcNow },
+                new Commit { CommitId = 105, CommitHash = "main_commit_2", BranchId = 4, TreeHash = "", CreatedBy = "User1", Message = "Second commit on main", CommittedAt = DateTimeOffset.UtcNow.AddMinutes(10) },
+                new Commit { CommitId = 106, CommitHash = "feature_commit_1", BranchId = 5, TreeHash = "", CreatedBy = "User1", Message = "First commit on feature", CommittedAt = DateTimeOffset.UtcNow.AddMinutes(20) },
+                new Commit { CommitId = 107, CommitHash = "feature_commit_2", BranchId = 5, TreeHash = "", CreatedBy = "User1", Message = "Second commit on feature", CommittedAt = DateTimeOffset.UtcNow.AddMinutes(30) },
+                new Commit { CommitId = 108, CommitHash = "merge_commit_3", BranchId = 4, TreeHash = "", CreatedBy = "User1", Message = "Merge feature into main", CommittedAt = DateTimeOffset.UtcNow.AddMinutes(40) },
+                new Commit { CommitId = 109, CommitHash = "main_commit_4", BranchId = 4, TreeHash = "", CreatedBy = "User1", Message = "Post-merge commit", CommittedAt = DateTimeOffset.UtcNow.AddMinutes(50) }
+            );
 
-
-
+            modelBuilder.Entity<CommitParent>().HasData(
+                new CommitParent { ChildId = 105, ParentId = 104 },
+                new CommitParent { ChildId = 106, ParentId = 105 },
+                new CommitParent { ChildId = 107, ParentId = 106 },
+                new CommitParent { ChildId = 108, ParentId = 105 },
+                new CommitParent { ChildId = 108, ParentId = 107 },
+                new CommitParent { ChildId = 109, ParentId = 108 }
+            );
+            /*
+             
+            main:          main_commit_1 -> main_commit_2 -> merge_commit_3 -> main_commit_4
+                                                \                   /
+            feature:                              > feature_commit_1 -> feature_commit_2
+            
+            */
 
 
 

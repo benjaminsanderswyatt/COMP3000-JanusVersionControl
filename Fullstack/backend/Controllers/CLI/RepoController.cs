@@ -1,4 +1,5 @@
-﻿using backend.Helpers;
+﻿using backend.DataTransferObjects.CLI;
+using backend.Helpers;
 using backend.Models;
 using backend.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -28,110 +29,6 @@ namespace backend.Controllers.CLI
         }
 
 
-        // POST: api/CLI/repo/SayHello
-        [HttpPost("SayHello")]
-        public async Task<IActionResult> SayHello()
-        {
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                Console.WriteLine($"hello: {userId}");
-
-                return Ok(new { message = $"hello {userId}" });
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-
-        }
-
-
-
-
-
-        // POST: api/CLI/Init
-
-        // GET: api/CLI/repo/{owner}/{repoName}/LatestCommit
-        [HttpGet("{owner}/{repoName}/{branch}/latestcommit")]
-        public async Task<IActionResult> GetLatestCommit(string owner, string repoName, string branch)
-        {
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!int.TryParse(userIdClaim, out int userId))
-            {
-                return Unauthorized(new { Message = "Invalid user" });
-            }
-
-            // Get user by username
-            var ownerUser = await _janusDbContext.Users
-                .FirstOrDefaultAsync(u => u.Username == owner);
-
-            if (ownerUser == null)
-            {
-                return NotFound(); // Generic not found hides existance of user
-            }
-
-
-            // Find the repo of the owner
-            var repo = await _janusDbContext.Repositories
-                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
-
-            if (repo == null)
-            {
-                return NotFound(); // Generic not found hides existance of repo
-            }
-
-            // Ensure the user has access to this repo
-            var hasAccess = !repo.IsPrivate || // Public repo
-                await _janusDbContext.RepoAccess.AnyAsync(ra => ra.UserId == userId && ra.RepoId == repo.RepoId);
-
-            if (!hasAccess)
-            {
-                return NotFound(); // Generic not found hides existance of repo
-            }
-
-            /*
-            // Get the latest commit hash for branch
-            var branchEntity = await _janusDbContext.Branches
-                .Where(b => b.RepoId == repo.RepoId && b.BranchName == branch)
-                .Select(b => new { b.LatestCommitHash })
-                .FirstOrDefaultAsync();
-
-            if (branchEntity == null)
-            {
-                // Branch doesnt exist so return empty (no commits for the branch)
-                return Ok(new { LatestCommit = "" });
-            }
-
-            return Ok(new { LatestCommit = branchEntity.LatestCommitHash });
-            */
-            return BadRequest();
-        }
-
-
-        // POST: api/CLI/Push
-        /*
-        [HttpPost("Push")]
-        public async Task<IActionResult> Push([FromBody] PushDto pushDto)
-        {
-
-        }
-        */
-
-
-
-        // POST: api/CLI/Pull
-
-
-
-
-
         // GET: api/CLI/repo/janus/{owner}/{repoName}
         [HttpGet("janus/{owner}/{repoName}")]
         public async Task<IActionResult> CloneRepo(string owner, string repoName)
@@ -155,9 +52,9 @@ namespace backend.Controllers.CLI
                 .Include(r => r.Branches)
                     .ThenInclude(b => b.Parent)
                 .Include(r => r.Branches)
-                    .ThenInclude(b => b.Commits)  // Include commits inside branches
-                        .ThenInclude(c => c.Parents)    // Include commit parents
-                            .ThenInclude(cp => cp.Parent)   // Include parent commit
+                    .ThenInclude(b => b.Commits)
+                        .ThenInclude(c => c.Parents)
+                            .ThenInclude(cp => cp.Parent)
                 .AsSplitQuery()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
@@ -171,74 +68,18 @@ namespace backend.Controllers.CLI
                 return NotFound(new { Message = "Repository not found" }); // Repository is hidden, mask unauthorised with not found error
 
 
-
-            // Get the clone data
-            // (Repo details, Branches, Commits, Trees, File Names/Hashes)
-            // Exclude file content
+            /*
+                Get the clone data
+                (Repo details, Branches, Commits, Trees, File Names/Hashes)
+                Exclude file content
+            */
 
             var treeBuilder = new TreeBuilder(repository.RepoId);
-
             var branchesData = new List<object>();
 
             foreach (var branch in repository.Branches)
             {
-                var createdByUser = await _janusDbContext.Users
-                    .Where(u => u.UserId == branch.CreatedBy)
-                    .Select(u => u.Username)
-                    .FirstOrDefaultAsync();
-
-
-                // Get all commits for the branch
-                var commits = branch.Commits.Select(commit =>
-                {
-                    var parentsCommitHash = commit.Parents
-                        .Select(cp => cp.Parent.CommitHash)
-                        .ToList();
-
-
-                    // Get the author of the commit
-                    string commitAuthorUsername = commit.CreatedBy;
-                    string commitAuthorEmail;
-                    int commitAuthorId;
-                    if (commit.CreatedBy == "Janus")
-                    {
-                        commitAuthorId = 0;
-                        commitAuthorEmail = "Janus";
-                    }
-                    else
-                    {
-                        var author = _janusDbContext.Users.FirstOrDefault(u => u.Username == commit.CreatedBy);
-                        commitAuthorEmail = author.Email;
-                    }
-
-                    // Recreate the tree for the commit
-                    TreeNode tree = treeBuilder.RecreateTree(commit.TreeHash);
-                    var treeDto = Tree.ConvertTreeNodeToDto(tree);
-
-
-                    return new
-                    {
-                        commit.CommitHash,
-                        parentsCommitHash = parentsCommitHash,
-                        AuthorName = commitAuthorUsername,
-                        AuthorEmail = commitAuthorEmail,
-                        commit.Message,
-                        commit.CommittedAt,
-                        commit.TreeHash,
-                        Tree = treeDto
-                    };
-                }).ToList();
-
-                branchesData.Add(new
-                {
-                    BranchName = branch.BranchName,
-                    ParentBranch = branch.Parent != null ? branch.Parent.BranchName : null,
-                    SplitFromCommitHash = branch.SplitFromCommitHash,
-                    LatestCommitHash = branch.LatestCommitHash,
-                    CreatedBy = createdByUser,
-                    Created = branch.CreatedAt,
-                    Commits = commits
-                });
+                branchesData.Add(await _cliHelper.GetBranchDataAsync(branch, treeBuilder));
             }
 
             var cloneData = new
@@ -249,39 +90,8 @@ namespace backend.Controllers.CLI
                 Branches = branchesData
             };
 
-
             return Ok(cloneData);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
