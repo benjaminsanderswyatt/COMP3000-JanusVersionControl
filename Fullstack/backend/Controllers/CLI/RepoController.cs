@@ -227,6 +227,10 @@ namespace backend.Controllers.CLI
             // Response object
             var response = new
             {
+                RepoData = new {
+                    RepoDescription = repository.RepoDescription,
+                    IsPrivate = repository.IsPrivate,
+                },     
                 BranchLatestHashes = new Dictionary<string, string>(),
                 NewBranches = new List<object>(),
                 NewCommits = new Dictionary<string, List<object>>()
