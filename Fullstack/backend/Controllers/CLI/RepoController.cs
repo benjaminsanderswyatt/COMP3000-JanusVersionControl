@@ -184,245 +184,151 @@ namespace backend.Controllers.CLI
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        // POST: api/CLI/Push
-        [HttpPost("Push")]
-        public async Task<IActionResult> Push([FromBody] List<CommitDto> commitDtos)
+        
+        [HttpPost("fetch/{owner}/{repoName}")]
+        public async Task<IActionResult> FetchRepo(string owner, string repoName, [FromBody] Dictionary<string, string> latestBranchHashes)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // BranchId TODO
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int userId;
-            if (!Int32.TryParse(userIdClaim, out userId))
-            {
-                return BadRequest(ModelState);
-            }
-
-            using (var transaction = await _janusDbContext.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    //List<CommitDto> commitDtos = JsonConvert.DeserializeObject<List<CommitDto>>(commitJson);
-
-                    foreach (var commitDto in commitDtos)
-                    {
-                        // var BranchId
-
-                        var parentCommitId = await _cliHelper.GetParentCommitIdAsync(commitDto.ParentCommitHash);
-
-                        var commit = new Commit
-                        {
-                            BranchId = 0,
-                            UserId = userId,
-                            CommitHash = commitDto.CommitHash,
-                            Message = commitDto.Message,
-                            ParentCommitId = parentCommitId,
-                            CommittedAt = commitDto.CommittedAt,
-                            Files = commitDto.Files.Select(fileDto => new Models.File
-                            {
-                                FilePath = fileDto.FilePath,
-                                FileHash = fileDto.FileHash,
-                                FileContents = new FileContent
-                                {
-                                    Content = fileDto.FileContent
-                                }
-                            }).ToList()
-                        };
-
-                        // Add to database
-                        _janusDbContext.Commits.Add(commit);
-                    }
-
-
-
-                    await _janusDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    return Ok();
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest(new { error = ex.Message });
-                }
-            }
-
-
-        }
-        */
-
-        public class RepoNameBranch
-        {
-            public string RepoName { get; set; }
-            public string BranchName { get; set; }
-        }
-
-
-        // POST: api/CLI/GetHeadCommitHash
-        [HttpPost("RemoteHeadCommit")]
-        public async Task<IActionResult> RemoteHeadCommit([FromBody] RepoNameBranch repoNameBranch)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
             {
-                return BadRequest(ModelState);
+                return Unauthorized(new { Message = "Invalid user" });
             }
 
-            try
-            {
-                /*
-                string repoName = repoNameBranch.RepoName;
-                string branchName = repoNameBranch.BranchName;
+            // Get repository owner
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (ownerUser == null)
+                return NotFound(new { Message = "Owner not found" });
 
-                // Find the repository for the user
-                var repository = await _janusDbContext.Users
-                    .Where(User => User.UserId == userId)
-                    .SelectMany(User => User.Repositories)
-                    .FirstOrDefaultAsync(Repository => Repository.RepoName == repoName);
+            // Get repository with branches and commits
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .Include(r => r.Branches)
+                    .ThenInclude(b => b.Commits)
+                        .ThenInclude(c => c.Parents)
+                            .ThenInclude(cp => cp.Parent)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
 
-                if (repository == null)
-                {
-                    // Create the repository if it doesn't exist
-                    repository = new Repository
-                    {
-                        OwnerId = userId,
-                        RepoName = repoName
-                    };
-                    _janusDbContext.Repositories.Add(repository);
-                    await _janusDbContext.SaveChangesAsync();
-                    return Ok(new { message = "Created repo" });
-                }
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
 
-                // Find the branch for the repository
-                var branch = await _janusDbContext.Branches
-                    .Where(Branch => Branch.RepoId == repository.RepoId && Branch.BranchName == branchName)
-                    .FirstOrDefaultAsync();
-
-                if (branch == null)
-                {
-                    // Create the branch if it doesn't exist
-                    branch = new Branch
-                    {
-                        BranchName = branchName,
-                        RepoId = repository.RepoId,
-                        LatestCommitId = null // or set the default commit ID if available
-                    };
-                    _janusDbContext.Branches.Add(branch);
-                    await _janusDbContext.SaveChangesAsync();
-
-                    return Ok(new { message = $"Created branch '{branchName}' for repo '{repoName}'" });
-                }
-
-                // If branch already exists, retrieve the latest commit for that branch
-                var latestCommitId = branch.LatestCommitId;
-
-                if (latestCommitId == null)
-                {
-                    return BadRequest("Couldn't find remote repo's latest commit in the branch");
-                }
-
-                var commitHash = await _janusDbContext.Commits
-                    .Where(Commit => Commit.CommitId == latestCommitId)
-                    .Select(Commit => Commit.CommitHash)
-                    .FirstOrDefaultAsync();
-
-                if (commitHash == null)
-                {
-                    return BadRequest("Couldn't find remote repo's latest commit");
-                }
-
-                */
-
-                //return Ok(new { CommitHash = commitHash });
-                return Ok();
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-
-
-
-
-
-
-
+            // Check access for private repos
+            if (repository.IsPrivate && !repository.RepoAccesses.Any(ra => ra.UserId == userId))
+                return NotFound(new { Message = "Repository not found" });
 
 
             /*
-            try
-            {
-                string repoName = repoNameBranch.RepoName;
-                string branchName = repoNameBranch.BranchName;
-
-                var latestCommitId = await _janusDbContext.Users // Find the latest commit for the branch given user, repo name and branch name
-                    .Where(User => User.UserId == userId)
-                    .SelectMany(User => User.Repositories)
-                    .Where(Repository => Repository.RepoName == repoName)
-                    .SelectMany(Repository => Repository.Branches)
-                    .Where(Branch => Branch.BranchName == branchName)
-                    .Select(Branch => Branch.LatestCommitId)
-                    .FirstOrDefaultAsync();
-
-                if (latestCommitId == null)
-                {
-                    return BadRequest("Couldn't find remote repos latest commit in the branch");
-                }
-
-                var commitHash = await _janusDbContext.Commits
-                    .Where(Commit => Commit.CommitId == latestCommitId)
-                    .Select(Commit => Commit.CommitHash)
-                    .FirstOrDefaultAsync();
-
-                if (commitHash == null)
-                {
-                    return BadRequest("Couldn't find remote repos latest commit");
-                }
-
-                return Ok(new { CommitHash = commitHash });
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+                For each branch:
+                If the branch is not included in the clients latestBranchHashes -> return the full branch history
+                Otherwise start from the branchs latest commit and traverse commit parents until the clients known commit is found
+                If the clients commit is not found assume a divergence and send the complete branch history
             */
 
+            // Response object
+            var response = new
+            {
+                BranchLatestHashes = new Dictionary<string, string>(),
+                NewBranches = new List<object>(),
+                NewCommits = new Dictionary<string, List<object>>()
+            };
+
+            var treeBuilder = new TreeBuilder(repository.RepoId);
+
+            foreach (var branch in repository.Branches)
+            {
+
+                if (!latestBranchHashes.TryGetValue(branch.BranchName, out string clientLatestHash))
+                {
+                    // Get all the branch data
+                    var branchData = await _cliHelper.GetBranchDataAsync(branch, treeBuilder);
+
+                    response.NewBranches.Add(branchData);
+
+                }
+                else
+                {
+                    
+                    var remoteLatestHash = branch.LatestCommitHash;
+                    if (clientLatestHash == remoteLatestHash) // Clients branch is up to date
+                        continue;
+
+                    var remoteLatestCommit = branch.Commits.FirstOrDefault(c => c.CommitHash == remoteLatestHash);
+                    if (remoteLatestCommit == null) // Get latest remote commit
+                        continue;
+
+                    // Use BFS to traverse all parents of each commit
+                    var newCommits = new List<Commit>();
+                    var visited = new HashSet<string>();
+                    var queue = new Queue<Commit>();
+
+                    queue.Enqueue(remoteLatestCommit);
+
+                    bool clientCommitFound = false;
+
+                    while (queue.Count > 0)
+                    {
+                        var currentCommit = queue.Dequeue();
+
+                        // Skip if already visited
+                        if (visited.Contains(currentCommit.CommitHash)) 
+                            continue;
+
+                        visited.Add(currentCommit.CommitHash);
+
+                        // Stop if we reach the clients latest commit
+                        if (currentCommit.CommitHash == clientLatestHash)
+                        {
+                            clientCommitFound = true;
+                            break;
+                        }
+
+                        newCommits.Add(currentCommit);
+
+                        // Enqueue all parents
+                        foreach (var parent in currentCommit.Parents.Select(cp => cp.Parent))
+                        {
+                            queue.Enqueue(parent);
+                        }
+                    }
+
+                    
+                    if (!clientCommitFound)
+                    {
+                        // Divergance send all commits from remote
+                        newCommits = branch.Commits.ToList();
+                    }
+
+                    // Get commit dtos
+                    var commitDtos = await _cliHelper.GetCommitDtosAsync(newCommits, treeBuilder);
+                    if (commitDtos.Any())
+                    {
+                        response.NewCommits[branch.BranchName] = commitDtos;
+                    }
+
+                }
+
+                // Save the branches latest commits hashes
+                response.BranchLatestHashes[branch.BranchName] = branch.LatestCommitHash;
+            }
+
+            return Ok(response);
         }
+        
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
     }
