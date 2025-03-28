@@ -5,6 +5,7 @@ using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
+using static Janus.Utils.RemoteManager;
 
 namespace CLITests
 {
@@ -92,7 +93,7 @@ namespace CLITests
 
             // Assert: Verify that the remote has been added
             string remoteJson = File.ReadAllText(_paths.Remote);
-            var remotes = JsonSerializer.Deserialize<List<RemoteHelper.RemoteRepos>>(remoteJson);
+            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson);
 
             Assert.IsNotNull(remotes);
 
@@ -111,10 +112,10 @@ namespace CLITests
         public async Task ShouldRemoveRemote(string name)
         {
             // Arrange: mock the remotes file
-            var initialRemotes = new List<RemoteHelper.RemoteRepos>
+            var initialRemotes = new List<RemoteRepos>
             {
-                new RemoteHelper.RemoteRepos { Name = "origin", Link = "janus/user/reponame" },
-                new RemoteHelper.RemoteRepos { Name = "different", Link = "janus/name/name" }
+                new RemoteRepos { Name = "origin", Link = "janus/user/reponame" },
+                new RemoteRepos { Name = "different", Link = "janus/name/name" }
             };
             File.WriteAllText(_paths.Remote, JsonSerializer.Serialize(initialRemotes, new JsonSerializerOptions { WriteIndented = true }));
 
@@ -124,7 +125,7 @@ namespace CLITests
 
             // Assert: the name was removed
             string remoteJson = File.ReadAllText(_paths.Remote);
-            var remotes = JsonSerializer.Deserialize<List<RemoteHelper.RemoteRepos>>(remoteJson);
+            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson);
 
             Assert.IsFalse(remotes.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
 
@@ -148,10 +149,10 @@ namespace CLITests
         public async Task ShouldListRemotes()
         {
             // Arrange: mock the remotes file
-            var initialRemotes = new List<RemoteHelper.RemoteRepos>
+            var initialRemotes = new List<RemoteRepos>
             {
-                new RemoteHelper.RemoteRepos { Name = "origin", Link = "janus/user/reponame" },
-                new RemoteHelper.RemoteRepos { Name = "different", Link = "janus/name/name" }
+                new RemoteRepos { Name = "origin", Link = "janus/user/reponame" },
+                new RemoteRepos { Name = "different", Link = "janus/name/name" }
             };
             File.WriteAllText(_paths.Remote, JsonSerializer.Serialize(initialRemotes, new JsonSerializerOptions { WriteIndented = true }));
 
