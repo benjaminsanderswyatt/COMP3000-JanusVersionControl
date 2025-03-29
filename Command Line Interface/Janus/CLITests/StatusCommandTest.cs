@@ -1,3 +1,4 @@
+using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -96,7 +97,7 @@ namespace CLITests
             _statusCommand.Execute(new string[0]);
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("All clean."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("All clean"), Times.Once);
         }
 
 
@@ -114,7 +115,7 @@ namespace CLITests
             _statusCommand.Execute(new string[0]);
 
             // Assert: that repo is up to date with the commit
-            _loggerMock.Verify(logger => logger.Log("All clean."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("All clean"), Times.Once);
         }
 
 
@@ -358,21 +359,125 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log("On branch:"), Times.Once);
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("main"))), Times.Once);
 
-
-            // Arrange: Create switch to a new branch
-
-            // Act
-
-            // Assert: Verify that the new branch is displayed
-
         }
 
 
         [Test]
-        public void ShouldDisplaySyncStatus()
+        public void ShouldLogRemoteBranchNotFound_WhenRemoteHeadDoesNotExist()
         {
+            // Act
+            _statusCommand.Execute(new string[0]);
 
+            // Assert: Verify that remote branch not found is logged
+            _loggerMock.Verify(logger => logger.Log("Remote branch information not found"), Times.Once);
         }
+
+
+        [Test]
+        public void ShouldDisplayBehindStatus_WhenLocalIsBehindRemote()
+        {
+            // Arrange
+            string filePath = Path.Combine(_testDir, "file.txt");
+            File.WriteAllText(filePath, "Initial content");
+
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Initial commit" });
+
+            string commitAHash = MiscHelper.GetCurrentHeadCommitHash(_paths);
+
+            // Create a second commit to move local head forward
+            File.WriteAllText(filePath, "Modified content");
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Second commit" });
+
+            string commitBHash = MiscHelper.GetCurrentHeadCommitHash(_paths);
+
+            // Set remote head to be ahead of local
+            string currentBranch = MiscHelper.GetCurrentBranchName(_paths);
+            string remoteBranchDir = Path.Combine(_paths.RemoteDir, currentBranch);
+
+            Directory.CreateDirectory(remoteBranchDir);
+            string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+
+            File.WriteAllText(remoteHeadPath, commitBHash);
+
+            // Reset local head to be behind remote
+            string branchPath = Path.Combine(_paths.BranchesDir, currentBranch, "head");
+            File.WriteAllText(branchPath, commitAHash);
+
+            // Act
+            _statusCommand.Execute(new string[0]);
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log("Your branch is 1 commit(s) behind the remote"), Times.Once);
+        }
+
+
+        [Test]
+        public void ShouldDisplayAheadStatus_WhenLocalIsAheadOfRemote()
+        {
+            // Arrange
+            string filePath = Path.Combine(_testDir, "file.txt");
+            File.WriteAllText(filePath, "Initial content");
+
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Initial commit" });
+
+            string commitAHash = MiscHelper.GetCurrentHeadCommitHash(_paths);
+
+            // Create a nother commit local head
+            File.WriteAllText(filePath, "Modified content");
+
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Second commit" });
+
+            // Set remote head to be behind local
+            string currentBranch = MiscHelper.GetCurrentBranchName(_paths);
+            string remoteBranchDir = Path.Combine(_paths.RemoteDir, currentBranch);
+            Directory.CreateDirectory(remoteBranchDir);
+            string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+            File.WriteAllText(remoteHeadPath, commitAHash);
+
+            // Act
+            _statusCommand.Execute(new string[0]);
+
+            // Assert: Verify the ahead/diverged message is logged
+            _loggerMock.Verify(logger => logger.Log("Your branch is 1 commit(s) ahead of the remote"), Times.Once);
+        }
+
+
+        [Test]
+        public void ShouldDisplayUpToDate_WhenLocalAndRemoteAreSync()
+        {
+            // Arrange: Create a commit and set both local and remote to the same hash
+            string filePath = Path.Combine(_testDir, "file.txt");
+            File.WriteAllText(filePath, "Initial content");
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Initial commit" });
+
+            string currentBranch = MiscHelper.GetCurrentBranchName(_paths);
+            string localHeadHash = MiscHelper.GetCurrentHeadCommitHash(_paths);
+
+            // Set remote head to the same commit
+            string remoteBranchDir = Path.Combine(_paths.RemoteDir, currentBranch);
+            Directory.CreateDirectory(remoteBranchDir);
+            File.WriteAllText(Path.Combine(remoteBranchDir, "head"), localHeadHash);
+
+            // Act
+            _statusCommand.Execute(new string[0]);
+
+            // Assert
+            _loggerMock.Verify(logger => logger.Log("Your branch is up to date with the remote"), Times.Once);
+        }
+
+
+
+
+
+
+
+
+
 
     }
 }

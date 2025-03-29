@@ -888,6 +888,7 @@ Examples:
                 // Update repository config
                 RepoConfigHelper.CreateRepoConfig(Paths.RepoConfig, fetchData.IsPrivate, fetchData.RepoDescription);
                 
+                int newCommitCount = 0;
 
                 // Get file hashes from commits
                 var fileHashes = new HashSet<string>();
@@ -899,6 +900,7 @@ Examples:
 
                     foreach (var commit in branch.Commits)
                     {
+                        newCommitCount++;
 
                         // Save commit
                         CommitHelper.SaveCommit(Paths,
@@ -1022,6 +1024,7 @@ Examples:
 
 
                 Logger.Log("Fetch completed successfully");
+                Logger.Log($"Local is {newCommitCount.ToString()} commits behind remote");
             }
         }
 
@@ -1893,11 +1896,11 @@ Example:
             public override string Usage =>
 @"janus status
 This command shows:
-    - The current branch.
-    - Files staged for commit.
-    - Modified files not staged.
-    - Untracked files.
-    - A summary of local vs remote changes.
+    - The current branch
+    - Files staged for commit
+    - Modified files not staged
+    - Untracked files
+    - A summary of local vs remote changes
 Example:
     janus status";
             public override async Task Execute(string[] args)
@@ -1910,11 +1913,108 @@ Example:
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Logger.Log($"    {currentBranch}");
                 Console.ResetColor();
+
+
                 MiscHelper.DisplaySeperator(Logger);
 
-                // TODO Check the status of the current branch against the remote branch
                 // Show branch sync status
-                Logger.Log("Remote sync status will be displayed here.");
+                string remoteBranchDir = Path.Combine(Paths.RemoteDir, currentBranch);
+                string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+
+                if (!File.Exists(remoteHeadPath))
+                {
+                    Logger.Log("Remote branch information not found");
+                }
+                else
+                {
+                    string remoteHeadHash = File.ReadAllText(remoteHeadPath).Trim();
+                    string localHeadHash = MiscHelper.GetCurrentHeadCommitHash(Paths);
+                    
+                    if (remoteHeadHash != localHeadHash)
+                    {
+                        // Determine commits behind (remote history relative to local)
+                        int commitsBehind = 0;
+                        string currentHash = remoteHeadHash;
+                        bool foundLocal = false;
+                        while (!string.IsNullOrEmpty(currentHash))
+                        {
+                            if (currentHash == localHeadHash)
+                            {
+                                foundLocal = true;
+                                break;
+                            }
+
+                            var commit = RepoHelper.LoadCommit(Paths, currentHash);
+                            if (commit == null)
+                            {
+                                Logger.Log($"Commit {currentHash} not found locally.");
+                                break;
+                            }
+
+                            if (commit.Parents == null || !commit.Parents.Any())
+                            {
+                                break;
+                            }
+
+                            currentHash = commit.Parents.First();
+                            commitsBehind++;
+                        }
+
+                        // Determine commits ahead (local history relative to remote)
+                        int commitsAhead = 0;
+                        currentHash = localHeadHash;
+                        bool foundRemote = false;
+                        while (!string.IsNullOrEmpty(currentHash))
+                        {
+                            if (currentHash == remoteHeadHash)
+                            {
+                                foundRemote = true;
+                                break;
+                            }
+
+                            var commit = RepoHelper.LoadCommit(Paths, currentHash);
+                            if (commit == null)
+                            {
+                                Logger.Log($"Commit {currentHash} not found locally.");
+                                break;
+                            }
+
+                            if (commit.Parents == null || !commit.Parents.Any())
+                            {
+                                break;
+                            }
+
+                            currentHash = commit.Parents.First();
+                            commitsAhead++;
+                        }
+
+                        // Print status based on ahead/behind
+                        if (foundLocal && foundRemote)
+                        {
+                            Logger.Log($"Your branch is {commitsAhead} commit(s) ahead and {commitsBehind} commit(s) behind the remote");
+                        }
+                        else if (foundLocal)
+                        {
+                            Logger.Log($"Your branch is {commitsBehind} commit(s) behind the remote");
+                        }
+                        else if (foundRemote)
+                        {
+                            Logger.Log($"Your branch is {commitsAhead} commit(s) ahead of the remote");
+                        }
+                        else
+                        {
+                            Logger.Log("Local branch head not found in the remote history. It may be diverged");
+                        }
+                    }
+                    else
+                    {
+                        Logger.Log("Your branch is up to date with the remote");
+                    }
+                    
+                }
+                
+
+
                 MiscHelper.DisplaySeperator(Logger);
 
 
@@ -1968,7 +2068,7 @@ Example:
                 // When there is nothing to commit, stage or being untracked
                 if (!(anyAMD || anyNS || anyU))
                 {
-                    Logger.Log("All clean.");
+                    Logger.Log("All clean");
                 }
 
 
