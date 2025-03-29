@@ -8,7 +8,6 @@ using Janus.Utils;
 using System.Data;
 using System.Text.Json;
 using static Janus.Diff;
-using static Janus.Helpers.CommandHelpers.RemoteHelper;
 using static Janus.Helpers.FileMetadataHelper;
 
 namespace Janus
@@ -28,8 +27,8 @@ namespace Janus
                 new RemoteCommand(logger, paths),
                 new CloneCommand(logger, paths),
                 new FetchCommand(logger, paths),
-                new PullCommand(logger, paths),
-                new PushCommand(logger, paths),
+                //new PullCommand(logger, paths),
+                //new PushCommand(logger, paths),
 
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
@@ -669,12 +668,15 @@ Example:
                                 }
 
 
-                                // Store latest tree for branch
-                                latestTree = treeBuilder.root;
-
                                 // Get file hashes from tree
                                 treeBuilder.GetFileHashes(fileHashes);
 
+
+                                if (commit.CommitHash == branch.LatestCommitHash)
+                                {
+                                    // Store latest tree for branch
+                                    latestTree = treeBuilder.root;
+                                }
                             }
                         }
 
@@ -790,101 +792,21 @@ Example:
 
 
 
-        public class PushCommand : BaseCommand
-        {
-            public PushCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-            public override string Name => "push";
-            public override string Description => "Pushes your local commits to the remote repository.";
-            public override string Usage =>
-@"janus push
-Ensure:
-    - You are in a valid repository.
-    - All changes have been committed.
-    - You are logged in.
-Example:
-    janus push";
-            public override async Task Execute(string[] args)
-            {
-                // Load the stored user credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
-                if (credentials == null)
-                {
-                    Logger.Log("Please login first. janus login");
-                    return;
-                }
-
-                // Check the user is in a valid dir (.janus exists)
-                if (Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Local repository not found");
-                    return;
-                }
-
-
-                // Get the repo name from folder
-                // This is the name of the folder Paths.WorkingDir is in
-                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
-                if (BranchHelper.IsValidRepoOrBranchName(repoName))
-                {
-                    Logger.Log($"Invalid repository name: {repoName}");
-                    return;
-                }
-
-
-                // Get the current branch
-                string branchName = MiscHelper.GetCurrentBranchName(Paths);
-
-
-
-
-                // Get the local latest commit hash
-
-                // Get the remote latest commit hash
-
-
-
-                // Find the differance (follow the commit history)
-                // If no remote branch exists -> create remote branch (then push all commits)
-                // If remote is ahead -> cancel (ask user to pull)
-                // If conflict -> merge is needed
-
-                // Once i know how far ahead local is 
-                // Get the new commits and push that data
-
-
-
-
-                var pushData = ""; // Temp
-
-                // Send push
-                var (success, response) = await ApiHelper.SendPostAsync(Paths, $"Push/{repoName}/{branchName}", pushData, credentials.Token);
-
-                if (success)
-                {
-                    Logger.Log("Push successful");
-                }
-                else
-                {
-                    Logger.Log($"Push failed: {response}");
-                }
-
-            }
-        }
-
         public class FetchCommand : BaseCommand
         {
             public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "fetch";
-            public override string Description => "Fetches the latest commits from the remote repository and updates your local history.";
+            public override string Description => "Fetches the latest commits from the remote repository";
             public override string Usage =>
-@"janus fetch
+@"janus fetch [remote]
 This command will:
-    - Retrieve new commits from the remote repository.
-    - Update your local commit history.
+    - Retrieve new commits from the specified remote repository (defaults to 'origin' if not provided)
+    - Update your local commit history
+    - Update repository configuration
 Ensure you are logged in and in a valid repository.
-Example:
-    janus fetch";
+Examples:
+    janus fetch
+    janus fetch upstream";
             public override async Task Execute(string[] args)
             {
                 // Load credentials
@@ -897,130 +819,222 @@ Example:
                 }
 
                 // Check the user is in a valid dir (.janus exists)
-                if (Directory.Exists(Paths.JanusDir))
+                if (!Directory.Exists(Paths.JanusDir))
                 {
                     Logger.Log("Local repository not found");
                     return;
                 }
 
-                // Get the repo name from folder
-                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
-                if (BranchHelper.IsValidRepoOrBranchName(repoName))
+
+
+                // Get remote configuration
+                string remoteName = args.Length > 0 ? args[0] : "origin";
+
+                var remoteManager = new RemoteManager(Logger, Paths);
+                var remote = remoteManager.LoadRemote(remoteName);
+
+                if (remote == null)
                 {
-                    Logger.Log($"Invalid repository name: {repoName}");
+                    Logger.Log($"Remote '{remoteName}' configuration was not found");
                     return;
                 }
 
-                // Get the current branch
-                string branchName = MiscHelper.GetCurrentBranchName(Paths);
-                if (string.IsNullOrEmpty(branchName))
+
+                // Get the remote details
+                var remoteParts = remote.Link.Split('/');
+                if (remoteParts.Length < 3)
                 {
-                    Logger.Log("Failed to determine the current branch");
+                    Logger.Log("Invalid remote link format");
                     return;
                 }
 
-                Logger.Log($"Fetching latest commits...");
+                string owner = remoteParts[1];
+                string repoName = remoteParts[2];
 
 
 
-                // Fetch remote commits
-                string owner = "temp";
-                var (success, remoteCommitsJson) = await ApiHelper.SendGetAsync(Paths, $"{owner}/{repoName}/{branchName}/commits", credentials.Token);
+                // Collect local branch hashes
+                var localBranchHashes = BranchHelper.GetAllBranchesLatestHashes(Paths.BranchesDir);
+
+
+                // Send fetch request
+                Logger.Log("Fetching updates from remote...");
+                var (success, data) = await ApiHelper.SendPostAsync(
+                    Paths,
+                    $"cli/repo/{remote.Link}/fetch",
+                    localBranchHashes,
+                    credentials.Token
+                );
+
                 if (!success)
                 {
-                    Logger.Log("Failed to fetch remote commit history.");
+                    Logger.Log($"Fetch failed: {data}");
                     return;
                 }
 
-                List<CommitMetadata> remoteCommits = JsonSerializer.Deserialize<List<CommitMetadata>>(remoteCommitsJson);
-                if (remoteCommits == null || remoteCommits.Count == 0)
+
+                // Deserialize response
+                var fetchData = JsonSerializer.Deserialize<CloneDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (fetchData == null)
                 {
-                    Logger.Log("No commits found on the remote repository.");
+                    Logger.Log("Failed to parse server response");
                     return;
                 }
 
-                // Store fetched commits locally
-                foreach (var commit in remoteCommits)
+
+
+
+
+                // Update repository config
+                RepoConfigHelper.CreateRepoConfig(Paths.RepoConfig, fetchData.IsPrivate, fetchData.RepoDescription);
+                
+
+                // Get file hashes from commits
+                var fileHashes = new HashSet<string>();
+                var branchTrees = new Dictionary<string, TreeNode>();
+
+                foreach (var branch in fetchData.Branches)
                 {
-                    string commitPath = Path.Combine(Paths.CommitDir, branchName, commit.Commit);
-                    if (!File.Exists(commitPath))
+                    TreeNode latestTree = null;
+
+                    foreach (var commit in branch.Commits)
                     {
-                        File.WriteAllText(commitPath, JsonSerializer.Serialize(commit));
-                        Logger.Log($"Fetched commit {commit.Commit}.");
+
+                        // Save commit
+                        CommitHelper.SaveCommit(Paths,
+                            commit.CommitHash,
+                            commit.ParentsCommitHash,
+                            branch.BranchName,
+                            commit.AuthorName,
+                            commit.AuthorEmail,
+                            commit.CommittedAt,
+                            commit.Message,
+                            commit.TreeHash
+                        );
+
+
+
+                        // Save tree
+                        if (commit.Tree != null && !string.IsNullOrEmpty(commit.TreeHash))
+                        {
+                            var treeBuilder = new TreeBuilder(Paths);
+
+                            treeBuilder.LoadTree(commit.Tree);
+
+                            string treeHash = treeBuilder.SaveTree();
+
+                            if (treeHash != commit.TreeHash)
+                            {
+                                Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}");
+                                return;
+                            }
+
+
+                            // Get file hashes from tree
+                            treeBuilder.GetFileHashes(fileHashes);
+
+
+                            if (commit.CommitHash == branch.LatestCommitHash)
+                            {
+                                // Store latest tree for branch
+                                latestTree = treeBuilder.root;
+                            }
+                        }
+                    }
+
+                    if (latestTree != null)
+                    {
+                        branchTrees[branch.BranchName] = latestTree;
                     }
                 }
 
-                Logger.Log("Fetch operation completed successfully.");
+
+                // Create branch dirs and files
+                foreach (var branchDto in fetchData.Branches)
+                {
+                    string remoteBranchDir = Path.Combine(Paths.RemoteDir, branchDto.BranchName);
+
+                    Directory.CreateDirectory(remoteBranchDir);
+
+                    // Create head file with latest commit
+                    File.WriteAllText(Path.Combine(remoteBranchDir, "head"), branchDto.LatestCommitHash);
+
+                    // Create info file
+                    var branchInfo = new Branch
+                    {
+                        Name = branchDto.BranchName,
+                        SplitFromCommit = branchDto.SplitFromCommitHash,
+                        ParentBranch = branchDto.ParentBranch,
+                        CreatedBy = branchDto.CreatedBy,
+                        Created = branchDto.Created
+                    };
+
+                    File.WriteAllText(Path.Combine(remoteBranchDir, "info"),
+                        JsonSerializer.Serialize(branchInfo, new JsonSerializerOptions { WriteIndented = true }));
+
+                    // Create branch index from latest tree
+                    if (branchTrees.TryGetValue(branchDto.BranchName, out var tree))
+                    {
+                        var indexDict = new TreeBuilder(Paths).BuildIndexDictionary(tree);
+                        IndexHelper.SaveIndex(Path.Combine(remoteBranchDir, "index"), indexDict);
+                    }
+                    else
+                    {
+                        File.Create(Path.Combine(remoteBranchDir, "index")).Close();
+                    }
+
+                }
 
 
+
+
+                // Check to see if the file objects already exist
+                var missingFileHashes = new HashSet<string>();
+
+                foreach (var hash in fileHashes)
+                {
+                    string filePath = Path.Combine(Paths.ObjectDir, hash);
+                    if (!File.Exists(filePath))
+                    {
+                        missingFileHashes.Add(hash);
+                    }
+                }
+
+                // Download missing files
+                if (missingFileHashes.Any())
+                {
+                    bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                        Paths,
+                        owner,
+                        repoName,
+                        missingFileHashes.ToList(),
+                        Paths.ObjectDir,
+                        credentials.Token
+                    );
+
+                    if (!downloadSuccess)
+                    {
+                        Logger.Log("Error downloading some file objects");
+                    }
+                }
+
+
+
+
+                Logger.Log("Fetch completed successfully");
             }
         }
 
 
 
 
-        public class PullCommand : BaseCommand
-        {
-            public PullCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-            public override string Name => "pull";
-            public override string Description => "Pulls changes from the remote repository and updates your local working directory.";
-            public override string Usage =>
-@"janus pull
-This command will:
-    - Fetch new commits from the remote.
-    - Merge remote changes into your current branch.
-Notes:
-    - Ensure all local changes are committed or stashed.
-Example:
-    janus pull";
-            public override async Task Execute(string[] args)
-            {
-                // Load credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
-                if (credentials == null)
-                {
-                    Logger.Log("Please login first. janus login");
-                    return;
-                }
-
-                // Check the user is in a valid dir (.janus exists)
-                if (Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Local repository not found");
-                    return;
-                }
-
-                // Get the repo name from folder
-                string repoName = new DirectoryInfo(Paths.WorkingDir).Name;
-                if (BranchHelper.IsValidRepoOrBranchName(repoName))
-                {
-                    Logger.Log($"Invalid repository name: {repoName}");
-                    return;
-                }
-
-                // Get the current branch
-                string branchName = MiscHelper.GetCurrentBranchName(Paths);
 
 
 
-                // Get the local latest commit hash
-
-                // Get the remote latest commit hash
 
 
 
-                // Compare local and remote commits
-                // if local and remote are same -> do nothing
-                // if remote is ahead -> fetch and merge new commits into local
-                // if local is ahead -> 
-
-                // Get the new commits
-
-                // Apply commits in the order they were made
-
-            }
-        }
+        
 
 
 

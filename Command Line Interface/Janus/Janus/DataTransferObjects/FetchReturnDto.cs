@@ -1,6 +1,6 @@
 ﻿namespace Janus.DataTransferObjects
 {
-    public class FetchResponseDto
+    public class FetchReturnDto
     {
         public RepoDataDto RepoData { get; set; }
         public Dictionary<string, string> BranchLatestHashes { get; set; }

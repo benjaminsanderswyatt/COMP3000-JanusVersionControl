@@ -17,7 +17,7 @@ namespace Janus.Plugins
         public string BranchesDir { get; }
 
         public string Remote { get; }
-        public string RemoteCommitDir { get; }
+        public string RemoteDir { get; }
 
         public string RepoConfig { get; }
 
@@ -39,7 +39,7 @@ namespace Janus.Plugins
             BranchesDir = Path.Combine(JanusDir, "branches");
 
             Remote = Path.Combine(JanusDir, "remote");
-            RemoteCommitDir = Path.Combine(JanusDir, "remote");
+            RemoteDir = Path.Combine(JanusDir, "remotes");
 
             RepoConfig = Path.Combine(JanusDir, "repoConfig");
 

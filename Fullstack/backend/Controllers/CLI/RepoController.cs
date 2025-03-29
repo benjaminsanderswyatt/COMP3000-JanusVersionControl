@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 using System.Text.Json;
 using static backend.Utils.TreeBuilder;
 
@@ -181,11 +182,7 @@ namespace backend.Controllers.CLI
 
 
 
-
-
-
-        
-        [HttpPost("fetch/{owner}/{repoName}")]
+        [HttpPost("janus/{owner}/{repoName}/fetch")]
         public async Task<IActionResult> FetchRepo(string owner, string repoName, [FromBody] Dictionary<string, string> latestBranchHashes)
         {
             var userIdClaim = User.FindFirst("UserId")?.Value;
@@ -217,115 +214,109 @@ namespace backend.Controllers.CLI
                 return NotFound(new { Message = "Repository not found" });
 
 
-            /*
-                For each branch:
-                If the branch is not included in the clients latestBranchHashes -> return the full branch history
-                Otherwise start from the branchs latest commit and traverse commit parents until the clients known commit is found
-                If the clients commit is not found assume a divergence and send the complete branch history
-            */
-
-            // Response object
-            var response = new
-            {
-                RepoData = new {
-                    RepoDescription = repository.RepoDescription,
-                    IsPrivate = repository.IsPrivate,
-                },     
-                BranchLatestHashes = new Dictionary<string, string>(),
-                NewBranches = new List<object>(),
-                NewCommits = new Dictionary<string, List<object>>()
-            };
 
             var treeBuilder = new TreeBuilder(repository.RepoId);
+            var branchesData = new List<object>();
 
             foreach (var branch in repository.Branches)
             {
+                List<Commit> newCommits = new List<Commit>();
 
-                if (!latestBranchHashes.TryGetValue(branch.BranchName, out string clientLatestHash))
+                // Check if the client has the branch
+                bool clientHasBranch = latestBranchHashes.TryGetValue(branch.BranchName, out string clientLatestHash);
+
+                if (clientHasBranch)
                 {
-                    // Get all the branch data
-                    var branchData = await _cliHelper.GetBranchDataAsync(branch, treeBuilder);
 
-                    response.NewBranches.Add(branchData);
+                    if (clientLatestHash == branch.LatestCommitHash)
+                    {
+                        // Client branch is up to date -> no new commits
+                        newCommits = new List<Commit>();
+                    }
+                    else
+                    {
+                        // Client has the branch but not the latest commit
+                        var remoteLatestCommit = branch.Commits.FirstOrDefault(c => c.CommitHash == branch.LatestCommitHash);
+
+                        // Use BFS to traverse all parents of each commit
+                        newCommits = new List<Commit>();
+                        var visited = new HashSet<string>();
+                        var queue = new Queue<Commit>();
+
+                        queue.Enqueue(remoteLatestCommit);
+
+                        bool clientCommitFound = false;
+
+                        while (queue.Count > 0)
+                        {
+                            var currentCommit = queue.Dequeue();
+
+                            // Skip if already visited
+                            if (visited.Contains(currentCommit.CommitHash))
+                                continue;
+
+                            visited.Add(currentCommit.CommitHash);
+
+                            // Stop if we reach the clients latest commit
+                            if (currentCommit.CommitHash == clientLatestHash)
+                            {
+                                clientCommitFound = true;
+                                break;
+                            }
+
+                            newCommits.Add(currentCommit);
+
+                            // Enqueue all parents
+                            foreach (var parent in currentCommit.Parents.Select(cp => cp.Parent))
+                            {
+                                queue.Enqueue(parent);
+                            }
+                        }
+
+                        if (!clientCommitFound)
+                        {
+                            // Divergence -> send all commits
+                            newCommits = branch.Commits.ToList();
+                        }
+                    }
 
                 }
                 else
                 {
-                    
-                    var remoteLatestHash = branch.LatestCommitHash;
-                    if (clientLatestHash == remoteLatestHash) // Clients branch is up to date
-                        continue;
-
-                    var remoteLatestCommit = branch.Commits.FirstOrDefault(c => c.CommitHash == remoteLatestHash);
-                    if (remoteLatestCommit == null) // Get latest remote commit
-                        continue;
-
-                    // Use BFS to traverse all parents of each commit
-                    var newCommits = new List<Commit>();
-                    var visited = new HashSet<string>();
-                    var queue = new Queue<Commit>();
-
-                    queue.Enqueue(remoteLatestCommit);
-
-                    bool clientCommitFound = false;
-
-                    while (queue.Count > 0)
-                    {
-                        var currentCommit = queue.Dequeue();
-
-                        // Skip if already visited
-                        if (visited.Contains(currentCommit.CommitHash)) 
-                            continue;
-
-                        visited.Add(currentCommit.CommitHash);
-
-                        // Stop if we reach the clients latest commit
-                        if (currentCommit.CommitHash == clientLatestHash)
-                        {
-                            clientCommitFound = true;
-                            break;
-                        }
-
-                        newCommits.Add(currentCommit);
-
-                        // Enqueue all parents
-                        foreach (var parent in currentCommit.Parents.Select(cp => cp.Parent))
-                        {
-                            queue.Enqueue(parent);
-                        }
-                    }
-
-                    
-                    if (!clientCommitFound)
-                    {
-                        // Divergance send all commits from remote
-                        newCommits = branch.Commits.ToList();
-                    }
-
-                    // Get commit dtos
-                    var commitDtos = await _cliHelper.GetCommitDtosAsync(newCommits, treeBuilder);
-                    if (commitDtos.Any())
-                    {
-                        response.NewCommits[branch.BranchName] = commitDtos;
-                    }
-
+                    // Client does not have the branch -> send all commits
+                    newCommits = branch.Commits.ToList();
                 }
 
-                // Save the branches latest commits hashes
-                response.BranchLatestHashes[branch.BranchName] = branch.LatestCommitHash;
+                var commitDtos = await _cliHelper.GetCommitDtosAsync(newCommits, treeBuilder);
+
+                var createdByUser = await _janusDbContext.Users
+                    .Where(u => u.UserId == branch.CreatedBy)
+                    .Select(u => u.Username)
+                    .FirstOrDefaultAsync();
+
+                branchesData.Add(new
+                {
+                    BranchName = branch.BranchName,
+                    ParentBranch = branch.Parent?.BranchName,
+                    SplitFromCommitHash = branch.SplitFromCommitHash,
+                    LatestCommitHash = branch.LatestCommitHash,
+                    CreatedBy = createdByUser,
+                    Created = branch.CreatedAt,
+                    Commits = commitDtos
+                });
             }
+
+            var response = new
+            {
+                RepoName = repository.RepoName,
+                RepoDescription = repository.RepoDescription,
+                IsPrivate = repository.IsPrivate,
+                Branches = branchesData
+            };
+
 
             return Ok(response);
         }
-        
-
-
-
-        
-
-
-
-
 
 
 
