@@ -1030,6 +1030,140 @@ Examples:
 
 
 
+        public class PullCommand : BaseCommand
+        {
+            public PullCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "pull";
+            public override string Description => "Updates your local branches with fetched repository";
+            public override string Usage =>
+@"janus pull
+This command will:
+    - Analyze each remote branch to determine sync status with the corresponding local branch
+    - Print a summary of changes that will occur
+    - Fast-forward local branches if possible
+    - Automatically merge remote changes if branches have diverged
+Example:
+    janus pull";
+            public override async Task Execute(string[] args)
+            {
+                // Check the user is in a valid dir (.janus exists)
+                if (!Directory.Exists(Paths.JanusDir))
+                {
+                    Logger.Log("Local repository not found");
+                    return;
+                }
+
+
+                if (!Directory.Exists(Paths.RemoteDir))
+                {
+                    Logger.Log("Remote repository data not found. Use 'janus fetch'");
+                    return;
+                }
+
+
+                // Get all remote branch directories
+                var remoteBranchDirs = Directory.GetDirectories(Paths.RemoteDir);
+                if (!remoteBranchDirs.Any())
+                {
+                    Logger.Log("No remote branch data found. Use 'janus fetch'");
+                    return;
+                }
+
+
+
+
+
+                var branchSummaries = new List<(string BranchName, string RemoteHead, string LocalHead, dynamic Status)>();
+
+                foreach (var remoteBranchDir in remoteBranchDirs)
+                {
+                    string branchName = Path.GetFileName(remoteBranchDir);
+
+                    // Get remote head
+                    string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+                    if (!File.Exists(remoteHeadPath))
+                    {
+                        Logger.Log($"Remote branch '{branchName}' is missing head info. Skipping...");
+                        continue;
+                    }
+
+                    string remoteHead = File.ReadAllText(remoteHeadPath).Trim();
+
+                    // Get local head
+                    string localBranchDir = Path.Combine(Paths.BranchesDir, branchName);
+                    if (!Directory.Exists(localBranchDir))
+                    {
+                        Logger.Log($"Local branch '{branchName}' not found, creating new branch...");
+                        Directory.CreateDirectory(localBranchDir);
+                    }
+                    string localHeadPath = Path.Combine(localBranchDir, "head");
+                    string localHead = File.Exists(localHeadPath) ? File.ReadAllText(localHeadPath).Trim() : string.Empty;
+
+
+                    // Use SyncHelper to determine sync status
+                    var status = StatusHelper.CheckSyncStatus(Paths, remoteHead, localHead);
+
+
+                    branchSummaries.Add((branchName, remoteHead, localHead, status));
+                }
+
+
+                // Print the summary of changes
+                Logger.Log("Summary of branch changes:");
+                foreach (var summary in branchSummaries)
+                {
+                    if (summary.RemoteHead == summary.LocalHead)
+                    {
+                        Logger.Log($"  - Branch '{summary.BranchName}': up to date");
+                    }
+                    else if (summary.Status.FoundLocalInRemote && !summary.Status.FoundRemoteInLocal)
+                    {
+                        Logger.Log($"  - Branch '{summary.BranchName}': will fast forward by {summary.Status.CommitsBehind} commit(s)");
+                    }
+                    else if (!summary.Status.FoundLocalInRemote && summary.Status.FoundRemoteInLocal)
+                    {
+                        Logger.Log($"  - Branch '{summary.BranchName}': local branch is ahead by {summary.Status.CommitsAhead} commit(s). No changes will be applied");
+                    }
+                    else if (summary.Status.FoundLocalInRemote && summary.Status.FoundRemoteInLocal)
+                    {
+                        Logger.Log($"  - Branch '{summary.BranchName}': will fast forward by {summary.Status.CommitsBehind} commit(s) (local is also ahead by {summary.Status.CommitsAhead} commit(s))");
+                    }
+                    else
+                    {
+                        Logger.Log($"  - Branch '{summary.BranchName}': diverged a merge is required");
+                    }
+                }
+
+
+                bool force = args.Contains("--force");
+                MiscHelper.ConfirmAction(Logger, "Proceed with pull? (y/n): ", force);
+
+
+
+
+
+
+
+
+
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

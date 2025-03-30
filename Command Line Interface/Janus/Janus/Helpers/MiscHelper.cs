@@ -7,7 +7,7 @@ namespace Janus.Helpers
 {
     public class MiscHelper
     {
-        public static bool ConfirmAction(ILogger logger, string message, bool force)
+        public static bool ConfirmAction(ILogger logger, string message, bool force = false)
         {
             if (force)
             {
