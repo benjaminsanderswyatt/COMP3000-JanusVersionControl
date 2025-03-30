@@ -108,5 +108,83 @@ namespace Janus.Helpers.CommandHelpers
             Console.ResetColor();
         }
 
+
+
+
+
+
+
+        public class SyncStatus
+        {
+            public bool FoundLocalInRemote { get; set; }
+            public bool FoundRemoteInLocal { get; set; }
+            public int CommitsBehind { get; set; }
+            public int CommitsAhead { get; set; }
+        }
+
+        public static SyncStatus CheckSyncStatus(Paths paths, string remoteHead, string localHead)
+        {
+            var status = new SyncStatus();
+
+            // Traverse remote history to see if it contains the local head
+            string currentHash = remoteHead;
+            while (!string.IsNullOrEmpty(currentHash))
+            {
+                if (currentHash == localHead)
+                {
+                    status.FoundLocalInRemote = true;
+                    break;
+                }
+
+                var commit = RepoHelper.LoadCommit(paths, currentHash);
+                if (commit == null || commit.Parents == null || !commit.Parents.Any())
+                    break;
+
+                currentHash = commit.Parents.First();
+                status.CommitsBehind++;
+            }
+
+            // Traverse local history to see if it contains the remote head
+            currentHash = localHead;
+            while (!string.IsNullOrEmpty(currentHash))
+            {
+                if (currentHash == remoteHead)
+                {
+                    status.FoundRemoteInLocal = true;
+                    break;
+                }
+
+                var commit = RepoHelper.LoadCommit(paths, currentHash);
+                if (commit == null || commit.Parents == null || !commit.Parents.Any())
+                    break;
+
+                currentHash = commit.Parents.First();
+                status.CommitsAhead++;
+            }
+
+            return status;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

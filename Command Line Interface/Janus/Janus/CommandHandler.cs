@@ -1037,7 +1037,6 @@ Examples:
 
 
 
-        
 
 
 
@@ -1932,74 +1931,20 @@ Example:
                     
                     if (remoteHeadHash != localHeadHash)
                     {
-                        // Determine commits behind (remote history relative to local)
-                        int commitsBehind = 0;
-                        string currentHash = remoteHeadHash;
-                        bool foundLocal = false;
-                        while (!string.IsNullOrEmpty(currentHash))
-                        {
-                            if (currentHash == localHeadHash)
-                            {
-                                foundLocal = true;
-                                break;
-                            }
-
-                            var commit = RepoHelper.LoadCommit(Paths, currentHash);
-                            if (commit == null)
-                            {
-                                Logger.Log($"Commit {currentHash} not found locally.");
-                                break;
-                            }
-
-                            if (commit.Parents == null || !commit.Parents.Any())
-                            {
-                                break;
-                            }
-
-                            currentHash = commit.Parents.First();
-                            commitsBehind++;
-                        }
-
-                        // Determine commits ahead (local history relative to remote)
-                        int commitsAhead = 0;
-                        currentHash = localHeadHash;
-                        bool foundRemote = false;
-                        while (!string.IsNullOrEmpty(currentHash))
-                        {
-                            if (currentHash == remoteHeadHash)
-                            {
-                                foundRemote = true;
-                                break;
-                            }
-
-                            var commit = RepoHelper.LoadCommit(Paths, currentHash);
-                            if (commit == null)
-                            {
-                                Logger.Log($"Commit {currentHash} not found locally.");
-                                break;
-                            }
-
-                            if (commit.Parents == null || !commit.Parents.Any())
-                            {
-                                break;
-                            }
-
-                            currentHash = commit.Parents.First();
-                            commitsAhead++;
-                        }
+                        var syncStatus = StatusHelper.CheckSyncStatus(Paths, remoteHeadHash, localHeadHash);
 
                         // Print status based on ahead/behind
-                        if (foundLocal && foundRemote)
+                        if (syncStatus.FoundLocalInRemote && syncStatus.FoundRemoteInLocal)
                         {
-                            Logger.Log($"Your branch is {commitsAhead} commit(s) ahead and {commitsBehind} commit(s) behind the remote");
+                            Logger.Log($"Your branch is {syncStatus.CommitsAhead} commit(s) ahead and {syncStatus.CommitsBehind} commit(s) behind the remote");
                         }
-                        else if (foundLocal)
+                        else if (syncStatus.FoundLocalInRemote)
                         {
-                            Logger.Log($"Your branch is {commitsBehind} commit(s) behind the remote");
+                            Logger.Log($"Your branch is {syncStatus.CommitsBehind} commit(s) behind the remote");
                         }
-                        else if (foundRemote)
+                        else if (syncStatus.FoundRemoteInLocal)
                         {
-                            Logger.Log($"Your branch is {commitsAhead} commit(s) ahead of the remote");
+                            Logger.Log($"Your branch is {syncStatus.CommitsAhead} commit(s) ahead of the remote");
                         }
                         else
                         {
