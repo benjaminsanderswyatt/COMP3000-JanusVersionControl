@@ -142,7 +142,7 @@ namespace CLITests
         {
             Directory.Delete(_paths.JanusDir, true);
             _pullCommand.Execute(new string[] { "--force" });
-            _loggerMock.Verify(x => x.Log("Local repository not found"), Times.Once);
+            _loggerMock.Verify(x => x.Log("Not a janus repository. Use 'init' command to initialise a repository"), Times.Once);
         }
 
 

@@ -22,13 +22,13 @@ namespace Janus.Helpers.CommandHelpers
 
             if (string.IsNullOrWhiteSpace(commitMessage))
             {
-                Logger.Log("No commit message provided. Use 'janus commit <message>'.");
+                Logger.Log("No commit message provided. Use 'janus commit <message>'");
                 return false;
             }
 
             if (commitMessage.Length > 256)
             {
-                Logger.Log("Commit message is too long. Maximum length is 256 characters.");
+                Logger.Log("Commit message is too long. Maximum length is 256 characters");
                 return false;
             }
 

@@ -31,7 +31,7 @@ namespace Janus.Helpers
                 else
                 {
                     logger.Log("");
-                    logger.Log("Invalid input. Please confirm 'Y' or 'N'.");
+                    logger.Log("Invalid input. Please confirm 'Y' or 'N'");
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace Janus.Helpers
         {
             if (!Directory.Exists(paths.JanusDir))
             {
-                Logger.Log("Not a janus repository. Use 'init' command to initialise repository.");
+                Logger.Log("Not a janus repository. Use 'init' command to initialise a repository");
 
                 return false;
             }
@@ -120,7 +120,7 @@ namespace Janus.Helpers
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
             {
-                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly.", paths.HEAD);
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly", paths.HEAD);
             }
 
             // Check contents of HEAD
@@ -128,12 +128,12 @@ namespace Janus.Helpers
 
             if (string.IsNullOrWhiteSpace(pointer))
             {
-                throw new InvalidDataException("HEAD file is empty or invalid.");
+                throw new InvalidDataException("HEAD file is empty or invalid");
             }
 
             if (!pointer.StartsWith("ref: "))
             {
-                throw new InvalidDataException("HEAD file does not point to a valid reference.");
+                throw new InvalidDataException("HEAD file does not point to a valid reference");
             }
 
             // Get the ref path from the pointer
@@ -162,7 +162,7 @@ namespace Janus.Helpers
             // Ensure the HEAD file exists
             if (!File.Exists(paths.HEAD))
             {
-                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly.", paths.HEAD);
+                throw new FileNotFoundException("HEAD file not found. The repository may not be initialised correctly", paths.HEAD);
             }
 
             // Check contents of HEAD
@@ -173,7 +173,7 @@ namespace Janus.Helpers
             // Ensure the ref file exists
             if (!File.Exists(fullRefPath))
             {
-                throw new FileNotFoundException($"Reference file not found for {refPath}.", fullRefPath);
+                throw new FileNotFoundException($"Reference file not found for {refPath}", fullRefPath);
             }
 
             // Read the commit hash from the ref file
@@ -181,7 +181,7 @@ namespace Janus.Helpers
 
             if (commitHash == null)
             {
-                throw new InvalidDataException("Reference file contains an invalid commit hash.");
+                throw new InvalidDataException("Reference file contains an invalid commit hash");
             }
 
             return commitHash;

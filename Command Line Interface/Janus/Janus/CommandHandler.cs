@@ -27,7 +27,7 @@ namespace Janus
                 new RemoteCommand(logger, paths),
                 new CloneCommand(logger, paths),
                 new FetchCommand(logger, paths),
-                //new PullCommand(logger, paths),
+                new PullCommand(logger, paths),
                 //new PushCommand(logger, paths),
 
                 new InitCommand(logger, paths),
@@ -123,11 +123,7 @@ Example:
             public override async Task Execute(string[] args)
             {
                 // Check the user is in a valid dir (.janus exists)
-                if (!Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Local repository not found");
-                    return;
-                }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
                 if (args.Length == 0)
                 {
@@ -257,6 +253,8 @@ Examples:
     janus diff abc123 --parent     : Compare a commit with its parent.";
             public override async Task Execute(string[] args)
             {
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
+
                 bool staged = false;
                 string pathFilter = null;
                 bool parent = false;
@@ -830,11 +828,7 @@ Examples:
                 }
 
                 // Check the user is in a valid dir (.janus exists)
-                if (!Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Local repository not found");
-                    return;
-                }
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
 
 
@@ -1057,12 +1051,8 @@ Example:
     janus pull";
             public override async Task Execute(string[] args)
             {
-                // Check the user is in a valid dir (.janus exists)
-                if (!Directory.Exists(Paths.JanusDir))
-                {
-                    Logger.Log("Local repository not found");
-                    return;
-                }
+                // Repository has to be initialised for command to run
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths)) { return; }
 
 
                 if (!Directory.Exists(Paths.RemoteDir))
@@ -1477,7 +1467,7 @@ Example:
                     // Check if there are any changes to commit
                     if (!StatusHelper.HasAnythingBeenStagedForCommit(Logger, Paths, stagedTree))
                     {
-                        Logger.Log("No changes to commit.");
+                        Logger.Log("No changes to commit");
                         return;
                     }
 

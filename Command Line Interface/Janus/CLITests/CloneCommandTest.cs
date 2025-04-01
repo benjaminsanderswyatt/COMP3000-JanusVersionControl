@@ -92,11 +92,8 @@ namespace CLITests
         [Test]
         public async Task Execute_MissingTreeData_LogsErrorAndCleansUp()
         {
-            // Arrange
-            var cloneCommand = new CloneCommand(_loggerMock.Object, _paths);
-
             // Act
-            await cloneCommand.Execute(new string[] { "janus/owner/missingTreeRepo" });
+            await _cloneCommand.Execute(new string[] { "janus/owner/missingTreeRepo" });
 
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("An error occurred during cloning:"))), Times.Once());

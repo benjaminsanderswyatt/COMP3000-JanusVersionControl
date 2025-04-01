@@ -80,7 +80,7 @@ namespace CLITests
             _commitCommand.Execute(args);
 
             // Assert: Verify that the error about repository initialisation is logged
-            _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise repository."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise a repository"), Times.Once);
 
         }
 
@@ -93,7 +93,7 @@ namespace CLITests
             _commitCommand.Execute(args);
 
             // Assert: Verify that the correct error is logged
-            _loggerMock.Verify(logger => logger.Log("No commit message provided. Use 'janus commit <message>'."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("No commit message provided. Use 'janus commit <message>'"), Times.Once);
 
         }
 
@@ -107,7 +107,7 @@ namespace CLITests
             _commitCommand.Execute(args);
 
             // Assert: Verify that the correct error is logged
-            _loggerMock.Verify(logger => logger.Log("No commit message provided. Use 'janus commit <message>'."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("No commit message provided. Use 'janus commit <message>'"), Times.Once);
         }
 
 
@@ -122,7 +122,7 @@ namespace CLITests
             _commitCommand.Execute(args);
 
             // Assert
-            _loggerMock.Verify(logger => logger.Log("Commit message is too long. Maximum length is 256 characters."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Commit message is too long. Maximum length is 256 characters"), Times.Once);
 
         }
 
@@ -136,7 +136,7 @@ namespace CLITests
             _commitCommand.Execute(args);
 
             // Assert: Verify that the correct error message is logged with no files being staged
-            _loggerMock.Verify(logger => logger.Log("No changes to commit."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("No changes to commit"), Times.Once);
 
         }
 

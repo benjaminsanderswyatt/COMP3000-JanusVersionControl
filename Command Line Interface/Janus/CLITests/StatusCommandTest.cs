@@ -82,7 +82,7 @@ namespace CLITests
             _statusCommand.Execute(new string[0]);
 
             // Assert: Verify that the error about repository initialisation is logged
-            _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise repository."), Times.Once);
+            _loggerMock.Verify(logger => logger.Log("Not a janus repository. Use 'init' command to initialise a repository"), Times.Once);
 
         }
 
