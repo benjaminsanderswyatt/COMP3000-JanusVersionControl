@@ -9,7 +9,7 @@ using static Janus.CommandHandler;
 
 namespace CLITests
 {
-    
+
     [TestFixture]
     public class PullCommandTest
     {
@@ -205,7 +205,7 @@ namespace CLITests
             _loggerMock.Verify(x => x.Log("  - Branch 'dev': diverged a merge is required"), Times.Once);
         }
 
-        
+
 
 
 

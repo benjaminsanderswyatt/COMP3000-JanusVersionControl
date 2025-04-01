@@ -1,7 +1,6 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
-using System.Net.Security;
 using System.Text.Json;
 
 namespace Janus.Helpers.CommandHelpers

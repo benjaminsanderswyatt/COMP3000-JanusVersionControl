@@ -1,7 +1,6 @@
 ﻿using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
-using System.IO;
 
 namespace Janus.Helpers.CommandHelpers
 {

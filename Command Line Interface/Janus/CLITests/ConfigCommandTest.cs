@@ -7,7 +7,7 @@ using static Janus.CommandHandler;
 
 namespace CLITests
 {
-    
+
 
     [TestFixture]
     public class ConfigCommandTest
@@ -42,7 +42,7 @@ namespace CLITests
             var initCommand = new InitCommand(_loggerMock.Object, _paths);
             initCommand.Execute(new string[0]);
 
-            
+
 
             _configCommand = new ConfigCommand(_loggerMock.Object, _paths);
         }

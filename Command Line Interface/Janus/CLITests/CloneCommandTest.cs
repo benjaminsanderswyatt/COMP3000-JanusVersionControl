@@ -1,14 +1,7 @@
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Moq;
-using Moq.Protected;
-using NUnit.Framework;
-using Janus.Helpers;
-using Janus.Helpers.CommandHelpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
+using Moq;
 using static Janus.CommandHandler;
 
 namespace CLITests
@@ -21,7 +14,7 @@ namespace CLITests
         private CloneCommand _cloneCommand;
         private string _testDir;
 
-        
+
         [SetUp]
         public void Setup()
         {
@@ -81,7 +74,7 @@ namespace CLITests
 
             // Assert
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains($"Failed clone: Directory named '{repoName}' already exists"))), Times.Once());
-            
+
         }
 
 
@@ -112,7 +105,7 @@ namespace CLITests
 
 
 
-        
+
 
 
 

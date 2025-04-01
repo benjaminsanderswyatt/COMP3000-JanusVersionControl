@@ -6,7 +6,6 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
-using System.Net.Http;
 using System.Text.Json;
 using static Janus.Diff;
 using static Janus.Helpers.FileMetadataHelper;
@@ -41,7 +40,7 @@ namespace Janus
                 new SwitchBranchCommand(logger, paths),
                 //new SwitchCommitCommand(logger, paths),
                 new MergeCommand(logger, paths),
-                
+
                 new StatusCommand(logger, paths),
 
                 new DiffCommand(logger, paths),
@@ -680,7 +679,7 @@ Example:
                                 treeBuilder.LoadTree(commit.Tree);
 
                                 string treeHash = treeBuilder.SaveTree();
-                                
+
 
                                 // Get file hashes from tree
                                 treeBuilder.GetFileHashes(fileHashes);
@@ -901,7 +900,7 @@ Examples:
 
                 // Update repository config
                 RepoConfigHelper.CreateRepoConfig(Paths.RepoConfig, fetchData.IsPrivate, fetchData.RepoDescription);
-                
+
                 int newCommitCount = 0;
 
                 // Get file hashes from commits
@@ -1487,7 +1486,7 @@ Example:
                     var rootTreeHash = stagedTreeBuilder.SaveTree(); // Save index tree
 
                     string branch = MiscHelper.GetCurrentBranchName(Paths);
-                    
+
                     // Generate commit metadata rootTreeHash commitMessage
                     var username = MiscHelper.GetUsername();
                     var email = MiscHelper.GetEmail();
@@ -1496,7 +1495,7 @@ Example:
                     string commitHash = HashHelper.ComputeCommitHash(parentCommit, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
 
                     CommitHelper.SaveCommit(Paths, commitHash, new List<string> { parentCommit }, branch, username, email, DateTime.UtcNow, commitMessage, rootTreeHash);
-                    
+
                     // Update head to point to the new commit
                     HeadHelper.SetHeadCommit(Paths, commitHash);
 
@@ -2087,7 +2086,7 @@ Example:
                 {
                     string remoteHeadHash = File.ReadAllText(remoteHeadPath).Trim();
                     string localHeadHash = MiscHelper.GetCurrentHeadCommitHash(Paths);
-                    
+
                     if (remoteHeadHash != localHeadHash)
                     {
                         var syncStatus = StatusHelper.CheckSyncStatus(Paths, remoteHeadHash, localHeadHash);
@@ -2114,9 +2113,9 @@ Example:
                     {
                         Logger.Log("Your branch is up to date with the remote");
                     }
-                    
+
                 }
-                
+
 
 
                 MiscHelper.DisplaySeperator(Logger);
