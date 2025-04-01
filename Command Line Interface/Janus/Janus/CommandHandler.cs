@@ -26,8 +26,8 @@ namespace Janus
 
                 new LoginCommand(logger, paths),
                 new RemoteCommand(logger, paths),
-                new CloneCommand(logger, paths, new HttpClient()),
-                new FetchCommand(logger, paths, new HttpClient()),
+                new CloneCommand(logger, paths),
+                new FetchCommand(logger, paths),
                 //new PullCommand(logger, paths),
                 //new PushCommand(logger, paths),
 
@@ -534,11 +534,14 @@ Example:
 
         public class CloneCommand : BaseCommand
         {
+            /*
             private readonly HttpClient _httpClient;
             public CloneCommand(ILogger logger, Paths paths, HttpClient httpClient) : base(logger, paths) 
             {
                 _httpClient = httpClient;
             }
+            */
+            public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "clone";
             public override string Description => "Clones a repository from a remote server to your local machine.";
             public override string Usage =>
@@ -567,6 +570,12 @@ Example:
 
                 string endpoint = args[0]; // janus/{owner}/{repoName}
                 string[] ownerRepoData = PathHelper.PathSplitter(endpoint);
+                if (ownerRepoData.Length == 2)
+                {
+                    Logger.Log("Invalid endpoint format. Usage: janus/<Owner>/<Repository Name>");
+                    return;
+                }
+
                 string owner = ownerRepoData[1];
                 string repoName = ownerRepoData[2];
 
@@ -577,7 +586,7 @@ Example:
                     chosenBranch = args[1];
                 }
 
-                string repoPath = Path.Combine(Directory.GetCurrentDirectory(), repoName);
+                string repoPath = Path.Combine(Paths.WorkingDir, repoName);
 
                 if (Directory.Exists(repoPath))
                 {
@@ -588,7 +597,7 @@ Example:
 
                 try
                 {
-                    var (success, data) = await ApiHelper.SendGetAsync(_httpClient, Paths, endpoint, credentials.Token);
+                    var (success, data) = await ApiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
 
                     if (!success)
                     {
@@ -602,6 +611,12 @@ Example:
                     if (cloneData == null)
                     {
                         Logger.Log("Error parsing repository data.");
+                        return;
+                    }
+
+                    if (cloneData.Branches == null || !cloneData.Branches.Any())
+                    {
+                        Logger.Log("Error cloning repository: No branches found");
                         return;
                     }
 
@@ -739,7 +754,6 @@ Example:
                     if (fileHashes.Any())
                     {
                         bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
-                            _httpClient,
                             Paths,
                             owner,
                             repoName,
@@ -794,11 +808,7 @@ Example:
 
         public class FetchCommand : BaseCommand
         {
-            private readonly HttpClient _httpClient;
-            public FetchCommand(ILogger logger, Paths paths, HttpClient httpClient) : base(logger, paths) 
-            {
-                _httpClient = httpClient;
-            }
+            public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "fetch";
             public override string Description => "Fetches the latest commits from the remote repository";
             public override string Usage =>
@@ -864,7 +874,6 @@ Examples:
                 // Send fetch request
                 Logger.Log("Fetching updates from remote...");
                 var (success, data) = await ApiHelper.SendPostAsync(
-                    _httpClient,
                     Paths,
                     $"cli/repo/{remote.Link}/fetch",
                     localBranchHashes,
@@ -1011,7 +1020,6 @@ Examples:
                 if (missingFileHashes.Any())
                 {
                     bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
-                        _httpClient,
                         Paths,
                         owner,
                         repoName,
