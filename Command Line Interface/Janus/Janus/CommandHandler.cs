@@ -533,13 +533,6 @@ Example:
 
         public class CloneCommand : BaseCommand
         {
-            /*
-            private readonly HttpClient _httpClient;
-            public CloneCommand(ILogger logger, Paths paths, HttpClient httpClient) : base(logger, paths) 
-            {
-                _httpClient = httpClient;
-            }
-            */
             public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
             public override string Name => "clone";
             public override string Description => "Clones a repository from a remote server to your local machine.";
@@ -744,6 +737,11 @@ Example:
 
                     // Set HEAD reference
                     BranchHelper.SetCurrentHEAD(clonePaths, chosenBranch);
+
+
+                    // Set remote origin
+                    var remoteManager = new RemoteManager(Logger, clonePaths);
+                    await remoteManager.AddRemote(new string[] { "add", "origin", endpoint });
 
 
 
