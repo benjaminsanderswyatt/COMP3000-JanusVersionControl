@@ -6,6 +6,7 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
+using System.Net.Http;
 using System.Text.Json;
 using static Janus.Diff;
 using static Janus.Helpers.FileMetadataHelper;
@@ -25,8 +26,8 @@ namespace Janus
 
                 new LoginCommand(logger, paths),
                 new RemoteCommand(logger, paths),
-                new CloneCommand(logger, paths),
-                new FetchCommand(logger, paths),
+                new CloneCommand(logger, paths, new HttpClient()),
+                new FetchCommand(logger, paths, new HttpClient()),
                 //new PullCommand(logger, paths),
                 //new PushCommand(logger, paths),
 
@@ -533,7 +534,11 @@ Example:
 
         public class CloneCommand : BaseCommand
         {
-            public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly HttpClient _httpClient;
+            public CloneCommand(ILogger logger, Paths paths, HttpClient httpClient) : base(logger, paths) 
+            {
+                _httpClient = httpClient;
+            }
             public override string Name => "clone";
             public override string Description => "Clones a repository from a remote server to your local machine.";
             public override string Usage =>
@@ -583,7 +588,7 @@ Example:
 
                 try
                 {
-                    var (success, data) = await ApiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
+                    var (success, data) = await ApiHelper.SendGetAsync(_httpClient, Paths, endpoint, credentials.Token);
 
                     if (!success)
                     {
@@ -660,13 +665,7 @@ Example:
                                 treeBuilder.LoadTree(commit.Tree);
 
                                 string treeHash = treeBuilder.SaveTree();
-
-                                if (treeHash != commit.TreeHash)
-                                {
-                                    Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}");
-                                    return;
-                                }
-
+                                
 
                                 // Get file hashes from tree
                                 treeBuilder.GetFileHashes(fileHashes);
@@ -740,6 +739,7 @@ Example:
                     if (fileHashes.Any())
                     {
                         bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                            _httpClient,
                             Paths,
                             owner,
                             repoName,
@@ -794,7 +794,11 @@ Example:
 
         public class FetchCommand : BaseCommand
         {
-            public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly HttpClient _httpClient;
+            public FetchCommand(ILogger logger, Paths paths, HttpClient httpClient) : base(logger, paths) 
+            {
+                _httpClient = httpClient;
+            }
             public override string Name => "fetch";
             public override string Description => "Fetches the latest commits from the remote repository";
             public override string Usage =>
@@ -860,6 +864,7 @@ Examples:
                 // Send fetch request
                 Logger.Log("Fetching updates from remote...");
                 var (success, data) = await ApiHelper.SendPostAsync(
+                    _httpClient,
                     Paths,
                     $"cli/repo/{remote.Link}/fetch",
                     localBranchHashes,
@@ -1006,6 +1011,7 @@ Examples:
                 if (missingFileHashes.Any())
                 {
                     bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                        _httpClient,
                         Paths,
                         owner,
                         repoName,
@@ -1135,8 +1141,19 @@ Example:
                 }
 
 
+
+
+
                 bool force = args.Contains("--force");
-                MiscHelper.ConfirmAction(Logger, "Proceed with pull? (y/n): ", force);
+                bool confirmed = MiscHelper.ConfirmAction(Logger, "Proceed with pull? (y/n): ", force);
+
+
+
+
+
+
+
+
 
 
 

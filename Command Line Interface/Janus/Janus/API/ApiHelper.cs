@@ -19,13 +19,13 @@ namespace Janus.API
         }
 
 
-        public static async Task<(bool, string)> SendPostAsync(Paths paths, string endpoint, object bodyObject, string? pat = null)
+        public static async Task<(bool, string)> SendPostAsync(HttpClient httpClient, Paths paths, string endpoint, object bodyObject, string? pat = null)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
             string apiUrl = $"https://{effectiveIp}/api/{endpoint}";
 
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = httpClient)
             {
                 // Add Auth Token to header if required
                 if (pat != null)
@@ -57,13 +57,13 @@ namespace Janus.API
         }
 
 
-        public static async Task<(bool, string)> SendGetAsync(Paths paths, string endpoint, string? pat = null)
+        public static async Task<(bool, string)> SendGetAsync(HttpClient httpClient, Paths paths, string endpoint, string? pat = null)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
             string apiUrl = $"https://{effectiveIp}/api/cli/repo/{endpoint}";
 
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = httpClient)
             {
                 // Add Auth Token to header if required
                 if (pat != null)
@@ -92,13 +92,13 @@ namespace Janus.API
 
 
 
-        public static async Task<bool> DownloadBatchFilesAsync(Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
+        public static async Task<bool> DownloadBatchFilesAsync(HttpClient httpClient, Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
             string apiUrl = $"https://{effectiveIp}/api/cli/repo/batchfiles/{owner}/{repoName}";
 
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = httpClient)
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
 
