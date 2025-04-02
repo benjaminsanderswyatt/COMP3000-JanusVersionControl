@@ -76,14 +76,14 @@ namespace backend.Controllers.CLI
             */
 
             var treeBuilder = new TreeBuilder(repository.RepoId);
-            var branchesData = new List<object>();
+            var branchesData = new List<BranchDto>();
 
             foreach (var branch in repository.Branches)
             {
                 branchesData.Add(await _cliHelper.GetBranchDataAsync(branch, treeBuilder));
             }
 
-            var cloneData = new
+            var cloneData = new CloneDto
             {
                 RepoName = repository.RepoName,
                 RepoDescription = repository.RepoDescription,
@@ -216,7 +216,7 @@ namespace backend.Controllers.CLI
 
 
             var treeBuilder = new TreeBuilder(repository.RepoId);
-            var branchesData = new List<object>();
+            var branchesData = new List<BranchDto>();
 
             foreach (var branch in repository.Branches)
             {
@@ -294,7 +294,7 @@ namespace backend.Controllers.CLI
                     .Select(u => u.Username)
                     .FirstOrDefaultAsync();
 
-                branchesData.Add(new
+                branchesData.Add(new BranchDto
                 {
                     BranchName = branch.BranchName,
                     ParentBranch = branch.Parent?.BranchName,
@@ -306,7 +306,7 @@ namespace backend.Controllers.CLI
                 });
             }
 
-            var response = new
+            var response = new CloneDto
             {
                 RepoName = repository.RepoName,
                 RepoDescription = repository.RepoDescription,
@@ -317,6 +317,237 @@ namespace backend.Controllers.CLI
 
             return Ok(response);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [HttpPost("janus/{owner}/{repoName}/push")]
+        public async Task<IActionResult> PushToRepo(string owner, string repoName, [FromBody] CloneDto pushRequest)
+        {
+            // Authentication
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
+
+
+            // Get owner and repository
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (ownerUser == null)
+                return NotFound(new { Message = "Owner not found" });
+
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .Include(r => r.Branches)
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
+
+
+            // Check write access
+            var userAccess = repository.RepoAccesses.FirstOrDefault(ra => ra.UserId == userId);
+            if (userAccess == null || userAccess.AccessLevel < AccessLevel.WRITE)
+            {
+                return Forbid();
+            }
+
+            return Ok(new {  Message ="hello"});
+            /*
+
+            // Get current users username
+            var user = await _janusDbContext.Users.FindAsync(userId);
+            string username = user.Username;
+
+
+            // Find or create branch
+            var branch = repository.Branches.FirstOrDefault(b => b.BranchName == pushRequest.BranchName);
+            
+            if (branch == null)
+            {
+                // Create new branch
+                Branch parentBranch = null;
+                if (!string.IsNullOrEmpty(pushRequest.ParentBranchName))
+                {
+                    parentBranch = repository.Branches.FirstOrDefault(b => b.BranchName == pushRequest.ParentBranchName);
+                    if (parentBranch == null)
+                        return BadRequest(new { Message = "Parent branch not found" });
+                }
+
+                branch = new Branch
+                {
+                    BranchName = pushRequest.BranchName,
+                    RepoId = repository.RepoId,
+                    CreatedBy = userId,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    ParentBranch = parentBranch?.BranchId,
+                    SplitFromCommitHash = parentBranch?.LatestCommitHash ?? pushRequest.SplitFromCommitHash,
+                    LatestCommitHash = null
+                };
+                _janusDbContext.Branches.Add(branch);
+                await _janusDbContext.SaveChangesAsync(); // Generate BranchId
+            }
+
+
+
+
+            // Fast forward check (skip for new branches)
+            if (branch.LatestCommitHash != null && pushRequest.NewCommits.Any())
+            {
+                // If the remote latest commit is contained in the new commits it can be fast fwd
+                var firstNewCommit = pushRequest.NewCommits.First();
+                if (!firstNewCommit.ParentCommitHashes.Contains(branch.LatestCommitHash))
+                {
+                    if (!pushRequest.ForcePush)
+                    {
+                        return BadRequest(new { Message = "Non fast forward push. Please fetch, pull and merge locally" });
+                    }
+                }
+            }
+
+
+            // Validate tree hashes
+            string treeStoragePath = Environment.GetEnvironmentVariable("TREE_STORAGE_PATH");
+            string repoTreeDir = Path.Combine(treeStoragePath, repository.RepoId.ToString());
+            foreach (var commitDto in pushRequest.NewCommits)
+            {
+                string treeFilePath = Path.Combine(repoTreeDir, commitDto.TreeHash);
+                
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Collect new commit hashes and filter existing ones
+            var newCommitHashes = pushRequest.NewCommits.Select(c => c.CommitHash).ToList();
+            var existingCommits = await _janusDbContext.Commits
+                .Where(c => newCommitHashes.Contains(c.CommitHash))
+                .ToDictionaryAsync(c => c.CommitHash);
+
+
+            
+
+
+            // Add new commits
+            foreach (var commitDto in pushRequest.NewCommits)
+            {
+                if (!existingCommits.ContainsKey(commitDto.CommitHash))
+                {
+                    var newCommit = new Commit
+                    {
+                        CommitHash = commitDto.CommitHash,
+                        BranchId = branch.BranchId,
+                        TreeHash = commitDto.TreeHash,
+                        CreatedBy = username,
+                        Message = commitDto.Message,
+                        CommittedAt = commitDto.CommittedAt
+                    };
+                    _janusDbContext.Commits.Add(newCommit);
+                }
+            }
+
+            // Map CommitHashes to CommitIds
+            var commitIds = await _janusDbContext.Commits
+                .Where(c => newCommitHashes.Contains(c.CommitHash))
+                .ToDictionaryAsync(c => c.CommitHash, c => c.CommitId);
+
+            // Add CommitParents
+            foreach (var commitDto in pushRequest.NewCommits)
+            {
+                var commitId = commitIds[commitDto.CommitHash];
+                foreach (var parentHash in commitDto.ParentCommitHashes)
+                {
+                    if (!commitIds.TryGetValue(parentHash, out int parentId))
+                    {
+                        var parentCommit = await _janusDbContext.Commits
+                            .FirstOrDefaultAsync(c => c.CommitHash == parentHash);
+                        if (parentCommit == null)
+                        {
+                            return BadRequest(new { Message = $"Parent commit {parentHash} not found" });
+                        }
+                        parentId = parentCommit.CommitId;
+                    }
+
+                    if (!await _janusDbContext.CommitParents.AnyAsync(cp => cp.ChildId == commitId && cp.ParentId == parentId))
+                    {
+                        _janusDbContext.CommitParents.Add(new CommitParent
+                        {
+                            ChildId = commitId,
+                            ParentId = parentId
+                        });
+                    }
+                }
+            }
+
+            // Save all trees and files in dirs
+            try
+            {
+                // eviroment variables FILE_STORAGE_PATH, TREE_STORAGE_PATH
+            }
+            catch
+            {
+                // Rollback
+            }
+
+
+            // Update branchs latest commit
+            if (pushRequest.NewCommits.Any())
+            {
+                branch.LatestCommitHash = pushRequest.NewCommits.Last().CommitHash;
+            }
+
+
+
+            await _janusDbContext.SaveChangesAsync();
+
+            */
+
+
+        }
+
+
+
+
+
+
+
+
 
 
 

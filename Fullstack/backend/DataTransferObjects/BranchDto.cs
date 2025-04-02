@@ -2,6 +2,7 @@
 
 namespace backend.DataTransferObjects
 {
+    /*
     public class BranchDto
     {
         [Required]
@@ -15,5 +16,6 @@ namespace backend.DataTransferObjects
 
         public DateTime CreatedAt { get; set; }
     }
+    */
 
 }

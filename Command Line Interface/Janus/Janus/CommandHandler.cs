@@ -28,7 +28,7 @@ namespace Janus
                 new CloneCommand(logger, paths),
                 new FetchCommand(logger, paths),
                 new PullCommand(logger, paths),
-                //new PushCommand(logger, paths),
+                new PushCommand(logger, paths),
 
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
@@ -1190,6 +1190,89 @@ Example:
 
 
 
+
+
+
+
+        public class PushCommand : BaseCommand
+        {
+            public PushCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "push";
+            public override string Description => "Pushes local commits to the remote repository";
+            public override string Usage =>
+@"janus push [remote] [branch]
+[remote] : Remote name to push to (default: origin)
+[branch] : Branch to push (default: current branch)
+Example:
+    janus push
+    janus push origin main";
+            public override async Task Execute(string[] args)
+            {
+                // Ensure repository exists
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths))
+                    return;
+
+
+                // Load credentials
+                var credManager = new CredentialManager();
+                var credentials = credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. Usage: janus login");
+                    return;
+                }
+
+
+                // Determine remote and branch
+                string remoteName = args.Length > 0 ? args[0] : "origin";
+                string branchName = args.Length > 1 ? args[1] : MiscHelper.GetCurrentBranchName(Paths);
+
+
+                // Get remote configuration
+                var remoteManager = new RemoteManager(Logger, Paths);
+                var remote = remoteManager.LoadRemote(remoteName);
+                if (remote == null)
+                {
+                    Logger.Log($"Remote '{remoteName}' not found");
+                    return;
+                }
+
+
+                // Get local branch head
+                string localHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
+
+
+
+
+
+
+                // Get remote branch head
+
+                // Get commits to push
+
+                // Send push request
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+        }
 
 
 

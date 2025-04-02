@@ -5,7 +5,7 @@ namespace Janus.Helpers.CommandHelpers
 
     public class CommitHelper
     {
-        public static void SaveCommit(Paths paths, string commitHash, List<string> parentCommit, string branch, string username, string email, DateTime datetime, string message, string rootTreeHash)
+        public static void SaveCommit(Paths paths, string commitHash, List<string> parentCommit, string branch, string username, string email, DateTimeOffset datetime, string message, string rootTreeHash)
         {
             string commitMetadata = MiscHelper.GenerateCommitMetadata(branch, commitHash, rootTreeHash, message, parentCommit, username, email);
 

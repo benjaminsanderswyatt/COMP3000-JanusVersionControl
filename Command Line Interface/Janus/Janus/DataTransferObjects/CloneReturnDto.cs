@@ -17,7 +17,7 @@
         public string SplitFromCommitHash { get; set; }
         public string LatestCommitHash { get; set; }
         public string CreatedBy { get; set; }
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
         public List<CommitDto> Commits { get; set; }
     }
 
@@ -28,7 +28,7 @@
         public string AuthorName { get; set; }
         public string AuthorEmail { get; set; }
         public string Message { get; set; }
-        public DateTime CommittedAt { get; set; }
+        public DateTimeOffset CommittedAt { get; set; }
         public string TreeHash { get; set; }
         public TreeDto? Tree { get; set; }
     }

@@ -1,4 +1,6 @@
-﻿using backend.Models;
+﻿using backend.DataTransferObjects;
+using backend.DataTransferObjects.CLI;
+using backend.Models;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using static backend.Utils.TreeBuilder;
@@ -17,9 +19,9 @@ namespace backend.Helpers
 
 
         // Converts a list of commits into their dtos
-        public async Task<List<object>> GetCommitDtosAsync(IEnumerable<Commit> commits, TreeBuilder treeBuilder)
+        public async Task<List<CommitDto>> GetCommitDtosAsync(IEnumerable<Commit> commits, TreeBuilder treeBuilder)
         {
-            var commitDtos = new List<object>();
+            var commitDtos = new List<CommitDto>();
 
             foreach (var commit in commits)
             {
@@ -46,15 +48,15 @@ namespace backend.Helpers
                 TreeNode tree = treeBuilder.RecreateTree(commit.TreeHash);
                 var treeDto = Tree.ConvertTreeNodeToDto(tree);
 
-                commitDtos.Add(new
+                commitDtos.Add(new CommitDto
                 {
-                    commit.CommitHash,
-                    parentsCommitHash,
+                    CommitHash = commit.CommitHash,
+                    ParentsCommitHash = parentsCommitHash,
                     AuthorName = commit.CreatedBy,
                     AuthorEmail = commitAuthorEmail,
-                    commit.Message,
-                    commit.CommittedAt,
-                    commit.TreeHash,
+                    Message = commit.Message,
+                    CommittedAt = commit.CommittedAt,
+                    TreeHash = commit.TreeHash,
                     Tree = treeDto
                 });
             }
@@ -65,7 +67,7 @@ namespace backend.Helpers
 
 
         // Gets branch data and its whole commit history
-        public async Task<object> GetBranchDataAsync(Branch branch, TreeBuilder treeBuilder)
+        public async Task<BranchDto> GetBranchDataAsync(Branch branch, TreeBuilder treeBuilder)
         {
             var createdByUser = await _janusDbContext.Users
                 .Where(u => u.UserId == branch.CreatedBy)
@@ -74,7 +76,7 @@ namespace backend.Helpers
 
             var commitDtos = await GetCommitDtosAsync(branch.Commits, treeBuilder);
 
-            return new
+            return new BranchDto
             {
                 BranchName = branch.BranchName,
                 ParentBranch = branch.Parent != null ? branch.Parent.BranchName : null,

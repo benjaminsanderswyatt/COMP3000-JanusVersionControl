@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using backend.DataTransferObjects.CLI;
+using System.Text;
 using static backend.Helpers.FileMetadataHelper;
 
 namespace backend.Utils
@@ -340,19 +341,19 @@ namespace backend.Utils
 
 
 
-            public static object ConvertTreeNodeToDto(TreeNode node)
+            public static TreeDto ConvertTreeNodeToDto(TreeNode node)
             {
                 if (node == null)
                     return null;
 
-                return new
+                return new TreeDto
                 {
-                    node.Name,
-                    node.Hash,
-                    node.MimeType,
-                    node.Size,
-                    node.LastModified,
-                    Children = node.Children?.Select(child => ConvertTreeNodeToDto(child))
+                    Name = node.Name,
+                    Hash = node.Hash,
+                    MimeType = node.MimeType,
+                    Size = node.Size,
+                    LastModified = node.LastModified,
+                    Children = node.Children?.Select(child => ConvertTreeNodeToDto(child)).ToList()
                 };
             }
 
