@@ -1,6 +1,6 @@
 ﻿namespace backend.DataTransferObjects.CLI
 {
-    public class CloneDto
+    public class RepoDto
     {
         public string RepoName { get; set; }
         public string RepoDescription { get; set; }

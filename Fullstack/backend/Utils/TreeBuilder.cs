@@ -217,7 +217,70 @@ namespace backend.Utils
                 throw new Exception("Failed to recreate tree", ex);
                 //return null;
             }
+
         }
+
+
+
+        public void LoadTree(TreeDto treeDto)
+        {
+            root = ConvertTreeDtoToTreeNode(treeDto);
+        }
+
+        public static TreeNode ConvertTreeDtoToTreeNode(TreeDto treeDto)
+        {
+            if (treeDto == null)
+                return null;
+
+            var node = new TreeNode(
+                treeDto.Name,
+                treeDto.Hash,
+                treeDto.MimeType,
+                treeDto.Size,
+                treeDto.LastModified
+            );
+
+            if (treeDto.Children != null)
+            {
+                foreach (var childDto in treeDto.Children)
+                {
+                    node.Children.Add(ConvertTreeDtoToTreeNode(childDto));
+                }
+            }
+
+            return node;
+        }
+
+
+        // Gets the file hashes from the tree
+        public void GetFileHashes(HashSet<string> hashes)
+        {
+            GetFileHashesRecursive(root, hashes);
+        }
+
+        private static void GetFileHashesRecursive(TreeNode node, HashSet<string> hashes)
+        {
+            if (node == null)
+                return;
+
+            if (!string.IsNullOrEmpty(node.Hash))
+            {
+                // Is file
+                hashes.Add(node.Hash);
+            }
+
+            foreach (var child in node.Children)
+            {
+                GetFileHashesRecursive(child, hashes);
+            }
+        }
+
+
+
+
+
+
+
 
 
         // Represents the results of comparing two trees
