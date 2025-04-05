@@ -326,6 +326,49 @@ namespace backend.Controllers.CLI
 
 
 
+        [HttpGet("janus/{owner}/{repoName}/head")]
+        public async Task<IActionResult> GetRemoteHead(string owner, string repoName)
+        {
+            // Authentication
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { Message = "Invalid user" });
+            }
+
+
+            // Get repository owner
+            var ownerUser = await _janusDbContext.Users.FirstOrDefaultAsync(u => u.Username == owner);
+            if (ownerUser == null)
+                return NotFound(new { Message = "Owner not found" });
+
+
+            // Get repository with branches and commits
+            var repository = await _janusDbContext.Repositories
+                .Include(r => r.RepoAccesses)
+                .Include(r => r.Branches)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(r => r.OwnerId == ownerUser.UserId && r.RepoName == repoName);
+
+            if (repository == null)
+                return NotFound(new { Message = "Repository not found" });
+
+            // Check access for private repos
+            if (repository.IsPrivate && !repository.RepoAccesses.Any(ra => ra.UserId == userId))
+                return NotFound(new { Message = "Repository not found" });
+
+
+
+
+            // Get branch names and their latest commit hash
+            var branchHeads = repository.Branches.ToDictionary(b => b.BranchName, b => b.LatestCommitHash);
+            
+            
+            return Ok(new { RemoteHeads = branchHeads });
+        }
+
+
+
 
 
 

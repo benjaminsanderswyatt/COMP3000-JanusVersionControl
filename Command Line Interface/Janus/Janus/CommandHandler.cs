@@ -1155,6 +1155,121 @@ Example:
 
 
 
+                // Second pass: perform updates
+                foreach (var remoteBranchDir in remoteBranchDirs)
+                {
+                    string branchName = Path.GetFileName(remoteBranchDir);
+
+                    // Read remote head.
+                    string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+                    if (!File.Exists(remoteHeadPath))
+                    {
+                        continue;
+                    }
+                    string remoteHead = File.ReadAllText(remoteHeadPath).Trim();
+
+                    // Get or create corresponding local branch.
+                    string localBranchDir = Path.Combine(Paths.BranchesDir, branchName);
+                    if (!Directory.Exists(localBranchDir))
+                    {
+                        Logger.Log($"Local branch '{branchName}' not found, creating new branch...");
+                        Directory.CreateDirectory(localBranchDir);
+                    }
+                    string localHeadPath = Path.Combine(localBranchDir, "head");
+                    string localHead = File.Exists(localHeadPath) ? File.ReadAllText(localHeadPath).Trim() : string.Empty;
+
+                    // Get sync status.
+                    var status = StatusHelper.CheckSyncStatus(Paths, remoteHead, localHead);
+
+                    // Up-to-date.
+                    if (remoteHead == localHead)
+                    {
+                        Logger.Log($"Branch '{branchName}' is already up-to-date.");
+                        continue;
+                    }
+
+                    // Fast-forward if local is behind remote.
+                    if (status.FoundLocalInRemote && !status.FoundRemoteInLocal)
+                    {
+                        File.WriteAllText(localHeadPath, remoteHead);
+                        Logger.Log($"Fast-forward updated branch '{branchName}' from {localHead} to {remoteHead}.");
+                    }
+                    // If local is ahead, do nothing.
+                    else if (!status.FoundLocalInRemote && status.FoundRemoteInLocal)
+                    {
+                        Logger.Log($"Local branch '{branchName}' is ahead of remote by {status.CommitsAhead} commit(s); skipping update.");
+                        continue;
+                    }
+                    // Diverged: attempt automatic merge.
+                    else
+                    {
+                        Logger.Log($"Branch '{branchName}' has diverged. Attempting automatic merge...");
+                        // Get common ancestor.
+                        string commonAncestor = MergeHelper.FindCommonAncestor(Logger, Paths, localHead, remoteHead);
+                        if (commonAncestor == null)
+                        {
+                            Logger.Log("No common ancestor found. Cannot merge.");
+                            continue;
+                        }
+
+                        // Retrieve trees for base, local, and remote.
+                        TreeNode baseTree = Diff.GetTreeFromCommit(Logger, Paths, commonAncestor);
+                        TreeNode currentTree = Diff.GetTreeFromCommit(Logger, Paths, localHead);
+                        TreeNode targetTree = Diff.GetTreeFromCommit(Logger, Paths, remoteHead);
+
+                        // Compute merge changes.
+                        var mergeResult = MergeHelper.ComputeMergeChanges(Logger, Paths, baseTree, currentTree, targetTree);
+                        if (mergeResult.HasConflicts)
+                        {
+                            Logger.Log($"Merge conflicts detected in branch '{branchName}':");
+                            foreach (var conflict in mergeResult.Conflicts)
+                            {
+                                Logger.Log($"  Conflict: {conflict}");
+                            }
+                            Logger.Log("Resolve conflicts manually and commit the merge result.");
+                            continue;
+                        }
+
+                        // Create merge commit.
+                        string commitMessage = $"Merge remote changes into '{branchName}'";
+                        var (newTreeHash, mergedTree) = TreeBuilder.CreateMergedTree(Paths, mergeResult.MergedEntries);
+                        string mergeCommitHash = CommitHelper.CreateMergeCommit(
+                            Paths,
+                            localHead,
+                            remoteHead,
+                            newTreeHash,
+                            commitMessage,
+                            MiscHelper.GetUsername(),
+                            MiscHelper.GetEmail()
+                        );
+                        HeadHelper.SetHeadCommit(Paths, mergeCommitHash, branchName);
+                        MergeHelper.RecreateWorkingDir(Logger, Paths, mergedTree);
+                        Logger.Log($"Created merge commit {mergeCommitHash} for branch '{branchName}'.");
+                    }
+
+                    // Update branch info if available.
+                    string remoteInfoPath = Path.Combine(remoteBranchDir, "info");
+                    string localInfoPath = Path.Combine(localBranchDir, "info");
+                    if (File.Exists(remoteInfoPath))
+                    {
+                        string remoteInfo = File.ReadAllText(remoteInfoPath);
+                        File.WriteAllText(localInfoPath, remoteInfo);
+                    }
+
+                    // Update branch index if available.
+                    string remoteIndexPath = Path.Combine(remoteBranchDir, "index");
+                    string localIndexPath = Path.Combine(localBranchDir, "index");
+                    if (File.Exists(remoteIndexPath))
+                    {
+                        string remoteIndex = File.ReadAllText(remoteIndexPath);
+                        File.WriteAllText(localIndexPath, remoteIndex);
+                    }
+                }
+
+                Logger.Log("Pull completed successfully.");
+
+
+
 
 
 
@@ -1162,31 +1277,6 @@ Example:
 
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
