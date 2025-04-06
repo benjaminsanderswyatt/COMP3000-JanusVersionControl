@@ -1,4 +1,6 @@
-﻿using Janus.Plugins;
+﻿using Janus.API;
+using Janus.DataTransferObjects;
+using Janus.Plugins;
 using System.Text.Json;
 
 namespace Janus.Utils
@@ -20,6 +22,7 @@ namespace Janus.Utils
         {
             public string Name { get; set; }
             public string Link { get; set; }
+            public Dictionary<string, string> Heads { get; set; }
         }
 
 
@@ -68,7 +71,35 @@ namespace Janus.Utils
                 return;
             }
 
-            remotes.Add(new RemoteRepos { Name = name, Link = link });
+
+            // Load the store user credentials
+            var credManager = new CredentialManager();
+            var credentials = credManager.LoadCredentials();
+            if (credentials == null)
+            {
+                _logger.Log("Please login first. Usage: janus login");
+                return;
+            }
+
+
+            // Use your ApiHelper to perform a GET request.
+            var (success, response) = await ApiHelper.SendGetAsync(_paths, $"/cli/repo/{link}/head", credentials.Token);
+            if (!success)
+            {
+                _logger.Log("Failed to fetch remote head. Remote not added");
+                return;
+            }
+
+            // Deserialize the remote head DTO.
+            var remoteHeadDto = JsonSerializer.Deserialize<RemoteHeadDto>(response, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (remoteHeadDto == null)
+            {
+                _logger.Log("Failed to parse remote head. Remote not added");
+                return;
+            }
+
+
+            remotes.Add(new RemoteRepos { Name = name, Link = link, Heads = remoteHeadDto.Heads });
 
             SaveRemotes(remotes);
 
@@ -121,6 +152,21 @@ namespace Janus.Utils
                 _logger.Log($"   {remote.Name} : {remote.Link}");
             }
 
+        }
+
+
+
+        public void UpdateRemoteHead(string remoteName, Dictionary<string, string> heads)
+        {
+            var remotes = LoadRemotes();
+            
+            var remote = remotes.FirstOrDefault(r => r.Name.Equals(remoteName, StringComparison.OrdinalIgnoreCase));
+            
+            if (remote != null)
+            {
+                remote.Heads = heads;
+                SaveRemotes(remotes);
+            }
         }
 
 

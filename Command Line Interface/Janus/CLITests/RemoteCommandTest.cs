@@ -1,3 +1,4 @@
+using Janus.API;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -16,6 +17,36 @@ namespace CLITests
         private RemoteCommand _remoteCommand;
 
         private string _testDir;
+
+
+        public static class ApiHelperMock
+        {
+            public static Func<Paths, string, string, Task<(bool, string)>> CustomSendGetAsync = null;
+
+            public static void SetMock()
+            {
+                ApiHelper.SendGetAsync = async (paths, url, token) =>
+                {
+                    if (CustomSendGetAsync != null)
+                        return await CustomSendGetAsync(paths, url, token);
+
+                    return (false, null); // default behavior if not mocked
+                };
+            }
+
+            public static void ClearMock()
+            {
+                CustomSendGetAsync = null;
+            }
+        }
+
+
+
+
+
+
+
+
 
         [SetUp]
         public void Setup()

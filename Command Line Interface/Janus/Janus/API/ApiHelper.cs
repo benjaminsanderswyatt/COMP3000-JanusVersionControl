@@ -166,6 +166,42 @@ namespace Janus.API
 
 
 
+        public static async Task<(bool, string)> SendMultipartPostAsync(Paths paths, string endpoint, MultipartFormDataContent content, string? pat = null)
+        {
+            string effectiveIp = GetApiBaseUrl(paths);
+            string apiUrl = $"https://{effectiveIp}/api/{endpoint}";
+
+            using (HttpClient client = new HttpClient())
+            {
+                if (pat != null)
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", pat);
+                }
+
+                var response = await client.PostAsync(apiUrl, content);
+                string responseData = await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    return (false, "Invalid login credentials");
+
+                if (!response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseData))
+                {
+                    return (false, $"Request failed {response.StatusCode}");
+                }
+
+                return response.IsSuccessStatusCode ? (true, responseData) : (false, responseData);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
     }
 }
 

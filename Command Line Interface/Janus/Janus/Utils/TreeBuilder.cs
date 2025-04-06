@@ -282,6 +282,27 @@ namespace Janus.Utils
         }
 
 
+        public static TreeDto ConvertTreeNodeToTreeDto(TreeNode node)
+        {
+            var treeDto = new TreeDto
+            {
+                Name = node.Name,
+                Hash = node.Hash,
+                MimeType = node.MimeType,
+                Size = node.Size,
+                LastModified = node.LastModified,
+                Children = node.Children?.Select(child => ConvertTreeNodeToTreeDto(child)).ToList()
+            };
+
+            return treeDto;
+        }
+
+
+
+
+
+
+
         // Gets the file hashes from the tree
         public void GetFileHashes(HashSet<string> hashes)
         {

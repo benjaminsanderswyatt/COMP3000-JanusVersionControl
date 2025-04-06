@@ -362,9 +362,15 @@ namespace backend.Controllers.CLI
 
             // Get branch names and their latest commit hash
             var branchHeads = repository.Branches.ToDictionary(b => b.BranchName, b => b.LatestCommitHash);
-            
-            
-            return Ok(new { RemoteHeads = branchHeads });
+
+            var remoteHeadDto = new RemoteHeadDto
+            {
+                Description = repository.RepoDescription,
+                IsPrivate = repository.IsPrivate,
+                Heads = branchHeads
+            };
+
+            return Ok(remoteHeadDto);
         }
 
 

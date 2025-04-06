@@ -6,6 +6,7 @@ using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
 using System.Data;
+using System.Text;
 using System.Text.Json;
 using static Janus.Diff;
 using static Janus.Helpers.FileMetadataHelper;
@@ -1028,6 +1029,15 @@ Examples:
 
 
 
+
+
+
+                // Update the stored remote heads
+                var remoteHeads = fetchData.Branches.ToDictionary(b => b.BranchName, b => b.LatestCommitHash);
+                remoteManager.UpdateRemoteHead(remoteName, remoteHeads);
+
+
+
                 Logger.Log("Fetch completed successfully");
                 Logger.Log($"Local is {newCommitCount.ToString()} commits behind remote");
             }
@@ -1153,7 +1163,7 @@ Example:
 
 
 
-
+                // TODO
 
                 // Second pass: perform updates
                 foreach (var remoteBranchDir in remoteBranchDirs)
@@ -1328,38 +1338,133 @@ Example:
                 }
 
 
-                // Get local branch head
-                string localHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
+
+                try
+                {
+                    // Get the remote branch head
+                    var (success, data) = await ApiHelper.SendGetAsync(Paths, $"/cli/repo/{remote.Link}/head", credentials.Token);
+                    if (!success)
+                    {
+                        Logger.Log("Failed to retrieve remote branch head: " + data);
+                        return;
+                    }
+
+                    var remoteHeads = JsonSerializer.Deserialize<RemoteHeadDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (remoteHeads == null || !remoteHeads.Heads.ContainsKey(branchName))
+                    {
+                        Logger.Log($"Remote head for branch '{branchName}' not found.");
+                        return;
+                    }
+
+
+                    string remoteHead = remoteHeads.Heads[branchName];
+                    string localHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
+
+                    // Get the local commits that are not on remote
+                    var commitsToPush = PushHelper.GetLocalCommitsBetween(Logger, Paths, remoteHead, localHead);
+
+                    // Get the local repo configuration
+                    var localConfig = RepoConfigHelper.GetRepoConfig(Paths.RepoConfig);
+                    if (localConfig == null)
+                    {
+                        Logger.Log("Local repository configuration not found.");
+                        return;
+                    }
+
+
+                    // Only push if there are changes
+                    if (!commitsToPush.Any() &&
+                        remoteHeads.IsPrivate == localConfig.IsPrivate &&
+                        remoteHeads.Description == localConfig.Description)
+                    {
+                        Logger.Log("No changes to push");
+                        return;
+                    }
 
 
 
+                    RepoDto pushRequest = new RepoDto
+                    {
+                        RepoName = remote.Name,
+                        RepoDescription = localConfig.Description,
+                        IsPrivate = localConfig.IsPrivate,
+                        Branches = new List<BranchDto>
+                        {
+                            new BranchDto
+                            {
+                                BranchName = branchName,
+                                SplitFromCommitHash = remoteHead,
+                                LatestCommitHash = localHead,
+                                Commits = commitsToPush
+                            }
+                        }
+                    };
+                    var fileHashes = new HashSet<string>();
+                    foreach (var commit in commitsToPush)
+                    {
+                        if (commit.Tree != null)
+                        {
+                            var treeBuilder = new TreeBuilder(Paths);
+                            treeBuilder.LoadTree(commit.Tree);
+                            treeBuilder.GetFileHashes(fileHashes);
+                        }
+                    }
+
+                    // Read files from object directory
+                    var files = new List<(string Hash, byte[] Content)>();
+                    foreach (var hash in fileHashes)
+                    {
+                        string filePath = Path.Combine(Paths.ObjectDir, hash);
+                        if (File.Exists(filePath))
+                        {
+                            files.Add((hash, await File.ReadAllBytesAsync(filePath)));
+                        }
+                        else
+                        {
+                            Logger.Log($"Missing file object: {hash}");
+                            return;
+                        }
+                    }
+
+                    // Create multipart content
+                    using var multipartContent = new MultipartFormDataContent();
+
+                    // Add metadata as JSON
+                    var metadataJson = JsonSerializer.Serialize(pushRequest);
+                    multipartContent.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
+
+                    // Add files
+                    foreach (var (hash, content) in files)
+                    {
+                        var fileContent = new ByteArrayContent(content);
+                        fileContent.Headers.Add("X-File-Hash", hash);
+                        multipartContent.Add(fileContent, "files", hash);
+                    }
+
+                    // Send the request using HttpClient
+                    Logger.Log("Pushing to remote...");
+                    var (pushSuccess, pushData) = await ApiHelper.SendMultipartPostAsync(
+                        Paths,
+                        $"cli/repo/{remote.Link}/push",
+                        multipartContent,
+                        credentials.Token
+                    );
+
+                    if (!pushSuccess)
+                    {
+                        // Backend rejects non fast forward pushes
+                        Logger.Log($"Push failed: {pushData}");
+                        return;
+                    }
+
+                    Logger.Log("Push successful");
 
 
-
-                // Get remote branch head
-
-                // Get commits to push
-
-                // Send push request
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error during push: {ex.Message}");
+                }
 
             }
         }
