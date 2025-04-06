@@ -33,6 +33,11 @@ namespace Janus.Utils
 
         public List<RemoteRepos> LoadRemotes()
         {
+            if (!File.Exists(_paths.Remote))
+            {
+                return new List<RemoteRepos>();
+            }
+
             string content = File.ReadAllText(_paths.Remote);
             return JsonSerializer.Deserialize<List<RemoteRepos>>(content);
         }
