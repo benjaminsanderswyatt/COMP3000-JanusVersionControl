@@ -18,22 +18,23 @@ namespace Janus
         public static List<ICommand> GetCommands(ILogger logger, Paths paths)
         {
             var apiHelper = new ApiHelperService();
+            var credManager = new CredentialManager();
 
             var commands = new List<ICommand>
             {
-                new HelpCommand(logger, paths),
+                new HelpCommand(logger, paths, credManager),
 
                 new ConfigCommand(logger, paths),
                 new MergeCommand(logger, paths),
 
-                new LoginCommand(logger, paths),
-                new RemoteCommand(logger, paths, apiHelper),
-                new CloneCommand(logger, paths, apiHelper),
-                new FetchCommand(logger, paths, apiHelper),
+                new LoginCommand(logger, paths, credManager),
+                new RemoteCommand(logger, paths, apiHelper, credManager),
+                new CloneCommand(logger, paths, apiHelper, credManager),
+                new FetchCommand(logger, paths, apiHelper, credManager),
                 new PullCommand(logger, paths),
-                new PushCommand(logger, paths, apiHelper),
+                new PushCommand(logger, paths, apiHelper, credManager),
 
-                new InitCommand(logger, paths),
+                new InitCommand(logger, paths, credManager),
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
                 new LogCommand(logger, paths),
@@ -372,8 +373,11 @@ Examples:
 
         public class HelpCommand : BaseCommand
         {
-            public HelpCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-
+            private readonly ICredentialManager _credManager;
+            public HelpCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            {
+                _credManager = credManager;
+            }
             public override string Name => "help";
             public override string Description => "Displays all available commands or detailed usage for a specific command";
             public override string Usage =>
@@ -422,8 +426,11 @@ Examples:
 
         public class LoginCommand : BaseCommand
         {
-            public LoginCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-
+            private readonly ICredentialManager _credManager;
+            public LoginCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            {
+                _credManager = credManager;
+            }
             public override string Name => "login";
             public override string Description => "Saves your user credentials for repository access.";
             public override string Usage =>
@@ -467,8 +474,7 @@ Example:
 
 
                 // Save credentials
-                var credManager = new CredentialManager();
-                credManager.SaveCredentials(credentials);
+                _credManager.SaveCredentials(credentials);
 
                 Logger.Log($"Saved login credantials as '{username}' ({email})");
             }
@@ -477,9 +483,11 @@ Example:
         public class RemoteCommand : BaseCommand
         {
             private readonly IApiHelper _apiHelper;
-            public RemoteCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            private readonly ICredentialManager _credManager;
+            public RemoteCommand(ILogger logger, Paths paths, IApiHelper apiHelper, ICredentialManager credManager) : base(logger, paths)
             {
                 _apiHelper = apiHelper;
+                _credManager = credManager;
             }
             public override string Name => "remote";
             public override string Description => "Manages remote repository settings (add, remove, list).";
@@ -499,13 +507,21 @@ Example:
                     return;
                 }
 
+                // Load the store user credentials
+                var credentials = _credManager.LoadCredentials();
+                if (credentials == null)
+                {
+                    Logger.Log("Please login first. Usage: janus login");
+                    return;
+                }
+
 
                 var remoteManager = new RemoteManager(Logger, Paths, _apiHelper);
 
                 switch (args[0].ToLower())
                 {
                     case "add":
-                        await remoteManager.AddRemote(args);
+                        await remoteManager.AddRemote(args, credentials);
 
                         break;
 
@@ -538,9 +554,11 @@ Example:
         public class CloneCommand : BaseCommand
         {
             private readonly IApiHelper _apiHelper;
-            public CloneCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            private readonly ICredentialManager _credManager;
+            public CloneCommand(ILogger logger, Paths paths, IApiHelper apiHelper, ICredentialManager credManager) : base(logger, paths)
             {
                 _apiHelper = apiHelper;
+                _credManager = credManager;
             }
             public override string Name => "clone";
             public override string Description => "Clones a repository from a remote server to your local machine.";
@@ -559,8 +577,7 @@ Example:
                 }
 
                 // Load the store user credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
+                var credentials = _credManager.LoadCredentials();
                 if (credentials == null)
                 {
                     Logger.Log("Please login first. Usage: janus login");
@@ -749,7 +766,7 @@ Example:
 
                     // Set remote origin
                     var remoteManager = new RemoteManager(Logger, clonePaths, _apiHelper);
-                    await remoteManager.AddRemote(new string[] { "add", "origin", endpoint });
+                    await remoteManager.AddRemote(new string[] { "add", "origin", endpoint }, credentials);
 
 
 
@@ -814,9 +831,11 @@ Example:
         public class FetchCommand : BaseCommand
         {
             private readonly IApiHelper _apiHelper;
-            public FetchCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            private readonly ICredentialManager _credManager;
+            public FetchCommand(ILogger logger, Paths paths, IApiHelper apiHelper, ICredentialManager credManager) : base(logger, paths)
             {
                 _apiHelper = apiHelper;
+                _credManager = credManager;
             }
             public override string Name => "fetch";
             public override string Description => "Fetches the latest commits from the remote repository";
@@ -833,8 +852,7 @@ Examples:
             public override async Task Execute(string[] args)
             {
                 // Load credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
+                var credentials = _credManager.LoadCredentials();
                 if (credentials == null)
                 {
                     Logger.Log("Please login first. janus login");
@@ -1310,9 +1328,11 @@ Example:
         public class PushCommand : BaseCommand
         {
             private readonly IApiHelper _apiHelper;
-            public PushCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            private readonly ICredentialManager _credManager;
+            public PushCommand(ILogger logger, Paths paths, IApiHelper apiHelper, ICredentialManager credManager) : base(logger, paths)
             {
                 _apiHelper = apiHelper;
+                _credManager = credManager;
             }
             public override string Name => "push";
             public override string Description => "Pushes local commits to the remote repository";
@@ -1331,8 +1351,7 @@ Example:
 
 
                 // Load credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
+                var credentials = _credManager.LoadCredentials();
                 if (credentials == null)
                 {
                     Logger.Log("Please login first. Usage: janus login");
@@ -1519,7 +1538,11 @@ Example:
 
         public class InitCommand : BaseCommand
         {
-            public InitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly ICredentialManager _credManager;
+            public InitCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            {
+                _credManager = credManager;
+            }
             public override string Name => "init";
             public override string Description => "Initialises the janus repository.";
             public override string Usage =>
@@ -1534,8 +1557,7 @@ Example:
             public override async Task Execute(string[] args)
             {
                 // Check the store user credentials
-                var credManager = new CredentialManager();
-                var credentials = credManager.LoadCredentials();
+                var credentials = _credManager.LoadCredentials();
                 if (credentials == null)
                 {
                     Logger.Log("Please login first. Usage: janus login");

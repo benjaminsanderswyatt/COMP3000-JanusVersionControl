@@ -4,13 +4,25 @@ using System.Text.Json;
 
 namespace Janus.Utils
 {
-    public class CredentialManager
+    public interface ICredentialManager
+    {
+        void SaveCredentials(UserCredentials credentials);
+        UserCredentials LoadCredentials();
+        void ClearCredentials();
+    }
+
+
+    public class CredentialManager : ICredentialManager
     {
         private readonly string _filePath;
 
-        public CredentialManager()
+
+        public CredentialManager(string baseDirectory = null)
         {
-            string configDir = Paths.GetGlobalConfigPath();
+            string configDir = baseDirectory != null ?
+                Path.GetFullPath(baseDirectory) :
+                Paths.GetGlobalConfigPath();
+
 
             if (!Directory.Exists(configDir))
             {

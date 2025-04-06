@@ -1,4 +1,6 @@
+using Janus.Models;
 using Janus.Plugins;
+using Janus.Utils;
 using Moq;
 using static Janus.CommandHandler;
 
@@ -10,6 +12,7 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private HelpCommand _helpCommand;
+        private Mock<ICredentialManager> _credManagerMock;
 
         private string _testDir;
 
@@ -24,13 +27,23 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
+            var testCredentials = new UserCredentials
+            {
+                Username = "testuser",
+                Email = "test@user.com",
+                Token = "testtoken"
+            };
+            _credManagerMock = new Mock<ICredentialManager>();
+            _credManagerMock.Setup(m => m.LoadCredentials())
+                .Returns(testCredentials);
+
             Directory.SetCurrentDirectory(_testDir);
 
             // Reset the CommandList to ensure a clean slate before each test
             Janus.Program.CommandList.Clear();
 
             // Create the HelpCommand instance
-            _helpCommand = new HelpCommand(_loggerMock.Object, _paths);
+            _helpCommand = new HelpCommand(_loggerMock.Object, _paths, _credManagerMock.Object);
         }
 
 
@@ -53,8 +66,8 @@ namespace CLITests
             // Arrange: Add a few commands to the Program.CommandList for this test
             List<ICommand> commandList = new List<ICommand>
             {
-                new InitCommand(_loggerMock.Object, _paths),
-                new HelpCommand(_loggerMock.Object, _paths)
+                new InitCommand(_loggerMock.Object, _paths, _credManagerMock.Object),
+                new HelpCommand(_loggerMock.Object, _paths, _credManagerMock.Object)
             };
             Janus.Program.CommandList = commandList;
 
@@ -75,8 +88,8 @@ namespace CLITests
             // Arrange: Add commands to the CommandList
             List<ICommand> commandList = new List<ICommand>
             {
-                new InitCommand(_loggerMock.Object, _paths),
-                new HelpCommand(_loggerMock.Object, _paths)
+                new InitCommand(_loggerMock.Object, _paths, _credManagerMock.Object),
+                new HelpCommand(_loggerMock.Object, _paths, _credManagerMock.Object)
             };
             Janus.Program.CommandList = commandList;
 
@@ -95,8 +108,8 @@ namespace CLITests
             // Arrange
             List<ICommand> commandList = new List<ICommand>
             {
-                new InitCommand(_loggerMock.Object, _paths),
-                new HelpCommand(_loggerMock.Object, _paths)
+                new InitCommand(_loggerMock.Object, _paths, _credManagerMock.Object),
+                new HelpCommand(_loggerMock.Object, _paths, _credManagerMock.Object)
             };
             Janus.Program.CommandList = commandList;
 

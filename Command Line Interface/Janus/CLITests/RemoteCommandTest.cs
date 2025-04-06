@@ -17,6 +17,7 @@ namespace CLITests
         private Paths _paths;
         private RemoteCommand _remoteCommand;
         private Mock<IApiHelper> _apiHelperMock;
+        private Mock<ICredentialManager> _credManagerMock;
 
         private string _testDir;
 
@@ -32,19 +33,18 @@ namespace CLITests
             Directory.CreateDirectory(_testDir);
             _paths = new Paths(_testDir);
 
-            // Login with test user
-            var credManager = new CredentialManager();
             var testCredentials = new UserCredentials
             {
                 Username = "testuser",
                 Email = "test@user.com",
                 Token = "testtoken"
             };
-
-            credManager.SaveCredentials(testCredentials);
+            _credManagerMock = new Mock<ICredentialManager>();
+            _credManagerMock.Setup(m => m.LoadCredentials())
+                .Returns(testCredentials);
 
             // Initialise the repository
-            InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths);
+            InitCommand _initCommand = new InitCommand(_loggerMock.Object, _paths, _credManagerMock.Object);
             _initCommand.Execute(new string[0]);
 
             Directory.SetCurrentDirectory(_testDir);
@@ -52,7 +52,7 @@ namespace CLITests
             _apiHelperMock = new Mock<IApiHelper>();
 
             // Create InitCommand instance
-            _remoteCommand = new RemoteCommand(_loggerMock.Object, _paths, _apiHelperMock.Object);
+            _remoteCommand = new RemoteCommand(_loggerMock.Object, _paths, _apiHelperMock.Object, _credManagerMock.Object);
         }
 
 
@@ -67,8 +67,7 @@ namespace CLITests
                 Directory.Delete(_testDir, true);
             }
 
-            var credManager = new CredentialManager();
-            credManager.ClearCredentials();
+            _credManagerMock.Reset();
         }
 
 
@@ -97,7 +96,7 @@ namespace CLITests
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
             };
             _apiHelperMock
-                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/{link}/head", It.IsAny<string>()))
+                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/{link}/head", "testtoken"))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
             string[] args = new string[] { "add", name, link };
@@ -108,7 +107,9 @@ namespace CLITests
 
             // Assert: Verify that the remote has been added
             string remoteJson = File.ReadAllText(_paths.Remote);
-            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson);
+            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            Console.WriteLine(remoteJson); // For debugging
 
             Assert.IsNotNull(remotes);
 
@@ -141,7 +142,7 @@ namespace CLITests
 
             // Assert: the name was removed
             string remoteJson = File.ReadAllText(_paths.Remote);
-            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson);
+            var remotes = JsonSerializer.Deserialize<List<RemoteRepos>>(remoteJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             Assert.IsFalse(remotes.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)));
 
@@ -154,6 +155,7 @@ namespace CLITests
             // Act
             string[] args = new string[] { "remove", "NoExist" };
             await _remoteCommand.Execute(args);
+
 
             // Arrange
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Remote 'NoExist' was not found"))), Times.Once);

@@ -1,6 +1,8 @@
 ﻿using Janus.API;
 using Janus.DataTransferObjects;
+using Janus.Models;
 using Janus.Plugins;
+using System.Net;
 using System.Text.Json;
 
 namespace Janus.Utils
@@ -39,7 +41,7 @@ namespace Janus.Utils
             }
 
             string content = File.ReadAllText(_paths.Remote);
-            return JsonSerializer.Deserialize<List<RemoteRepos>>(content);
+            return JsonSerializer.Deserialize<List<RemoteRepos>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<RemoteRepos>();
         }
 
         public RemoteRepos LoadRemote(string remoteName)
@@ -58,7 +60,7 @@ namespace Janus.Utils
 
 
 
-        public async Task AddRemote(string[] args)
+        public async Task AddRemote(string[] args, UserCredentials credentials)
         {
             if (args.Length < 3)
             {
@@ -75,16 +77,6 @@ namespace Janus.Utils
             if (remotes.Any(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.Log($"A remote with the name '{name}' already exists");
-                return;
-            }
-
-
-            // Load the store user credentials
-            var credManager = new CredentialManager();
-            var credentials = credManager.LoadCredentials();
-            if (credentials == null)
-            {
-                _logger.Log("Please login first. Usage: janus login");
                 return;
             }
 

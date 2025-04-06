@@ -13,6 +13,7 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private InitCommand _initCommand;
+        private Mock<ICredentialManager> _credManagerMock;
 
         private string _testDir;
 
@@ -31,20 +32,20 @@ namespace CLITests
 
 
             // Login with test user
-            var credManager = new CredentialManager();
             var testCredentials = new UserCredentials
             {
                 Username = "testuser",
                 Email = "test@user.com",
                 Token = "testtoken"
             };
-
-            credManager.SaveCredentials(testCredentials);
+            _credManagerMock = new Mock<ICredentialManager>();
+            _credManagerMock.Setup(m => m.LoadCredentials())
+                .Returns(testCredentials);
 
 
 
             // Create InitCommand instance
-            _initCommand = new InitCommand(_loggerMock.Object, _paths);
+            _initCommand = new InitCommand(_loggerMock.Object, _paths, _credManagerMock.Object);
         }
 
 
@@ -59,8 +60,7 @@ namespace CLITests
                 Directory.Delete(_testDir, true);
             }
 
-            var credManager = new CredentialManager();
-            credManager.ClearCredentials();
+            _credManagerMock.Reset();
         }
 
 
