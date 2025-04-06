@@ -1,4 +1,5 @@
 using Janus.API;
+using Janus.DataTransferObjects;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -15,37 +16,9 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private RemoteCommand _remoteCommand;
+        private Mock<IApiHelper> _apiHelperMock;
 
         private string _testDir;
-
-
-        public static class ApiHelperMock
-        {
-            public static Func<Paths, string, string, Task<(bool, string)>> CustomSendGetAsync = null;
-
-            public static void SetMock()
-            {
-                ApiHelper.SendGetAsync = async (paths, url, token) =>
-                {
-                    if (CustomSendGetAsync != null)
-                        return await CustomSendGetAsync(paths, url, token);
-
-                    return (false, null); // default behavior if not mocked
-                };
-            }
-
-            public static void ClearMock()
-            {
-                CustomSendGetAsync = null;
-            }
-        }
-
-
-
-
-
-
-
 
 
         [SetUp]
@@ -76,8 +49,10 @@ namespace CLITests
 
             Directory.SetCurrentDirectory(_testDir);
 
+            _apiHelperMock = new Mock<IApiHelper>();
+
             // Create InitCommand instance
-            _remoteCommand = new RemoteCommand(_loggerMock.Object, _paths);
+            _remoteCommand = new RemoteCommand(_loggerMock.Object, _paths, _apiHelperMock.Object);
         }
 
 
@@ -110,12 +85,24 @@ namespace CLITests
             _loggerMock.Verify(l => l.Log("Provide a subcommand. Usage: janus help remote"), Times.Once);
         }
 
+
         [Test]
         [TestCase("origin", "janus/owner/repoName")]
         [TestCase("random", "janus/user/name")]
         public async Task ShouldAddRemote(string name, string link)
         {
             // Arrange
+            var mockResponse = new RemoteHeadDto
+            {
+                Heads = new Dictionary<string, string> { { "main", "abc123" } }
+            };
+            _apiHelperMock
+                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/{link}/head", It.IsAny<string>()))
+                .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
+
+
+
+
             string[] args = new string[] { "add", name, link };
 
             // Act
@@ -135,6 +122,7 @@ namespace CLITests
             // Verify result was logged
             _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains($"Remote '{name}' added successfully"))), Times.Once);
         }
+
 
         [Test]
         [TestCase("origin")]

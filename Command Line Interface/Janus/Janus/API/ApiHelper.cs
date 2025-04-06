@@ -9,16 +9,30 @@ using System.Text.Json;
 
 namespace Janus.API
 {
-    public static class ApiHelper
+    public interface IApiHelper
     {
-        private static string GetApiBaseUrl(Paths paths)
+        Task<(bool, string)> SendPostAsync(Paths paths, string endpoint, object bodyObject, string? pat = null);
+        Task<(bool, string)> SendGetAsync(Paths paths, string endpoint, string? pat = null);
+        Task<bool> DownloadBatchFilesAsync(Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat);
+        Task<(bool, string)> SendMultipartPostAsync(Paths paths, string endpoint, MultipartFormDataContent content, string? pat = null);
+    }
+
+
+
+
+    public class ApiHelperService : IApiHelper
+    {
+
+
+
+        private string GetApiBaseUrl(Paths paths)
         {
             var configManager = new ConfigManager(paths.LocalConfig, paths.GlobalConfig);
             return configManager.GetEffectiveIp();
         }
 
 
-        public static async Task<(bool, string)> SendPostAsync(Paths paths, string endpoint, object bodyObject, string? pat = null)
+        public async Task<(bool, string)> SendPostAsync(Paths paths, string endpoint, object bodyObject, string? pat = null)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
@@ -56,7 +70,7 @@ namespace Janus.API
         }
 
 
-        public static async Task<(bool, string)> SendGetAsync(Paths paths, string endpoint, string? pat = null)
+        public async Task<(bool, string)> SendGetAsync(Paths paths, string endpoint, string? pat = null)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
@@ -91,7 +105,7 @@ namespace Janus.API
 
 
 
-        public static async Task<bool> DownloadBatchFilesAsync(Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
+        public async Task<bool> DownloadBatchFilesAsync(Paths paths, string owner, string repoName, List<string> fileHashes, string destinationFolder, string pat)
         {
             string effectiveIp = GetApiBaseUrl(paths);
 
@@ -166,7 +180,7 @@ namespace Janus.API
 
 
 
-        public static async Task<(bool, string)> SendMultipartPostAsync(Paths paths, string endpoint, MultipartFormDataContent content, string? pat = null)
+        public async Task<(bool, string)> SendMultipartPostAsync(Paths paths, string endpoint, MultipartFormDataContent content, string? pat = null)
         {
             string effectiveIp = GetApiBaseUrl(paths);
             string apiUrl = $"https://{effectiveIp}/api/{endpoint}";

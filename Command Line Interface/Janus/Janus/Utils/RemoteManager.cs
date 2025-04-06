@@ -9,11 +9,13 @@ namespace Janus.Utils
     {
         private readonly ILogger _logger;
         private readonly Paths _paths;
+        private readonly IApiHelper _apiHelper;
 
-        public RemoteManager(ILogger logger, Paths paths)
+        public RemoteManager(ILogger logger, Paths paths, IApiHelper apiHelper)
         {
             _logger = logger;
             _paths = paths;
+            _apiHelper = apiHelper;
         }
 
 
@@ -83,7 +85,7 @@ namespace Janus.Utils
 
 
             // Use your ApiHelper to perform a GET request.
-            var (success, response) = await ApiHelper.SendGetAsync(_paths, $"/cli/repo/{link}/head", credentials.Token);
+            var (success, response) = await _apiHelper.SendGetAsync(_paths, $"/cli/repo/{link}/head", credentials.Token);
             if (!success)
             {
                 _logger.Log("Failed to fetch remote head. Remote not added");

@@ -1,3 +1,4 @@
+using Janus.API;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -12,6 +13,8 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private CloneCommand _cloneCommand;
+        private Mock<IApiHelper> _apiHelper;
+
         private string _testDir;
 
 
@@ -36,7 +39,7 @@ namespace CLITests
             };
             credManager.SaveCredentials(testCredentials);
 
-            _cloneCommand = new CloneCommand(_loggerMock.Object, _paths);
+            _cloneCommand = new CloneCommand(_loggerMock.Object, _paths, _apiHelper.Object);
         }
 
 

@@ -17,6 +17,8 @@ namespace Janus
     {
         public static List<ICommand> GetCommands(ILogger logger, Paths paths)
         {
+            var apiHelper = new ApiHelperService();
+
             var commands = new List<ICommand>
             {
                 new HelpCommand(logger, paths),
@@ -25,11 +27,11 @@ namespace Janus
                 new MergeCommand(logger, paths),
 
                 new LoginCommand(logger, paths),
-                new RemoteCommand(logger, paths),
-                new CloneCommand(logger, paths),
-                new FetchCommand(logger, paths),
+                new RemoteCommand(logger, paths, apiHelper),
+                new CloneCommand(logger, paths, apiHelper),
+                new FetchCommand(logger, paths, apiHelper),
                 new PullCommand(logger, paths),
-                new PushCommand(logger, paths),
+                new PushCommand(logger, paths, apiHelper),
 
                 new InitCommand(logger, paths),
                 new AddCommand(logger, paths),
@@ -474,8 +476,11 @@ Example:
 
         public class RemoteCommand : BaseCommand
         {
-            public RemoteCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-
+            private readonly IApiHelper _apiHelper;
+            public RemoteCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            {
+                _apiHelper = apiHelper;
+            }
             public override string Name => "remote";
             public override string Description => "Manages remote repository settings (add, remove, list).";
             public override string Usage =>
@@ -495,7 +500,7 @@ Example:
                 }
 
 
-                var remoteManager = new RemoteManager(Logger, Paths);
+                var remoteManager = new RemoteManager(Logger, Paths, _apiHelper);
 
                 switch (args[0].ToLower())
                 {
@@ -532,7 +537,11 @@ Example:
 
         public class CloneCommand : BaseCommand
         {
-            public CloneCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly IApiHelper _apiHelper;
+            public CloneCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            {
+                _apiHelper = apiHelper;
+            }
             public override string Name => "clone";
             public override string Description => "Clones a repository from a remote server to your local machine.";
             public override string Usage =>
@@ -588,7 +597,7 @@ Example:
 
                 try
                 {
-                    var (success, data) = await ApiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
+                    var (success, data) = await _apiHelper.SendGetAsync(Paths, endpoint, credentials.Token);
 
                     if (!success)
                     {
@@ -739,7 +748,7 @@ Example:
 
 
                     // Set remote origin
-                    var remoteManager = new RemoteManager(Logger, clonePaths);
+                    var remoteManager = new RemoteManager(Logger, clonePaths, _apiHelper);
                     await remoteManager.AddRemote(new string[] { "add", "origin", endpoint });
 
 
@@ -749,7 +758,7 @@ Example:
 
                     if (fileHashes.Any())
                     {
-                        bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                        bool downloadSuccess = await _apiHelper.DownloadBatchFilesAsync(
                             Paths,
                             owner,
                             repoName,
@@ -804,7 +813,11 @@ Example:
 
         public class FetchCommand : BaseCommand
         {
-            public FetchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly IApiHelper _apiHelper;
+            public FetchCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            {
+                _apiHelper = apiHelper;
+            }
             public override string Name => "fetch";
             public override string Description => "Fetches the latest commits from the remote repository";
             public override string Usage =>
@@ -836,7 +849,7 @@ Examples:
                 // Get remote configuration
                 string remoteName = args.Length > 0 ? args[0] : "origin";
 
-                var remoteManager = new RemoteManager(Logger, Paths);
+                var remoteManager = new RemoteManager(Logger, Paths, _apiHelper);
                 var remote = remoteManager.LoadRemote(remoteName);
 
                 if (remote == null)
@@ -865,7 +878,7 @@ Examples:
 
                 // Send fetch request
                 Logger.Log("Fetching updates from remote...");
-                var (success, data) = await ApiHelper.SendPostAsync(
+                var (success, data) = await _apiHelper.SendPostAsync(
                     Paths,
                     $"cli/repo/{remote.Link}/fetch",
                     localBranchHashes,
@@ -1011,7 +1024,7 @@ Examples:
                 // Download missing files
                 if (missingFileHashes.Any())
                 {
-                    bool downloadSuccess = await ApiHelper.DownloadBatchFilesAsync(
+                    bool downloadSuccess = await _apiHelper.DownloadBatchFilesAsync(
                         Paths,
                         owner,
                         repoName,
@@ -1296,7 +1309,11 @@ Example:
 
         public class PushCommand : BaseCommand
         {
-            public PushCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            private readonly IApiHelper _apiHelper;
+            public PushCommand(ILogger logger, Paths paths, IApiHelper apiHelper) : base(logger, paths)
+            {
+                _apiHelper = apiHelper;
+            }
             public override string Name => "push";
             public override string Description => "Pushes local commits to the remote repository";
             public override string Usage =>
@@ -1329,7 +1346,7 @@ Example:
 
 
                 // Get remote configuration
-                var remoteManager = new RemoteManager(Logger, Paths);
+                var remoteManager = new RemoteManager(Logger, Paths, _apiHelper);
                 var remote = remoteManager.LoadRemote(remoteName);
                 if (remote == null)
                 {
@@ -1342,7 +1359,7 @@ Example:
                 try
                 {
                     // Get the remote branch head
-                    var (success, data) = await ApiHelper.SendGetAsync(Paths, $"/cli/repo/{remote.Link}/head", credentials.Token);
+                    var (success, data) = await _apiHelper.SendGetAsync(Paths, $"/cli/repo/{remote.Link}/head", credentials.Token);
                     if (!success)
                     {
                         Logger.Log("Failed to retrieve remote branch head: " + data);
@@ -1443,7 +1460,7 @@ Example:
 
                     // Send the request using HttpClient
                     Logger.Log("Pushing to remote...");
-                    var (pushSuccess, pushData) = await ApiHelper.SendMultipartPostAsync(
+                    var (pushSuccess, pushData) = await _apiHelper.SendMultipartPostAsync(
                         Paths,
                         $"cli/repo/{remote.Link}/push",
                         multipartContent,
