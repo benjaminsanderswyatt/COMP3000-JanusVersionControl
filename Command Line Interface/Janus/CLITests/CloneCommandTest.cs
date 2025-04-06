@@ -13,7 +13,7 @@ namespace CLITests
         private Mock<ILogger> _loggerMock;
         private Paths _paths;
         private CloneCommand _cloneCommand;
-        private Mock<IApiHelper> _apiHelper;
+        private Mock<IApiHelper> _apiHelperMock;
 
         private string _testDir;
 
@@ -39,7 +39,9 @@ namespace CLITests
             };
             credManager.SaveCredentials(testCredentials);
 
-            _cloneCommand = new CloneCommand(_loggerMock.Object, _paths, _apiHelper.Object);
+            _apiHelperMock = new Mock<IApiHelper>();
+
+            _cloneCommand = new CloneCommand(_loggerMock.Object, _paths, _apiHelperMock.Object);
         }
 
 
@@ -99,7 +101,7 @@ namespace CLITests
             await _cloneCommand.Execute(new string[] { "janus/owner/missingTreeRepo" });
 
             // Assert
-            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("An error occurred during cloning:"))), Times.Once());
+            _loggerMock.Verify(l => l.Log(It.Is<string>(s => s.Contains("Error cloning repository:"))), Times.Once());
             Assert.That(Directory.Exists("missingTreeRepo"), Is.False);
         }
 

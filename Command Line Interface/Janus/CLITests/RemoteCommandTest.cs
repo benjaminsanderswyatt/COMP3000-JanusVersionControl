@@ -91,7 +91,7 @@ namespace CLITests
         [TestCase("random", "janus/user/name")]
         public async Task ShouldAddRemote(string name, string link)
         {
-            // Arrange
+            // Arrange: mock api response
             var mockResponse = new RemoteHeadDto
             {
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
@@ -100,10 +100,8 @@ namespace CLITests
                 .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/{link}/head", It.IsAny<string>()))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
-
-
-
             string[] args = new string[] { "add", name, link };
+
 
             // Act
             await _remoteCommand.Execute(args);
