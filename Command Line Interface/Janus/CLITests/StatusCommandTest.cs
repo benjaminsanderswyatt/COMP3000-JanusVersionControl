@@ -160,6 +160,7 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log(It.Is<string>(msg => msg.Contains("file.txt "))), Times.Once);
         }
 
+
         [Test]
         public void ShouldDisplayChangesNotStagedForCommit_WhenFileInsideFolder()
         {
@@ -342,13 +343,6 @@ namespace CLITests
 
 
 
-
-
-
-
-
-
-
         [Test]
         public void ShouldDisplayCurrentBranch()
         {
@@ -479,5 +473,38 @@ namespace CLITests
 
 
 
+        [Test]
+        public void ShouldDisplayDivergedStatus_WhenNoCommonHistory()
+        {
+            // Arrange: Create a commit so that there is a valid local head
+            string filePath = Path.Combine(_testDir, "file.txt");
+            File.WriteAllText(filePath, "Content for commit");
+            _addCommand.Execute(new[] { "file.txt" });
+            _commitCommand.Execute(new[] { "Commit for divergence test" });
+
+            // Write remote head that doesnt exist in local commit history to mock divergance
+            string currentBranch = MiscHelper.GetCurrentBranchName(_paths);
+            string remoteBranchDir = Path.Combine(_paths.RemoteDir, currentBranch);
+            Directory.CreateDirectory(remoteBranchDir);
+
+            string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
+
+            File.WriteAllText(remoteHeadPath, "divergedHash");
+
+            // Act
+            _statusCommand.Execute(new string[0]);
+
+            // Assert: Displayed diverged message
+            _loggerMock.Verify(logger => logger.Log("Local branch head not found in the remote history. It may be diverged"), Times.Once);
+        }
+
+        
     }
+
+
+
+
+
+
+
 }
