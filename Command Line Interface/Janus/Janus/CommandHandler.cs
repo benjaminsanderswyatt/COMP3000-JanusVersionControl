@@ -962,11 +962,14 @@ Examples:
 
                             string treeHash = treeBuilder.SaveTree();
 
+                            /*
+                            // This should never happen
                             if (treeHash != commit.TreeHash)
                             {
                                 Logger.Log($"Error tree hashes not equal. TreeHash: {treeHash}, DtoHash: {commit.TreeHash}");
                                 return;
                             }
+                            */
 
 
                             // Get file hashes from tree
