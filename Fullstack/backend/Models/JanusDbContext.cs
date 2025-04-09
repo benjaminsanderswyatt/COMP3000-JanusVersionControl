@@ -136,7 +136,7 @@ namespace backend.Models
 
 
 
-
+            /*
 
             // ---------- Seed Data ----------
 
@@ -292,13 +292,13 @@ namespace backend.Models
                 new CommitParent { ChildId = 108, ParentId = 107 },
                 new CommitParent { ChildId = 109, ParentId = 108 }
             );
-            /*
-             
-            main:          main_commit_1 -> main_commit_2 -> merge_commit_3 -> main_commit_4
-                                                \                   /
-            feature:                              > feature_commit_1 -> feature_commit_2
             
-            */
+            // 
+            //main:          main_commit_1 -> main_commit_2 -> merge_commit_3 -> main_commit_4
+            //                                    \                   /
+            //feature:                              > feature_commit_1 -> feature_commit_2
+            //
+            
 
 
 
@@ -335,7 +335,7 @@ namespace backend.Models
             );
 
 
-
+            */
 
             base.OnModelCreating(modelBuilder);
         }
