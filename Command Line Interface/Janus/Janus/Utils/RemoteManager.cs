@@ -92,7 +92,7 @@ namespace Janus.Utils
 
 
             // Use your ApiHelper to perform a GET request.
-            var (success, response) = await _apiHelper.SendGetAsync(_paths, $"/cli/repo/{link}/head", credentials.Token);
+            var (success, response) = await _apiHelper.SendGetAsync(_paths, $"{link}/head", credentials.Token);
             if (!success)
             {
                 _logger.Log("Failed to fetch remote head. Remote not added");

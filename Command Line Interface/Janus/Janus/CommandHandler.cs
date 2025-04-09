@@ -1382,7 +1382,7 @@ Example:
                 try
                 {
                     // Get the remote branch head
-                    var (success, data) = await _apiHelper.SendGetAsync(Paths, $"/cli/repo/{remote.Link}/head", credentials.Token);
+                    var (success, data) = await _apiHelper.SendGetAsync(Paths, $"{remote.Link}/head", credentials.Token);
                     if (!success)
                     {
                         Logger.Log("Failed to retrieve remote branch head: " + data);
@@ -1395,6 +1395,7 @@ Example:
                         Logger.Log($"Remote head for branch '{branchName}' not found.");
                         return;
                     }
+
 
 
                     string remoteHead = remoteHeads.Heads[branchName];
@@ -1410,7 +1411,7 @@ Example:
                         Logger.Log("Local repository configuration not found.");
                         return;
                     }
-
+                    
 
                     // Only push if there are changes
                     if (!commitsToPush.Any() &&
@@ -1449,7 +1450,7 @@ Example:
                             treeBuilder.GetFileHashes(fileHashes);
                         }
                     }
-
+                    
                     // Read files from object directory
                     var files = new List<(string Hash, byte[] Content)>();
                     foreach (var hash in fileHashes)
@@ -1468,7 +1469,7 @@ Example:
 
                     // Create multipart content
                     using var multipartContent = new MultipartFormDataContent();
-
+                    
                     // Add metadata as JSON
                     var metadataJson = JsonSerializer.Serialize(pushRequest);
                     multipartContent.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
