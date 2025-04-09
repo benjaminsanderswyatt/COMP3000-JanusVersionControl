@@ -1202,7 +1202,7 @@ Example:
 
 
 
-
+           
 
                 // Update the working dir and branches
                 foreach (var remoteBranchDir in remoteBranchDirs)
@@ -1243,6 +1243,7 @@ Example:
                     if (status.FoundLocalInRemote && !status.FoundRemoteInLocal)
                     {
                         File.WriteAllText(localHeadPath, remoteHead);
+
                         Logger.Log($"Fast-forward updated branch '{branchName}' from {localHead} to {remoteHead}.");
                     } 
                     else if (!status.FoundLocalInRemote && status.FoundRemoteInLocal)
@@ -1254,7 +1255,7 @@ Example:
                     else
                     {
                         // Diverged: attempt automatic merge
-                        Logger.Log($"Branch '{branchName}' has diverged. Attempting automatic merge...");
+                        Logger.Log($"Branch '{branchName}' has diverged. Attempting to merge...");
                         
                         // Get common ancestor
                         string commonAncestor = MergeHelper.FindCommonAncestor(Logger, Paths, localHead, remoteHead);
@@ -1295,7 +1296,7 @@ Example:
                             MiscHelper.GetEmail()
                         );
                         HeadHelper.SetHeadCommit(Paths, mergeCommitHash, branchName);
-                        MergeHelper.RecreateWorkingDir(Logger, Paths, mergedTree);
+
                         Logger.Log($"Created merge commit {mergeCommitHash} for branch '{branchName}'.");
                     }
 
@@ -1316,7 +1317,21 @@ Example:
                         string remoteIndex = File.ReadAllText(remoteIndexPath);
                         File.WriteAllText(localIndexPath, remoteIndex);
                     }
+
                 }
+
+
+
+                // Update working dir for current branch
+                string currentCommitHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
+
+                var treeHash = HashHelper.GetTreeHashFromCommitHash(Paths, currentCommitHead);
+
+
+                TreeBuilder treeBuilder = new TreeBuilder(Paths);
+                var tree = treeBuilder.RecreateTree(Logger, treeHash);
+
+                SwitchBranchHelper.SwitchWorkingDirToTree(Logger, Paths, tree);
 
 
                 Logger.Log("Pull completed successfully.");

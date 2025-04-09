@@ -132,6 +132,74 @@ namespace Janus.Helpers.CommandHelpers
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+        public static void SwitchWorkingDirToTree(ILogger logger, Paths paths, TreeNode targetTree)
+        {
+            // Get the working dir tree
+            TreeNode currentTree = Tree.GetWorkingTree(paths);
+
+            // Compare current and target trees to find differences
+            var comparisonResult = Tree.CompareTrees(currentTree, targetTree);
+
+            // Delete files present in current but not in target
+            foreach (var relativePath in comparisonResult.Deleted)
+            {
+                string fullPath = Path.Combine(paths.WorkingDir, relativePath);
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+            }
+
+            // Add or update files from target tree
+            foreach (var relativePath in comparisonResult.AddedOrUntracked.Concat(comparisonResult.ModifiedOrNotStaged))
+            {
+                string targetHash = Tree.GetHashFromTree(targetTree, relativePath);
+                string objectFilePath = Path.Combine(paths.ObjectDir, targetHash);
+
+                if (File.Exists(objectFilePath))
+                {
+                    string fullPath = Path.Combine(paths.WorkingDir, relativePath);
+                    string directory = Path.GetDirectoryName(fullPath);
+
+                    // Ensure directory exists
+                    if (!Directory.Exists(directory))
+                        Directory.CreateDirectory(directory);
+
+                    // Write file content from object store
+                    File.WriteAllBytes(fullPath, File.ReadAllBytes(objectFilePath));
+                }
+                else
+                {
+                    logger.Log($"Warning: Object file not found for {relativePath}");
+                }
+            }
+
+            // Clean up directories not present in the target tree
+            var targetDirectories = GetAllDirs(targetTree);
+            RemoveOrphanedDirs(paths.WorkingDir, targetDirectories);
+        }
+
+
+
+
+
+
+
+
+
+
+
     }
 
 }
