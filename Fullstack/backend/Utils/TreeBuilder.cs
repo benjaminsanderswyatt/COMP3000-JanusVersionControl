@@ -126,6 +126,9 @@ namespace backend.Utils
 
         public string SaveTree()
         {
+            if (!Directory.Exists(_treeDir))
+                Directory.CreateDirectory(_treeDir);
+
             return SaveTreeRecursively(root);
         }
 

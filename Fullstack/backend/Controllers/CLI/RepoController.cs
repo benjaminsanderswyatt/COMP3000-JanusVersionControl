@@ -326,6 +326,11 @@ namespace backend.Controllers.CLI
 
 
 
+
+
+
+
+
         [HttpGet("janus/{owner}/{repoName}/head")]
         public async Task<IActionResult> GetRemoteHead(string owner, string repoName)
         {
@@ -372,6 +377,20 @@ namespace backend.Controllers.CLI
 
             return Ok(remoteHeadDto);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -561,7 +580,7 @@ namespace backend.Controllers.CLI
                             {
                                 CommitHash = commitDto.CommitHash,
                                 BranchId = existingBranch.BranchId,
-                                TreeHash = commitDto.TreeHash,
+                                TreeHash = commitDto.TreeHash ?? "",
                                 CreatedBy = username,
                                 Message = commitDto.Message,
                                 CommittedAt = commitDto.CommittedAt
@@ -574,7 +593,6 @@ namespace backend.Controllers.CLI
                             // Commit Parents
                             foreach (var parentHash in commitDto.ParentsCommitHash)
                             {
-                                // TODO the parent isnt always in the database as commits havent been saved (commits from DTO arnt always in order)
                                 var parentCommit = await _janusDbContext.Commits.FirstOrDefaultAsync(c => c.CommitHash == parentHash);
 
                                 if (parentCommit == null)
