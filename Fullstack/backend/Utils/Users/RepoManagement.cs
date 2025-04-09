@@ -22,32 +22,6 @@ namespace backend.Utils.Users
         }
 
 
-
-        // Get repo by Id
-        public async Task<Repository?> GetRepositoryAsync(int repoId)
-        {
-            return await _janusDbContext.Repositories
-                                        .Include(r => r.Owner)
-                                        .Include(r => r.RepoAccesses)
-                                        .FirstOrDefaultAsync(r => r.RepoId == repoId);
-        }
-
-
-        // Get all repos of user
-        public async Task<List<Repository>> GetAllReposOfUserAsync(int userId)
-        {
-            return await _janusDbContext.Repositories.Where(r => r.OwnerId == userId).ToListAsync();
-        }
-
-
-
-        // Get repo by name
-        public async Task<Repository?> GetRepositoryByNameAsync(int ownerId, string repoName)
-        {
-            return await _janusDbContext.Repositories.FirstOrDefaultAsync(r => r.OwnerId == ownerId && r.RepoName == repoName);
-        }
-
-
         // Create a repo
         public async Task<ReturnObject> CreateRepoAsync(Repository repo)
         {
@@ -61,19 +35,6 @@ namespace backend.Utils.Users
             return new ReturnObject { Success = true, Message = "Repository created successfully" };
         }
 
-
-        // Delete repo
-        public async Task<ReturnObject> DeleteRepoAsync(int repoId)
-        {
-            var repository = await _janusDbContext.Repositories.FindAsync(repoId);
-            if (repository == null)
-                return new ReturnObject { Success = false, Message = "Failed to delete repository" };
-
-            _janusDbContext.Repositories.Remove(repository);
-            await _janusDbContext.SaveChangesAsync();
-
-            return new ReturnObject { Success = true, Message = "Repository deleted successfully" };
-        }
 
 
         // Atomic repo init
@@ -135,29 +96,16 @@ namespace backend.Utils.Users
                     await _janusDbContext.SaveChangesAsync();
 
 
-                    /*
-                    // Create initial commit
-                    var (initCommitHash, commit) = CreateInitData();
-
-                    await _janusDbContext.Commits.AddAsync(commit);
-                    await _janusDbContext.SaveChangesAsync();
-                    */
-
-                    /*
-                     * Maybe dont create the main branch
-                    // Create main branch
-                    var branch = new Branch
+                    // Create the main branch
+                    var mainBranch = new Branch
                     {
-                        BranchName = "main",
                         RepoId = repo.RepoId,
-                        //LatestCommitHash = null,
+                        BranchName = "main",
+                        CreatedAt = DateTime.UtcNow
                     };
-                    
 
-                    await _janusDbContext.Branches.AddAsync(branch);
+                    await _janusDbContext.Branches.AddAsync(mainBranch);
                     await _janusDbContext.SaveChangesAsync();
-                    */
-
 
 
 
@@ -182,49 +130,6 @@ namespace backend.Utils.Users
 
         }
 
-        /*
-        private static (string, Commit) CreateInitData()
-        {
-            string initialCommitMessage = "Initial commit";
-            string emptyTreeHash = "";
-            string branchName = "main";
-            string? parentHash = null;
-            string? authorName = "janus";
-            string? authorEmail = "janus";
-
-            string initCommitHash = ComputeCommitHash(parentHash, branchName, authorName, authorEmail, DateTimeOffset.Now, initialCommitMessage, emptyTreeHash);
-
-            var commit = new Commit
-            {
-                CommitHash = initCommitHash,
-                TreeHash = emptyTreeHash,
-                BranchName = branchName,
-                AuthorName = authorName,
-                AuthorEmail = authorEmail,
-                Message = initialCommitMessage
-            };
-
-            return (initCommitHash, commit);
-        }
-
-        private static string ComputeCommitHash(string parentHash, string branchName, string authorName, string authorEmail, DateTimeOffset date, string commitMessage, string treeHash)
-        {
-            // combine all inputs into one
-            string combinedInput = $"{parentHash}{branchName}{authorName}{authorEmail}{date.ToUnixTimeSeconds()}{commitMessage}{treeHash}";
-
-            return ComputeHash(combinedInput);
-        }
-
-        public static string ComputeHash(string content)
-        {
-            using (SHA1 sha1 = SHA1.Create())
-            {
-                byte[] contentBytes = Encoding.UTF8.GetBytes(content);
-                byte[] hashBytes = sha1.ComputeHash(contentBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-            }
-        }
-        */
 
     }
 }

@@ -1196,72 +1196,72 @@ Example:
 
 
 
-
-                // TODO
-
-                // Second pass: perform updates
+                // Update the working dir and branches
                 foreach (var remoteBranchDir in remoteBranchDirs)
                 {
                     string branchName = Path.GetFileName(remoteBranchDir);
 
-                    // Read remote head.
+                    // Get remote head
                     string remoteHeadPath = Path.Combine(remoteBranchDir, "head");
                     if (!File.Exists(remoteHeadPath))
                     {
                         continue;
                     }
+
                     string remoteHead = File.ReadAllText(remoteHeadPath).Trim();
 
-                    // Get or create corresponding local branch.
+                    // Get or create local branch
                     string localBranchDir = Path.Combine(Paths.BranchesDir, branchName);
                     if (!Directory.Exists(localBranchDir))
                     {
                         Logger.Log($"Local branch '{branchName}' not found, creating new branch...");
                         Directory.CreateDirectory(localBranchDir);
                     }
+
                     string localHeadPath = Path.Combine(localBranchDir, "head");
                     string localHead = File.Exists(localHeadPath) ? File.ReadAllText(localHeadPath).Trim() : string.Empty;
 
-                    // Get sync status.
+                    // Get sync status between remote and local
                     var status = StatusHelper.CheckSyncStatus(Paths, remoteHead, localHead);
 
-                    // Up-to-date.
+                    // Continue on when the branch is up to date
                     if (remoteHead == localHead)
                     {
                         Logger.Log($"Branch '{branchName}' is already up-to-date.");
                         continue;
                     }
 
-                    // Fast-forward if local is behind remote.
+                    // Fast forward if local is behind remote
                     if (status.FoundLocalInRemote && !status.FoundRemoteInLocal)
                     {
                         File.WriteAllText(localHeadPath, remoteHead);
                         Logger.Log($"Fast-forward updated branch '{branchName}' from {localHead} to {remoteHead}.");
-                    }
-                    // If local is ahead, do nothing.
+                    } 
                     else if (!status.FoundLocalInRemote && status.FoundRemoteInLocal)
                     {
+                        // If local is ahead do nothing
                         Logger.Log($"Local branch '{branchName}' is ahead of remote by {status.CommitsAhead} commit(s); skipping update.");
                         continue;
                     }
-                    // Diverged: attempt automatic merge.
                     else
                     {
+                        // Diverged: attempt automatic merge
                         Logger.Log($"Branch '{branchName}' has diverged. Attempting automatic merge...");
-                        // Get common ancestor.
+                        
+                        // Get common ancestor
                         string commonAncestor = MergeHelper.FindCommonAncestor(Logger, Paths, localHead, remoteHead);
                         if (commonAncestor == null)
                         {
-                            Logger.Log("No common ancestor found. Cannot merge.");
+                            Logger.Log("No common ancestor found. Cannot merge");
                             continue;
                         }
 
-                        // Retrieve trees for base, local, and remote.
+                        // Retrieve trees for base, local, and remote
                         TreeNode baseTree = Diff.GetTreeFromCommit(Logger, Paths, commonAncestor);
                         TreeNode currentTree = Diff.GetTreeFromCommit(Logger, Paths, localHead);
                         TreeNode targetTree = Diff.GetTreeFromCommit(Logger, Paths, remoteHead);
 
-                        // Compute merge changes.
+                        // Get the merge differances
                         var mergeResult = MergeHelper.ComputeMergeChanges(Logger, Paths, baseTree, currentTree, targetTree);
                         if (mergeResult.HasConflicts)
                         {
@@ -1274,7 +1274,7 @@ Example:
                             continue;
                         }
 
-                        // Create merge commit.
+                        // Create merge commit
                         string commitMessage = $"Merge remote changes into '{branchName}'";
                         var (newTreeHash, mergedTree) = TreeBuilder.CreateMergedTree(Paths, mergeResult.MergedEntries);
                         string mergeCommitHash = CommitHelper.CreateMergeCommit(
@@ -1291,7 +1291,7 @@ Example:
                         Logger.Log($"Created merge commit {mergeCommitHash} for branch '{branchName}'.");
                     }
 
-                    // Update branch info if available.
+                    // Update branch info
                     string remoteInfoPath = Path.Combine(remoteBranchDir, "info");
                     string localInfoPath = Path.Combine(localBranchDir, "info");
                     if (File.Exists(remoteInfoPath))
@@ -1300,7 +1300,7 @@ Example:
                         File.WriteAllText(localInfoPath, remoteInfo);
                     }
 
-                    // Update branch index if available.
+                    // Update branch index
                     string remoteIndexPath = Path.Combine(remoteBranchDir, "index");
                     string localIndexPath = Path.Combine(localBranchDir, "index");
                     if (File.Exists(remoteIndexPath))
@@ -1310,15 +1310,8 @@ Example:
                     }
                 }
 
+
                 Logger.Log("Pull completed successfully.");
-
-
-
-
-
-
-
-
             }
         }
 
