@@ -295,8 +295,23 @@ namespace backend.Controllers.Frontend
 
             var latestCommit = targetBranch.Commits
                 .FirstOrDefault(c => c.CommitHash == targetBranch.LatestCommitHash);
-            if (latestCommit == null)
+
+            if (latestCommit == null && targetBranch.Commits.Any())
+            {
                 return NotFound(new { Message = "Latest commit not found" });
+            }
+            else if (latestCommit == null)
+            {
+                return Ok(new
+                {
+                    LatestCommit = new
+                    {
+                        Message = "No commits yet..."
+                    }
+                }
+                );
+            }
+
 
 
 

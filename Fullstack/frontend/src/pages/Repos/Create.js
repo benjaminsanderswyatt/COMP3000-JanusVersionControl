@@ -84,8 +84,14 @@ const Create = () => {
   };
 
 
+  const CancelCreate = () => {
+    navigate(`/repository/${authUser}`);
+  };
+
+
   const headerSection = (pageStyles) => { return(
     <header className={pageStyles.header}>
+      <button className={pageStyles.button} onClick={() => CancelCreate()}>Cancel</button>
     </header>
   )};
   
