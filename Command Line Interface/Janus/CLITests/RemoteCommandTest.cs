@@ -96,7 +96,7 @@ namespace CLITests
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
             };
             _apiHelperMock
-                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/{link}/head", "testtoken"))
+                .Setup(api => api.SendGetAsync(_paths, $"{link}/head", "testtoken"))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
             string[] args = new string[] { "add", name, link };

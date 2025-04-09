@@ -176,7 +176,7 @@ namespace CLITests
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
             };
             _apiHelperMock
-                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/janus/owner/repo/head", "testtoken"))
+                .Setup(api => api.SendGetAsync(_paths, $"janus/owner/repo/head", "testtoken"))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
             await _remoteManager.AddRemote(new[] { "add", "origin", "janus/owner/repo" }, _credManagerMock.Object.LoadCredentials());
@@ -207,7 +207,7 @@ namespace CLITests
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
             };
             _apiHelperMock
-                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/janus/owner/repo/head", "testtoken"))
+                .Setup(api => api.SendGetAsync(_paths, $"janus/owner/repo/head", "testtoken"))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
             await _remoteManager.AddRemote(new[] { "add", "origin", "janus/owner/repo" }, _credManagerMock.Object.LoadCredentials());
@@ -273,7 +273,7 @@ namespace CLITests
                 Heads = new Dictionary<string, string> { { "main", "abc123" } }
             };
             _apiHelperMock
-                .Setup(api => api.SendGetAsync(_paths, $"/cli/repo/janus/owner/repo/head", "testtoken"))
+                .Setup(api => api.SendGetAsync(_paths, $"janus/owner/repo/head", "testtoken"))
                 .ReturnsAsync((true, JsonSerializer.Serialize(mockResponse)));
 
             await _remoteManager.AddRemote(new[] { "add", "origin", "janus/owner/repo" }, _credManagerMock.Object.LoadCredentials());
