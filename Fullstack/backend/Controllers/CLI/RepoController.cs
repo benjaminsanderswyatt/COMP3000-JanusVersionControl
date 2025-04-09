@@ -563,11 +563,12 @@ namespace backend.Controllers.CLI
 
                             // Validate tree
                             var hashes = new HashSet<string>();
+                            string savedTreeHash = "";
                             if (commitDto.Tree != null)
                             {
                                 var treeBuilder = new TreeBuilder(repository.RepoId);
                                 treeBuilder.LoadTree(commitDto.Tree);
-                                string savedTreeHash = treeBuilder.SaveTree();
+                                savedTreeHash = treeBuilder.SaveTree();
                             
 
                                 // Files to compare with files comming in
@@ -580,7 +581,7 @@ namespace backend.Controllers.CLI
                             {
                                 CommitHash = commitDto.CommitHash,
                                 BranchId = existingBranch.BranchId,
-                                TreeHash = commitDto.TreeHash ?? "",
+                                TreeHash = savedTreeHash,
                                 CreatedBy = username,
                                 Message = commitDto.Message,
                                 CommittedAt = commitDto.CommittedAt
