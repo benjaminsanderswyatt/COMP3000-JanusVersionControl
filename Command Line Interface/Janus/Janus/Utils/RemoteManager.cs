@@ -59,6 +59,16 @@ namespace Janus.Utils
         }
 
 
+        public async Task CloneSet(string link, Dictionary<string, string> branchHeads)
+        {
+            List<RemoteRepos> remotes = [new RemoteRepos { Name = "Origin", Link = link, Heads = branchHeads }];
+
+            SaveRemotes(remotes);
+
+            await Task.CompletedTask;
+        }
+
+
 
         public async Task AddRemote(string[] args, UserCredentials credentials)
         {

@@ -766,7 +766,13 @@ Example:
 
                     // Set remote origin
                     var remoteManager = new RemoteManager(Logger, clonePaths, _apiHelper);
-                    await remoteManager.AddRemote(new string[] { "add", "origin", endpoint }, credentials);
+                    var branchHeads = cloneData.Branches.ToDictionary(
+                        b => b.BranchName,
+                        b => b.LatestCommitHash
+                    );
+
+                    await remoteManager.CloneSet(endpoint, branchHeads);
+
 
 
 
@@ -800,6 +806,8 @@ Example:
                     {
                         MergeHelper.RecreateWorkingDir(Logger, clonePaths, activeTree);
                     }
+
+
 
 
                     Logger.Log($"Repository '{repoName}' successfully cloned to '{repoPath}'");

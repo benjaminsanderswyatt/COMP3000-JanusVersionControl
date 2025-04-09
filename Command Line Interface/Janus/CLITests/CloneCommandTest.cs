@@ -287,6 +287,17 @@ namespace CLITests
 
             string repoPath = Path.Combine(_paths.WorkingDir, "testRepo");
             Assert.IsTrue(Directory.Exists(repoPath));
+
+            // Verify the the remote origin was set
+            var clonePaths = new Paths(repoPath);
+            var remoteManager = new RemoteManager(_loggerMock.Object, clonePaths, _apiHelperMock.Object);
+            var remotes = remoteManager.LoadRemotes();
+
+            var originRemote = remotes.FirstOrDefault(r => string.Equals(r.Name, "origin", StringComparison.OrdinalIgnoreCase));
+
+            Assert.IsNotNull(originRemote, "Remote 'origin' was not added to the cloned repository.");
+            Assert.AreEqual(endpoint, originRemote.Link, "The remote 'origin' does not have the expected link.");
+
         }
 
 

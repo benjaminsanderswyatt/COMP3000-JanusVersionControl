@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using backend.DataTransferObjects.CLI;
+using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Utils.Users
@@ -96,16 +97,48 @@ namespace backend.Utils.Users
                     await _janusDbContext.SaveChangesAsync();
 
 
+
+
+                    // Create data for branch and initial commit
+                    var creationDate = DateTime.UtcNow;
+
+                    string initCommitHash = HashHelper.ComputeCommitHash(null, "main", "Janus", "Janus", creationDate, "Initial commit", "");
+
+
                     // Create the main branch
                     var mainBranch = new Branch
                     {
-                        RepoId = repo.RepoId,
                         BranchName = "main",
-                        CreatedAt = DateTime.UtcNow
+                        RepoId = repo.RepoId,
+                        CreatedBy = 0,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        SplitFromCommitHash = null,
+                        LatestCommitHash = initCommitHash,
                     };
+
 
                     await _janusDbContext.Branches.AddAsync(mainBranch);
                     await _janusDbContext.SaveChangesAsync();
+
+
+
+                    // Create the initial commit
+                    var initialCommit = new Commit
+                    {
+                        CommitHash = initCommitHash,
+                        BranchId = mainBranch.BranchId,
+                        TreeHash = "",
+                        CreatedBy = "Janus",
+                        Message = "Initial commit",
+                        CommittedAt = DateTimeOffset.UtcNow
+                    };
+
+                    await _janusDbContext.Commits.AddAsync(initialCommit);
+                    await _janusDbContext.SaveChangesAsync();
+
+
+
+
 
 
 
