@@ -15,6 +15,9 @@ import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import { DateType } from "../../../helpers/DateHelper";
 
 
+import ReactMarkdown from 'react-markdown';
+
+
 const RepoPage = () => {
   const { sessionExpired } = useAuth();
   const navigate = useNavigate();
@@ -155,7 +158,12 @@ const RepoPage = () => {
           {branchData.readme && (
             <Card>
               <h2 className={styles.readme}>Read Me</h2>
-              <p>{branchData.readme}</p>
+              {/*<p>{branchData.readme}</p>*/}
+
+              <div className={styles.markdownContent}>
+                <ReactMarkdown>{branchData.readme}</ReactMarkdown>
+              </div>
+
             </Card>
           )}
           
