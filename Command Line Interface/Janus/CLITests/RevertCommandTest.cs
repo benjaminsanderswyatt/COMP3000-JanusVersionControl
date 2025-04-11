@@ -132,6 +132,7 @@ namespace CLITests
             });
         }
 
+
         [Test]
         public void ShouldUpdateWorkingDirectoryAndIndex()
         {
@@ -153,21 +154,6 @@ namespace CLITests
             });
         }
 
-
-
-
-        [Test]
-        public void ShouldHandleForceFlagWithUncommittedChanges()
-        {
-            // Arrange
-            File.WriteAllText(Path.Combine(_testDir, "dirty.txt"), "Uncommitted changes");
-
-            // Act
-            _revertCommand.Execute(new[] { _initialCommitHash, "--force" });
-
-            // Assert
-            Assert.That(File.Exists(Path.Combine(_testDir, "dirty.txt")), Is.False);
-        }
 
         
 

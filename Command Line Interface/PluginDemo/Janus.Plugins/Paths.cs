@@ -17,10 +17,11 @@ namespace Janus.Plugins
         public string BranchesDir { get; }
 
         public string Remote { get; }
-        public string RemoteCommitDir { get; }
+        public string RemoteDir { get; }
 
         public string RepoConfig { get; }
 
+        public string LocalConfig { get; }
         public string GlobalConfig { get; }
 
         public Paths(string basePath)
@@ -38,10 +39,11 @@ namespace Janus.Plugins
             BranchesDir = Path.Combine(JanusDir, "branches");
 
             Remote = Path.Combine(JanusDir, "remote");
-            RemoteCommitDir = Path.Combine(JanusDir, "remote");
+            RemoteDir = Path.Combine(JanusDir, "remotes");
 
-            RepoConfig = Path.Combine(JanusDir, "repoConfig.json");
+            RepoConfig = Path.Combine(JanusDir, "repoConfig");
 
+            LocalConfig = Path.Combine(JanusDir, "localConfig");
             GlobalConfig = GetGlobalConfigPath();
         }
 
