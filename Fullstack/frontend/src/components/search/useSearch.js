@@ -20,7 +20,7 @@ export const useSearch = ( delay = 500 ) => {
 
     navigate(`?${params.toString()}`, { replace: true }); // Replace handles browser history
 
-  }, [debouncedSearchValue, navigate, searchParams, "search"]);
+  }, [debouncedSearchValue, navigate, searchParams]);
 
   return [searchValue, setSearchValue, debouncedSearchValue];
 };

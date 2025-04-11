@@ -81,7 +81,7 @@ const Colaborating = () => {
     };
 
     fetchInvites();
-  }, []);
+  }, [sessionExpired]);
 
 
   const handleAcceptInvite = async (inviteId) => {
