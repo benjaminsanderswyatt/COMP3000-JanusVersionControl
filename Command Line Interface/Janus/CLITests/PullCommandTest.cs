@@ -6,8 +6,6 @@ using Janus.Utils;
 using Moq;
 using System.Text.Json;
 using static Janus.CommandHandler;
-using static Janus.Helpers.CommandHelpers.MergeHelper;
-using static Janus.Helpers.FileMetadataHelper;
 
 namespace CLITests
 {

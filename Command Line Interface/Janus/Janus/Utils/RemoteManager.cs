@@ -2,7 +2,6 @@
 using Janus.DataTransferObjects;
 using Janus.Models;
 using Janus.Plugins;
-using System.Net;
 using System.Text.Json;
 
 namespace Janus.Utils
@@ -168,9 +167,9 @@ namespace Janus.Utils
         public void UpdateRemoteHead(string remoteName, Dictionary<string, string> heads)
         {
             var remotes = LoadRemotes();
-            
+
             var remote = remotes.FirstOrDefault(r => r.Name.Equals(remoteName, StringComparison.OrdinalIgnoreCase));
-            
+
             if (remote != null)
             {
                 remote.Heads = heads;

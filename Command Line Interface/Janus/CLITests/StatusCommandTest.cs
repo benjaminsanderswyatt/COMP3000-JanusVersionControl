@@ -498,7 +498,7 @@ namespace CLITests
             _loggerMock.Verify(logger => logger.Log("Local branch head not found in the remote history. It may be diverged"), Times.Once);
         }
 
-        
+
     }
 
 

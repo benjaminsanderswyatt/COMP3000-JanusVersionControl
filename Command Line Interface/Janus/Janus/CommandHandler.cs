@@ -25,7 +25,6 @@ namespace Janus
                 new HelpCommand(logger, paths, credManager),
 
                 new ConfigCommand(logger, paths),
-                new MergeCommand(logger, paths),
 
                 new LoginCommand(logger, paths, credManager),
                 new RemoteCommand(logger, paths, apiHelper, credManager),
@@ -37,12 +36,13 @@ namespace Janus
                 new InitCommand(logger, paths, credManager),
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
+
                 new LogCommand(logger, paths),
+
                 new ListBranchesCommand(logger, paths),
                 new CreateBranchCommand(logger, paths),
-                //new DeleteBranchCommand(logger, paths),
                 new SwitchBranchCommand(logger, paths),
-                //new SwitchCommitCommand(logger, paths),
+
                 new MergeCommand(logger, paths),
 
                 new StatusCommand(logger, paths),
@@ -374,7 +374,7 @@ Examples:
         public class HelpCommand : BaseCommand
         {
             private readonly ICredentialManager _credManager;
-            public HelpCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            public HelpCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths)
             {
                 _credManager = credManager;
             }
@@ -427,7 +427,7 @@ Examples:
         public class LoginCommand : BaseCommand
         {
             private readonly ICredentialManager _credManager;
-            public LoginCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            public LoginCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths)
             {
                 _credManager = credManager;
             }
@@ -1202,7 +1202,7 @@ Example:
 
 
 
-           
+
 
                 // Update the working dir and branches
                 foreach (var remoteBranchDir in remoteBranchDirs)
@@ -1245,7 +1245,7 @@ Example:
                         File.WriteAllText(localHeadPath, remoteHead);
 
                         Logger.Log($"Fast-forward updated branch '{branchName}' from {localHead} to {remoteHead}.");
-                    } 
+                    }
                     else if (!status.FoundLocalInRemote && status.FoundRemoteInLocal)
                     {
                         // If local is ahead do nothing
@@ -1256,7 +1256,7 @@ Example:
                     {
                         // Diverged: attempt automatic merge
                         Logger.Log($"Branch '{branchName}' has diverged. Attempting to merge...");
-                        
+
                         // Get common ancestor
                         string commonAncestor = MergeHelper.FindCommonAncestor(Logger, Paths, localHead, remoteHead);
                         if (commonAncestor == null)
@@ -1426,7 +1426,7 @@ Example:
                         Logger.Log("Local repository configuration not found.");
                         return;
                     }
-                    
+
 
                     // Only push if there are changes
                     if (!commitsToPush.Any() &&
@@ -1465,7 +1465,7 @@ Example:
                             treeBuilder.GetFileHashes(fileHashes);
                         }
                     }
-                    
+
                     // Read files from object directory
                     var files = new List<(string Hash, byte[] Content)>();
                     foreach (var hash in fileHashes)
@@ -1484,7 +1484,7 @@ Example:
 
                     // Create multipart content
                     using var multipartContent = new MultipartFormDataContent();
-                    
+
                     // Add metadata as JSON
                     var metadataJson = JsonSerializer.Serialize(pushRequest);
                     multipartContent.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
@@ -1559,7 +1559,7 @@ Example:
         public class InitCommand : BaseCommand
         {
             private readonly ICredentialManager _credManager;
-            public InitCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths) 
+            public InitCommand(ILogger logger, Paths paths, ICredentialManager credManager) : base(logger, paths)
             {
                 _credManager = credManager;
             }
@@ -2022,40 +2022,6 @@ Example:
 
 
 
-        /*
-        public class PushCommand : BaseCommand
-        {
-            public override string Name => "push";
-            public override string Description => "Pushes the local repository to the remote repository.";
-            public override void Execute(string[] args)
-            {
-                try
-                {
-                    Logger.Log("Attempting");
-                    string commitJson = PushHelper.GetCommitMetadataFiles(); // await
-                    Logger.Log("Finished commitmetadata: " + commitJson);
-                    // Get branch header
-                    // TODO
-
-
-                    // Send to backend
-                    PushHelper.PostToBackendAsync(commitJson).GetAwaiter().GetResult(); // await
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log("Failed: " + ex);
-                }
-
-
-
-
-            }
-
-        }
-        */
-
-
-
 
 
 
@@ -2138,84 +2104,6 @@ Example:
 
 
 
-        /*
-        public class DeleteBranchCommand : BaseCommand
-        {
-            public DeleteBranchCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-            public override string Name => "delete_branch";
-            public override string Description => "Deletes a branch.";
-            public override void Execute(string[] args)
-            {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
-
-                if (args.Length < 1)
-                {
-                    Logger.Log("Please provide a branch name.");
-                    return;
-                }
-
-                string branchName = args[0];
-
-                // Check if user is in branch
-                string currentBranch = CommandHelper.GetCurrentBranchName(Paths);
-                if (currentBranch == branchName)
-                {
-                    Logger.Log($"Cannot delete branch '{branchName}' while on it.");
-                    return;
-                }
-
-
-                string branchPath = Path.Combine(Paths.HeadsDir, branchName);
-
-                if (!File.Exists(branchPath))
-                {
-                    Logger.Log($"Branch '{branchName}' doesnt exists.");
-                    return;
-                }
-
-
-                // Check if the repo is clean as the switch will override uncommitted changes
-                bool force = args.Contains("--force") ? true : false;
-                if (!force) // Force skips the check
-                {
-                    // Promt user to confirm branch switch
-                    if (!CommandHelper.ConfirmAction(Logger, $"Are you sure you want to delete branch '{branchName}'?", force))
-                    {
-                        Logger.Log("Branch deletion cancelled.");
-                        return;
-                    }
-                    
-                }
-
-
-
-
-                try
-                {
-                    // Delete the branch commit
-                    BranchHelper.DeleteBranchCommitAndFiles(Logger, Paths, branchName);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log($"Error deleting branch '{branchName}': {ex.Message}");
-                    return;
-                }
-
-                
-
-
-                // Delete the branch file
-                File.Delete(branchPath);
-
-                // Delete the branch file in branches directory
-                Directory.Delete(Path.Combine(Paths.BranchesDir, branchName), true);
-
-
-
-                Logger.Log($"Deleted branch {branchName}.");
-            }
-        }
-        */
 
 
 
@@ -2340,59 +2228,8 @@ Example:
             }
         }
 
-        /*
 
 
-        public class SwitchCommitCommand : BaseCommand
-        {
-            public SwitchCommitCommand(ILogger logger, Paths paths) : base(logger, paths) { }
-
-            public override string Name => "switch_commit";
-            public override string Description => "switch commit help";
-            public override void Execute(string[] args)
-            {
-                if (!CommandHelper.ValidateRepoExists(Logger, Paths)) { return; }
-
-                if (args.Length < 1)
-                {
-                    Logger.Log("Please provide a commit hash.");
-                    return;
-                }
-
-                string commitHash = args[0];
-                string commitPath = Path.Combine(Paths.CommitDir, commitHash);
-
-                if (!File.Exists(commitPath))
-                {
-                    Logger.Log($"Commit '{commitHash}' doesnt exists.");
-                    return;
-                }
-
-                // TODO
-                // Check if there are any uncommitted changes if so prompt user to confirm (uncommitted wont be saved)
-                // if(ConfirmAction($"")) 
-
-
-                try
-                {
-                    // Update the working directory with the files from the CommitHash
-                    BranchHelper.UpdateWorkingDirectory(Logger, Paths, commitHash);
-
-                    // Update HEAD to point to the detached HEAD
-                    File.WriteAllText(Paths.HEAD, $"ref: {Paths.DETACHED_HEAD}");
-
-                    Logger.Log($"Switched to commit {commitHash}.");
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log($"Error switching to commit '{commitHash}': {ex.Message}");
-                    return;
-                }
-
-            }
-        }
-
-        */
 
 
         public class StatusCommand : BaseCommand
