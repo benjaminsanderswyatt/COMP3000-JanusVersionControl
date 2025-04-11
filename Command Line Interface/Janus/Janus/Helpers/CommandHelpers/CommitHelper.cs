@@ -1,4 +1,6 @@
-﻿using Janus.Plugins;
+﻿using Janus.Models;
+using Janus.Plugins;
+using System.Text.Json;
 
 namespace Janus.Helpers.CommandHelpers
 {
@@ -36,6 +38,19 @@ namespace Janus.Helpers.CommandHelpers
         }
 
 
+        public static CommitMetadata GetMetadataFromCommit(ILogger logger, Paths paths, string commitHash)
+        {
+            string commitPath = Path.Combine(paths.CommitDir, commitHash);
+            if (!File.Exists(commitPath))
+            {
+                logger.Log($"Commit '{commitHash}' not found.");
+                return null;
+            }
+
+            var commitMetadata = JsonSerializer.Deserialize<CommitMetadata>(File.ReadAllText(commitPath));
+
+            return commitMetadata;
+        }
 
 
 
@@ -73,6 +88,9 @@ namespace Janus.Helpers.CommandHelpers
 
             return commitHash;
         }
+
+
+
 
 
 

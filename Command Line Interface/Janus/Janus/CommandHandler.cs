@@ -36,6 +36,7 @@ namespace Janus
                 new InitCommand(logger, paths, credManager),
                 new AddCommand(logger, paths),
                 new CommitCommand(logger, paths),
+                new RevertCommand(logger, paths),
 
                 new LogCommand(logger, paths),
 
@@ -1863,6 +1864,119 @@ Example:
 
             }
         }
+
+
+
+
+
+
+        public class RevertCommand : BaseCommand
+        {
+            public RevertCommand(ILogger logger, Paths paths) : base(logger, paths) { }
+            public override string Name => "revert";
+            public override string Description => "Reverts to the state of a previous commit.";
+            public override string Usage =>
+@"janus revert <commit-hash> [--force]
+    <commit-hash> : The commit to revert to.
+    --force       : (Optional) Proceed even if there are uncommitted changes.
+Example:
+    janus revert abcdef
+    janus revert 123456 --force";
+            public override async Task Execute(string[] args)
+            {
+                if (!MiscHelper.ValidateRepoExists(Logger, Paths))
+                    return;
+
+                if (args.Length < 1)
+                {
+                    Logger.Log("Please provide a commit hash to revert to");
+                    return;
+                }
+
+                string targetCommitHash = args[0];
+                bool force = args.Contains("--force");
+
+                // Check if the commit exists
+                string commitPath = Path.Combine(Paths.CommitDir, targetCommitHash);
+                if (!File.Exists(commitPath))
+                {
+                    Logger.Log($"Commit '{targetCommitHash}' not found");
+                    return;
+                }
+
+                // Check for uncommitted changes
+                if (!force)
+                {
+                    if (StatusHelper.AreThereUncommittedChanges(Logger, Paths))
+                    {
+                        if (!MiscHelper.ConfirmAction(Logger, "Uncommitted changes will be lost. Proceed? (y/n):", force))
+                        {
+                            Logger.Log("Revert cancelled");
+                            return;
+                        }
+                    }
+                }
+
+
+                try
+                {
+                    // Get current HEAD and branch
+                    string currentHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
+                    string currentBranch = MiscHelper.GetCurrentBranchName(Paths);
+
+                    // Get tree from target commit
+                    var targetMetadata = CommitHelper.GetMetadataFromCommit(Logger, Paths, targetCommitHash);
+                    string treeHash = targetMetadata.Tree;
+
+                    // Rebuild the target tree
+                    var treeBuilder = new TreeBuilder(Paths);
+                    TreeNode targetTree = treeBuilder.RecreateTree(Logger, treeHash);
+
+
+
+
+                    // Create commit message
+                    string commitMessage = $"Revert to commit {targetCommitHash}";
+
+
+                    string username = MiscHelper.GetUsername();
+                    string email = MiscHelper.GetEmail();
+
+                    string commitHash = HashHelper.ComputeCommitHash(currentHead, currentBranch, username, email, DateTime.UtcNow, commitMessage, treeHash);
+                    CommitHelper.SaveCommit(Paths, commitHash, new List<string> { currentHead }, currentBranch, username, email, DateTime.UtcNow, commitMessage, treeHash);
+
+                    // Update head to point to the new commit
+                    HeadHelper.SetHeadCommit(Paths, commitHash);
+
+
+                    // Update working directory to the new commits tree
+                    SwitchBranchHelper.SwitchWorkingDirToTree(Logger, Paths, targetTree);
+
+                    // Create updated index
+                    var indexDict = treeBuilder.BuildIndexDictionary(targetTree);
+                    IndexHelper.SaveIndex(Paths.Index, indexDict); // Update index
+
+                    Logger.Log($"Created revert commit: '{commitHash}'");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error reverting to commit '{targetCommitHash}': {ex.Message}");
+                    return;
+                }
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
