@@ -216,6 +216,10 @@ Example:
                     );
 
 
+                    // Update Index: Build index from merged tree and save
+                    var mergedIndex = new TreeBuilder(Paths).BuildIndexDictionary(tree);
+                    IndexHelper.SaveIndex(Paths.Index, mergedIndex);
+
                     // Update branch head
                     HeadHelper.SetHeadCommit(Paths, commitHash, currentBranch);
 
@@ -1867,9 +1871,6 @@ Example:
 
 
 
-
-
-
         public class RevertCommand : BaseCommand
         {
             public RevertCommand(ILogger logger, Paths paths) : base(logger, paths) { }
@@ -1966,6 +1967,9 @@ Example:
 
             }
         }
+
+
+
 
 
 

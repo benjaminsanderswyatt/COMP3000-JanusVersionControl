@@ -1,3 +1,4 @@
+using Janus.Helpers;
 using Janus.Models;
 using Janus.Plugins;
 using Janus.Utils;
@@ -374,6 +375,80 @@ namespace CLITests
             _loggerMock.Verify(x => x.Log("Merge conflicts detected:"), Times.Once);
             _loggerMock.Verify(x => x.Log("Conflict: image.jpg"), Times.Once);
         }
+
+
+
+
+
+
+
+
+
+
+        [Test]
+        public void ShouldUpdateIndexAfterSuccessfulMerge()
+        {
+            // Arrange
+            File.WriteAllText(Path.Combine(_testDir, "main-file.txt"), "Main content");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Main commit" });
+
+            _switchBranchCommand.Execute(new[] { "featureBranch" });
+            File.WriteAllText(Path.Combine(_testDir, "feature-file.txt"), "Feature content");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Feature commit" });
+            _switchBranchCommand.Execute(new[] { "main" });
+
+            // Act
+            _mergeCommand.Execute(new[] { "featureBranch" });
+
+            // Assert
+            var index = IndexHelper.LoadIndex(_paths.Index);
+            Assert.Multiple(() =>
+            {
+                Assert.That(index.ContainsKey("main-file.txt"), Is.True);
+                Assert.That(index.ContainsKey("feature-file.txt"), Is.True);
+            });
+        }
+
+        [Test]
+        public void IndexShouldMatchMergedTreeState()
+        {
+            // Arrange
+            File.WriteAllText(Path.Combine(_testDir, "main.txt"), "Main version");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Main commit" });
+
+            _switchBranchCommand.Execute(new[] { "featureBranch" });
+            File.WriteAllText(Path.Combine(_testDir, "feature.txt"), "Feature version");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Feature commit" });
+            _switchBranchCommand.Execute(new[] { "main" });
+
+            // Act
+            _mergeCommand.Execute(new[] { "featureBranch" });
+
+            // Assert
+            var mergeCommit = GetLatestCommitMetadata();
+            var expectedTree = new TreeBuilder(_paths).RecreateTree(_loggerMock.Object, mergeCommit.Tree);
+            var expectedIndex = new TreeBuilder(_paths).BuildIndexDictionary(expectedTree);
+
+            var actualIndex = IndexHelper.LoadIndex(_paths.Index);
+
+            CollectionAssert.AreEquivalent(expectedIndex.Keys, actualIndex.Keys);
+            foreach (var key in expectedIndex.Keys)
+            {
+                Assert.That(actualIndex[key].Hash, Is.EqualTo(expectedIndex[key].Hash));
+            }
+        }
+
+
+
+
+
+
+
+
 
 
 
