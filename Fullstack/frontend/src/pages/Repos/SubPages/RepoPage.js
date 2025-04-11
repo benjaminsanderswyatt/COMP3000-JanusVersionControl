@@ -15,6 +15,8 @@ import styles from "../../../styles/pages/repos/subpages/RepoPage.module.css";
 import { DateType } from "../../../helpers/DateHelper";
 
 
+import "../../../styles/Markdown.css";
+
 import ReactMarkdown from 'react-markdown';
 
 
@@ -158,10 +160,11 @@ const RepoPage = () => {
           {branchData.readme && (
             <Card>
               <h2 className={styles.readme}>Read Me</h2>
-              {/*<p>{branchData.readme}</p>*/}
 
               <div className={styles.markdownContent}>
-                <ReactMarkdown>{branchData.readme}</ReactMarkdown>
+                <div className="markdown">
+                  <ReactMarkdown>{branchData.readme}</ReactMarkdown>
+                </div>
               </div>
 
             </Card>
