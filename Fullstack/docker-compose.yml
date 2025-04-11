@@ -13,9 +13,9 @@
    - ./frontend/certs:/https
    - ./data/images:/app/public/images
   environment:
-   - HTTPS=true
-   - SSL_CRT_FILE=https/frontend-certificate.crt
-   - SSL_KEY_FILE=https/frontend-private-nopass.key
+   - HTTPS=${HTTPS}
+   - SSL_CRT_FILE=${SSL_CRT_FILE}
+   - SSL_KEY_FILE=${SSL_KEY_FILE}
 
  backend:
   container_name: backend
@@ -34,16 +34,16 @@
   depends_on:
    - db
   environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=db;User=user;Password=password;
-      - ALLOWED_CORS_ORIGINS=http://localhost:81
-      - ASPNETCORE_URLS=https://+:9000
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/backend-certificate.pfx
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=sZF8H6h+08iW3ZJ4n/9w4nv+tH2kPanzVFSjc5yK6J0=
-      - JWT__Issuer=yourIssuer
-      - JWT__Audience=yourAudience
-      - JWT__SecretKey_Web=MySecureKeyWithAtLeastThirtyTwoCharacters
-      - JWT__SecretKey_CLI=MySecureKeyWithAtLeastThirtyTwoCharacters
-      - BlacklistCleanup=30
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      - ALLOWED_CORS_ORIGINS=${ALLOWED_CORS_ORIGINS}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=${ASPNETCORE_Kestrel__Certificates__Default__Path}
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_Kestrel__Certificates__Default__Password}
+      - JWT__Issuer=${JWT__Issuer}
+      - JWT__Audience=${JWT__Audience}
+      - JWT__SecretKey_Web=${JWT__SecretKey_Web}
+      - JWT__SecretKey_CLI=${JWT__SecretKey_CLI}
+      - BlacklistCleanup=${BlacklistCleanup}
       - FILE_STORAGE_PATH=/app/data/files
       - TREE_STORAGE_PATH=/app/data/trees
   networks:
@@ -55,10 +55,10 @@
   image: mysql:8.0
   restart: always
   environment:
-   MYSQL_DATABASE: 'db'
-   MYSQL_USER: 'user'
-   MYSQL_PASSWORD: 'password'
-   MYSQL_ROOT_PASSWORD: 'password'
+   MYSQL_DATABASE: ${MYSQL_DATABASE}
+   MYSQL_USER: ${MYSQL_USER}
+   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
   ports:
    - '83:3306'
   expose:
