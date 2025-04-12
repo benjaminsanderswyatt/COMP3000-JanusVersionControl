@@ -1,3 +1,5 @@
+![Banner](./banner.png)
+
 # Janus Version Control System
 ##  Project Vision
 The Janus Version Control System is a solution designed to assist developers, project managers and organisations who need a secure, customizable and scalable tool to manage different versions of their projects, on one or more devices.
