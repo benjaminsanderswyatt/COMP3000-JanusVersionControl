@@ -85,14 +85,15 @@ const App = () => {
 
 
               {/* Public Routes */}
-              <Route path="discover" element={<Discover />}/>
-
               <Route path="commandline" element={<CommandLine />}/>
 
 
 
               {/*Protected Routes*/}
               <Route element={<ProtectedRoute />}>
+
+                <Route path="discover" element={<Discover />}/>
+
 
                 <Route path="repository/:owner" element={<Repositories />} />
                 <Route path="repository/create" element={<RepoCreate />} />

@@ -76,17 +76,18 @@ const Navbar = ({ authUser, isLoggedIn }) => {
               Collaborating
             </button>
 
+            
+            <button
+              className={`${styles.navbarItem} ${location.pathname.startsWith("/discover") ? styles.selected : ""}`}
+              onClick={() => handleNavigation("/discover")}
+            >
+              Discover
+            </button>
+
           </>
         ) : null}
 
         {/* Always display */}
-        <button
-          className={`${styles.navbarItem} ${location.pathname.startsWith("/discover") ? styles.selected : ""}`}
-          onClick={() => handleNavigation("/discover")}
-        >
-          Discover
-        </button>
-
         <button
           className={`${styles.navbarItem} ${location.pathname.startsWith("/commandline") ? styles.selected : ""}`}
           onClick={() => handleNavigation("/commandline")}
