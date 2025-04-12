@@ -1,221 +1,131 @@
+# API Documentation
 
-## APIs
+## CLI APIs
+*Authenticated with `CLIPolicy`, Rate Limited with `CLIRateLimit`*
 
-#### **User Register**
+---
 
-```http
-  POST /users/register
-```
+### AccessTokenController
+**Base Route**: `api/AccessToken`
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `username` | `string` | **Required** The username of the user |
-| `email` | `string` | **Required** The email address of the user |
-| `password` | `string` | **Required** The password for the user |
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/RevokePAT` | POST | Revoke a PAT (uses `Authorization` header) | Header: `Bearer <PAT>` | `200 OK` or `400 BadRequest` |
+| `/Authenticate`| POST | Validate PAT and get username | Body: `{ Email: string }` | `200 OK` with username or `401` |
 
-##### Request Body:
-```json
-{
-  "username": "exampleUser",
-  "email": "user@example.com",
-  "password": "examplePassword"
-}
-```
-##### Response:
-```json
-{
-  "message": "User registered successfully"
-}
-```
+---
 
+### RepoController (CLI)
+**Base Route**: `api/cli/Repo`
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/janus/{owner}/{repoName}` | GET | Clone repository metadata | `owner`, `repoName` | `200 OK` with `RepoDto` or `404` |
+| `/batchfiles/{owner}/{repoName}` | POST | Batch fetch file contents by hashes | Body: `List<string> fileHashes` | Multipart response with files |
+| `/janus/{owner}/{repoName}/fetch` | POST | Fetch new commits since last sync | Body: `Dictionary<string, string> latestBranchHashes` | `200 OK` with updated `RepoDto` |
+| `/janus/{owner}/{repoName}/head` | GET | Get latest commit hashes for all branches | - | `200 OK` with `RemoteHeadDto` |
+| `/janus/{owner}/{repoName}/push` | POST | Push commits/files to repository (multipart) | Form: Metadata (JSON) + files | `200 OK` or error |
 
-#### **User Login**
+---
 
-```http
-  POST /users/login
-```
+## Frontend APIs
+*Authenticated with `FrontendPolicy`, Rate Limited with `FrontendRateLimit`*
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `email` | `string` | **Required** The email of the user |
-| `password` | `string` | **Required** The password of the user |
+---
 
-##### Request Body:
-```json
-{
-  "email": "example@user.com",
-  "password": "examplePassword"
-}
-```
-##### Response:
-```json
-{
-  "access_token": "jwtToken"
-}
-```
+### AccountController
+**Base Route**: `api/web/Account`
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/ChangeProfilePicture` | POST | Upload profile picture | Form: `image` file | `200 OK` with URL or `400` |
+| `/Delete` | DELETE | Delete user account | - | `200 OK` |
 
+---
 
-#### **Create Repository**
+### CommitController
+**Base Route**: `api/web/Commit`
 
-```http
-  POST /repositories/create
-```
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/{owner}/{repoName}/{branch}/commits`| GET | Get paginated commit | `startHash`, `limit=20` | `200 OK` with commits + next cursor |
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `repoName` | `string` | **Required** Name of the repository |
-| `visibility` | `string` | **Optional** Visability of the repo (public or private) |
+---
 
-##### Request Body:
-```json
-{
-  "repoName": "exampleName",
-  "visability": "private"
-}
-```
-##### Response:
-```json
-{
-  "repoId": 1,
-  "message": "Repository created successfully"
-}
-```
+### ContributorsController
+**Base Route**: `api/web/Contributors`
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/{owner}/{repoName}/contributors`| GET | List collaborators | - | `200 OK` with contributor list |
+| `/{owner}/{repoName}/invite` | POST | Invite collaborator | Body: `{ InviteeUsername, AccessLevel }` | `200 OK` or `403 Forbidden` |
+| `/{owner}/{repoName}/leave` | DELETE | Leave repository | - | `200 OK` |
 
+---
 
+### DiscoverController
+**Base Route**: `api/web/Discover**
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/Repositories` | GET | Discover public repos (weekly randomized) | `page=1` | `200 OK` with paginated repos |
 
-#### **List Repositories of User**
+---
 
-```http
-  GET /repositories/{userId}
-```
+### RepoController (Frontend)
+**Base Route**: `api/web/Repo**
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `userId` | `int` | **Required** The ID of the user |
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/Init` | POST | Create new repo | Body: `{ RepoName, RepoDescription, IsPrivate }`| `200 OK` or `400` |
+| `/file/{owner}/{repoName}/{fileHash}` | GET | Get file content | `fileHash` | `200 OK` with file bytes or `404` |
+| `/repository-list` | GET | List owned repos | - | `200 OK` with repo list |
+| `/{owner}/{repoName}` | GET | Get repo metadata | - | `200 OK` with branch/owner details |
+| `/{owner}/{repoName}/{branch}` | GET | Get branch data (latest commit, README, tree) | - | `200 OK` with commit/tree data |
 
-##### Request Example:
-```http
-GET /repositories/123
-```
+---
 
-##### Response:
-```json
-[
-  {
-    "repoId": 0,
-    "repoName": "exampleName",
-    "visibility": "private",
-    "created": "2024-01-01T14:00:00"
-  },
-  {
-    "repoId": 1,
-    "repoName": "anotherName",
-    "visibility": "public",
-    "created": "2024-01-01T14:00:00"
-  }
-]
-```
+### RepoInvitesController
+**Base Route**: `api/web/RepoInvites**
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/` | GET | List pending invites | - | `200 OK` with invites |
+| `/{inviteId}/accept` | POST | Accept invite | `inviteId`| `200 OK` |
+| `/{inviteId}/decline` | POST | Decline invite | `inviteId` | `200 OK` |
 
+---
 
+### RepoSettingsController
+**Base Route**: `api/web/RepoSettings**
 
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/{owner}/{repoName}/description` | PUT | Update repo description | Body: `{ Description }` | `200 OK` |
+| `/{owner}/{repoName}/visibility` | PUT | Toggle public/private | Body: `{ IsPrivate }` | `200 OK` |
+| `/{owner}/{repoName}` | DELETE | Delete repo | - | `200 OK` |
 
-#### **Add Collaborator to Repository**
+---
 
-```http
-  GET /repositories/{repoId}/collaborators
-```
+### UsersController
+**Base Route**: `api/web/Users**
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `repoId` | `int` | **Required** ID of the repository |
-| `userId` | `int` | **Required** ID of the collaborator |
-| `role` | `string` | **Required** Role of the collaborator |
+| Endpoint | Method | Description | Parameters | Response |
+|---|---|---|---|---|
+| `/Register` | POST | User registration | Body: `{ Username, Email, Password }` | `201 Created` or `400` |
+| `/Login` | POST | Login (JWT + refresh token cookie) | Body: `{ Email, Password }` | `200 OK` with JWT |
+| `/Refresh` | POST | Refresh JWT | - | `200 OK` with new JWT |
+| `/Logout` | POST | Logout (invalidate refresh token) | - | `200 OK` |
 
-##### Request Example:
-```json
-{
-  "userId": 123,
-  "role": "viewer"
-}
-```
+---
 
-##### Response:
-```json
-{
-  "message": "Collaborator added successfully"
-}
-```
-
-
-
-
-
-#### **Create a Branch**
-
-```http
-  GET /repositories/{repoId}/branches
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `repoId` | `int` | **Required** ID of the repository |
-| `branchName` | `string` | **Required** Name of the new branch |
-
-##### Request Example:
-```json
-{
-  "branchName": "exampleName"
-}
-```
-
-##### Response:
-```json
-{
-  "branchId": 2,
-  "message": "Branch created successfully"
-}
-```
-
-
-
-
-#### **Create a Commit**
-
-```http
-  POST /repositories/{repoId}/(branchId)/commits
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `repoId` | `int` | **Required** ID of the repository |
-| `branchId` | `int` | **Required** ID of the branch |
-| `message` | `string` | **Required** Commit message |
-| `files` | `array` | **Required** Array of files that changed |
-
-##### Request Example:
-```json
-{
-  "message": "Example message",
-  "files": [
-    { "filePath": "testFile.txt", "content": "Hello world!" },
-    { "filePath": "folder/testFile2.txt", "content": "Another file" }
-  ]
-}
-```
-
-##### Response:
-```json
-{
-  "commitId": 3,
-  "message": "Commit created successfully"
-}
-```
-
-
-
-
+## Shared Notes
+- **Authentication**:
+  - CLI: Personal Access Tokens (PAT) via `CLIPolicy`
+  - Frontend: JWT via `FrontendPolicy`
+- **Rate Limits**:
+  - CLI: `CLIRateLimit`
+  - Frontend: `FrontendRateLimit` 
+- **CORS**:
+  - CLI: CLI clients (`CLIPolicy`)
+  - Frontend: Web app (`FrontendPolicy`)
