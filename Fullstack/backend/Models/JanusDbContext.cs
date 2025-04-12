@@ -1,5 +1,4 @@
-﻿using backend.Auth;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {

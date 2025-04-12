@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Security.Claims;
 
 namespace backend.Controllers.Frontend
 {
@@ -65,7 +63,7 @@ namespace backend.Controllers.Frontend
                 .FirstOrDefaultAsync(ri => ri.InviteId == inviteId &&
                                           ri.InviteeUserId == userId);
 
-            if (invite == null) 
+            if (invite == null)
                 return NotFound();
 
             // Add access
@@ -96,7 +94,7 @@ namespace backend.Controllers.Frontend
                 .FirstOrDefaultAsync(ri => ri.InviteId == inviteId &&
                                          ri.InviteeUserId == userId);
 
-            if (invite == null) 
+            if (invite == null)
                 return NotFound();
 
             _janusDbContext.RepoInvites.Remove(invite);

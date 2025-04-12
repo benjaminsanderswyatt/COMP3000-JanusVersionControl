@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace backend.Controllers.Frontend
 {
@@ -93,14 +92,14 @@ namespace backend.Controllers.Frontend
                 .Include(r => r.RepoAccesses)
                 .FirstOrDefaultAsync(r => r.Owner.Username == owner && r.RepoName == repoName);
 
-            if (repo == null) 
+            if (repo == null)
                 return NotFound(new { Message = "Repository not found" });
 
 
             // Get invitee user
             var invitee = await _janusDbContext.Users
                 .FirstOrDefaultAsync(u => u.Username == request.InviteeUsername);
-            if (invitee == null) 
+            if (invitee == null)
                 return NotFound(new { Message = "User not found" });
 
             // Check permissions

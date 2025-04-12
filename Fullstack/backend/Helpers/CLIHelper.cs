@@ -1,5 +1,4 @@
-﻿using backend.DataTransferObjects;
-using backend.DataTransferObjects.CLI;
+﻿using backend.DataTransferObjects.CLI;
 using backend.Models;
 using backend.Utils;
 using Microsoft.EntityFrameworkCore;

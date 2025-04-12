@@ -1,5 +1,4 @@
-﻿using backend.DataTransferObjects.CLI;
-using backend.Models;
+﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Utils.Users

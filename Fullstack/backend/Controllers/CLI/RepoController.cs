@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 using System.Text.Json;
-using static backend.Utils.TreeBuilder;
 
 namespace backend.Controllers.CLI
 {
@@ -462,7 +460,7 @@ namespace backend.Controllers.CLI
             }
 
 
-            
+
 
 
 
@@ -569,7 +567,7 @@ namespace backend.Controllers.CLI
                                 var treeBuilder = new TreeBuilder(repository.RepoId);
                                 treeBuilder.LoadTree(commitDto.Tree);
                                 savedTreeHash = treeBuilder.SaveTree();
-                            
+
 
                                 // Files to compare with files comming in
                                 treeBuilder.GetFileHashes(hashes);
@@ -650,7 +648,7 @@ namespace backend.Controllers.CLI
             {
                 return StatusCode(500, $"An error occured: {ex}");
             }
-           
+
 
             return Ok(new { Message = "Push successful" });
 
