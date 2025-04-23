@@ -8,7 +8,7 @@ namespace backend.Models
         public int UserId { get; set; }
 
         [Required]
-        [MaxLength(63)]
+        [MaxLength(64)]
         public string Username { get; set; }
 
         [Required]
