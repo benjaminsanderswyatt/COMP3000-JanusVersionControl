@@ -64,6 +64,19 @@ const Contributors = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
 
+
+  // Determine permissions for current user
+  const currentContributor = contributors.find(c => c.username === authUser);
+  const isOwner = owner === authUser;
+  const isAdmin = currentContributor?.accessLevel?.toUpperCase() === AccessLevel.ADMIN;
+  const isCollaborator = !!currentContributor;
+  const canInvite = isOwner || isAdmin;
+  
+
+
+
+
+
   const handleSendInvite = async () => {
     try {
       const accessLevelKey = accessLevel.toUpperCase();
@@ -155,9 +168,6 @@ const Contributors = () => {
     );
   };
 
-  // Determine if the user is a collaborator
-  const isCollaborator = contributors.some(c => c.username === authUser);
-
   const groups = [
     { label: "Owner", emptyMessage: "Error: Failed to find owner" },
     { label: "Admin", emptyMessage: "No contributors with Admin permissions..." },
@@ -178,36 +188,37 @@ const Contributors = () => {
         </div>
       </Card>
 
+      {/* Invite button only for owner or admin */}
+      {canInvite && (
+        <Card>
+          <h3 className={stylesContrib.header}>Invite Collaborator</h3>
 
-      <Card>
-        <h3 className={stylesContrib.header}>Invite Collaborator</h3>
+          <Dropdown
+            label="Access"
+            dataArray={dropdownData} // Read, Write, Admin
+            onSelect={(selectedValue) => setAccessLevel(selectedValue)}
+            selectedValue={accessLevel}
+          />
 
-        <Dropdown
-          label="Access"
-          dataArray={dropdownData} // Read, Write, Admin
-          onSelect={(selectedValue) => setAccessLevel(selectedValue)}
-          selectedValue={accessLevel}
-        />
+          <TextInput 
+            name="username" 
+            value={inviteUsername} 
+            onChange={(e) => setInviteUsername(e.target.value)} 
+            placeholder="Username..." 
+            hasError={messageType === "error"}
+          />
 
-        <TextInput 
-          name="username" 
-          value={inviteUsername} 
-          onChange={(e) => setInviteUsername(e.target.value)} 
-          placeholder="Username..." 
-          hasError={messageType === "error"}
-        />
+          <div className={stylesContrib.inviteHolder}>
+            <button className="button" onClick={handleSendInvite}>
+              Send Invite
+            </button>
 
-        <div className={stylesContrib.inviteHolder}>
-          <button className="button" onClick={handleSendInvite}>
-            Send Invite
-          </button>
-
-          {message && (
-            <p className={messageType}>{message}</p>
-          )}
-        </div>
-      </Card>
-
+            {message && (
+              <p className={messageType}>{message}</p>
+            )}
+          </div>
+        </Card>
+      )}
 
 
 
@@ -258,7 +269,7 @@ const Contributors = () => {
       )}
 
       {/* Show Leave button when authUser is a collaborator but not owner */}
-      {owner !== authUser && isCollaborator && (
+      {isCollaborator && !isOwner && (
         <Card>
           <h3 className={stylesContrib.header}>Stop Colaborating</h3>
           <button 
