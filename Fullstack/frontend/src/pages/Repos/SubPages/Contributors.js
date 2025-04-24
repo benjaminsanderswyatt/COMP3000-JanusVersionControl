@@ -20,7 +20,7 @@ import Dropdown from '../../../components/inputs/Dropdown';
 
 const Contributors = () => {
   const navigate = useNavigate();
-  const { authUserId } = useAuth();
+  const { authUser } = useAuth();
   const { owner, name } = useParams();
   const { sessionExpired } = useAuth()
 
@@ -29,6 +29,7 @@ const Contributors = () => {
   const [error, setError] = useState(null);
 
 
+  
   const fetchContributors = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -53,6 +54,14 @@ const Contributors = () => {
 
   useEffect(() => {
     fetchContributors();
+
+
+    
+    console.log("authUserId:", authUserId);
+    console.log("authUser:", authUser);
+    console.log("owner:", owner);
+
+
   }, [fetchContributors]);
 
 
@@ -255,7 +264,7 @@ const Contributors = () => {
       )}
 
 
-      {owner !== authUserId && (
+      {owner !== authUser && (
         <Card>
           <h3 className={stylesContrib.header}>Stop Colaborating</h3>
           <button 
