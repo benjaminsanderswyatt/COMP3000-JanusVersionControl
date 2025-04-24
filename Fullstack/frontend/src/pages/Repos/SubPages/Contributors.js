@@ -124,7 +124,7 @@ const Contributors = () => {
         );
 
         // Redirect after leaving
-        navigate('/collaborating');
+        navigate(`/collaborating/${authUser}`);
     } catch (err) {
         setMessage(err.message || 'Failed to leave repository');
         setMessageType('error');

@@ -8,7 +8,7 @@ import Card from '../../components/cards/Card';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { fetchWithTokenRefresh } from '../../api/fetchWithTokenRefresh';
 import { useAuth  } from '../../contexts/AuthContext';
-import { AccessLevel, displayAccessLevel } from '../../helpers/AccessLevel';
+import { AccessLevel, accessLevelMapping, displayAccessLevel } from '../../helpers/AccessLevel';
 
 import tableStyles from "../../styles/components/Table.module.css";
 import styles from "../../styles/pages/repos/Repositories.module.css";
@@ -230,8 +230,9 @@ const Colaborating = () => {
           
             filteredRepos.map((repo) => {
               // Get the owner from the collaborator with OWNER access level
+              
               const ownerCollab = repo.collaborators.find(
-                (collab) => collab.accessLevel === AccessLevel.OWNER
+                collab => collab.accessLevel.toUpperCase() === "OWNER"
               );
               
               if (!ownerCollab) {
@@ -250,12 +251,12 @@ const Colaborating = () => {
                   key={repo.id}
                   enterRepo={() => handleEnterRepo(ownerCollab.username, repo.name)}
                   enterRepoContrib={() => handleEnterRepoContrib(ownerCollab.username, repo.name)}
-                  owner={ownerCollab.username}
+                  owner={ownerCollab}
                   repoName={repo.name}
                   description={repo.description || ''}
-                  visability={repo.isPrivate}
+                  visibility={repo.isPrivate}
                   lastUpdated={repo.lastUpdated}
-                  avatars={repo.collaborators}
+                  avatars={repo.collaborators.filter(c => c.id !== ownerCollab.id)}
                 />
               );
             })
