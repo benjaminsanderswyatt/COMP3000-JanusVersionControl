@@ -155,6 +155,8 @@ const Contributors = () => {
     );
   };
 
+  // Determine if the user is a collaborator
+  const isCollaborator = contributors.some(c => c.username === authUser);
 
   const groups = [
     { label: "Owner", emptyMessage: "Error: Failed to find owner" },
@@ -255,8 +257,8 @@ const Contributors = () => {
         ))
       )}
 
-
-      {owner !== authUser && (
+      {/* Show Leave button when authUser is a collaborator but not owner */}
+      {owner !== authUser && isCollaborator && (
         <Card>
           <h3 className={stylesContrib.header}>Stop Colaborating</h3>
           <button 
