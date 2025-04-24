@@ -54,14 +54,6 @@ const Contributors = () => {
 
   useEffect(() => {
     fetchContributors();
-
-
-    
-    console.log("authUserId:", authUserId);
-    console.log("authUser:", authUser);
-    console.log("owner:", owner);
-
-
   }, [fetchContributors]);
 
 
