@@ -132,7 +132,7 @@ const Repositories = () => {
                 enterRepoContrib={() => handleEnterRepoContrib(repo.name)}
                 repoName={repo.name}
                 description={repo.description}
-                visability={repo.isPrivate}
+                visibility={repo.isPrivate}
                 lastUpdated={repo.lastUpdated}
                 avatars={repo.colaborators}
               />
