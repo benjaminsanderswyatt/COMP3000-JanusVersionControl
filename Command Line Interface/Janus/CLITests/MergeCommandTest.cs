@@ -452,5 +452,41 @@ namespace CLITests
 
 
 
+
+        
+
+        [Test]
+        public void ShouldKeepUnchangedBaseFiles()
+        {
+            // Arrange: Unchanged Base file
+            File.WriteAllText(Path.Combine(_testDir, "extraMain.txt"), "Extra main");
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Extra main commit" });
+
+            _switchBranchCommand.Execute(new[] { "featureBranch" });
+            File.WriteAllText(Path.Combine(_testDir, "extraFeature.txt"), "Extra feature");
+
+            _addCommand.Execute(new[] { "--all" });
+            _commitCommand.Execute(new[] { "Extra feature commit" });
+            _switchBranchCommand.Execute(new[] { "main" });
+
+            // Act
+            _mergeCommand.Execute(new[] { "featureBranch" });
+
+            // Assert: Base file is in merged tree
+            Assert.Multiple(() =>
+            {
+                Assert.That(File.Exists(Path.Combine(_testDir, "base.txt")), Is.True);
+                Assert.That(File.Exists(Path.Combine(_testDir, "extraMain.txt")), Is.True);
+                Assert.That(File.Exists(Path.Combine(_testDir, "extraFeature.txt")), Is.True);
+            });
+        }
+
+
+
+
+
+
+
     }
 }

@@ -1347,6 +1347,11 @@ Example:
 
 
 
+        
+
+
+
+
 
 
         public class PushCommand : BaseCommand
@@ -1410,15 +1415,49 @@ Example:
                     }
 
                     var remoteHeads = JsonSerializer.Deserialize<RemoteHeadDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (remoteHeads == null || !remoteHeads.Heads.ContainsKey(branchName))
+                    if (remoteHeads == null)
                     {
-                        Logger.Log($"Remote head for branch '{branchName}' not found.");
+                        Logger.Log($"Remote heads not found.");
                         return;
+                    }
+
+                    // Try to get branch head from remote
+                    string remoteHead;
+                    string parentBranch = null;
+                    if (!remoteHeads.Heads.TryGetValue(branchName, out remoteHead))
+                    {
+                        // Remote head not found send split from and parent info
+
+                        // Load local branch info
+                        string branchInfoPath = Path.Combine(Paths.BranchesDir, branchName, "info");
+                        if (!File.Exists(branchInfoPath))
+                        {
+                            Logger.Log($"Local branch info not found at {branchInfoPath}.");
+                            return;
+                        }
+
+                        var infoJson = await File.ReadAllTextAsync(branchInfoPath);
+                        var localInfo = JsonSerializer.Deserialize<LocalBranchInfo>(
+                            infoJson,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+                        if (localInfo == null || string.IsNullOrEmpty(localInfo.SplitFromCommit))
+                        {
+                            Logger.Log("Invalid or missing SplitFromCommit in local branch info.");
+                            return;
+                        }
+
+                        remoteHead = localInfo.SplitFromCommit;
+                        parentBranch = localInfo.ParentBranch;
+                        Logger.Log($"Using local split point {remoteHead} for new branch '{branchName}'.");
+                    }
+                    else
+                    {
+                        Logger.Log($"Found remote head for '{branchName}': {remoteHead}");
                     }
 
 
 
-                    string remoteHead = remoteHeads.Heads[branchName];
                     string localHead = MiscHelper.GetCurrentHeadCommitHash(Paths);
 
                     // Get the local commits that are not on remote
@@ -1455,6 +1494,7 @@ Example:
                             {
                                 BranchName = branchName,
                                 SplitFromCommitHash = remoteHead,
+                                ParentBranch = parentBranch,
                                 LatestCommitHash = localHead,
                                 Commits = commitsToPush
                             }

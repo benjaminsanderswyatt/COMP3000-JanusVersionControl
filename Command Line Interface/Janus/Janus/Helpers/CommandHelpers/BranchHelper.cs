@@ -3,6 +3,14 @@ using System.Text.RegularExpressions;
 
 namespace Janus.Helpers.CommandHelpers
 {
+    public class LocalBranchInfo
+    {
+        public string Name { get; set; }
+        public string SplitFromCommit { get; set; }
+        public string ParentBranch { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTimeOffset Created { get; set; }
+    }
 
     public class BranchHelper
     {
@@ -40,7 +48,9 @@ namespace Janus.Helpers.CommandHelpers
 
         public static void SetCurrentHEAD(Paths paths, string branchName)
         {
-            File.WriteAllText(paths.HEAD, $"ref: {paths.BranchesDir}/{branchName}/head");
+            var relativeRef = Path.Combine( paths.BranchesDir, branchName, "head");
+
+            File.WriteAllText(paths.HEAD, $"ref: {relativeRef}");
         }
 
 

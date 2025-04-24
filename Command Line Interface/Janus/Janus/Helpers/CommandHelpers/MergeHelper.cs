@@ -43,6 +43,13 @@ namespace Janus.Helpers.CommandHelpers
         {
             var result = new MergeResult();
 
+            // Add every file from the base tree into MergedEntries (this ensures the tree has all files)
+            var baseEntries = new TreeBuilder(paths).BuildIndexDictionary(baseTree);
+            foreach (var kv in baseEntries)
+            {
+                result.MergedEntries[kv.Key] = kv.Value;
+            }
+
             var baseCurrentDiff = Tree.CompareTrees(baseTree, currentTree);
             var baseTargetDiff = Tree.CompareTrees(baseTree, targetTree);
 
@@ -66,7 +73,8 @@ namespace Janus.Helpers.CommandHelpers
                 {
                     // No confilt -> add to merged
                     var meta = Tree.GetMetadataFromTree(currentTree, file);
-                    if (meta != null) result.MergedEntries[file] = meta;
+                    if (meta != null) 
+                        result.MergedEntries[file] = meta;
                     continue;
                 }
 
@@ -74,13 +82,15 @@ namespace Janus.Helpers.CommandHelpers
                 {
                     // Take targets changes
                     var meta = Tree.GetMetadataFromTree(targetTree, file);
-                    if (meta != null) result.MergedEntries[file] = meta;
+                    if (meta != null) 
+                        result.MergedEntries[file] = meta;
                 }
                 else if (baseVersion == targetVersion)
                 {
                     // Take current changes
                     var meta = Tree.GetMetadataFromTree(currentTree, file);
-                    if (meta != null) result.MergedEntries[file] = meta;
+                    if (meta != null) 
+                        result.MergedEntries[file] = meta;
                 }
                 else
                 {
