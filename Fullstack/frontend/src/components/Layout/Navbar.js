@@ -5,7 +5,7 @@ import ProfilePic from '../images/ProfilePic';
 import styles from "../../styles/components/layout/Navbar.module.css";
 import stylesLog from "../../styles/components/layout/LogButtonBar.module.css";
 
-const Navbar = ({ authUser, isLoggedIn }) => {
+const Navbar = ({ authUser, authUserId, isLoggedIn }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
@@ -103,7 +103,7 @@ const Navbar = ({ authUser, isLoggedIn }) => {
         <div className={styles.settings}>
 
           <ProfilePic
-            userId={authUser}
+            userId={authUserId}
             alt="Profile"
             innerClassName={styles.iconAccount}
             handleClick={() => handleNavigation("/account")}

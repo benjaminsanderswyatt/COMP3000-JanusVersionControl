@@ -7,7 +7,7 @@ import styles from "../../styles/components/layout/Header.module.css";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { authUser, isLoggedIn } = useAuth();
+  const { authUser, authUserId, isLoggedIn } = useAuth();
 
   return (
     <header className={styles.header}>
@@ -17,7 +17,7 @@ const Header = () => {
        onClick={() => navigate("/")}
       />
 
-      <Navbar authUser={authUser} isLoggedIn={isLoggedIn} />
+      <Navbar authUser={authUser} authUserId={authUserId} isLoggedIn={isLoggedIn} />
       
     </header>
   );
