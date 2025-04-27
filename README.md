@@ -38,8 +38,8 @@ Janus is a secure, self-hosted Distributed Version Control System (DVCS) designe
 An overview of how the parts interact:
 ![System Architecure Diagram](/Documentation/Diagrams/System_Architecture_Diagram.png)
 
-## Video
-[![Janus Video](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://youtu.be/VIDEO_ID)
+## Video Demonstration
+[![Janus Video](https://img.youtube.com/vi/7Hoq75ns3S4/0.jpg)](https://youtu.be/7Hoq75ns3S4)
 
 ## Installation
 
