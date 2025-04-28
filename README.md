@@ -70,5 +70,5 @@ cd COMP3000-JanusVersionControl/Fullstack
 
 [Project Poster](/Documentation/Poster/10808929.jpg)
 
-[Project Report](/Documentation/Report/Janus_Distributed_Version_Control_System_Report.pdf)
+[Project Report](/Documentation/Report/Janus_Version_Control_Report.pdf)
 
