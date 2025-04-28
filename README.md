@@ -70,8 +70,5 @@ cd COMP3000-JanusVersionControl/Fullstack
 
 [Project Poster](/Documentation/Poster/10808929.jpg)
 
-[Project Report](/Documentation/Report/Report.pdf)
+[Project Report](/Documentation/Report/Janus_Distributed_Version_Control_System_Report.pdf)
 
-
-### License
-This project is developed for academic purposes at the University of Plymouth. All rights reserved unless otherwise specified in component licenses.
